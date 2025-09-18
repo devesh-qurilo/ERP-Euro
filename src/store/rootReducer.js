@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import auth from '../modules/auth/store/reducers';
+import userReducer from '../modules/auth/store/reducers';
 import adminDashboard from '../modules/admin/dashboard/store/reducers';
 import adminLeads from '../modules/admin/leads/store/reducers';
 import adminClients from '../modules/admin/clients/store/reducers';
@@ -12,7 +12,7 @@ import employeeWorks from '../modules/employee/works/store/reducers';
 import employeeHR from '../modules/employee/hr/store/reducers';
 
 const rootReducer = combineReducers({
-  auth,
+  auth: userReducer,
   //   admin: combineReducers({
   //     dashboard: adminDashboard,
   //     leads: adminLeads,
