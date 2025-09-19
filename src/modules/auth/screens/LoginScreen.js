@@ -20,7 +20,7 @@ import {
 } from '../store/selectors';
 
 const LoginScreen = ({ navigation }) => {
-  const [employeeId, setEmployeeId] = useState('EMP001');
+  const [employeeId, setEmployeeId] = useState('EMP-010');
   const [password, setPassword] = useState('password123');
   const [errors, setErrors] = useState({});
 
@@ -32,7 +32,6 @@ const LoginScreen = ({ navigation }) => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      // Navigate to the main app screen
       navigation.replace('Main');
     }
   }, [isAuthenticated, navigation]);

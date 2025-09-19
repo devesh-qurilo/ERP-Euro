@@ -10,11 +10,12 @@ import {
 const initialState = {
   user: null,
   token: null,
+  refreshToken: null,
   loading: false,
   error: null,
   isAuthenticated: false,
   userRole: null,
-  userType: 'employee', // 'admin' or 'employee'
+  userType: 'employee',
 };
 
 const authReducer = (state = initialState, action) => {
@@ -31,6 +32,7 @@ const authReducer = (state = initialState, action) => {
         loading: false,
         user: action.payload.user,
         token: action.payload.token,
+        refreshToken: action.payload.refreshToken,
         userRole: action.payload.user.role,
         isAuthenticated: true,
         error: null,
@@ -41,6 +43,7 @@ const authReducer = (state = initialState, action) => {
         loading: false,
         user: null,
         token: null,
+        refreshToken: null,
         userRole: null,
         isAuthenticated: false,
         error: action.payload,
