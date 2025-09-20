@@ -81,4 +81,9 @@ export const appreciationsAPI = {
     api.get('/employee/appreciations').then(res => res.data),
 };
 
+export const hrAPI = {
+  getMyLeaves: () =>
+    api.get('/employee/api/leaves/my-leaves').then(res => res.data),
+};
+
 export default api;
