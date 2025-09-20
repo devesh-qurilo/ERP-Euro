@@ -75,4 +75,10 @@ export const leavesAPI = {
   getMyQuota: () => api.get('/employee/leave-quota/me').then(res => res.data),
 };
 
+//  appreciation api
+export const appreciationsAPI = {
+  getAllappreciation: () =>
+    api.get('/employee/appreciations').then(res => res.data),
+};
+
 export default api;

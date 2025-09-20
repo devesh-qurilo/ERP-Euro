@@ -3,6 +3,10 @@ import {
   FETCH_LEAVE_QUOTA_REQUEST,
   FETCH_LEAVE_QUOTA_SUCCESS,
   FETCH_LEAVE_QUOTA_FAILURE,
+  // new appreciation types
+  FETCH_APPRECIATIONS_REQUEST,
+  FETCH_APPRECIATIONS_SUCCESS,
+  FETCH_APPRECIATIONS_FAILURE,
 } from './actions';
 
 const initialState = {
@@ -30,6 +34,27 @@ export default function employeeDashboardReducer(state = initialState, action) {
           error: action.error,
         },
       };
+    // appreciations
+    case FETCH_APPRECIATIONS_REQUEST:
+      return {
+        ...state,
+        appreciations: { ...state.appreciations, loading: true, error: null },
+      };
+    case FETCH_APPRECIATIONS_SUCCESS:
+      return {
+        ...state,
+        appreciations: { data: action.payload, loading: false, error: null },
+      };
+    case FETCH_APPRECIATIONS_FAILURE:
+      return {
+        ...state,
+        appreciations: {
+          ...state.appreciations,
+          loading: false,
+          error: action.error,
+        },
+      };
+
     default:
       return state;
   }

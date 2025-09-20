@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import EmployeeProfileCard from '../../profile/components/EmployeeInfoCard';
 import LeaveQuotaTable from '../components/LeaveQuotaTable';
+import AppreciationsTable from '../components/AppreciationsTable';
 
 const EmployeeDashboardScreen = ({ navigation }) => {
   return (
@@ -17,6 +18,8 @@ const EmployeeDashboardScreen = ({ navigation }) => {
       {/* <View style={styles.welcomeCard}> */}
       <EmployeeProfileCard />
       <LeaveQuotaTable />
+      <View style={{ height: 16 }} />
+      <AppreciationsTable />
       {/* </View> */}
 
       <View style={styles.quickActions}>
