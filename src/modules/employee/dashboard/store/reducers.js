@@ -1,40 +1,36 @@
+// src/modules/employee/dashboard/store/reducers.js
 import {
-  FETCH_EMPLOYEE_PROFILE_REQUEST,
-  FETCH_EMPLOYEE_PROFILE_SUCCESS,
-  FETCH_EMPLOYEE_PROFILE_FAILURE,
+  FETCH_LEAVE_QUOTA_REQUEST,
+  FETCH_LEAVE_QUOTA_SUCCESS,
+  FETCH_LEAVE_QUOTA_FAILURE,
 } from './actions';
 
 const initialState = {
-  employeeProfile: null,
-  loading: false,
-  error: null,
+  leaveQuota: { data: [], loading: false, error: null },
 };
 
-const employeeReducer = (state = initialState, action) => {
+export default function employeeDashboardReducer(state = initialState, action) {
   switch (action.type) {
-    case FETCH_EMPLOYEE_PROFILE_REQUEST:
+    case FETCH_LEAVE_QUOTA_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
+        leaveQuota: { ...state.leaveQuota, loading: true, error: null },
       };
-    case FETCH_EMPLOYEE_PROFILE_SUCCESS:
+    case FETCH_LEAVE_QUOTA_SUCCESS:
       return {
         ...state,
-        loading: false,
-        employeeProfile: action.payload,
-        error: null,
+        leaveQuota: { data: action.payload, loading: false, error: null },
       };
-    case FETCH_EMPLOYEE_PROFILE_FAILURE:
+    case FETCH_LEAVE_QUOTA_FAILURE:
       return {
         ...state,
-        loading: false,
-        employeeProfile: null,
-        error: action.payload,
+        leaveQuota: {
+          ...state.leaveQuota,
+          loading: false,
+          error: action.error,
+        },
       };
     default:
       return state;
   }
-};
-
-export default employeeReducer;
+}

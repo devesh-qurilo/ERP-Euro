@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import EmployeeProfileCard from '../../profile/components/EmployeeInfoCard';
+import LeaveQuotaTable from '../components/LeaveQuotaTable';
 
 const EmployeeDashboardScreen = ({ navigation }) => {
   return (
@@ -15,6 +16,7 @@ const EmployeeDashboardScreen = ({ navigation }) => {
 
       {/* <View style={styles.welcomeCard}> */}
       <EmployeeProfileCard />
+      <LeaveQuotaTable />
       {/* </View> */}
 
       <View style={styles.quickActions}>

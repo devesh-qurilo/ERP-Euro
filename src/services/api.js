@@ -70,4 +70,9 @@ export const employeeAPI = {
       .then(response => response.data),
 };
 
+// leaves api
+export const leavesAPI = {
+  getMyQuota: () => api.get('/employee/leave-quota/me').then(res => res.data),
+};
+
 export default api;

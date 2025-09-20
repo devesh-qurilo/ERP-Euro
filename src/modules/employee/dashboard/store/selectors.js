@@ -1,3 +1,7 @@
-export const selectEmployeeProfile = state => state.employee.employeeProfile;
-export const selectEmployeeLoading = state => state.employee.loading;
-export const selectEmployeeError = state => state.employee.error;
+// src/modules/employee/dashboard/store/selectors.js
+export const selectLeaveQuotaData = s =>
+  s.employee?.dashboard?.leaveQuota?.data || [];
+export const selectLeaveQuotaLoading = s =>
+  s.employee?.dashboard?.leaveQuota?.loading || false;
+export const selectLeaveQuotaError = s =>
+  s.employee?.dashboard?.leaveQuota?.error || null;
