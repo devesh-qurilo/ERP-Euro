@@ -19,6 +19,7 @@ import {
 } from '../store/selectors';
 
 import ApplyLeaveModal from '../components/ApplyLeaveModal';
+import LeavesCalendarModal from '../components/LeavesCalendarModal';
 
 const { width } = Dimensions.get('window');
 
@@ -81,6 +82,11 @@ export default function EmployeeHRLeavesScreen() {
 
   const onNewLeave = () => setShowModal(true);
 
+  const [showCalendar, setShowCalendar] = useState(false);
+
+  // replace your old onCalendar alert:
+  const onCalendar = () => setShowCalendar(true);
+
   const load = useCallback(() => dispatch(fetchMyLeaves()), [dispatch]);
 
   useEffect(() => {
@@ -140,10 +146,10 @@ export default function EmployeeHRLeavesScreen() {
   //       { text: 'Continue', style: 'default' },
   //     ]);
 
-  const onCalendar = () => {
-    setView('calendar');
-    Alert.alert('Calendar View', 'Calendar view will be implemented soon.');
-  };
+  //   const onCalendar = () => {
+  //     setView('calendar');
+  //     Alert.alert('Calendar View', 'Calendar view will be implemented soon.');
+  //   };
 
   const onProfile = () => {
     setView('profile');
@@ -419,6 +425,12 @@ export default function EmployeeHRLeavesScreen() {
         <ApplyLeaveModal
           visible={showModal}
           onClose={() => setShowModal(false)}
+        />
+
+        {/* Calendar modal */}
+        <LeavesCalendarModal
+          visible={showCalendar}
+          onClose={() => setShowCalendar(false)}
         />
       </ScrollView>
     </View>
