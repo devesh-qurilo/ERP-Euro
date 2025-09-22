@@ -20,6 +20,7 @@ import {
 
 import ApplyLeaveModal from '../components/ApplyLeaveModal';
 import LeavesCalendarModal from '../components/LeavesCalendarModal';
+import ProfileOverviewModal from '../components/ProfileOverviewModal';
 
 const { width } = Dimensions.get('window');
 
@@ -83,6 +84,7 @@ export default function EmployeeHRLeavesScreen() {
   const onNewLeave = () => setShowModal(true);
 
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   // replace your old onCalendar alert:
   const onCalendar = () => setShowCalendar(true);
@@ -140,21 +142,7 @@ export default function EmployeeHRLeavesScreen() {
   const onNext = () => setPage(p => Math.min(totalPages, p + 1));
   const goTo = n => setPage(n);
 
-  //   const onNewLeave = () =>
-  //     Alert.alert('New Leave Request', 'New Leave form will open here.', [
-  //       { text: 'Cancel', style: 'cancel' },
-  //       { text: 'Continue', style: 'default' },
-  //     ]);
-
-  //   const onCalendar = () => {
-  //     setView('calendar');
-  //     Alert.alert('Calendar View', 'Calendar view will be implemented soon.');
-  //   };
-
-  const onProfile = () => {
-    setView('profile');
-    Alert.alert('Profile View', 'Profile view will be implemented soon.');
-  };
+  const onProfile = () => setShowProfile(true);
 
   const clearFilters = () => {
     setEmployee('All');
@@ -431,6 +419,11 @@ export default function EmployeeHRLeavesScreen() {
         <LeavesCalendarModal
           visible={showCalendar}
           onClose={() => setShowCalendar(false)}
+        />
+        {/* NEW: Profile overview modal */}
+        <ProfileOverviewModal
+          visible={showProfile}
+          onClose={() => setShowProfile(false)}
         />
       </ScrollView>
     </View>
