@@ -3,6 +3,9 @@ import {
   FETCH_MY_LEAVES_REQUEST,
   FETCH_MY_LEAVES_SUCCESS,
   FETCH_MY_LEAVES_FAILURE,
+  APPLY_LEAVE_REQUEST,
+  APPLY_LEAVE_SUCCESS,
+  APPLY_LEAVE_FAILURE,
 } from './actions';
 
 const initialState = {
@@ -27,6 +30,22 @@ export default function employeeHRReducer(state = initialState, action) {
       return {
         ...state,
         myLeaves: { ...state.myLeaves, loading: false, error: action.error },
+      };
+
+    case APPLY_LEAVE_REQUEST:
+      return {
+        ...state,
+        apply: { loading: true, error: null, lastCreated: null },
+      };
+    case APPLY_LEAVE_SUCCESS:
+      return {
+        ...state,
+        apply: { loading: false, error: null, lastCreated: action.payload },
+      };
+    case APPLY_LEAVE_FAILURE:
+      return {
+        ...state,
+        apply: { loading: false, error: action.error, lastCreated: null },
       };
 
     default:

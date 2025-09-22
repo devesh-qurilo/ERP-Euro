@@ -84,6 +84,14 @@ export const appreciationsAPI = {
 export const hrAPI = {
   getMyLeaves: () =>
     api.get('/employee/api/leaves/my-leaves').then(res => res.data),
+  // };
+
+  // export const hrAPI = {
+  //   getMyLeaves: () => api.get('/employee/api/leaves/my-leaves').then(r => r.data),
+
+  // NEW: POST /employee/api/leaves/apply  (multipart/form-data)
+  applyLeave: formData =>
+    api.post('/employee/api/leaves/apply', formData).then(r => r.data),
 };
 
 export default api;

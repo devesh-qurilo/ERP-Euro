@@ -1,10 +1,13 @@
 // src/modules/employee/hr/store/sagas.js
-import { call, put, takeLatest } from 'redux-saga/effects';
+import { all, call, put, takeLatest } from 'redux-saga/effects';
 import { hrAPI } from '../../../../services/api';
 import {
   FETCH_MY_LEAVES_REQUEST,
   FETCH_MY_LEAVES_SUCCESS,
   FETCH_MY_LEAVES_FAILURE,
+  APPLY_LEAVE_REQUEST,
+  APPLY_LEAVE_SUCCESS,
+  APPLY_LEAVE_FAILURE,
 } from './actions';
 
 function* fetchMyLeavesSaga() {
@@ -19,6 +22,36 @@ function* fetchMyLeavesSaga() {
   }
 }
 
+function* applyLeaveSaga(action) {
+  try {
+    const { leaveData, documents = [] } = action.payload || {};
+    const fd = new FormData();
+    fd.append('leaveData', JSON.stringify(leaveData));
+    (documents || []).forEach((file, i) => {
+      // DocumentPicker file shape: { uri, name, type, size }
+      fd.append('documents', {
+        uri: file.uri,
+        name: file.name || `document-${i + 1}`,
+        type: file.type || 'application/octet-stream',
+      });
+    });
+
+    const created = yield call(hrAPI.applyLeave, fd);
+    yield put({ type: APPLY_LEAVE_SUCCESS, payload: created });
+
+    // refresh list after creating
+    yield put({ type: FETCH_MY_LEAVES_REQUEST });
+  } catch (err) {
+    yield put({
+      type: APPLY_LEAVE_FAILURE,
+      error: err?.message || 'Failed to apply leave',
+    });
+  }
+}
+
 export function* employeeHRWatcher() {
-  yield takeLatest(FETCH_MY_LEAVES_REQUEST, fetchMyLeavesSaga);
+  yield all([
+    takeLatest(FETCH_MY_LEAVES_REQUEST, fetchMyLeavesSaga),
+    takeLatest(APPLY_LEAVE_REQUEST, applyLeaveSaga),
+  ]);
 }

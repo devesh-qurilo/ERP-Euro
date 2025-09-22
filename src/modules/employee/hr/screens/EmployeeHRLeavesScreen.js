@@ -18,6 +18,8 @@ import {
   selectMyLeavesError,
 } from '../store/selectors';
 
+import ApplyLeaveModal from '../components/ApplyLeaveModal';
+
 const { width } = Dimensions.get('window');
 
 function Select({ label, value, options = [], onChange }) {
@@ -75,6 +77,9 @@ export default function EmployeeHRLeavesScreen() {
   const raw = useSelector(selectMyLeavesData);
   const loading = useSelector(selectMyLeavesLoading);
   const error = useSelector(selectMyLeavesError);
+  const [showModal, setShowModal] = useState(false);
+
+  const onNewLeave = () => setShowModal(true);
 
   const load = useCallback(() => dispatch(fetchMyLeaves()), [dispatch]);
 
@@ -129,11 +134,11 @@ export default function EmployeeHRLeavesScreen() {
   const onNext = () => setPage(p => Math.min(totalPages, p + 1));
   const goTo = n => setPage(n);
 
-  const onNewLeave = () =>
-    Alert.alert('New Leave Request', 'New Leave form will open here.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Continue', style: 'default' },
-    ]);
+  //   const onNewLeave = () =>
+  //     Alert.alert('New Leave Request', 'New Leave form will open here.', [
+  //       { text: 'Cancel', style: 'cancel' },
+  //       { text: 'Continue', style: 'default' },
+  //     ]);
 
   const onCalendar = () => {
     setView('calendar');
@@ -411,6 +416,10 @@ export default function EmployeeHRLeavesScreen() {
             </Pressable>
           </View>
         )}
+        <ApplyLeaveModal
+          visible={showModal}
+          onClose={() => setShowModal(false)}
+        />
       </ScrollView>
     </View>
   );
