@@ -20,3 +20,8 @@ export const selectApprecsLoading = s =>
   s.employee?.hr?.appreciations?.loading || false;
 export const selectApprecsError = s =>
   s.employee?.hr?.appreciations?.error || null;
+
+export const selectHolidaysData = s => s.employee?.hr?.holidays?.data || [];
+export const selectHolidaysLoading = s =>
+  s.employee?.hr?.holidays?.loading || false;
+export const selectHolidaysError = s => s.employee?.hr?.holidays?.error || null;

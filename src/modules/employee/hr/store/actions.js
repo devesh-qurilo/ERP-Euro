@@ -21,6 +21,10 @@ export const FETCH_APPRECIATIONS_SUCCESS =
 export const FETCH_APPRECIATIONS_FAILURE =
   'employee/hr/FETCH_APPRECIATIONS_FAILURE';
 
+export const FETCH_HOLIDAYS_REQUEST = 'employee/hr/FETCH_HOLIDAYS_REQUEST';
+export const FETCH_HOLIDAYS_SUCCESS = 'employee/hr/FETCH_HOLIDAYS_SUCCESS';
+export const FETCH_HOLIDAYS_FAILURE = 'employee/hr/FETCH_HOLIDAYS_FAILURE';
+
 export const fetchMyLeaves = () => ({ type: FETCH_MY_LEAVES_REQUEST });
 
 /**
@@ -30,3 +34,5 @@ export const fetchMyLeaves = () => ({ type: FETCH_MY_LEAVES_REQUEST });
 export const applyLeave = payload => ({ type: APPLY_LEAVE_REQUEST, payload });
 export const fetchMyAttendance = () => ({ type: FETCH_MY_ATTENDANCE_REQUEST });
 export const fetchAppreciations = () => ({ type: FETCH_APPRECIATIONS_REQUEST });
+
+export const fetchHolidays = () => ({ type: FETCH_HOLIDAYS_REQUEST });

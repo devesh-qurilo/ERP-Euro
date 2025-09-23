@@ -14,6 +14,9 @@ import {
   FETCH_APPRECIATIONS_REQUEST,
   FETCH_APPRECIATIONS_SUCCESS,
   FETCH_APPRECIATIONS_FAILURE,
+  FETCH_HOLIDAYS_REQUEST,
+  FETCH_HOLIDAYS_SUCCESS,
+  FETCH_HOLIDAYS_FAILURE,
 } from './actions';
 
 function* fetchMyLeavesSaga() {
@@ -79,6 +82,18 @@ function* fetchAppreciationsSaga() {
   }
 }
 
+function* fetchHolidaysSaga() {
+  try {
+    const data = yield call(hrAPI.getHolidays);
+    yield put({ type: FETCH_HOLIDAYS_SUCCESS, payload: data });
+  } catch (err) {
+    yield put({
+      type: FETCH_HOLIDAYS_FAILURE,
+      error: err?.message || 'Failed to load holidays',
+    });
+  }
+}
+
 export function* employeeHRWatcher() {
   yield all([
     takeLatest(FETCH_MY_LEAVES_REQUEST, fetchMyLeavesSaga),
@@ -87,5 +102,6 @@ export function* employeeHRWatcher() {
     takeLatest(FETCH_MY_ATTENDANCE_REQUEST, fetchMyAttendanceSaga),
 
     takeLatest(FETCH_APPRECIATIONS_REQUEST, fetchAppreciationsSaga),
+    takeLatest(FETCH_HOLIDAYS_REQUEST, fetchHolidaysSaga),
   ]);
 }

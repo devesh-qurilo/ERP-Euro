@@ -12,12 +12,17 @@ import {
   FETCH_APPRECIATIONS_REQUEST,
   FETCH_APPRECIATIONS_SUCCESS,
   FETCH_APPRECIATIONS_FAILURE,
+  FETCH_HOLIDAYS_REQUEST,
+  FETCH_HOLIDAYS_SUCCESS,
+  FETCH_HOLIDAYS_FAILURE,
 } from './actions';
 
 const initialState = {
   myLeaves: { data: [], loading: false, error: null },
   apply: { loading: false, error: null, lastCreated: null },
   attendance: { data: [], loading: false, error: null },
+
+  holidays: { data: [], loading: false, error: null }, // ✅
 };
 
 export default function employeeHRReducer(state = initialState, action) {
@@ -96,6 +101,22 @@ export default function employeeHRReducer(state = initialState, action) {
           loading: false,
           error: action.error,
         },
+      };
+
+    case FETCH_HOLIDAYS_REQUEST:
+      return {
+        ...state,
+        holidays: { ...state.holidays, loading: true, error: null },
+      };
+    case FETCH_HOLIDAYS_SUCCESS:
+      return {
+        ...state,
+        holidays: { data: action.payload, loading: false, error: null },
+      };
+    case FETCH_HOLIDAYS_FAILURE:
+      return {
+        ...state,
+        holidays: { ...state.holidays, loading: false, error: action.error },
       };
 
     default:

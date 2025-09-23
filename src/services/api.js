@@ -94,6 +94,7 @@ export const hrAPI = {
     api.post('/employee/api/leaves/apply', formData).then(r => r.data),
 
   getAppreciations: () => api.get('/employee/appreciations').then(r => r.data),
+  getHolidays: () => api.get('/employee/api/holidays').then(r => r.data),
 };
 
 export const attendanceAPI = {
