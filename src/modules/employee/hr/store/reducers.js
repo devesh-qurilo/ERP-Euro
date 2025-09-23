@@ -9,6 +9,9 @@ import {
   FETCH_MY_ATTENDANCE_REQUEST,
   FETCH_MY_ATTENDANCE_SUCCESS,
   FETCH_MY_ATTENDANCE_FAILURE,
+  FETCH_APPRECIATIONS_REQUEST,
+  FETCH_APPRECIATIONS_SUCCESS,
+  FETCH_APPRECIATIONS_FAILURE,
 } from './actions';
 
 const initialState = {
@@ -69,6 +72,27 @@ export default function employeeHRReducer(state = initialState, action) {
         ...state,
         attendance: {
           ...state.attendance,
+          loading: false,
+          error: action.error,
+        },
+      };
+
+    //  Appreciations
+    case FETCH_APPRECIATIONS_REQUEST:
+      return {
+        ...state,
+        appreciations: { ...state.appreciations, loading: true, error: null },
+      };
+    case FETCH_APPRECIATIONS_SUCCESS:
+      return {
+        ...state,
+        appreciations: { data: action.payload, loading: false, error: null },
+      };
+    case FETCH_APPRECIATIONS_FAILURE:
+      return {
+        ...state,
+        appreciations: {
+          ...state.appreciations,
           loading: false,
           error: action.error,
         },

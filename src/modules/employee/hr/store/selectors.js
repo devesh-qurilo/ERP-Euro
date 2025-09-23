@@ -14,3 +14,9 @@ export const selectAttendanceLoading = s =>
   s.employee?.hr?.attendance?.loading || false;
 export const selectAttendanceError = s =>
   s.employee?.hr?.attendance?.error || null;
+
+export const selectApprecsData = s => s.employee?.hr?.appreciations?.data || [];
+export const selectApprecsLoading = s =>
+  s.employee?.hr?.appreciations?.loading || false;
+export const selectApprecsError = s =>
+  s.employee?.hr?.appreciations?.error || null;

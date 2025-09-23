@@ -11,6 +11,9 @@ import {
   FETCH_MY_ATTENDANCE_REQUEST,
   FETCH_MY_ATTENDANCE_SUCCESS,
   FETCH_MY_ATTENDANCE_FAILURE,
+  FETCH_APPRECIATIONS_REQUEST,
+  FETCH_APPRECIATIONS_SUCCESS,
+  FETCH_APPRECIATIONS_FAILURE,
 } from './actions';
 
 function* fetchMyLeavesSaga() {
@@ -64,11 +67,25 @@ function* fetchMyAttendanceSaga() {
   }
 }
 
+function* fetchAppreciationsSaga() {
+  try {
+    const data = yield call(hrAPI.getAppreciations);
+    yield put({ type: FETCH_APPRECIATIONS_SUCCESS, payload: data });
+  } catch (err) {
+    yield put({
+      type: FETCH_APPRECIATIONS_FAILURE,
+      error: err?.message || 'Failed to load appreciations',
+    });
+  }
+}
+
 export function* employeeHRWatcher() {
   yield all([
     takeLatest(FETCH_MY_LEAVES_REQUEST, fetchMyLeavesSaga),
     takeLatest(APPLY_LEAVE_REQUEST, applyLeaveSaga),
 
     takeLatest(FETCH_MY_ATTENDANCE_REQUEST, fetchMyAttendanceSaga),
+
+    takeLatest(FETCH_APPRECIATIONS_REQUEST, fetchAppreciationsSaga),
   ]);
 }

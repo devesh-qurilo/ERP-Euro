@@ -92,6 +92,8 @@ export const hrAPI = {
   // NEW: POST /employee/api/leaves/apply  (multipart/form-data)
   applyLeave: formData =>
     api.post('/employee/api/leaves/apply', formData).then(r => r.data),
+
+  getAppreciations: () => api.get('/employee/appreciations').then(r => r.data),
 };
 
 export const attendanceAPI = {
