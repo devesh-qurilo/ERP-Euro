@@ -94,4 +94,8 @@ export const hrAPI = {
     api.post('/employee/api/leaves/apply', formData).then(r => r.data),
 };
 
+export const attendanceAPI = {
+  getMyAttendance: () => api.get('/employee/attendance/me').then(r => r.data),
+};
+
 export default api;

@@ -8,3 +8,9 @@ export const selectApplyLoading = s => s.employee?.hr?.apply?.loading || false;
 export const selectApplyError = s => s.employee?.hr?.apply?.error || null;
 export const selectApplyCreated = s =>
   s.employee?.hr?.apply?.lastCreated || null;
+
+export const selectAttendanceData = s => s.employee?.hr?.attendance?.data || [];
+export const selectAttendanceLoading = s =>
+  s.employee?.hr?.attendance?.loading || false;
+export const selectAttendanceError = s =>
+  s.employee?.hr?.attendance?.error || null;

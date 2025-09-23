@@ -1,6 +1,6 @@
 // src/modules/employee/hr/store/sagas.js
 import { all, call, put, takeLatest } from 'redux-saga/effects';
-import { hrAPI } from '../../../../services/api';
+import { attendanceAPI, hrAPI } from '../../../../services/api';
 import {
   FETCH_MY_LEAVES_REQUEST,
   FETCH_MY_LEAVES_SUCCESS,
@@ -8,6 +8,9 @@ import {
   APPLY_LEAVE_REQUEST,
   APPLY_LEAVE_SUCCESS,
   APPLY_LEAVE_FAILURE,
+  FETCH_MY_ATTENDANCE_REQUEST,
+  FETCH_MY_ATTENDANCE_SUCCESS,
+  FETCH_MY_ATTENDANCE_FAILURE,
 } from './actions';
 
 function* fetchMyLeavesSaga() {
@@ -49,9 +52,23 @@ function* applyLeaveSaga(action) {
   }
 }
 
+function* fetchMyAttendanceSaga() {
+  try {
+    const data = yield call(attendanceAPI.getMyAttendance);
+    yield put({ type: FETCH_MY_ATTENDANCE_SUCCESS, payload: data });
+  } catch (err) {
+    yield put({
+      type: FETCH_MY_ATTENDANCE_FAILURE,
+      error: err?.message || 'Failed to load attendance',
+    });
+  }
+}
+
 export function* employeeHRWatcher() {
   yield all([
     takeLatest(FETCH_MY_LEAVES_REQUEST, fetchMyLeavesSaga),
     takeLatest(APPLY_LEAVE_REQUEST, applyLeaveSaga),
+
+    takeLatest(FETCH_MY_ATTENDANCE_REQUEST, fetchMyAttendanceSaga),
   ]);
 }
