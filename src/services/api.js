@@ -56,6 +56,7 @@ export const authAPI = {
 
 export const employeeAPI = {
   getProfile: () => api.get('/employee/me').then(response => response.data),
+  updateMe: formData => api.put('/employee/me', formData).then(r => r.data),
 
   updateProfile: profileData =>
     api.put('/employee/me', profileData).then(response => response.data),
@@ -100,5 +101,12 @@ export const hrAPI = {
 export const attendanceAPI = {
   getMyAttendance: () => api.get('/employee/attendance/me').then(r => r.data),
 };
+
+// export const employeeAPI = {
+//   getProfile: () => api.get('/employee/me').then(r => r.data),
+
+//   // ⬇️ use PUT with multipart/form-data body
+
+// };
 
 export default api;
