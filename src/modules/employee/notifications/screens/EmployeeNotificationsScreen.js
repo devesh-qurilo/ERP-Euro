@@ -101,7 +101,10 @@ export default function EmployeeNotificationsScreen() {
         <View style={styles.backdrop}>
           <View style={styles.modalCard}>
             <Text style={styles.title}>{current?.title}</Text>
-            <Text style={styles.message}>{current?.message}</Text>
+            <View style={styles.msgWrap}>
+              {' '}
+              <Text style={styles.message}>{current?.message}</Text>
+            </View>
             <View style={styles.actions}>
               <Pressable style={styles.ghostBtn} onPress={() => setOpen(false)}>
                 <Text style={styles.ghostTxt}>Close</Text>
@@ -162,6 +165,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 14,
   },
+  msgWrap: { maxHeight: 240, marginTop: 6 },
   title: { fontSize: 18, fontWeight: '900', color: '#111827', marginBottom: 8 },
   message: { color: '#1f2328' },
   actions: {
