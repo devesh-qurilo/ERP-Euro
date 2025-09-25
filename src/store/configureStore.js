@@ -1,59 +1,14 @@
-// const createSagaMiddleware = require('redux-saga').default;
-// import rootSaga from './rootSaga';
-// import { configureStore } from '@reduxjs/toolkit';
-// import rootReducer from './rootReducer';
-
-// const sagaMiddleware = createSagaMiddleware();
-
-// export const store = configureStore({
-//   reducer: {
-//     rootReducer,
-//   },
-//   middleware: getDefaultMiddleware =>
-//     getDefaultMiddleware({
-//       thunk: false,
-//       serializableCheck: {
-//         ignoredActions: ['persist/PERSIST'],
-//       },
-//     }).concat(sagaMiddleware),
-// });
-
-// sagaMiddleware.run(rootSaga);
-
-// const { configureStore } = require('@reduxjs/toolkit');
-// const createSagaMiddleware = require('redux-saga').default;
-// const rootReducer = require('./rootReducer');
-// const rootSaga = require('./rootSaga');
-
-// // Create saga middleware
-// const sagaMiddleware = createSagaMiddleware();
-
-// // Configure store
-// const store = configureStore({
-//   reducer: rootReducer,
-//   middleware: getDefaultMiddleware =>
-//     getDefaultMiddleware({
-//       thunk: false,
-//       serializableCheck: {
-//         ignoredActions: ['persist/PERSIST'],
-//       },
-//     }).concat(sagaMiddleware),
-// });
-
-// // Run root saga
-// sagaMiddleware.run(rootSaga);
-
-// module.exports = store;
+// export default configureStore;
 
 // import { createStore, applyMiddleware } from 'redux';
-// import createSagaMiddleware from 'redux-saga';
+// const createSagaMiddleware = require('redux-saga').default;
 // import rootReducer from './rootReducer';
 // import rootSaga from './rootSaga';
 
 // // Create saga middleware
 // const sagaMiddleware = createSagaMiddleware();
 
-// // Configure store
+// // Configure store with middleware
 // const configureStore = () => {
 //   const store = createStore(rootReducer, applyMiddleware(sagaMiddleware));
 
@@ -65,21 +20,31 @@
 
 // export default configureStore;
 
-import { createStore, applyMiddleware } from 'redux';
+// src/store/configureStore.js
+import { createStore, applyMiddleware, compose } from 'redux';
 const createSagaMiddleware = require('redux-saga').default;
 import rootReducer from './rootReducer';
 import rootSaga from './rootSaga';
 
-// Create saga middleware
 const sagaMiddleware = createSagaMiddleware();
 
-// Configure store with middleware
+// Use DevTools compose if available (RN Debugger sets it on `global`)
+const composeEnhancers =
+  (__DEV__ &&
+    global.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ &&
+    global.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
+      trace: true,
+      traceLimit: 25,
+    })) ||
+  compose;
+
 const configureStore = () => {
-  const store = createStore(rootReducer, applyMiddleware(sagaMiddleware));
+  const store = createStore(
+    rootReducer,
+    composeEnhancers(applyMiddleware(sagaMiddleware)),
+  );
 
-  // Run the root saga
   sagaMiddleware.run(rootSaga);
-
   return store;
 };
 
