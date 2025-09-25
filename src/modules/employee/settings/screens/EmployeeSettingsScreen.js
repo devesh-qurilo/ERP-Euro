@@ -11,10 +11,13 @@ import {
   selectLastSavedAt,
 } from '../store/selectors';
 import ProfileDetailsForm from '../components/ProfileDetailsForm';
+import EmergencyContactCreate from '../components/EmergencyContactCreate';
+import EmergencyContactsTable from '../components/EmergencyContactsTable';
 
 export default function EmployeeSettingsScreen() {
   const dispatch = useDispatch();
   const me = useSelector(selectMe);
+  const employeeId = me?.employeeId;
   const loading = useSelector(selectMeLoading);
   const loadErr = useSelector(selectMeError);
 
@@ -68,6 +71,9 @@ export default function EmployeeSettingsScreen() {
       />
 
       {/* 🔜 Add more settings components here later */}
+
+      <EmergencyContactCreate employeeId={employeeId} />
+      <EmergencyContactsTable employeeId={employeeId} />
     </ScrollView>
   );
 }

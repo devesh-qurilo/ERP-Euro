@@ -102,11 +102,14 @@ export const attendanceAPI = {
   getMyAttendance: () => api.get('/employee/attendance/me').then(r => r.data),
 };
 
-// export const employeeAPI = {
-//   getProfile: () => api.get('/employee/me').then(r => r.data),
+export const settingsAPI = {
+  getEmergencyContacts: employeeId =>
+    api.get(`/employee/${employeeId}/emergency-contacts`).then(r => r.data),
 
-//   // ⬇️ use PUT with multipart/form-data body
-
-// };
+  createEmergencyContact: (employeeId, payload) =>
+    api
+      .post(`/employee/${employeeId}/emergency-contacts`, payload)
+      .then(r => r.data),
+};
 
 export default api;

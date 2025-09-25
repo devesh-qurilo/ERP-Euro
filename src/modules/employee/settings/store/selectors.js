@@ -10,3 +10,15 @@ export const selectUpdateError = s =>
   s.employee?.settings?.update?.error || null;
 export const selectLastSavedAt = s =>
   s.employee?.settings?.update?.lastSavedAt || null;
+
+export const selectCreateECLoading = s =>
+  s.employee?.settings?.emergencyContacts?.creating || false;
+export const selectCreateECError = s =>
+  s.employee?.settings?.emergencyContacts?.createError || null;
+
+export const selectEmergencyContacts = s =>
+  s.employee?.settings?.emergencyContacts?.data || [];
+export const selectEmergencyContactsLoading = s =>
+  s.employee?.settings?.emergencyContacts?.loading || false;
+export const selectEmergencyContactsError = s =>
+  s.employee?.settings?.emergencyContacts?.error || null;
