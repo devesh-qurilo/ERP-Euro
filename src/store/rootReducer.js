@@ -4,6 +4,7 @@ import employeeProfileReducer from '../modules/employee/profile/store/reducers';
 import employeeDashboardReducer from '../modules/employee/dashboard/store/reducers';
 import employeeHRReducer from '../modules/employee/hr/store/reducers';
 import employeeSettingsReducer from '../modules/employee/settings/store/reducers';
+import employeeNotificationsReducer from '../modules/employee/notifications/store/reducers';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -12,6 +13,7 @@ const rootReducer = combineReducers({
     dashboard: employeeDashboardReducer,
     hr: employeeHRReducer,
     settings: employeeSettingsReducer,
+    notifications: employeeNotificationsReducer,
   }),
 });
 

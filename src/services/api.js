@@ -112,4 +112,12 @@ export const settingsAPI = {
       .then(r => r.data),
 };
 
+export const notificationsAPI = {
+  getMyNotifications: () =>
+    api.get('/employee/notifications/me').then(r => r.data),
+
+  markAsRead: id =>
+    api.post(`/employee/notifications/${id}/mark-read`).then(r => r.data),
+};
+
 export default api;

@@ -33,7 +33,7 @@ import EmployeeHRHolidaysScreen from '../modules/employee/hr/screens/EmployeeHRH
 
 // Common
 import MessagesScreen from '../modules/common/screens/MessagesScreen';
-import NotificationsScreen from '../modules/common/screens/NotificationsScreen';
+import EmployeeNotificationsScreen from '../modules/employee/notifications/screens/EmployeeNotificationsScreen';
 import EmployeeSettingsScreen from '../modules/employee/settings/screens/EmployeeSettingsScreen';
 
 const Drawer = createDrawerNavigator();
@@ -439,8 +439,11 @@ export default function EmployeeNavigator() {
       />
       <Drawer.Screen
         name="Notifications"
-        component={NotificationsScreen}
-        options={{ title: 'Notifications' }}
+        component={EmployeeNotificationsScreen}
+        options={{
+          drawerLabel: 'Notifications jhg',
+          title: 'Notifications devesh',
+        }}
       />
       <Drawer.Screen
         name="Settings"
