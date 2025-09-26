@@ -6,6 +6,8 @@ import { employeeHRWatcher } from '../modules/employee/hr/store/sagas';
 import { employeeSettingsWatcher } from '../modules/employee/settings/store/sagas';
 import { employeeNotificationsWatcher } from '../modules/employee/notifications/store/sagas';
 
+import { employeeLeadsWatcher } from '../modules/employee/leads/store/sagas';
+
 // Root saga that combines all sagas
 export default function* rootSaga() {
   yield all([
@@ -15,5 +17,6 @@ export default function* rootSaga() {
     employeeHRWatcher(),
     employeeSettingsWatcher(),
     employeeNotificationsWatcher(),
+    employeeLeadsWatcher(),
   ]);
 }

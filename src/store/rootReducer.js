@@ -6,6 +6,8 @@ import employeeHRReducer from '../modules/employee/hr/store/reducers';
 import employeeSettingsReducer from '../modules/employee/settings/store/reducers';
 import employeeNotificationsReducer from '../modules/employee/notifications/store/reducers';
 
+import employeeLeadsReducer from '../modules/employee/leads/store/reducers';
+
 const rootReducer = combineReducers({
   auth: userReducer,
   employee: combineReducers({
@@ -14,6 +16,7 @@ const rootReducer = combineReducers({
     hr: employeeHRReducer,
     settings: employeeSettingsReducer,
     notifications: employeeNotificationsReducer,
+    leads: employeeLeadsReducer,
   }),
 });
 

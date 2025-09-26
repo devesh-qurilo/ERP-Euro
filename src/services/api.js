@@ -120,4 +120,8 @@ export const notificationsAPI = {
     api.post(`/employee/notifications/${id}/mark-read`).then(r => r.data),
 };
 
+export const leadsAPI = {
+  getMyLeads: () => api.get('/leads/my-leads').then(r => r.data),
+};
+
 export default api;
