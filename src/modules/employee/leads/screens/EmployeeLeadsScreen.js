@@ -17,7 +17,10 @@ import {
   selectLeadsError,
 } from '../store/selectors';
 import LeadsListTable from '../components/LeadsListTable';
+
+import AddLeadModal from '../components/AddLeadModal';
 import Select from '../components/Select';
+import { selectMe } from '../../settings/store/selectors';
 
 const dateOnly = iso => new Date(iso).toISOString().slice(0, 10); // YYYY-MM-DD
 
@@ -26,6 +29,9 @@ export default function EmployeeLeadsScreen() {
   const all = useSelector(selectLeads);
   const load = useSelector(selectLeadsLoading);
   const err = useSelector(selectLeadsError);
+
+  const me = useSelector(selectMe);
+  const employeeId = me?.employeeId || '';
 
   useEffect(() => {
     dispatch(fetchMyLeads());
@@ -36,6 +42,7 @@ export default function EmployeeLeadsScreen() {
   const [status, setStatus] = useState('All');
   const [source, setSource] = useState('All');
   const [category, setCategory] = useState('All');
+  const [openAdd, setOpenAdd] = useState(false);
 
   const [start, setStart] = useState(''); // YYYY-MM-DD (text field to avoid extra deps)
   const [end, setEnd] = useState('');
@@ -152,18 +159,18 @@ export default function EmployeeLeadsScreen() {
       </View>
 
       {/* Add Lead button (UI only) */}
-      <Pressable
-        style={styles.addBtn}
-        onPress={() =>
-          Alert.alert('Add Lead', 'Create API will be wired later.')
-        }
-      >
+      <Pressable style={styles.addBtn} onPress={() => setOpenAdd(true)}>
         <Text style={styles.addTxt}>+ Add Lead</Text>
       </Pressable>
 
       {/* Table */}
       <Text style={styles.sectionTitle}>Lead Contacts</Text>
       <LeadsListTable rows={filtered} />
+      <AddLeadModal
+        visible={openAdd}
+        onClose={() => setOpenAdd(false)}
+        defaultEmployeeId={employeeId}
+      />
 
       {load ? <Text style={styles.note}>Loading…</Text> : null}
       {err ? <Text style={styles.err}>Error: {String(err)}</Text> : null}

@@ -122,6 +122,8 @@ export const notificationsAPI = {
 
 export const leadsAPI = {
   getMyLeads: () => api.get('/leads/my-leads').then(r => r.data),
+
+  createLead: payload => api.post('/leads', payload).then(r => r.data),
 };
 
 export default api;
