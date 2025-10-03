@@ -176,7 +176,7 @@ function EmployeeDrawerContent(props) {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-        <DrawerContentScrollView
+        {/* <DrawerContentScrollView
           {...props}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
@@ -190,6 +190,12 @@ function EmployeeDrawerContent(props) {
               setHrOpen(false);
             }
           }}
+        > */}
+
+        <DrawerContentScrollView
+          {...props}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
         >
           {/* Header Section with Glass Effect */}
           <View style={styles.headerSection}>
