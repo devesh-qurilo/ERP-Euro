@@ -100,8 +100,8 @@ function GlassDrawerItem({
       <LinearGradient
         colors={
           isActive
-            ? ['rgba(255, 255, 255, 0.3)', 'rgba(255, 255, 255, 0.1)']
-            : ['rgba(255, 255, 255, 0.1)', 'rgba(255, 255, 255, 0.05)']
+            ? ['rgba(37, 99, 235, 0.95)', 'rgba(29, 78, 216, 0.85)']
+            : ['rgba(255, 255, 255, 0.95)', 'rgba(248, 250, 252, 0.9)']
         }
         style={[
           styles.glassItemGradient,
@@ -167,11 +167,7 @@ function EmployeeDrawerContent(props) {
       blurRadius={10}
     >
       <LinearGradient
-        colors={[
-          'rgba(139, 69, 19, 0.8)',
-          'rgba(75, 0, 130, 0.6)',
-          'rgba(25, 25, 112, 0.8)',
-        ]}
+        colors={['#FFFFFF', '#F8FAFC', '#F1F5F9']}
         style={styles.drawerGradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -200,7 +196,7 @@ function EmployeeDrawerContent(props) {
           {/* Header Section with Glass Effect */}
           <View style={styles.headerSection}>
             <LinearGradient
-              colors={['rgba(243, 1, 1, 0.2)', 'rgba(255, 255, 255, 0.1)']}
+              colors={['rgba(37, 99, 235, 0.15)', 'rgba(59, 130, 246, 0.1)']}
               style={styles.headerGlass}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
@@ -257,8 +253,8 @@ function EmployeeDrawerContent(props) {
               >
                 <LinearGradient
                   colors={[
-                    'rgba(255, 255, 255, 0.15)',
-                    'rgba(255, 255, 255, 0.08)',
+                    'rgba(241, 245, 249, 0.95)',
+                    'rgba(248, 250, 252, 0.9)',
                   ]}
                   style={styles.hrHeaderGradient}
                   start={{ x: 0, y: 0 }}
@@ -319,7 +315,7 @@ function EmployeeDrawerContent(props) {
               <LinearGradient
                 colors={[
                   'transparent',
-                  'rgba(255, 255, 255, 0.3)',
+                  'rgba(203, 213, 225, 0.6)',
                   'transparent',
                 ]}
                 start={{ x: 0, y: 0 }}
@@ -366,7 +362,7 @@ export default function EmployeeNavigator() {
         },
         headerBackground: () => (
           <LinearGradient
-            colors={['rgba(139, 69, 19, 0.9)', 'rgba(75, 0, 130, 0.9)']}
+            colors={['rgba(37, 99, 235, 0.95)', 'rgba(29, 78, 216, 0.95)']}
             style={{ flex: 1 }}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
@@ -480,7 +476,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: 'rgba(59, 130, 246, 0.3)',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -495,7 +492,7 @@ const styles = StyleSheet.create({
     height: 70,
     borderRadius: 35,
     borderWidth: 3,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: '#3B82F6',
     marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -510,16 +507,17 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: '#64748B',
+    fontWeight: '500',
     marginBottom: 4,
   },
   employeeName: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#fff',
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
+    color: '#1E293B',
+    // textShadowColor: 'rgba(0,0,0,0.3)',
+    // textShadowOffset: { width: 1, height: 1 },
+    // textShadowRadius: 2,
   },
   navigationSection: {
     flex: 1,
@@ -538,7 +536,7 @@ const styles = StyleSheet.create({
   glassItemGradient: {
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(0, 0, 0, 0.1)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -574,15 +572,17 @@ const styles = StyleSheet.create({
   glassItemLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.9)',
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 1,
+    color: '#1E293B',
+    letterSpacing: 0.2,
+    // textShadowColor: 'rgba(0,0,0,0.3)',
+    // textShadowOffset: { width: 1, height: 1 },
+    // textShadowRadius: 1,
   },
   glassSubItemLabel: {
     fontSize: 14,
     fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: '#FFFFFF',
+    letterSpacing: 0.2,
   },
   glassItemActive: {
     transform: [{ scale: 0.98 }],
@@ -623,13 +623,14 @@ const styles = StyleSheet.create({
   hrIcon: {
     width: 24,
     height: 24,
-    tintColor: '#fff',
+    tintColor: '#1E293B',
     marginRight: 12,
   },
   hrTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#fff',
+    color: '#1E293B',
+    letterSpacing: 0.3,
     textShadowColor: 'rgba(0,0,0,0.3)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
@@ -637,7 +638,7 @@ const styles = StyleSheet.create({
   chevIcon: {
     width: 16,
     height: 16,
-    tintColor: 'rgba(255, 255, 255, 0.8)',
+    tintColor: '#64748B',
   },
   chevIconRotated: {
     transform: [{ rotate: '90deg' }],
@@ -650,7 +651,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingLeft: 8,
     borderLeftWidth: 2,
-    borderLeftColor: 'rgba(255, 255, 255, 0.2)',
+    borderLeftColor: 'rgba(59, 130, 246, 0.3)',
     marginLeft: 16,
   },
   separator: {

@@ -23,7 +23,6 @@ const EmployeeProfile = () => {
   const profile = useSelector(selectEmployeeProfile);
   const loading = useSelector(selectEmployeeProfileLoading);
   const error = useSelector(selectEmployeeProfileError);
-  console.log('kya profile hai bhaiii', profile);
 
   useEffect(() => {
     dispatch(fetchEmployeeProfileRequest());

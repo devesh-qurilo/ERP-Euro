@@ -5,14 +5,10 @@ import { authAPI } from '../../../services/api';
 
 function* loginSaga(action) {
   try {
-    console.log('Login saga started', action.payload);
-
     const { employeeId, password, userType } = action.payload;
 
     // Call the real API
     const response = yield call(authAPI.login, { employeeId, password });
-
-    console.log('API Response:', response);
 
     // Transform the API response to match our expected format
     const userData = {
@@ -27,17 +23,13 @@ function* loginSaga(action) {
       refreshToken: response.refreshToken,
     };
 
-    console.log('Login successful, storing data...');
-
     // Store tokens and user data
     yield call(AsyncStorage.setItem, 'authToken', userData.token);
     yield call(AsyncStorage.setItem, 'refreshToken', userData.refreshToken);
     yield call(AsyncStorage.setItem, 'userData', JSON.stringify(userData.user));
 
-    console.log('Dispatching login success...');
     yield put(loginSuccess(userData));
   } catch (error) {
-    console.log('Login failed:', error.message);
     let errorMessage = error.message;
 
     // Handle specific error cases
