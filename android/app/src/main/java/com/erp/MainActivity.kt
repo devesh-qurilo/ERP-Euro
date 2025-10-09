@@ -1,4 +1,4 @@
-package com.erp
+package com.devesh.erp
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

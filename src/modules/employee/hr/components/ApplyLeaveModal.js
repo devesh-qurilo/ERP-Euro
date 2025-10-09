@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import DocumentPicker from 'react-native-document-picker';
+import { pick, types, isCancel } from '@react-native-documents/picker';
 import { useDispatch, useSelector } from 'react-redux';
 import { applyLeave } from '../store/actions';
 import {
@@ -78,13 +78,18 @@ export default function ApplyLeaveModal({ visible, onClose }) {
 
   const pickDocs = async () => {
     try {
-      const res = await DocumentPicker.pickMultiple({
-        type: [DocumentPicker.types.allFiles],
+      const res = await pick({
+        allowMultiSelection: true,
+        // restrict as you prefer:
+        // type: [types.pdf, types.images, types.doc, types.docx],
+        type: [types.allFiles],
       });
+      // res is an array: [{ uri, name, size, mimeType, lastModified, fileCopyUri? }, ...]
       setFiles(res);
     } catch (e) {
-      if (!DocumentPicker.isCancel(e))
+      if (!isCancel(e)) {
         Alert.alert('Picker error', String(e?.message || e));
+      }
     }
   };
 
@@ -94,7 +99,9 @@ export default function ApplyLeaveModal({ visible, onClose }) {
         durationType === 'FULL_DAY'
           ? { leaveType, durationType, singleDate, reason }
           : { leaveType, durationType, startDate, endDate, reason },
-      documents: files, // optional
+
+      // optional; your backend can use uri/name/mimeType/size
+      documents: files,
     };
     dispatch(applyLeave(payload));
   };

@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   ScrollView,
 } from 'react-native';
-import DocumentPicker from 'react-native-document-picker';
+import { pick, types, isCancel } from '@react-native-documents/picker';
 
 export default function ProfileDetailsForm({
   initialValues = {},
@@ -45,9 +45,18 @@ export default function ProfileDetailsForm({
         type: [DocumentPicker.types.images],
       });
       setPickedFile({ uri: res.uri, name: res.name, type: res.type });
+      const files = await pick({
+        allowMultiSelection: false,
+        type: [types.images], // or [types.jpeg, types.png]
+      });
+      const f = files?.[0];
+      if (f) {
+        setPickedFile({ uri: f.uri, name: f.name, type: f.mimeType });
+      }
     } catch (e) {
-      if (!DocumentPicker.isCancel(e))
+      if (!isCancel(e)) {
         Alert.alert('Picker error', String(e?.message || e));
+      }
     }
   };
 

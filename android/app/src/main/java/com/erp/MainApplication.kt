@@ -1,4 +1,4 @@
-package com.erp
+package com.devesh.erp
 
 import android.app.Application
 import com.facebook.react.PackageList
