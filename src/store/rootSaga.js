@@ -5,6 +5,7 @@ import { employeeDashboardWatcher } from '../modules/employee/dashboard/store/sa
 import { employeeHRWatcher } from '../modules/employee/hr/store/sagas';
 import { employeeSettingsWatcher } from '../modules/employee/settings/store/sagas';
 import { employeeNotificationsWatcher } from '../modules/employee/notifications/store/sagas';
+import { employeeProjectsWatcher } from '../modules/employee/works/projects/store/sagas';
 
 import { employeeLeadsWatcher } from '../modules/employee/leads/store/sagas';
 
@@ -18,5 +19,6 @@ export default function* rootSaga() {
     employeeSettingsWatcher(),
     employeeNotificationsWatcher(),
     employeeLeadsWatcher(),
+    employeeProjectsWatcher(),
   ]);
 }

@@ -5,6 +5,7 @@ import employeeDashboardReducer from '../modules/employee/dashboard/store/reduce
 import employeeHRReducer from '../modules/employee/hr/store/reducers';
 import employeeSettingsReducer from '../modules/employee/settings/store/reducers';
 import employeeNotificationsReducer from '../modules/employee/notifications/store/reducers';
+import employeeProjectsReducer from '../modules/employee/works/projects/store/reducers';
 
 import employeeLeadsReducer from '../modules/employee/leads/store/reducers';
 
@@ -17,6 +18,9 @@ const rootReducer = combineReducers({
     settings: employeeSettingsReducer,
     notifications: employeeNotificationsReducer,
     leads: employeeLeadsReducer,
+    works: combineReducers({
+      projects: employeeProjectsReducer, // ✅ mount here
+    }),
   }),
 });
 

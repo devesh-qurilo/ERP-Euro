@@ -126,4 +126,12 @@ export const leadsAPI = {
   createLead: payload => api.post('/leads', payload).then(r => r.data),
 };
 
+// src/services/api.js
+export const projectsAPI = {
+  getProjects: (page = 0, size = 50, params = {}) =>
+    api
+      .get('/projects', { params: { page, size, ...params } })
+      .then(r => r.data),
+};
+
 export default api;
