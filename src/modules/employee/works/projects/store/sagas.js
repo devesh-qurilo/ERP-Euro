@@ -1,22 +1,22 @@
-// src/modules/employee/works/projects/store/sagas.js
 import { call, put, takeLatest, all } from 'redux-saga/effects';
 import { projectsAPI } from '../../../../../services/api';
 import {
   FETCH_PROJECTS_REQUEST,
   FETCH_PROJECTS_SUCCESS,
   FETCH_PROJECTS_FAILURE,
+  TOGGLE_PIN_PROJECT_REQUEST,
+  TOGGLE_PIN_PROJECT_SUCCESS,
+  TOGGLE_PIN_PROJECT_FAILURE,
 } from './actions';
 
 function* fetchProjectsSaga(action) {
   try {
-    // you can pass filters via action.params (category/status/client/etc)
     const data = yield call(
       projectsAPI.getProjects,
       0,
       50,
       action.params || {},
     );
-    // optional: newest first by createdAt
     data.sort(
       (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0),
     );
@@ -29,6 +29,27 @@ function* fetchProjectsSaga(action) {
   }
 }
 
+function* togglePinSaga({ projectId, desiredPinned, prevPinned }) {
+  try {
+    if (desiredPinned) {
+      yield call(projectsAPI.pinProject, projectId);
+    } else {
+      yield call(projectsAPI.unpinProject, projectId);
+    }
+    yield put({ type: TOGGLE_PIN_PROJECT_SUCCESS, projectId, desiredPinned });
+  } catch (e) {
+    yield put({
+      type: TOGGLE_PIN_PROJECT_FAILURE,
+      projectId,
+      prevPinned,
+      error: e?.message || 'Failed to update pin',
+    });
+  }
+}
+
 export function* employeeProjectsWatcher() {
-  yield all([takeLatest(FETCH_PROJECTS_REQUEST, fetchProjectsSaga)]);
+  yield all([
+    takeLatest(FETCH_PROJECTS_REQUEST, fetchProjectsSaga),
+    takeLatest(TOGGLE_PIN_PROJECT_REQUEST, togglePinSaga),
+  ]);
 }

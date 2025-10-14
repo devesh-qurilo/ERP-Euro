@@ -14,7 +14,6 @@ import {
   selectProjects,
   selectProjectsError,
   selectProjectsLoading,
-  selectPinnedIds,
 } from '../store/selectors';
 
 import ProjectsTable from '../components/ProjectTable';
@@ -67,7 +66,6 @@ export default function EmployeeProjectsScreen() {
   const list = useSelector(selectProjects);
   const loading = useSelector(selectProjectsLoading);
   const error = useSelector(selectProjectsError);
-  const pinnedIds = useSelector(selectPinnedIds);
 
   useEffect(() => {
     dispatch(fetchProjects());
@@ -121,7 +119,7 @@ export default function EmployeeProjectsScreen() {
 
   const filtered = useMemo(() => {
     let data = list;
-    if (mode === 'pinned') data = data.filter(p => pinnedIds.includes(p.id));
+    if (mode === 'pinned') data = data.filter(p => p.pinned);
 
     if (!hasFilters) return data;
 
@@ -143,18 +141,7 @@ export default function EmployeeProjectsScreen() {
 
       return true;
     });
-  }, [
-    list,
-    pinnedIds,
-    mode,
-    hasFilters,
-    search,
-    category,
-    status,
-    client,
-    start,
-    end,
-  ]);
+  }, [list, mode, hasFilters, search, category, status, client, start, end]);
 
   const clearFilters = () => {
     setSearch('');

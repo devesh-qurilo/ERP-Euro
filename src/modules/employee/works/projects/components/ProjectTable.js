@@ -7,9 +7,8 @@ import {
   Image,
   Pressable,
 } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { togglePinProject } from '../store/actions';
-import { selectPinnedIds } from '../store/selectors';
 
 const fmt = d =>
   d
@@ -101,7 +100,6 @@ function StatusCell({ item }) {
 
 export default function ProjectsTable({ data }) {
   const dispatch = useDispatch();
-  const pinned = useSelector(selectPinnedIds);
 
   return (
     <ScrollView
@@ -185,19 +183,13 @@ export default function ProjectsTable({ data }) {
             {/* Actions */}
             <View style={[styles.td, { width: COLUMNS[7].width }]}>
               <Pressable
-                onPress={() => dispatch(togglePinProject(p.id))}
-                style={[
-                  styles.pinBtn,
-                  pinned.includes(p.id) && styles.pinActive,
-                ]}
+                onPress={() =>
+                  dispatch(togglePinProject(p.id, !p.pinned, !!p.pinned))
+                }
+                style={[styles.pinBtn, p.pinned && styles.pinActive]}
               >
-                <Text
-                  style={[
-                    styles.pinTxt,
-                    pinned.includes(p.id) && styles.pinTxtActive,
-                  ]}
-                >
-                  {pinned.includes(p.id) ? '📌' : '📍'}
+                <Text style={[styles.pinTxt, p.pinned && styles.pinTxtActive]}>
+                  {p.pinned ? '📌' : '📍'}
                 </Text>
               </Pressable>
             </View>

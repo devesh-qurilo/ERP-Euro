@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = 'https://6jnqmj85-8080.inc1.devtunnels.ms'; // Replace with your actual gateway URL
+const API_BASE_URL = 'https://6jnqmj85-80.inc1.devtunnels.ms'; // Replace with your actual gateway URL
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -132,6 +132,10 @@ export const projectsAPI = {
     api
       .get('/projects', { params: { page, size, ...params } })
       .then(r => r.data),
+
+  // ✅ persist pin state
+  pinProject: id => api.post(`/projects/${id}/pin`).then(r => r.data),
+  unpinProject: id => api.delete(`/projects/${id}/pin`).then(r => r.data),
 };
 
 export default api;

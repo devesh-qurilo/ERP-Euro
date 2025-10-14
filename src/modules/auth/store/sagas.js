@@ -2,6 +2,7 @@ import { call, put, takeEvery } from 'redux-saga/effects';
 import { LOGIN_REQUEST, loginSuccess, loginFailure } from './actions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authAPI } from '../../../services/api';
+import axios from 'axios';
 
 function* loginSaga(action) {
   try {
@@ -9,7 +10,7 @@ function* loginSaga(action) {
 
     // Call the real API
     const response = yield call(authAPI.login, { employeeId, password });
-
+    console.log('API baseURL =', axios.defaults.baseURL);
     // Transform the API response to match our expected format
     const userData = {
       user: {
