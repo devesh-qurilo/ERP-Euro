@@ -6,3 +6,10 @@ export const selectProjectsError = s =>
 
 export const selectPinnedProjects = s =>
   (s.employee?.works?.projects?.list || []).filter(p => p.pinned);
+
+export const selectProjectMetrics = id => s =>
+  s.employee?.works?.projects?.metricsById?.[id] || null;
+export const selectProjectMetricsLoading = id => s =>
+  !!s.employee?.works?.projects?.metricsLoadingById?.[id];
+export const selectProjectMetricsError = id => s =>
+  s.employee?.works?.projects?.metricsErrorById?.[id] || null;

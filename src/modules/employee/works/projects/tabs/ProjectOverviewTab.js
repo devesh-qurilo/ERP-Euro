@@ -1,18 +1,32 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
-import { useSelector } from 'react-redux';
 import { selectProjects } from '../../projects/store/selectors';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  selectProjectMetrics,
+  selectProjectMetricsError,
+  selectProjectMetricsLoading,
+} from '../../projects/store/selectors';
+import { fetchProjectMetrics } from '../../projects/store/actions';
 
 const fmt = d => (d ? new Date(d).toLocaleDateString() : '—');
 const pct = v => Math.max(0, Math.min(100, Number(v ?? 0)));
 
 export default function ProjectOverviewTab({ route }) {
   const { projectId } = route.params || {};
+  const dispatch = useDispatch();
   const all = useSelector(selectProjects);
   const project = useMemo(
     () => all.find(p => p.id === projectId),
     [all, projectId],
   );
+  const metrics = useSelector(selectProjectMetrics(projectId));
+  const mLoading = useSelector(selectProjectMetricsLoading(projectId));
+  const mErr = useSelector(selectProjectMetricsError(projectId));
+
+  useEffect(() => {
+    if (projectId) dispatch(fetchProjectMetrics(projectId));
+  }, [projectId, dispatch]);
 
   if (!project) {
     return (
@@ -23,9 +37,15 @@ export default function ProjectOverviewTab({ route }) {
   }
 
   const progress = pct(project.progressPercent);
-  const hoursTotal =
-    project.totalTimeLoggedMinutes != null
-      ? (project.totalTimeLoggedMinutes / 60).toFixed(1)
+  const hoursEstimate =
+    metrics?.hoursEstimate ?? project?.hoursEstimate ?? null;
+  const totalLoggedMin =
+    metrics?.totalTimeLoggedMinutes ?? project?.totalTimeLoggedMinutes ?? null;
+  const hoursLogged =
+    totalLoggedMin != null ? Number(totalLoggedMin) / 60 : null;
+  const hoursPct =
+    hoursEstimate && hoursLogged != null
+      ? Math.min(100, Math.round((hoursLogged / hoursEstimate) * 100))
       : null;
 
   // Simple derived “task” split for now (you’ll replace with real task stats later)
@@ -103,8 +123,24 @@ export default function ProjectOverviewTab({ route }) {
       {/* Hours Logged */}
       <View style={styles.card}>
         <Text style={styles.h2}>Hours Logged</Text>
-        {hoursTotal != null ? (
-          <Text style={styles.hoursTxt}>{hoursTotal} hrs total</Text>
+        {mLoading ? (
+          <Text style={styles.dim}>&nbsp;Loading…</Text>
+        ) : mErr ? (
+          <Text style={[styles.dim, { color: '#b00020' }]}>
+            Failed to load: {mErr}
+          </Text>
+        ) : hoursLogged != null ? (
+          <View style={{ marginTop: 10 }}>
+            <View style={styles.progressBar}>
+              <View
+                style={[styles.progressFill, { width: `${hoursPct ?? 0}%` }]}
+              />
+            </View>
+            <Text style={styles.hoursTxt}>
+              {hoursLogged.toFixed(1)} hrs of {hoursEstimate ?? '—'} hrs (
+              {hoursPct ?? 0}%)
+            </Text>
+          </View>
         ) : (
           <Text style={styles.dim}>No time logs yet.</Text>
         )}

@@ -133,6 +133,10 @@ export const projectsAPI = {
       .get('/projects', { params: { page, size, ...params } })
       .then(r => r.data),
 
+  // 🔹 single project metrics (hours, etc.)
+  getProjectMetrics: projectId =>
+    api.get(`/projects/${projectId}/metrics`).then(r => r.data),
+
   // ✅ persist pin state
   pinProject: id => api.post(`/projects/${id}/pin`).then(r => r.data),
   unpinProject: id => api.delete(`/projects/${id}/pin`).then(r => r.data),

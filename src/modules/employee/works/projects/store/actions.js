@@ -12,6 +12,17 @@ export const TOGGLE_PIN_PROJECT_SUCCESS =
   'employee/projects/TOGGLE_PIN_PROJECT_SUCCESS';
 export const TOGGLE_PIN_PROJECT_FAILURE =
   'employee/projects/TOGGLE_PIN_PROJECT_FAILURE';
+export const FETCH_PROJECT_METRICS_REQUEST =
+  'employee/projects/FETCH_PROJECT_METRICS_REQUEST';
+export const FETCH_PROJECT_METRICS_SUCCESS =
+  'employee/projects/FETCH_PROJECT_METRICS_SUCCESS';
+export const FETCH_PROJECT_METRICS_FAILURE =
+  'employee/projects/FETCH_PROJECT_METRICS_FAILURE';
+
+export const fetchProjectMetrics = projectId => ({
+  type: FETCH_PROJECT_METRICS_REQUEST,
+  projectId,
+});
 
 export const fetchProjects = (params = {}) => ({
   type: FETCH_PROJECTS_REQUEST,

@@ -7,6 +7,9 @@ import {
   TOGGLE_PIN_PROJECT_REQUEST,
   TOGGLE_PIN_PROJECT_SUCCESS,
   TOGGLE_PIN_PROJECT_FAILURE,
+  FETCH_PROJECT_METRICS_REQUEST,
+  FETCH_PROJECT_METRICS_SUCCESS,
+  FETCH_PROJECT_METRICS_FAILURE,
 } from './actions';
 
 function* fetchProjectsSaga(action) {
@@ -47,9 +50,27 @@ function* togglePinSaga({ projectId, desiredPinned, prevPinned }) {
   }
 }
 
+function* fetchMetricsSaga({ projectId }) {
+  try {
+    const data = yield call(projectsAPI.getProjectMetrics, projectId);
+    yield put({
+      type: FETCH_PROJECT_METRICS_SUCCESS,
+      projectId,
+      payload: data,
+    });
+  } catch (e) {
+    yield put({
+      type: FETCH_PROJECT_METRICS_FAILURE,
+      projectId,
+      error: e?.message || 'Failed to load metrics',
+    });
+  }
+}
+
 export function* employeeProjectsWatcher() {
   yield all([
     takeLatest(FETCH_PROJECTS_REQUEST, fetchProjectsSaga),
     takeLatest(TOGGLE_PIN_PROJECT_REQUEST, togglePinSaga),
+    takeLatest(FETCH_PROJECT_METRICS_REQUEST, fetchMetricsSaga),
   ]);
 }

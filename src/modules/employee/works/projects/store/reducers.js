@@ -5,12 +5,19 @@ import {
   TOGGLE_PIN_PROJECT_REQUEST,
   TOGGLE_PIN_PROJECT_SUCCESS,
   TOGGLE_PIN_PROJECT_FAILURE,
+  FETCH_PROJECT_METRICS_REQUEST,
+  FETCH_PROJECT_METRICS_SUCCESS,
+  FETCH_PROJECT_METRICS_FAILURE,
 } from './actions';
 
 const initialState = {
   list: [],
   loading: false,
   error: null,
+  // metrics keyed by projectId
+  metricsById: {}, // { [id]: { hoursEstimate, totalTimeLoggedMinutes, ...fullPayload } }
+  metricsLoadingById: {}, // { [id]: boolean }
+  metricsErrorById: {}, // { [id]: string|null }
 };
 
 export default function employeeProjectsReducer(state = initialState, action) {
@@ -59,6 +66,34 @@ export default function employeeProjectsReducer(state = initialState, action) {
             : p,
         ),
         error: action.error || null,
+      };
+    }
+
+    case FETCH_PROJECT_METRICS_REQUEST: {
+      const id = action.projectId;
+      return {
+        ...state,
+        metricsLoadingById: { ...state.metricsLoadingById, [id]: true },
+        metricsErrorById: { ...state.metricsErrorById, [id]: null },
+      };
+    }
+    case FETCH_PROJECT_METRICS_SUCCESS: {
+      const { projectId, payload } = action;
+      return {
+        ...state,
+        metricsById: { ...state.metricsById, [projectId]: payload },
+        metricsLoadingById: { ...state.metricsLoadingById, [projectId]: false },
+      };
+    }
+    case FETCH_PROJECT_METRICS_FAILURE: {
+      const { projectId, error } = action;
+      return {
+        ...state,
+        metricsLoadingById: { ...state.metricsLoadingById, [projectId]: false },
+        metricsErrorById: {
+          ...state.metricsErrorById,
+          [projectId]: error || 'Failed to load',
+        },
       };
     }
 
