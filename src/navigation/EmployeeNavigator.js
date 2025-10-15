@@ -41,6 +41,8 @@ import MessagesScreen from '../modules/common/screens/MessagesScreen';
 import EmployeeNotificationsScreen from '../modules/employee/notifications/screens/EmployeeNotificationsScreen';
 import EmployeeSettingsScreen from '../modules/employee/settings/screens/EmployeeSettingsScreen';
 
+import WorksNavigator from '../modules/employee/works/WorksNavigator';
+
 const Drawer = createDrawerNavigator();
 const { width } = Dimensions.get('window');
 
@@ -467,7 +469,8 @@ export default function EmployeeNavigator() {
       {/* WORK sub-routes (hidden) */}
       <Drawer.Screen
         name="WorkProjects"
-        component={EmployeeWorkProjectsScreen}
+        // component={EmployeeWorkProjectsScreen}
+        component={WorksNavigator}
         options={{ title: 'Works • Projects', drawerItemStyle: { height: 0 } }}
       />
       <Drawer.Screen

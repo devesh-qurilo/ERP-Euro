@@ -10,6 +10,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 
 import { fetchProjects } from '../store/actions';
+import { useNavigation } from '@react-navigation/native';
 import {
   selectProjects,
   selectProjectsError,
@@ -66,6 +67,7 @@ export default function EmployeeProjectsScreen() {
   const list = useSelector(selectProjects);
   const loading = useSelector(selectProjectsLoading);
   const error = useSelector(selectProjectsError);
+  const navigation = useNavigation();
 
   useEffect(() => {
     dispatch(fetchProjects());
@@ -248,7 +250,12 @@ export default function EmployeeProjectsScreen() {
       <Text style={styles.sectionTitle}>
         {mode === 'pinned' ? 'Pinned Projects' : 'Projects'}
       </Text>
-      <ProjectsTable data={filtered} />
+      <ProjectsTable
+        data={filtered}
+        onView={proj =>
+          navigation.navigate('ProjectDetails', { projectId: proj.id })
+        }
+      />
 
       {loading ? <Text style={styles.note}>Loading…</Text> : null}
       {error ? <Text style={styles.err}>Error: {String(error)}</Text> : null}

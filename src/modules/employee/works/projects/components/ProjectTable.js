@@ -20,7 +20,7 @@ const fmt = d =>
     : '—';
 
 const COLUMNS = [
-  { key: 'code', title: 'Code', width: 120 },
+  { key: 'act', title: 'Actions', width: 170 },
   { key: 'name', title: 'Project Name', width: 260 },
   { key: 'mem', title: 'Members', width: 190 },
   { key: 'start', title: 'Start Date', width: 180 },
@@ -98,7 +98,7 @@ function StatusCell({ item }) {
   );
 }
 
-export default function ProjectsTable({ data }) {
+export default function ProjectsTable({ data, onView }) {
   const dispatch = useDispatch();
 
   return (
@@ -181,16 +181,29 @@ export default function ProjectsTable({ data }) {
             </View>
 
             {/* Actions */}
-            <View style={[styles.td, { width: COLUMNS[7].width }]}>
+            <View
+              style={[
+                styles.td,
+                { width: COLUMNS[7].width, flexDirection: 'row', gap: 8 },
+              ]}
+            >
               <Pressable
                 onPress={() =>
                   dispatch(togglePinProject(p.id, !p.pinned, !!p.pinned))
                 }
-                style={[styles.pinBtn, p.pinned && styles.pinActive]}
+                style={[styles.squareBtn, p.pinned && styles.squareBtnActive]}
               >
-                <Text style={[styles.pinTxt, p.pinned && styles.pinTxtActive]}>
+                <Text style={[styles.btnTxt, p.pinned && styles.btnTxtActive]}>
                   {p.pinned ? '📌' : '📍'}
                 </Text>
+              </Pressable>
+              <Pressable
+                onPress={() =>
+                  typeof onView === 'function' ? onView(p) : null
+                }
+                style={styles.squareBtn}
+              >
+                <Text style={styles.btnTxt}>👁️</Text>
               </Pressable>
             </View>
           </View>
@@ -274,7 +287,7 @@ const styles = StyleSheet.create({
   },
   progressTxt: { textAlign: 'center', fontWeight: '900', color: '#111827' },
 
-  pinBtn: {
+  squareBtn: {
     width: 38,
     height: 38,
     borderRadius: 10,
@@ -282,6 +295,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  squareBtnActive: { backgroundColor: '#111827' },
+  btnTxt: { fontSize: 16, fontWeight: '900', color: '#111827' },
+  btnTxtActive: { color: '#fff' },
   pinActive: { backgroundColor: '#111827' },
   pinTxt: { fontSize: 16, fontWeight: '900', color: '#111827' },
   pinTxtActive: { color: '#fff' },
