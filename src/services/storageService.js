@@ -10,7 +10,6 @@ export const StorageService = {
       );
       return true;
     } catch (error) {
-      console.error('Error storing data:', error);
       return false;
     }
   },
@@ -25,7 +24,6 @@ export const StorageService = {
         return value;
       }
     } catch (error) {
-      console.error('Error retrieving data:', error);
       return null;
     }
   },
@@ -47,7 +45,6 @@ export const StorageService = {
       await AsyncStorage.clear();
       return true;
     } catch (error) {
-      console.error('Error clearing storage:', error);
       return false;
     }
   },

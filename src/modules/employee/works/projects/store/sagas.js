@@ -1,0 +1,55 @@
+import { call, put, takeLatest, all } from 'redux-saga/effects';
+import { projectsAPI } from '../../../../../services/api';
+import {
+  FETCH_PROJECTS_REQUEST,
+  FETCH_PROJECTS_SUCCESS,
+  FETCH_PROJECTS_FAILURE,
+  TOGGLE_PIN_PROJECT_REQUEST,
+  TOGGLE_PIN_PROJECT_SUCCESS,
+  TOGGLE_PIN_PROJECT_FAILURE,
+} from './actions';
+
+function* fetchProjectsSaga(action) {
+  try {
+    const data = yield call(
+      projectsAPI.getProjects,
+      0,
+      50,
+      action.params || {},
+    );
+    data.sort(
+      (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0),
+    );
+    yield put({ type: FETCH_PROJECTS_SUCCESS, payload: data });
+  } catch (e) {
+    yield put({
+      type: FETCH_PROJECTS_FAILURE,
+      error: e?.message || 'Failed to load projects',
+    });
+  }
+}
+
+function* togglePinSaga({ projectId, desiredPinned, prevPinned }) {
+  try {
+    if (desiredPinned) {
+      yield call(projectsAPI.pinProject, projectId);
+    } else {
+      yield call(projectsAPI.unpinProject, projectId);
+    }
+    yield put({ type: TOGGLE_PIN_PROJECT_SUCCESS, projectId, desiredPinned });
+  } catch (e) {
+    yield put({
+      type: TOGGLE_PIN_PROJECT_FAILURE,
+      projectId,
+      prevPinned,
+      error: e?.message || 'Failed to update pin',
+    });
+  }
+}
+
+export function* employeeProjectsWatcher() {
+  yield all([
+    takeLatest(FETCH_PROJECTS_REQUEST, fetchProjectsSaga),
+    takeLatest(TOGGLE_PIN_PROJECT_REQUEST, togglePinSaga),
+  ]);
+}

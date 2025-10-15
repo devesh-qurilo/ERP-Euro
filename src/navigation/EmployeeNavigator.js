@@ -15,7 +15,6 @@ import {
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
-  DrawerItem,
 } from '@react-navigation/drawer';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -31,41 +30,44 @@ import EmployeeHRAttendanceScreen from '../modules/employee/hr/screens/EmployeeH
 import EmployeeHRAppreciationsScreen from '../modules/employee/hr/screens/EmployeeHRAppreciationsScreen';
 import EmployeeHRHolidaysScreen from '../modules/employee/hr/screens/EmployeeHRHolidaysScreen';
 
+// WORK sub-screens (add/adjust these paths to your actual files)
+import EmployeeWorkProjectsScreen from '../modules/employee/works/projects/screens/EmployeeProjectsScreen';
+import EmployeeWorkTasksScreen from '../modules/employee/works/Tasks/screens/EmployeeTasksScreen';
+import EmployeeWorkTimesheetScreen from '../modules/employee/works/TimeSheet/screens/EmployeeWorkTimesheetScreen';
+import EmployeeWorkRoadmapScreen from '../modules/employee/works/Roadmap/screens/EmployeeWorkRoadmapScreen';
+
 // Common
 import MessagesScreen from '../modules/common/screens/MessagesScreen';
 import EmployeeNotificationsScreen from '../modules/employee/notifications/screens/EmployeeNotificationsScreen';
 import EmployeeSettingsScreen from '../modules/employee/settings/screens/EmployeeSettingsScreen';
+
+import WorksNavigator from '../modules/employee/works/WorksNavigator';
 
 const Drawer = createDrawerNavigator();
 const { width } = Dimensions.get('window');
 
 // Import your local PNG icons
 const icons = {
-  // dashboard: require('../assets/icons/dashboard.png'),
-  // profile: require('../assets/icons/profile.png'),
-  // leads: require('../assets/icons/leads.png'),
-  // works: require('../assets/icons/works.png'),
-  // hr: require('../assets/icons/hr.png'),
-  // leaves: require('../assets/icons/leaves.png'),
-  // attendance: require('../assets/icons/attendance.png'),
-  // appreciations: require('../assets/icons/appreciations.png'),
-  // holidays: require('../assets/icons/holidays.png'),
-  // messages: require('../assets/icons/messages.png'),
-  // notifications: require('../assets/icons/notifications.png'),
-  // settings: require('../assets/icons/settings.png'),
-  // chevronDown: require('../assets/icons/chevron-down.png'),
-  // chevronRight: require('../assets/icons/chevron-right.png'),
-  dashboard: require('../assets/icons/dashicons_awards.png'),
+  dashboard: require('../assets/icons/dashboard.png'),
   profile: require('../assets/icons/dashicons_awards.png'),
-  leads: require('../assets/icons/dashicons_awards.png'),
-  works: require('../assets/icons/dashicons_awards.png'),
-  hr: require('../assets/icons/dashicons_awards.png'),
+  leads: require('../assets/icons/leads.png'),
+
+  // Works group + sub-icons
+  works: require('../assets/icons/HRMS.png'), // replace with a works icon if you have
+  projects: require('../assets/icons/dashicons_awards.png'),
+  tasks: require('../assets/icons/dashicons_awards.png'),
+  timesheet: require('../assets/icons/dashicons_awards.png'),
+  roadmap: require('../assets/icons/dashicons_awards.png'),
+
+  // HR group + sub-icons
+  hr: require('../assets/icons/HRMS.png'),
   leaves: require('../assets/icons/dashicons_awards.png'),
   attendance: require('../assets/icons/dashicons_awards.png'),
   appreciations: require('../assets/icons/dashicons_awards.png'),
   holidays: require('../assets/icons/dashicons_awards.png'),
-  messages: require('../assets/icons/dashicons_awards.png'),
-  notifications: require('../assets/icons/dashicons_awards.png'),
+
+  messages: require('../assets/icons/Messages.png'),
+  notifications: require('../assets/icons/notification.png'),
   settings: require('../assets/icons/dashicons_awards.png'),
   chevronDown: require('../assets/icons/dashicons_awards.png'),
   chevronRight: require('../assets/icons/dashicons_awards.png'),
@@ -100,8 +102,8 @@ function GlassDrawerItem({
       <LinearGradient
         colors={
           isActive
-            ? ['rgba(255, 255, 255, 0.3)', 'rgba(255, 255, 255, 0.1)']
-            : ['rgba(255, 255, 255, 0.1)', 'rgba(255, 255, 255, 0.05)']
+            ? ['rgba(37, 99, 235, 0.95)', 'rgba(29, 78, 216, 0.85)']
+            : ['rgba(255, 255, 255, 0.95)', 'rgba(248, 250, 252, 0.9)']
         }
         style={[
           styles.glassItemGradient,
@@ -134,44 +136,51 @@ function GlassDrawerItem({
 // ---------- Custom Drawer Content ----------
 function EmployeeDrawerContent(props) {
   const { navigation, state } = props;
+
+  // collapsible states
   const [hrOpen, setHrOpen] = React.useState(false);
+  const [worksOpen, setWorksOpen] = React.useState(false);
 
   const activeRoute = state.routeNames[state.index];
 
-  const toggleHR = () => {
+  const animate = () =>
     LayoutAnimation.configureNext({
       duration: 300,
       create: { type: 'easeInEaseOut', property: 'opacity' },
       update: { type: 'easeInEaseOut' },
     });
+
+  const toggleHR = () => {
+    animate();
     setHrOpen(v => !v);
   };
 
+  const toggleWorks = () => {
+    animate();
+    setWorksOpen(v => !v);
+  };
+
   const go = routeName => {
-    // collapse HR whenever navigating elsewhere
+    // collapse groups when navigating away
     if (hrOpen && !routeName.startsWith('HR')) {
-      LayoutAnimation.configureNext({
-        duration: 300,
-        create: { type: 'easeInEaseOut', property: 'opacity' },
-        update: { type: 'easeInEaseOut' },
-      });
+      animate();
       setHrOpen(false);
+    }
+    if (worksOpen && !routeName.startsWith('Work')) {
+      animate();
+      setWorksOpen(false);
     }
     navigation.navigate(routeName);
   };
 
   return (
     <ImageBackground
-      source={require('../assets/icons/dashicons_awards.png')} // Add your background image
+      source={require('../assets/icons/dashicons_awards.png')}
       style={styles.drawerBackground}
       blurRadius={10}
     >
       <LinearGradient
-        colors={[
-          'rgba(139, 69, 19, 0.8)',
-          'rgba(75, 0, 130, 0.6)',
-          'rgba(25, 25, 112, 0.8)',
-        ]}
+        colors={['#FFFFFF', '#F8FAFC', '#F1F5F9']}
         style={styles.drawerGradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -180,21 +189,11 @@ function EmployeeDrawerContent(props) {
           {...props}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
-          onTouchStart={() => {
-            if (hrOpen) {
-              LayoutAnimation.configureNext({
-                duration: 300,
-                create: { type: 'easeInEaseOut', property: 'opacity' },
-                update: { type: 'easeInEaseOut' },
-              });
-              setHrOpen(false);
-            }
-          }}
         >
-          {/* Header Section with Glass Effect */}
+          {/* Header */}
           <View style={styles.headerSection}>
             <LinearGradient
-              colors={['rgba(243, 1, 1, 0.2)', 'rgba(255, 255, 255, 0.1)']}
+              colors={['rgba(37, 99, 235, 0.15)', 'rgba(59, 130, 246, 0.1)']}
               style={styles.headerGlass}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
@@ -233,14 +232,78 @@ function EmployeeDrawerContent(props) {
               onPress={() => go('Leads')}
               isActive={activeRoute === 'Leads'}
             />
-            <GlassDrawerItem
-              label="Works"
-              icon={icons.works}
-              onPress={() => go('Works')}
-              isActive={activeRoute === 'Works'}
-            />
 
-            {/* HR collapsible group with glass effect */}
+            {/* Works collapsible group */}
+            <View style={styles.hrGroup}>
+              <Pressable
+                onPress={toggleWorks}
+                style={({ pressed }) => [
+                  styles.hrHeader,
+                  pressed && styles.hrHeaderPressed,
+                ]}
+              >
+                <LinearGradient
+                  colors={[
+                    'rgba(241, 245, 249, 0.95)',
+                    'rgba(248, 250, 252, 0.9)',
+                  ]}
+                  style={styles.hrHeaderGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <View style={styles.hrHeaderContent}>
+                    <View style={styles.hrTitleContainer}>
+                      <Image source={icons.works} style={styles.hrIcon} />
+                      <Text style={styles.hrTitle}>Works</Text>
+                    </View>
+                    <Image
+                      source={
+                        worksOpen ? icons.chevronDown : icons.chevronRight
+                      }
+                      style={[
+                        styles.chevIcon,
+                        worksOpen && styles.chevIconRotated,
+                      ]}
+                    />
+                  </View>
+                </LinearGradient>
+              </Pressable>
+
+              {worksOpen && (
+                <View style={styles.hrList}>
+                  <GlassDrawerItem
+                    label="Projects"
+                    icon={icons.projects}
+                    onPress={() => go('WorkProjects')}
+                    isActive={activeRoute === 'WorkProjects'}
+                    isSubItem
+                  />
+                  <GlassDrawerItem
+                    label="Tasks"
+                    icon={icons.tasks}
+                    onPress={() => go('WorkTasks')}
+                    isActive={activeRoute === 'WorkTasks'}
+                    isSubItem
+                  />
+                  <GlassDrawerItem
+                    label="Timesheet"
+                    icon={icons.timesheet}
+                    onPress={() => go('WorkTimesheet')}
+                    isActive={activeRoute === 'WorkTimesheet'}
+                    isSubItem
+                  />
+                  <GlassDrawerItem
+                    label="Project Roadmap"
+                    icon={icons.roadmap}
+                    onPress={() => go('WorkRoadmap')}
+                    isActive={activeRoute === 'WorkRoadmap'}
+                    isSubItem
+                  />
+                </View>
+              )}
+            </View>
+
+            {/* HR collapsible group */}
             <View style={styles.hrGroup}>
               <Pressable
                 onPress={toggleHR}
@@ -251,8 +314,8 @@ function EmployeeDrawerContent(props) {
               >
                 <LinearGradient
                   colors={[
-                    'rgba(255, 255, 255, 0.15)',
-                    'rgba(255, 255, 255, 0.08)',
+                    'rgba(241, 245, 249, 0.95)',
+                    'rgba(248, 250, 252, 0.9)',
                   ]}
                   style={styles.hrHeaderGradient}
                   start={{ x: 0, y: 0 }}
@@ -281,28 +344,28 @@ function EmployeeDrawerContent(props) {
                     icon={icons.leaves}
                     onPress={() => go('HRLeaves')}
                     isActive={activeRoute === 'HRLeaves'}
-                    isSubItem={true}
+                    isSubItem
                   />
                   <GlassDrawerItem
                     label="Attendance"
                     icon={icons.attendance}
                     onPress={() => go('HRAttendance')}
                     isActive={activeRoute === 'HRAttendance'}
-                    isSubItem={true}
+                    isSubItem
                   />
                   <GlassDrawerItem
                     label="Appreciations"
                     icon={icons.appreciations}
                     onPress={() => go('HRAppreciations')}
                     isActive={activeRoute === 'HRAppreciations'}
-                    isSubItem={true}
+                    isSubItem
                   />
                   <GlassDrawerItem
                     label="Holidays"
                     icon={icons.holidays}
                     onPress={() => go('HRHolidays')}
                     isActive={activeRoute === 'HRHolidays'}
-                    isSubItem={true}
+                    isSubItem
                   />
                 </View>
               )}
@@ -313,7 +376,7 @@ function EmployeeDrawerContent(props) {
               <LinearGradient
                 colors={[
                   'transparent',
-                  'rgba(255, 255, 255, 0.3)',
+                  'rgba(203, 213, 225, 0.6)',
                   'transparent',
                 ]}
                 start={{ x: 0, y: 0 }}
@@ -360,7 +423,7 @@ export default function EmployeeNavigator() {
         },
         headerBackground: () => (
           <LinearGradient
-            colors={['rgba(139, 69, 19, 0.9)', 'rgba(75, 0, 130, 0.9)']}
+            colors={['rgba(37, 99, 235, 0.95)', 'rgba(29, 78, 216, 0.95)']}
             style={{ flex: 1 }}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
@@ -376,14 +439,11 @@ export default function EmployeeNavigator() {
         },
         drawerActiveTintColor: '#fff',
         drawerInactiveTintColor: 'rgba(255,255,255,0.7)',
-        drawerStyle: {
-          width: width * 0.8,
-          backgroundColor: 'transparent',
-        },
+        drawerStyle: { width: width * 0.8, backgroundColor: 'transparent' },
       }}
       drawerContent={props => <EmployeeDrawerContent {...props} />}
     >
-      {/* All your existing screens remain the same */}
+      {/* Main */}
       <Drawer.Screen
         name="Dashboard"
         component={EmployeeDashboardScreen}
@@ -399,20 +459,44 @@ export default function EmployeeNavigator() {
         component={EmployeeLeadsScreen}
         options={{ title: 'Leads Management' }}
       />
+      {/* Keep Works landing (optional) */}
       <Drawer.Screen
         name="Works"
         component={EmployeeWorksScreen}
         options={{ title: 'Works & Tasks' }}
       />
+
+      {/* WORK sub-routes (hidden) */}
       <Drawer.Screen
-        // name="HRLeaves"
-        // component={EmployeeHRLeavesScreen}
-        name="HRLeaves"
-        component={EmployeeHRLeavesScreen}
+        name="WorkProjects"
+        // component={EmployeeWorkProjectsScreen}
+        component={WorksNavigator}
+        options={{ title: 'Works • Projects', drawerItemStyle: { height: 0 } }}
+      />
+      <Drawer.Screen
+        name="WorkTasks"
+        component={EmployeeWorkTasksScreen}
+        options={{ title: 'Works • Tasks', drawerItemStyle: { height: 0 } }}
+      />
+      <Drawer.Screen
+        name="WorkTimesheet"
+        component={EmployeeWorkTimesheetScreen}
+        options={{ title: 'Works • Timesheet', drawerItemStyle: { height: 0 } }}
+      />
+      <Drawer.Screen
+        name="WorkRoadmap"
+        component={EmployeeWorkRoadmapScreen}
         options={{
-          title: 'HR • Leaves',
+          title: 'Works • Project Roadmap',
           drawerItemStyle: { height: 0 },
         }}
+      />
+
+      {/* HR sub-routes (hidden) */}
+      <Drawer.Screen
+        name="HRLeaves"
+        component={EmployeeHRLeavesScreen}
+        options={{ title: 'HR • Leaves', drawerItemStyle: { height: 0 } }}
       />
       <Drawer.Screen
         name="HRAttendance"
@@ -432,6 +516,8 @@ export default function EmployeeNavigator() {
         component={EmployeeHRHolidaysScreen}
         options={{ title: 'HR • Holidays', drawerItemStyle: { height: 0 } }}
       />
+
+      {/* Common */}
       <Drawer.Screen
         name="Messages"
         component={MessagesScreen}
@@ -440,10 +526,7 @@ export default function EmployeeNavigator() {
       <Drawer.Screen
         name="Notifications"
         component={EmployeeNotificationsScreen}
-        options={{
-          drawerLabel: 'Notifications jhg',
-          title: 'Notifications devesh',
-        }}
+        options={{ title: 'Notifications' }}
       />
       <Drawer.Screen
         name="Settings"
@@ -455,41 +538,29 @@ export default function EmployeeNavigator() {
 }
 
 const styles = StyleSheet.create({
-  drawerBackground: {
-    flex: 1,
-  },
-  drawerGradient: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingTop: 0,
-    flexGrow: 1,
-  },
-  headerSection: {
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 20,
-  },
+  drawerBackground: { flex: 1 },
+  drawerGradient: { flex: 1 },
+  scrollContent: { paddingTop: 0, flexGrow: 1 },
+  headerSection: { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 20 },
   headerGlass: {
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: 'rgba(59, 130, 246, 0.3)',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
     elevation: 8,
   },
-  headerContent: {
-    alignItems: 'center',
-  },
+  headerContent: { alignItems: 'center' },
   avatarContainer: {
     width: 70,
     height: 70,
     borderRadius: 35,
     borderWidth: 3,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: '#3B82F6',
     marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -497,51 +568,28 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
   },
-  avatar: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 32,
-  },
+  avatar: { width: '100%', height: '100%', borderRadius: 32 },
   welcomeText: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: '#64748B',
+    fontWeight: '500',
     marginBottom: 4,
   },
-  employeeName: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#fff',
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
-  },
-  navigationSection: {
-    flex: 1,
-    paddingHorizontal: 16,
-  },
-  glassItem: {
-    marginVertical: 4,
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  glassSubItem: {
-    marginLeft: 20,
-    marginVertical: 2,
-    borderRadius: 12,
-  },
+  employeeName: { fontSize: 18, fontWeight: '700', color: '#1E293B' },
+  navigationSection: { flex: 1, paddingHorizontal: 16 },
+  glassItem: { marginVertical: 4, borderRadius: 16, overflow: 'hidden' },
+  glassSubItem: { marginLeft: 20, marginVertical: 2, borderRadius: 12 },
   glassItemGradient: {
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(0, 0, 0, 0.1)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 3,
   },
-  glassSubItemGradient: {
-    borderRadius: 12,
-  },
+  glassSubItemGradient: { borderRadius: 12 },
   glassItemContent: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -555,44 +603,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  itemIcon: {
-    width: 24,
-    height: 24,
-    tintColor: 'rgba(255, 255, 255, 0.9)',
-  },
-  subItemIcon: {
-    width: 20,
-    height: 20,
-    tintColor: 'rgba(255, 255, 255, 0.8)',
-  },
+  itemIcon: { width: 24, height: 24, tintColor: '#1E293B' },
+  subItemIcon: { width: 20, height: 20, tintColor: '#1E293B' },
   glassItemLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.9)',
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 1,
+    color: '#1E293B',
+    letterSpacing: 0.2,
   },
   glassSubItemLabel: {
     fontSize: 14,
     fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: '#1E293B',
+    letterSpacing: 0.2,
   },
-  glassItemActive: {
-    transform: [{ scale: 0.98 }],
-  },
-  glassItemPressed: {
-    transform: [{ scale: 0.96 }],
-    opacity: 0.8,
-  },
-  hrGroup: {
-    marginVertical: 8,
-  },
-  hrHeader: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    marginVertical: 4,
-  },
+  glassItemActive: { transform: [{ scale: 0.98 }] },
+  glassItemPressed: { transform: [{ scale: 0.96 }], opacity: 0.8 },
+  hrGroup: { marginVertical: 8 },
+  hrHeader: { borderRadius: 16, overflow: 'hidden', marginVertical: 4 },
   hrHeaderGradient: {
     borderRadius: 16,
     borderWidth: 1,
@@ -610,48 +638,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
   },
-  hrTitleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  hrIcon: {
-    width: 24,
-    height: 24,
-    tintColor: '#fff',
-    marginRight: 12,
-  },
+  hrTitleContainer: { flexDirection: 'row', alignItems: 'center' },
+  hrIcon: { width: 24, height: 24, tintColor: '#1E293B', marginRight: 12 },
   hrTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#fff',
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
+    color: '#1E293B',
+    letterSpacing: 0.3,
   },
-  chevIcon: {
-    width: 16,
-    height: 16,
-    tintColor: 'rgba(255, 255, 255, 0.8)',
-  },
-  chevIconRotated: {
-    transform: [{ rotate: '90deg' }],
-  },
-  hrHeaderPressed: {
-    transform: [{ scale: 0.98 }],
-    opacity: 0.8,
-  },
+  chevIcon: { width: 16, height: 16, tintColor: '#006afeff' },
+  chevIconRotated: { transform: [{ rotate: '90deg' }] },
+  hrHeaderPressed: { transform: [{ scale: 0.98 }], opacity: 0.8 },
   hrList: {
     marginTop: 8,
     paddingLeft: 8,
     borderLeftWidth: 2,
-    borderLeftColor: 'rgba(255, 255, 255, 0.2)',
+    borderLeftColor: 'rgba(59, 130, 246, 0.3)',
     marginLeft: 16,
   },
-  separator: {
-    marginVertical: 16,
-    paddingHorizontal: 16,
-  },
-  separatorLine: {
-    height: 1,
-  },
+  separator: { marginVertical: 16, paddingHorizontal: 16 },
+  separatorLine: { height: 1 },
 });
