@@ -8,6 +8,7 @@ import { employeeNotificationsWatcher } from '../modules/employee/notifications/
 import { employeeProjectsWatcher } from '../modules/employee/works/projects/store/sagas';
 
 import { employeeLeadsWatcher } from '../modules/employee/leads/store/sagas';
+import { taskDetailsWatcher } from '../modules/employee/works/projects/store/taskDetails/sagas';
 
 // Root saga that combines all sagas
 export default function* rootSaga() {
@@ -20,5 +21,6 @@ export default function* rootSaga() {
     employeeNotificationsWatcher(),
     employeeLeadsWatcher(),
     employeeProjectsWatcher(),
+    taskDetailsWatcher(),
   ]);
 }

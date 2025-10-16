@@ -144,4 +144,38 @@ export const projectsAPI = {
     api.get(`/projects/${projectId}/tasks`).then(r => r.data),
 };
 
+// Task Files
+export const taskFilesAPI = {
+  list: taskId => api.get(`/files/tasks/${taskId}`).then(r => r.data),
+  upload: (taskId, file) => {
+    const form = new FormData();
+    // file must be { uri, name, type }
+    form.append('file', file);
+    return api
+      .post(`/files/tasks/${taskId}`, form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+};
+
+// Subtasks
+export const subtasksAPI = {
+  list: taskId => api.get(`/tasks/${taskId}/subtasks`).then(r => r.data),
+  create: (taskId, payload) =>
+    api.post(`/tasks/${taskId}/subtasks`, payload).then(r => r.data),
+};
+
+// Timesheets (filter in params)
+export const timesheetsAPI = {
+  list: (params = {}) => api.get('/timesheets', { params }).then(r => r.data),
+};
+
+// Notes
+export const notesAPI = {
+  list: taskId => api.get(`/tasks/${taskId}/notes`).then(r => r.data),
+  create: (taskId, payload) =>
+    api.post(`/tasks/${taskId}/notes`, payload).then(r => r.data),
+};
+
 export default api;

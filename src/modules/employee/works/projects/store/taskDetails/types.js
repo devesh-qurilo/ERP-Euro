@@ -1,0 +1,30 @@
+// src/modules/employee/works/projects/store/taskDetails/types.js
+export const FETCH_TASK_FILES_REQUEST = 'taskDetails/FETCH_TASK_FILES_REQUEST';
+export const FETCH_TASK_FILES_SUCCESS = 'taskDetails/FETCH_TASK_FILES_SUCCESS';
+export const FETCH_TASK_FILES_FAILURE = 'taskDetails/FETCH_TASK_FILES_FAILURE';
+
+export const UPLOAD_TASK_FILE_REQUEST = 'taskDetails/UPLOAD_TASK_FILE_REQUEST';
+export const UPLOAD_TASK_FILE_SUCCESS = 'taskDetails/UPLOAD_TASK_FILE_SUCCESS';
+export const UPLOAD_TASK_FILE_FAILURE = 'taskDetails/UPLOAD_TASK_FILE_FAILURE';
+
+export const FETCH_SUBTASKS_REQUEST = 'taskDetails/FETCH_SUBTASKS_REQUEST';
+export const FETCH_SUBTASKS_SUCCESS = 'taskDetails/FETCH_SUBTASKS_SUCCESS';
+export const FETCH_SUBTASKS_FAILURE = 'taskDetails/FETCH_SUBTASKS_FAILURE';
+
+export const CREATE_SUBTASK_REQUEST = 'taskDetails/CREATE_SUBTASK_REQUEST';
+export const CREATE_SUBTASK_SUCCESS = 'taskDetails/CREATE_SUBTASK_SUCCESS';
+export const CREATE_SUBTASK_FAILURE = 'taskDetails/CREATE_SUBTASK_FAILURE';
+
+export const FETCH_TIMESHEETS_REQUEST = 'taskDetails/FETCH_TIMESHEETS_REQUEST';
+export const FETCH_TIMESHEETS_SUCCESS = 'taskDetails/FETCH_TIMESHEETS_SUCCESS';
+export const FETCH_TIMESHEETS_FAILURE = 'taskDetails/FETCH_TIMESHEETS_FAILURE';
+
+export const FETCH_NOTES_REQUEST = 'taskDetails/FETCH_NOTES_REQUEST';
+export const FETCH_NOTES_SUCCESS = 'taskDetails/FETCH_NOTES_SUCCESS';
+export const FETCH_NOTES_FAILURE = 'taskDetails/FETCH_NOTES_FAILURE';
+
+export const CREATE_NOTE_REQUEST = 'taskDetails/CREATE_NOTE_REQUEST';
+export const CREATE_NOTE_SUCCESS = 'taskDetails/CREATE_NOTE_SUCCESS';
+export const CREATE_NOTE_FAILURE = 'taskDetails/CREATE_NOTE_FAILURE';
+
+export const CLEAR_TASK_DETAILS = 'taskDetails/CLEAR_TASK_DETAILS';

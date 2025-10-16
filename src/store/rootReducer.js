@@ -8,6 +8,7 @@ import employeeNotificationsReducer from '../modules/employee/notifications/stor
 import employeeProjectsReducer from '../modules/employee/works/projects/store/reducers';
 
 import employeeLeadsReducer from '../modules/employee/leads/store/reducers';
+import taskDetailsReducer from '../modules/employee/works/projects/store/taskDetails/reducer';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -20,6 +21,7 @@ const rootReducer = combineReducers({
     leads: employeeLeadsReducer,
     works: combineReducers({
       projects: employeeProjectsReducer, // ✅ mount here
+      taskDetails: taskDetailsReducer,
     }),
   }),
 });
