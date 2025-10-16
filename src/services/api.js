@@ -140,6 +140,8 @@ export const projectsAPI = {
   // ✅ persist pin state
   pinProject: id => api.post(`/projects/${id}/pin`).then(r => r.data),
   unpinProject: id => api.delete(`/projects/${id}/pin`).then(r => r.data),
+  getProjectTasks: projectId =>
+    api.get(`/projects/${projectId}/tasks`).then(r => r.data),
 };
 
 export default api;

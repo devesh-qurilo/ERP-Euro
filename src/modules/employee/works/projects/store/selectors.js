@@ -13,3 +13,11 @@ export const selectProjectMetricsLoading = id => s =>
   !!s.employee?.works?.projects?.metricsLoadingById?.[id];
 export const selectProjectMetricsError = id => s =>
   s.employee?.works?.projects?.metricsErrorById?.[id] || null;
+
+// tasks
+export const selectProjectTasks = id => s =>
+  s.employee?.works?.projects?.tasksById?.[id] || [];
+export const selectProjectTasksLoading = id => s =>
+  !!s.employee?.works?.projects?.tasksLoadingById?.[id];
+export const selectProjectTasksError = id => s =>
+  s.employee?.works?.projects?.tasksErrorById?.[id] || null;

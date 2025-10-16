@@ -8,6 +8,9 @@ import {
   FETCH_PROJECT_METRICS_REQUEST,
   FETCH_PROJECT_METRICS_SUCCESS,
   FETCH_PROJECT_METRICS_FAILURE,
+  FETCH_PROJECT_TASKS_REQUEST,
+  FETCH_PROJECT_TASKS_SUCCESS,
+  FETCH_PROJECT_TASKS_FAILURE,
 } from './actions';
 
 const initialState = {
@@ -18,6 +21,9 @@ const initialState = {
   metricsById: {}, // { [id]: { hoursEstimate, totalTimeLoggedMinutes, ...fullPayload } }
   metricsLoadingById: {}, // { [id]: boolean }
   metricsErrorById: {}, // { [id]: string|null }
+  tasksById: {}, // { [projectId]: Task[] }
+  tasksLoadingById: {}, // { [projectId]: boolean }
+  tasksErrorById: {}, // { [projectId]: string|null }
 };
 
 export default function employeeProjectsReducer(state = initialState, action) {
@@ -92,6 +98,35 @@ export default function employeeProjectsReducer(state = initialState, action) {
         metricsLoadingById: { ...state.metricsLoadingById, [projectId]: false },
         metricsErrorById: {
           ...state.metricsErrorById,
+          [projectId]: error || 'Failed to load',
+        },
+      };
+    }
+
+    // ─── tasks ────────────────────────────────────────────────────────────────
+    case FETCH_PROJECT_TASKS_REQUEST: {
+      const id = action.projectId;
+      return {
+        ...state,
+        tasksLoadingById: { ...state.tasksLoadingById, [id]: true },
+        tasksErrorById: { ...state.tasksErrorById, [id]: null },
+      };
+    }
+    case FETCH_PROJECT_TASKS_SUCCESS: {
+      const { projectId, payload } = action;
+      return {
+        ...state,
+        tasksById: { ...state.tasksById, [projectId]: payload || [] },
+        tasksLoadingById: { ...state.tasksLoadingById, [projectId]: false },
+      };
+    }
+    case FETCH_PROJECT_TASKS_FAILURE: {
+      const { projectId, error } = action;
+      return {
+        ...state,
+        tasksLoadingById: { ...state.tasksLoadingById, [projectId]: false },
+        tasksErrorById: {
+          ...state.tasksErrorById,
           [projectId]: error || 'Failed to load',
         },
       };

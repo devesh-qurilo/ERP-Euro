@@ -8,6 +8,7 @@ import {
   selectProjectMetricsLoading,
 } from '../../projects/store/selectors';
 import { fetchProjectMetrics } from '../../projects/store/actions';
+import TaskDetailsTable from '../components/TaskDetailsTable';
 
 const fmt = d => (d ? new Date(d).toLocaleDateString() : '—');
 const pct = v => Math.max(0, Math.min(100, Number(v ?? 0)));
@@ -41,8 +42,7 @@ export default function ProjectOverviewTab({ route }) {
     metrics?.hoursEstimate ?? project?.hoursEstimate ?? null;
   const totalLoggedMin =
     metrics?.totalTimeLoggedMinutes ?? project?.totalTimeLoggedMinutes ?? null;
-  const hoursLogged =
-    totalLoggedMin != null ? Number(totalLoggedMin) / 60 : null;
+  const hoursLogged = totalLoggedMin != null ? Number(totalLoggedMin) : null;
   const hoursPct =
     hoursEstimate && hoursLogged != null
       ? Math.min(100, Math.round((hoursLogged / hoursEstimate) * 100))
@@ -185,6 +185,8 @@ export default function ProjectOverviewTab({ route }) {
           )}
         </View>
       </View>
+
+      <TaskDetailsTable projectId={projectId} />
     </ScrollView>
   );
 }

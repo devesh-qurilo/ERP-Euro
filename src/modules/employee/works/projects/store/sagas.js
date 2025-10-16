@@ -10,6 +10,9 @@ import {
   FETCH_PROJECT_METRICS_REQUEST,
   FETCH_PROJECT_METRICS_SUCCESS,
   FETCH_PROJECT_METRICS_FAILURE,
+  FETCH_PROJECT_TASKS_REQUEST,
+  FETCH_PROJECT_TASKS_SUCCESS,
+  FETCH_PROJECT_TASKS_FAILURE,
 } from './actions';
 
 function* fetchProjectsSaga(action) {
@@ -28,6 +31,19 @@ function* fetchProjectsSaga(action) {
     yield put({
       type: FETCH_PROJECTS_FAILURE,
       error: e?.message || 'Failed to load projects',
+    });
+  }
+}
+
+function* fetchTasksSaga({ projectId }) {
+  try {
+    const list = yield call(projectsAPI.getProjectTasks, projectId);
+    yield put({ type: FETCH_PROJECT_TASKS_SUCCESS, projectId, payload: list });
+  } catch (e) {
+    yield put({
+      type: FETCH_PROJECT_TASKS_FAILURE,
+      projectId,
+      error: e?.message || 'Failed to load tasks',
     });
   }
 }
@@ -72,5 +88,6 @@ export function* employeeProjectsWatcher() {
     takeLatest(FETCH_PROJECTS_REQUEST, fetchProjectsSaga),
     takeLatest(TOGGLE_PIN_PROJECT_REQUEST, togglePinSaga),
     takeLatest(FETCH_PROJECT_METRICS_REQUEST, fetchMetricsSaga),
+    takeLatest(FETCH_PROJECT_TASKS_REQUEST, fetchTasksSaga),
   ]);
 }

@@ -19,6 +19,13 @@ export const FETCH_PROJECT_METRICS_SUCCESS =
 export const FETCH_PROJECT_METRICS_FAILURE =
   'employee/projects/FETCH_PROJECT_METRICS_FAILURE';
 
+export const FETCH_PROJECT_TASKS_REQUEST =
+  'employee/projects/FETCH_PROJECT_TASKS_REQUEST';
+export const FETCH_PROJECT_TASKS_SUCCESS =
+  'employee/projects/FETCH_PROJECT_TASKS_SUCCESS';
+export const FETCH_PROJECT_TASKS_FAILURE =
+  'employee/projects/FETCH_PROJECT_TASKS_FAILURE';
+
 export const fetchProjectMetrics = projectId => ({
   type: FETCH_PROJECT_METRICS_REQUEST,
   projectId,
@@ -40,4 +47,9 @@ export const togglePinProject = (projectId, desiredPinned, prevPinned) => ({
   projectId,
   desiredPinned,
   prevPinned,
+});
+
+export const fetchProjectTasks = projectId => ({
+  type: FETCH_PROJECT_TASKS_REQUEST,
+  projectId,
 });
