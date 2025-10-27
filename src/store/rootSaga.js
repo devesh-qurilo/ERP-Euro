@@ -9,6 +9,7 @@ import { employeeProjectsWatcher } from '../modules/employee/works/projects/stor
 
 import { employeeLeadsWatcher } from '../modules/employee/leads/store/sagas';
 import { taskDetailsWatcher } from '../modules/employee/works/projects/store/taskDetails/sagas';
+import { projectFilesWatcher } from '../modules/employee/works/projects/store/projectFiles/sagas';
 
 // Root saga that combines all sagas
 export default function* rootSaga() {
@@ -22,5 +23,6 @@ export default function* rootSaga() {
     employeeLeadsWatcher(),
     employeeProjectsWatcher(),
     taskDetailsWatcher(),
+    projectFilesWatcher(),
   ]);
 }

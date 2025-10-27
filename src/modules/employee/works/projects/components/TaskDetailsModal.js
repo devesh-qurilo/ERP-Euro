@@ -1,5 +1,5 @@
 // src/modules/employee/works/projects/components/TaskDetailsModal.js
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   View,
@@ -9,7 +9,6 @@ import {
   ScrollView,
   Image,
   TextInput,
-  Alert,
 } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import { useDispatch, useSelector } from 'react-redux';
@@ -34,22 +33,84 @@ import {
   selectNotesLoading,
 } from '../store/taskDetails/selectors';
 
+/* ---------- small atoms ---------- */
 const Tab = ({ active, label, onPress }) => (
   <Pressable onPress={onPress} style={[styles.tab, active && styles.tabActive]}>
     <Text style={[styles.tabTxt, active && styles.tabTxtActive]}>{label}</Text>
   </Pressable>
 );
 
+const Chip = ({ text, color = '#111827', bg = '#eef2ff', style }) => (
+  <View style={[styles.chip, { backgroundColor: bg }, style]}>
+    <Text style={[styles.chipTxt, { color }]} numberOfLines={1}>
+      {text}
+    </Text>
+  </View>
+);
+
+const Input = ({ label, style, multiline = false, ...rest }) => (
+  <View style={[{ minWidth: 160, flexBasis: 160 }, style]}>
+    <Text style={styles.label}>{label}</Text>
+    <TextInput
+      {...rest}
+      multiline={multiline}
+      numberOfLines={multiline ? 3 : 1}
+      style={[
+        styles.input,
+        multiline && { height: 88, textAlignVertical: 'top' },
+      ]}
+      placeholderTextColor="#9ca3af"
+    />
+  </View>
+);
+
+const RowHead = ({ cols, widths }) => (
+  <View style={styles.trHead}>
+    {cols.map((c, i) => (
+      <View key={c} style={[styles.th, { width: widths[i] }]}>
+        <Text style={styles.thTxt}>{c}</Text>
+      </View>
+    ))}
+  </View>
+);
+const Row = ({ children }) => <View style={styles.tr}>{children}</View>;
+const Cell = ({ w, text }) => (
+  <View style={[styles.cell, { width: w }]}>
+    <Text style={styles.body} numberOfLines={2}>
+      {text}
+    </Text>
+  </View>
+);
+
+/* ---------- helpers ---------- */
+const fmtSize = b =>
+  !b && b !== 0 ? '—' : `${(b / 1024 / 1024).toFixed(2)} MB`;
+const fmtDate = d => (d ? new Date(d).toLocaleDateString() : '—');
+const fmtTime = t => (t ? t.slice(0, 5) : '—');
+const fmtDateTime = s => (s ? new Date(s).toLocaleString() : '—');
+
+const priorityChip = p => {
+  if (!p) return { text: '—', color: '#374151', bg: '#f3f4f6' };
+  const map = {
+    HIGH: { color: '#b91c1c', bg: '#fee2e2', text: 'High' },
+    MEDIUM: { color: '#b45309', bg: '#ffedd5', text: 'Medium' },
+    LOW: { color: '#047857', bg: '#dcfce7', text: 'Low' },
+  };
+  return map[p] || { color: '#374151', bg: '#f3f4f6', text: p };
+};
+
+/* =================================================================== */
+
 export default function TaskDetailsModal({ visible, task, onClose }) {
   const taskId = task?.id;
   const projectId = task?.projectId;
   const dispatch = useDispatch();
+
   const [tab, setTab] = useState('files'); // files | subtasks | timesheet | notes
 
-  // --- Files ---
+  // files
   const files = useSelector(selectTaskFiles);
   const filesLoading = useSelector(selectTaskFilesLoading);
-
   const loadFiles = () => taskId && dispatch(fetchTaskFiles(taskId));
   const pickAndUpload = async () => {
     try {
@@ -65,12 +126,11 @@ export default function TaskDetailsModal({ visible, task, onClose }) {
     }
   };
 
-  // --- Subtasks ---
+  // subtasks
   const subs = useSelector(selectSubtasks);
   const subsLoading = useSelector(selectSubtasksLoading);
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
-
   const loadSubs = () => taskId && dispatch(fetchSubtasks(taskId));
   const addSubtask = () => {
     if (!title.trim()) return;
@@ -84,21 +144,18 @@ export default function TaskDetailsModal({ visible, task, onClose }) {
     setDesc('');
   };
 
-  // --- Timesheet ---
-
+  // timesheets
   const sheets = useSelector(selectTimesheets);
   const sheetsLoading = useSelector(selectTimesheetsLoading);
-
   const loadSheets = () =>
     taskId && dispatch(fetchTimesheets(projectId, taskId));
 
-  // --- Notes ---
+  // notes
   const notes = useSelector(selectNotes);
   const notesLoading = useSelector(selectNotesLoading);
   const [noteTitle, setNoteTitle] = useState('');
   const [noteContent, setNoteContent] = useState('');
   const [isPublic, setIsPublic] = useState(true);
-
   const loadNotes = () => taskId && dispatch(fetchNotes(taskId));
   const addNote = () => {
     if (!noteContent.trim()) return;
@@ -113,12 +170,17 @@ export default function TaskDetailsModal({ visible, task, onClose }) {
     setNoteContent('');
   };
 
-  // optional: clear slice when modal closes
+  // clear data on close
   useEffect(() => {
     if (!visible) dispatch(clearTaskDetails());
   }, [visible, dispatch]);
 
-  // >>> LOAD DATA when modal opens & tab changes <<<
+  // default tab when task changes
+  useEffect(() => {
+    setTab('files');
+  }, [taskId]);
+
+  // lazy load per tab
   useEffect(() => {
     if (!visible || !taskId) return;
     switch (tab) {
@@ -141,6 +203,11 @@ export default function TaskDetailsModal({ visible, task, onClose }) {
 
   if (!visible || !task) return null;
 
+  /* ----------------- Task SUMMARY card (new) ----------------- */
+  const prChip = priorityChip(task.priority);
+  const labels = task.labels || [];
+  const assignees = task.assignedEmployees || [];
+
   const Header = () => (
     <View style={styles.header}>
       <Text style={styles.title} numberOfLines={2}>
@@ -162,7 +229,116 @@ export default function TaskDetailsModal({ visible, task, onClose }) {
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
           <Header />
-          {/* Tabs */}
+
+          {/* ----------- SECTION 1: Task Summary ----------- */}
+          <ScrollView
+            contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 8 }}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.summaryCard}>
+              {/* line 1: priority + stage + milestone */}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: 8,
+                }}
+              >
+                <Chip
+                  text={`Priority: ${prChip.text}`}
+                  color={prChip.color}
+                  bg={prChip.bg}
+                />
+                <Chip
+                  text={`Stage: ${task.taskStage?.name || '—'}`}
+                  color="#1d4ed8"
+                  bg="#dbeafe"
+                />
+                <Chip
+                  text={`Milestone: ${task.milestone?.title || '—'}`}
+                  color="#065f46"
+                  bg="#d1fae5"
+                />
+              </View>
+
+              {/* line 2: dates + estimates */}
+              <View style={styles.kvRow}>
+                <KV k="Start Date" v={fmtDate(task.startDate)} />
+                <KV k="Due Date" v={fmtDate(task.dueDate)} />
+                <KV
+                  k="Estimated Time"
+                  v={
+                    task.timeEstimateMinutes
+                      ? `${Math.round(task.timeEstimateMinutes / 60)}h`
+                      : '—'
+                  }
+                />
+                <KV k="No Due Date" v={task.noDueDate ? 'Yes' : 'No'} />
+              </View>
+
+              {/* line 3: assignees */}
+              <Text style={[styles.label, { marginTop: 8 }]}>Assigned To</Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={{ marginBottom: 6 }}
+              >
+                <View
+                  style={{ flexDirection: 'row', gap: 10, paddingVertical: 2 }}
+                >
+                  {assignees.length ? (
+                    assignees.map(a => (
+                      <View
+                        key={a.employeeId}
+                        style={{ alignItems: 'center', width: 68 }}
+                      >
+                        {a.profileUrl ? (
+                          <Image
+                            source={{ uri: a.profileUrl }}
+                            style={styles.avatarLg}
+                          />
+                        ) : (
+                          <View style={[styles.avatarLg, styles.avatarEmpty]}>
+                            <Text>👤</Text>
+                          </View>
+                        )}
+                        <Text style={styles.smallName} numberOfLines={1}>
+                          {a.name?.trim() || a.employeeId}
+                        </Text>
+                      </View>
+                    ))
+                  ) : (
+                    <Text style={styles.dim}>—</Text>
+                  )}
+                </View>
+              </ScrollView>
+
+              {/* line 4: labels */}
+              <Text style={[styles.label, { marginTop: 8 }]}>Labels</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                {labels.length ? (
+                  labels.map(l => (
+                    <Chip
+                      key={l.id}
+                      text={l.name}
+                      color="#111827"
+                      bg={l.colorCode || '#f3f4f6'}
+                      style={{ borderWidth: 1, borderColor: '#e5e7eb' }}
+                    />
+                  ))
+                ) : (
+                  <Text style={styles.dim}>—</Text>
+                )}
+              </View>
+
+              {/* description */}
+              <Text style={[styles.label, { marginTop: 8 }]}>Description</Text>
+              <Text style={styles.body}>{task.description || '—'}</Text>
+            </View>
+          </ScrollView>
+
+          {/* ----------- SECTION 2: Tabs (existing) ----------- */}
           <View style={styles.tabRow}>
             <Tab
               label="Files"
@@ -186,7 +362,6 @@ export default function TaskDetailsModal({ visible, task, onClose }) {
             />
           </View>
 
-          {/* Content */}
           <ScrollView contentContainerStyle={{ padding: 12 }}>
             {tab === 'files' && (
               <View>
@@ -200,13 +375,8 @@ export default function TaskDetailsModal({ visible, task, onClose }) {
                     widths={[200, 120, 100]}
                   />
                   {(filesLoading ? [] : files).map((f, i) => (
-                    <Row key={f.id || i} widths={[200, 120, 100]}>
-                      <View
-                        style={[
-                          styles.cell,
-                          { width: 200, flexDirection: 'row', gap: 8 },
-                        ]}
-                      >
+                    <Row key={f.id || i}>
+                      <View style={[styles.cell, { width: 200 }]}>
                         <Text style={styles.body} numberOfLines={1}>
                           {f.filename}
                         </Text>
@@ -255,7 +425,7 @@ export default function TaskDetailsModal({ visible, task, onClose }) {
                     widths={[200, 260, 120]}
                   />
                   {(subsLoading ? [] : subs).map(s => (
-                    <Row key={s.id} widths={[200, 260, 120]}>
+                    <Row key={s.id}>
                       <Cell w={200} text={s.title} />
                       <Cell w={260} text={s.description || '—'} />
                       <Cell w={120} text={s.isDone ? 'Done' : 'Open'} />
@@ -280,7 +450,7 @@ export default function TaskDetailsModal({ visible, task, onClose }) {
                     widths={[200, 150, 150, 200, 120]}
                   />
                   {(sheetsLoading ? [] : sheets).map(s => (
-                    <Row key={s.id} widths={[200, 150, 150, 200, 120]}>
+                    <Row key={s.id}>
                       <View
                         style={[
                           styles.cell,
@@ -376,7 +546,7 @@ export default function TaskDetailsModal({ visible, task, onClose }) {
                     widths={[160, 260, 110, 160]}
                   />
                   {(notesLoading ? [] : notes).map(n => (
-                    <Row key={n.id} widths={[160, 260, 110, 160]}>
+                    <Row key={n.id}>
                       <Cell w={160} text={n.title || '—'} />
                       <Cell w={260} text={n.content} />
                       <Cell w={110} text={n.isPublic ? 'Public' : 'Private'} />
@@ -394,52 +564,21 @@ export default function TaskDetailsModal({ visible, task, onClose }) {
   );
 }
 
-/* small UI helpers */
-const Input = ({ label, style, multiline = false, ...rest }) => (
-  <View style={[{ minWidth: 160, flexBasis: 160 }, style]}>
-    <Text style={styles.label}>{label}</Text>
-    <TextInput
-      {...rest}
-      multiline={multiline}
-      numberOfLines={multiline ? 3 : 1}
-      style={[
-        styles.input,
-        multiline && { height: 88, textAlignVertical: 'top' },
-      ]}
-      placeholderTextColor="#9ca3af"
-    />
+/* ---------- tiny components used in summary ---------- */
+const KV = ({ k, v }) => (
+  <View style={{ paddingRight: 16, marginVertical: 4 }}>
+    <Text style={[styles.dim, { marginBottom: 2 }]}>{k}</Text>
+    <Text style={styles.body}>{v}</Text>
   </View>
 );
 
-const RowHead = ({ cols, widths }) => (
-  <View style={styles.trHead}>
-    {cols.map((c, i) => (
-      <View key={c} style={[styles.th, { width: widths[i] }]}>
-        <Text style={styles.thTxt}>{c}</Text>
-      </View>
-    ))}
-  </View>
-);
-const Row = ({ children }) => <View style={styles.tr}>{children}</View>;
-const Cell = ({ w, text }) => (
-  <View style={[styles.cell, { width: w }]}>
-    <Text style={styles.body} numberOfLines={2}>
-      {text}
-    </Text>
-  </View>
-);
-
-const fmtSize = b =>
-  !b && b !== 0 ? '—' : `${(b / 1024 / 1024).toFixed(2)} MB`;
-const fmtDate = d => (d ? new Date(d).toLocaleDateString() : '—');
-const fmtTime = t => (t ? t.slice(0, 5) : '—');
-const fmtDateTime = s => (s ? new Date(s).toLocaleString() : '—');
-
+/* ---------- styles ---------- */
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.25)',
     justifyContent: 'flex-end',
+    marginBottom: 40,
   },
   sheet: {
     backgroundColor: '#fff',
@@ -447,6 +586,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 16,
     maxHeight: '90%',
   },
+
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -464,6 +604,23 @@ const styles = StyleSheet.create({
     paddingRight: 8,
   },
 
+  /* SUMMARY */
+  summaryCard: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    marginTop: 10,
+    padding: 12,
+    gap: 6,
+  },
+  kvRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 6 },
+
+  chip: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999 },
+  chipTxt: { fontWeight: '900' },
+  avatarLg: { width: 48, height: 48, borderRadius: 24, marginBottom: 4 },
+
+  /* TABS */
   tabRow: {
     flexDirection: 'row',
     paddingHorizontal: 10,
@@ -537,6 +694,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   body: { color: '#111827' },
+  dim: { color: '#6b7280' },
 
   avatar: { width: 36, height: 36, borderRadius: 18 },
   avatarEmpty: {
@@ -544,6 +702,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#f3f4f6',
   },
-
-  dim: { color: '#6b7280', padding: 12 },
 });

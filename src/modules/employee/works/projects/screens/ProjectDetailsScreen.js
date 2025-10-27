@@ -2,6 +2,7 @@ import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useRoute } from '@react-navigation/native';
 import ProjectOverviewTab from '../tabs/ProjectOverviewTab';
+import ProjectFilesTab from '../components/ProjectFilesTab';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -25,10 +26,16 @@ export default function ProjectDetailsScreen() {
         component={ProjectOverviewTab}
         initialParams={{ projectId }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="File"
         component={PlaceholderTab}
         initialParams={{ label: 'Files coming soon' }}
+      /> */}
+      <Tab.Screen
+        name="FilesTab"
+        component={ProjectFilesTab}
+        options={{ tabBarLabel: 'Files', title: 'Files' }}
+        initialParams={{ projectId }}
       />
       <Tab.Screen
         name="Notes"

@@ -1,7 +1,8 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = 'https://6jnqmj85-80.inc1.devtunnels.ms'; // Replace with your actual gateway URL
+// const API_BASE_URL = 'https://chat.swiftandgo.in'; // Replace with your actual gateway URL
+const API_BASE_URL = 'https://6jnqmj85-80.inc1.devtunnels.ms';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -176,6 +177,20 @@ export const notesAPI = {
   list: taskId => api.get(`/tasks/${taskId}/notes`).then(r => r.data),
   create: (taskId, payload) =>
     api.post(`/tasks/${taskId}/notes`, payload).then(r => r.data),
+};
+
+export const projectFilesAPI = {
+  list: projectId => api.get(`/files/projects/${projectId}`).then(r => r.data),
+
+  upload: (projectId, file /* { uri, name, type } */) => {
+    const form = new FormData();
+    form.append('file', file);
+    return api
+      .post(`/files/projects/${projectId}`, form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
 };
 
 export default api;

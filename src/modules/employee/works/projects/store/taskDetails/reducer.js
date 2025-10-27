@@ -138,7 +138,7 @@ export default function taskDetailsReducer(state = initialState, action) {
           error: null,
         },
       };
-    case T.CRETE_NOTE_FAILURE:
+    case T.CREATE_NOTE_FAILURE:
       return {
         ...state,
         notes: { ...state.notes, loading: false, error: action.error },

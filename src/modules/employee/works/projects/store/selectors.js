@@ -21,3 +21,15 @@ export const selectProjectTasksLoading = id => s =>
   !!s.employee?.works?.projects?.tasksLoadingById?.[id];
 export const selectProjectTasksError = id => s =>
   s.employee?.works?.projects?.tasksErrorById?.[id] || null;
+
+const projectsSlice = s => s.employee?.works?.projects || {};
+
+export const selectProjectFilesState = s => projectsSlice(s).files || {};
+export const selectProjectFiles = projectId => s =>
+  selectProjectFilesState(s).byProject?.[projectId] || [];
+export const selectProjectFilesLoading = s =>
+  !!selectProjectFilesState(s).loading;
+export const selectProjectFilesUploading = s =>
+  !!selectProjectFilesState(s).uploading;
+export const selectProjectFilesError = s =>
+  selectProjectFilesState(s).error || null;
