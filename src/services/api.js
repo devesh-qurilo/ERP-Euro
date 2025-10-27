@@ -143,6 +143,12 @@ export const projectsAPI = {
   unpinProject: id => api.delete(`/projects/${id}/pin`).then(r => r.data),
   getProjectTasks: projectId =>
     api.get(`/projects/${projectId}/tasks`).then(r => r.data),
+
+  getProjectNotes: projectId =>
+    api.get(`/projects/${projectId}/notes`).then(r => r.data),
+
+  getProjectActivity: projectId =>
+    api.get(`/projects/${projectId}/activity`).then(r => r.data),
 };
 
 // Task Files

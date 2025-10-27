@@ -11,6 +11,9 @@ import { employeeLeadsWatcher } from '../modules/employee/leads/store/sagas';
 import { taskDetailsWatcher } from '../modules/employee/works/projects/store/taskDetails/sagas';
 import { projectFilesWatcher } from '../modules/employee/works/projects/store/projectFiles/sagas';
 
+import { projectNotesWatcher } from '../modules/employee/works/projects/store/projectNotes/sagas';
+import { projectActivityWatcher } from '../modules/employee/works/projects/store/projectActivity/sagas';
+
 // Root saga that combines all sagas
 export default function* rootSaga() {
   yield all([
@@ -24,5 +27,7 @@ export default function* rootSaga() {
     employeeProjectsWatcher(),
     taskDetailsWatcher(),
     projectFilesWatcher(),
+    projectNotesWatcher(),
+    projectActivityWatcher(),
   ]);
 }

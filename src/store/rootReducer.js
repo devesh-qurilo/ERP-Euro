@@ -9,6 +9,8 @@ import employeeProjectsReducer from '../modules/employee/works/projects/store/re
 
 import employeeLeadsReducer from '../modules/employee/leads/store/reducers';
 import taskDetailsReducer from '../modules/employee/works/projects/store/taskDetails/reducer';
+import projectNotesReducer from '../modules/employee/works/projects/store/projectNotes/reducer';
+import projectActivityReducer from '../modules/employee/works/projects/store/projectActivity/reducer';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -22,6 +24,8 @@ const rootReducer = combineReducers({
     works: combineReducers({
       projects: employeeProjectsReducer, // ✅ mount here
       taskDetails: taskDetailsReducer,
+      projectNotes: projectNotesReducer, // ✅ NEW
+      projectActivity: projectActivityReducer, // ✅ NEW
     }),
   }),
 });

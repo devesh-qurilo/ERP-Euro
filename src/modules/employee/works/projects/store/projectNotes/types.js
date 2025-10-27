@@ -1,0 +1,6 @@
+export const FETCH_PROJECT_NOTES_REQUEST =
+  'employee/projects/FETCH_PROJECT_NOTES_REQUEST';
+export const FETCH_PROJECT_NOTES_SUCCESS =
+  'employee/projects/FETCH_PROJECT_NOTES_SUCCESS';
+export const FETCH_PROJECT_NOTES_FAILURE =
+  'employee/projects/FETCH_PROJECT_NOTES_FAILURE';
