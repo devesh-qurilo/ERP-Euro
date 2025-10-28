@@ -13,3 +13,12 @@ export const selectWaitingTasks = s =>
       (t.taskStage?.name || '').toLowerCase().includes('incomplete') ||
       (t.taskStage?.name || '').toLowerCase().includes('waiting'),
   );
+
+export const selectMyTasks = s => s.employee?.works?.tasks?.tasks || [];
+// export const selectTasksLoading = s => !!s.employee?.works?.tasks?.loading;
+
+export const selectStatuses = s => s.employee?.works?.tasks?.statuses || [];
+export const selectStatusesLoading = s =>
+  !!s.employee?.works?.tasks?.statusesLoading;
+export const selectStatusesError = s =>
+  s.employee?.works?.tasks?.statusesError || null;

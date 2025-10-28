@@ -209,4 +209,8 @@ export const taskPinAPI = {
     api.delete(`/projects/tasks/${taskId}/pin`).then(r => r.data),
 };
 
+export const statusesAPI = {
+  list: () => api.get('/status').then(r => r.data),
+};
+
 export default api;

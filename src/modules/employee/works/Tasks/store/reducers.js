@@ -1,7 +1,14 @@
 // src/modules/employee/works/tasks/store/reducers.js
 import * as T from './types';
 
-const initialState = { list: [], loading: false, error: null };
+const initialState = {
+  list: [],
+  loading: false,
+  error: null,
+  statuses: [],
+  statusesLoading: false,
+  statusesError: null,
+};
 
 export default function employeeTasksReducer(state = initialState, action) {
   switch (action.type) {
@@ -11,6 +18,21 @@ export default function employeeTasksReducer(state = initialState, action) {
       return { ...state, loading: false, list: action.payload, error: null };
     case T.FETCH_MY_TASKS_FAILURE:
       return { ...state, loading: false, error: action.error };
+
+    case T.FETCH_STATUSES_REQUEST:
+      return { ...state, statusesLoading: true, statusesError: null };
+    case T.FETCH_STATUSES_SUCCESS:
+      return {
+        ...state,
+        statusesLoading: false,
+        statuses: action.payload || [],
+      };
+    case T.FETCH_STATUSES_FAILURE:
+      return {
+        ...state,
+        statusesLoading: false,
+        statusesError: action.error || 'Failed',
+      };
 
     // 🔁 Optimistic update on request
     case T.TOGGLE_PIN_TASK_REQUEST: {

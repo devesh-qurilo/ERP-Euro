@@ -1,6 +1,8 @@
 // src/modules/employee/works/tasks/store/actions.js
 import * as T from './types';
 
+export const fetchStatuses = () => ({ type: T.FETCH_STATUSES_REQUEST });
+
 export const fetchMyTasks = () => ({ type: T.FETCH_MY_TASKS_REQUEST });
 
 // optimistic toggle with rollback info

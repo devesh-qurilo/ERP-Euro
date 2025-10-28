@@ -1,4 +1,3 @@
-// src/modules/employee/works/tasks/screens/EmployeeTasksScreen.js
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
@@ -17,11 +16,16 @@ import {
   selectTasksLoading,
   selectPinnedTasks,
   selectWaitingTasks,
+  // ⬇️ Kanban
+  selectStatuses,
+  selectStatusesLoading,
 } from '../store/selectors';
+import { fetchStatuses } from '../store/actions'; // ⬅️ Kanban
 
 import TasksTable from '../components/TasksTable';
 import TasksCalendarModal from '../components/TasksCalendarModal';
-import TaskDetailsModal from '../../projects/components/TaskDetailsModal'; // ✅ reuse your modal
+import TaskDetailsModal from '../../projects/components/TaskDetailsModal';
+import KanbanBoard from '../components/KanbanBoard'; // ⬅️ Kanban
 
 const Pill = ({ active, label, onPress }) => (
   <Pressable
@@ -67,11 +71,17 @@ const Select = ({ label, value, options, onChange, style }) => {
 
 export default function EmployeeTasksScreen() {
   const dispatch = useDispatch();
+
+  // base data
   const list = useSelector(selectTasks);
   const loading = useSelector(selectTasksLoading);
   const error = useSelector(selectTasksError);
   const pinned = useSelector(selectPinnedTasks);
   const waiting = useSelector(selectWaitingTasks);
+
+  // kanban data
+  const statuses = useSelector(selectStatuses);
+  const statusesLoading = useSelector(selectStatusesLoading);
 
   useEffect(() => {
     dispatch(fetchMyTasks());
@@ -107,8 +117,16 @@ export default function EmployeeTasksScreen() {
     [search, priority, stage, start, end],
   );
 
-  const [mode, setMode] = useState('list'); // list | calendar | pinned | waiting
+  // list | calendar | pinned | waiting | kanban
+  const [mode, setMode] = useState('list');
   const [calendarOpen, setCalendarOpen] = useState(false);
+
+  // fetch /status when entering Kanban (once)
+  useEffect(() => {
+    if (mode === 'kanban' && statuses.length === 0 && !statusesLoading) {
+      dispatch(fetchStatuses());
+    }
+  }, [mode, statuses.length, statusesLoading, dispatch]);
 
   const filtered = useMemo(() => {
     let data = list;
@@ -176,9 +194,7 @@ export default function EmployeeTasksScreen() {
         >
           <Pressable
             style={[styles.primaryBtn, { backgroundColor: '#1d4ed8' }]}
-            onPress={() => {
-              /* future: open create task modal */
-            }}
+            onPress={() => {}}
           >
             <Text style={[styles.primaryTxt, { color: '#fff' }]}>
               + New Task
@@ -207,6 +223,12 @@ export default function EmployeeTasksScreen() {
             label="Waiting"
             active={mode === 'waiting'}
             onPress={() => setMode('waiting')}
+          />
+          {/* ⬇️ New */}
+          <Pill
+            label="Kanban"
+            active={mode === 'kanban'}
+            onPress={() => setMode('kanban')}
           />
         </View>
 
@@ -275,18 +297,29 @@ export default function EmployeeTasksScreen() {
           ? 'Pinned Tasks'
           : mode === 'waiting'
           ? 'Waiting Tasks'
+          : mode === 'kanban'
+          ? 'Kanban'
           : 'Tasks'}
       </Text>
 
-      <TasksTable
-        data={filtered}
-        onPin={t => {
-          const prev = !!t.pinned;
-          const desired = !prev;
-          dispatch(togglePinTaskRequest(t.id, desired, prev));
-        }}
-        onView={openTask}
-      />
+      {/* Body switch */}
+      {mode === 'kanban' ? (
+        statusesLoading ? (
+          <Text style={styles.note}>Loading stages…</Text>
+        ) : (
+          <KanbanBoard statuses={statuses} tasks={filtered} />
+        )
+      ) : (
+        <TasksTable
+          data={filtered}
+          onPin={t => {
+            const prev = !!t.pinned;
+            const desired = !prev;
+            dispatch(togglePinTaskRequest(t.id, desired, prev));
+          }}
+          onView={openTask}
+        />
+      )}
 
       {loading ? <Text style={styles.note}>Loading…</Text> : null}
       {error ? <Text style={styles.err}>Error: {String(error)}</Text> : null}
@@ -368,6 +401,7 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
     overflow: 'hidden',
     zIndex: 20,
+    elevation: 8,
   },
   menuItem: {
     paddingVertical: 10,
