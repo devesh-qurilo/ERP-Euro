@@ -1,120 +1,93 @@
 // src/modules/employee/works/tasks/components/TasksTable.js
-import React, { useState } from 'react';
-import { ScrollView, View, Text, StyleSheet, Pressable } from 'react-native';
-
-const Cell = ({ w, children }) => (
-  <View style={[styles.cell, { width: w }]}>{children}</View>
-);
-const Head = ({ cols }) => (
-  <View style={styles.thead}>
-    {cols.map((c, i) => (
-      <Cell key={i} w={c.w}>
-        <Text style={styles.th}>{c.label}</Text>
-      </Cell>
-    ))}
-  </View>
-);
-const Row = ({ cols }) => (
-  <View style={styles.row}>
-    {cols.map((c, i) => (
-      <Cell key={i} w={c.w}>
-        <Text style={styles.td} numberOfLines={2}>
-          {c.text}
-        </Text>
-      </Cell>
-    ))}
-  </View>
-);
-
-const fmt = d => (d ? new Date(d).toLocaleDateString() : '—');
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 
 export default function TasksTable({ data = [], onPin, onView }) {
-  const [sortKey, setSortKey] = useState('createdAt');
-  const [sortDir, setSortDir] = useState('desc');
-
-  const sorted = [...data].sort((a, b) => {
-    const A = a[sortKey] || '';
-    const B = b[sortKey] || '';
-    if (A < B) return sortDir === 'asc' ? -1 : 1;
-    if (A > B) return sortDir === 'asc' ? 1 : -1;
-    return 0;
-  });
-
-  const toggleSort = k => {
-    if (k === sortKey) setSortDir(d => (d === 'asc' ? 'desc' : 'asc'));
-    else {
-      setSortKey(k);
-      setSortDir('asc');
-    }
-  };
-
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      style={styles.wrap}
+      style={styles.hscroll}
     >
-      <View>
-        <Head
-          cols={[
-            { label: 'Title', w: 220 },
-            { label: 'Project', w: 160 },
-            { label: 'Stage', w: 140 },
-            { label: 'Priority', w: 110 },
-            { label: 'Start', w: 120 },
-            { label: 'Due', w: 120 },
-            { label: 'Pinned', w: 90 },
-            { label: 'Actions', w: 160 },
-          ]}
-        />
-        {sorted.map(t => (
-          <Row
-            key={t.id}
-            cols={[
-              { w: 220, text: t.title || '—' },
-              { w: 160, text: String(t.projectId || '—') },
-              { w: 140, text: t.taskStage?.name || '—' },
-              { w: 110, text: t.priority || '—' },
-              { w: 120, text: fmt(t.startDate) },
-              { w: 120, text: t.noDueDate ? 'No due' : fmt(t.dueDate) },
-              { w: 90, text: t.pinned ? 'Yes' : 'No' },
-              {
-                w: 160,
-                text: '',
-                render: true,
-              },
-            ]}
-          />
-        ))}
-        {/* overlay actions row to keep layout simple */}
-        {sorted.map(t => (
-          <View
-            key={`btns-${t.id}`}
-            style={[styles.row, { position: 'relative', top: -48 }]}
-          >
-            <View style={{ width: 220 }} />
-            <View style={{ width: 160 }} />
-            <View style={{ width: 140 }} />
-            <View style={{ width: 110 }} />
-            <View style={{ width: 120 }} />
-            <View style={{ width: 120 }} />
-            <View style={{ width: 90 }} />
-            <View
-              style={[
-                styles.cell,
-                { width: 160, flexDirection: 'row', gap: 8 },
-              ]}
-            >
-              <Pressable style={styles.btn} onPress={() => onPin?.(t)}>
-                <Text style={styles.btnTxt}>{t.pinned ? 'Unpin' : 'Pin'}</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.btn, styles.btnDark]}
-                onPress={() => onView?.(t)}
-              >
-                <Text style={[styles.btnTxt, { color: '#fff' }]}>View</Text>
-              </Pressable>
-            </View>
+      <View style={styles.table}>
+        {/* header */}
+        <View style={[styles.tr, styles.trHead]}>
+          <Th w={240} text="Title" />
+          <Th w={160} text="Project" />
+          <Th w={140} text="Start" />
+          <Th w={140} text="Due" />
+          <Th w={140} text="Stage" />
+          <Th w={120} text="Priority" />
+          <Th w={180} text="Actions" />
+        </View>
+
+        {/* rows */}
+        {data.map((t, idx) => (
+          <View key={t.id || idx} style={styles.tr}>
+            <Td w={240}>
+              <Text style={styles.bold} numberOfLines={1}>
+                {t.title || '—'}
+              </Text>
+              {!!t.description && (
+                <Text style={styles.dim} numberOfLines={1}>
+                  {t.description}
+                </Text>
+              )}
+            </Td>
+
+            <Td w={160}>
+              <Text numberOfLines={1}>{String(t.projectId ?? '—')}</Text>
+            </Td>
+
+            <Td w={140}>
+              <Text>{fmtDate(t.startDate)}</Text>
+            </Td>
+
+            <Td w={140}>
+              <Text>{t.noDueDate ? 'No due' : fmtDate(t.dueDate)}</Text>
+            </Td>
+
+            <Td w={140}>
+              <Badge
+                label={t.taskStage?.name || '—'}
+                color={t.taskStage?.labelColor || '#9ca3af'}
+              />
+            </Td>
+
+            <Td w={120}>
+              <Badge
+                label={(t.priority || '—').toString().toUpperCase()}
+                color={priorityColor(t.priority)}
+              />
+            </Td>
+
+            {/* ACTIONS — always same line */}
+            <Td w={180} noPadding>
+              <View style={styles.actionRow}>
+                <Pressable
+                  onPress={() => onPin?.(t)}
+                  style={[
+                    styles.btn,
+                    t.pinned ? styles.btnDark : styles.btnLight,
+                  ]}
+                  hitSlop={8}
+                >
+                  <Text style={[styles.btnTxt, t.pinned && styles.btnTxtDark]}>
+                    {t.pinned ? 'Unpin' : 'Pin'}
+                  </Text>
+                </Pressable>
+
+                <Pressable
+                  onPress={() => onView?.(t)}
+                  style={[styles.btn, styles.btnOutline]}
+                  hitSlop={8}
+                >
+                  <Text style={[styles.btnTxt, styles.btnTxtOutline]}>
+                    View
+                  </Text>
+                </Pressable>
+              </View>
+            </Td>
           </View>
         ))}
       </View>
@@ -122,37 +95,134 @@ export default function TasksTable({ data = [], onPin, onView }) {
   );
 }
 
+/* helpers */
+const fmtDate = d => (d ? new Date(d).toLocaleDateString() : '—');
+const priorityColor = p => {
+  switch ((p || '').toUpperCase()) {
+    case 'HIGH':
+      return '#b91c1c';
+    case 'MEDIUM':
+      return '#b45309';
+    case 'LOW':
+      return '#047857';
+    default:
+      return '#6b7280';
+  }
+};
+
+/* small atoms */
+function Th({ w, text }) {
+  return (
+    <View style={[styles.th, { width: w }]}>
+      <Text style={styles.thTxt} numberOfLines={1}>
+        {text}
+      </Text>
+    </View>
+  );
+}
+function Td({ w, children, noPadding }) {
+  return (
+    <View
+      style={[
+        styles.td,
+        { width: w },
+        noPadding && { paddingVertical: 0, paddingHorizontal: 0 },
+      ]}
+    >
+      {children}
+    </View>
+  );
+}
+function Badge({ label, color }) {
+  return (
+    <View
+      style={[
+        styles.badge,
+        { borderColor: color + '33', backgroundColor: color + '18' },
+      ]}
+    >
+      <Text style={[styles.badgeTxt, { color }]} numberOfLines={1}>
+        {label}
+      </Text>
+    </View>
+  );
+}
+
+/* styles */
 const styles = StyleSheet.create({
-  wrap: {
+  hscroll: { marginTop: 8 },
+  table: {
     borderWidth: 1,
     borderColor: '#e5e7eb',
     borderRadius: 12,
+    overflow: 'hidden',
     backgroundColor: '#fff',
   },
-  thead: {
+  tr: {
     flexDirection: 'row',
-    backgroundColor: '#eef2ff',
-    borderBottomWidth: 1,
-    borderColor: '#e5e7eb',
+    alignItems: 'center', // ✅ keeps action buttons aligned horizontally
+    borderTopWidth: 1,
+    borderTopColor: '#f1f5f9',
   },
-  row: { flexDirection: 'row', borderTopWidth: 1, borderColor: '#f1f5f9' },
-  cell: {
+  trHead: {
+    backgroundColor: '#e8f0ff',
+    borderTopWidth: 0,
+  },
+  th: {
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRightWidth: 1,
+    borderRightColor: '#e5e7eb',
+  },
+  thTxt: { fontWeight: '900', color: '#374151' },
+  td: {
     paddingVertical: 12,
     paddingHorizontal: 10,
     borderRightWidth: 1,
-    borderColor: '#f1f5f9',
+    borderRightColor: '#f1f5f9',
+    minHeight: 56,
     justifyContent: 'center',
   },
-  th: { fontWeight: '900', color: '#374151' },
-  td: { color: '#111827' },
+  bold: { fontWeight: '900', color: '#111827' },
+  dim: { color: '#6b7280', marginTop: 2 },
+
+  badge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  badgeTxt: { fontWeight: '900', fontSize: 12 },
+
+  /* ACTION buttons row — forces single line */
+  actionRow: {
+    flexDirection: 'row', // ✅ horizontal
+    alignItems: 'center',
+    gap: 8, // RN 0.71+ supports gap; if not, replace with marginRight
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
   btn: {
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 8,
+    borderRadius: 10,
+    minWidth: 74,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  btnLight: {
+    backgroundColor: '#f3f4f6',
+  },
+  btnDark: {
+    backgroundColor: '#111827',
+  },
+  btnOutline: {
+    backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    backgroundColor: '#fff',
   },
-  btnDark: { backgroundColor: '#111827', borderColor: '#111827' },
   btnTxt: { fontWeight: '900', color: '#111827' },
+  btnTxtDark: { color: '#fff' },
+  btnTxtOutline: { color: '#111827' },
 });

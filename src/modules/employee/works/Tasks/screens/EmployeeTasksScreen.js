@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { fetchMyTasks, togglePinTask } from '../store/actions';
+import { fetchMyTasks, togglePinTaskRequest } from '../store/actions';
 import {
   selectTasks,
   selectTasksError,
@@ -280,7 +280,11 @@ export default function EmployeeTasksScreen() {
 
       <TasksTable
         data={filtered}
-        onPin={t => dispatch(togglePinTask(t.id))}
+        onPin={t => {
+          const prev = !!t.pinned;
+          const desired = !prev;
+          dispatch(togglePinTaskRequest(t.id, desired, prev));
+        }}
         onView={openTask}
       />
 

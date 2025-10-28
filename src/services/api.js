@@ -203,4 +203,10 @@ export const myTasksAPI = {
   list: () => api.get('/me/tasks').then(r => r.data),
 };
 
+export const taskPinAPI = {
+  pin: taskId => api.post(`/projects/tasks/${taskId}/pin`).then(r => r.data),
+  unpin: taskId =>
+    api.delete(`/projects/tasks/${taskId}/pin`).then(r => r.data),
+};
+
 export default api;
