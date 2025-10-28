@@ -199,4 +199,8 @@ export const projectFilesAPI = {
   },
 };
 
+export const myTasksAPI = {
+  list: () => api.get('/me/tasks').then(r => r.data),
+};
+
 export default api;

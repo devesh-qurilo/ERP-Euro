@@ -11,6 +11,7 @@ import employeeLeadsReducer from '../modules/employee/leads/store/reducers';
 import taskDetailsReducer from '../modules/employee/works/projects/store/taskDetails/reducer';
 import projectNotesReducer from '../modules/employee/works/projects/store/projectNotes/reducer';
 import projectActivityReducer from '../modules/employee/works/projects/store/projectActivity/reducer';
+import employeeTasksReducer from '../modules/employee/works/tasks/store/reducers';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -26,6 +27,7 @@ const rootReducer = combineReducers({
       taskDetails: taskDetailsReducer,
       projectNotes: projectNotesReducer, // ✅ NEW
       projectActivity: projectActivityReducer, // ✅ NEW
+      tasks: employeeTasksReducer,
     }),
   }),
 });
