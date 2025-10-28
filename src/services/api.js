@@ -249,4 +249,9 @@ export const projectMilestonesAPI = {
     api.get(`/api/projects/${projectId}/milestones`).then(r => r.data),
 };
 
+export const myTimesheetsAPI = {
+  listMine: (params = {}) =>
+    api.get('/timesheets/me', { params }).then(r => r.data),
+};
+
 export default api;

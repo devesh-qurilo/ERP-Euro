@@ -33,7 +33,7 @@ import EmployeeHRHolidaysScreen from '../modules/employee/hr/screens/EmployeeHRH
 // WORK sub-screens (add/adjust these paths to your actual files)
 import EmployeeWorkProjectsScreen from '../modules/employee/works/projects/screens/EmployeeProjectsScreen';
 import EmployeeWorkTasksScreen from '../modules/employee/works/tasks/screens/EmployeeTasksScreen';
-import EmployeeWorkTimesheetScreen from '../modules/employee/works/TimeSheet/screens/EmployeeWorkTimesheetScreen';
+import EmployeeWorkTimesheetScreen from '../modules/employee/works/timesheets/screens/EmployeeWorkTimesheetScreen';
 import EmployeeWorkRoadmapScreen from '../modules/employee/works/Roadmap/screens/EmployeeWorkRoadmapScreen';
 
 // Common
