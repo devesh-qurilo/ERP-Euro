@@ -12,3 +12,8 @@ export const togglePinTaskRequest = (taskId, desiredPinned, prevPinned) => ({
   desiredPinned, // true if we want it pinned after op
   prevPinned, // current real state before optimistic flip
 });
+
+export const createTaskRequest = (payload /* FormData */) => ({
+  type: T.CREATE_TASK_REQUEST,
+  payload,
+});

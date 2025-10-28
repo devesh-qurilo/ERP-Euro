@@ -212,5 +212,41 @@ export const taskPinAPI = {
 export const statusesAPI = {
   list: () => api.get('/status').then(r => r.data),
 };
+// --- create task (multipart) ---
+export const tasksAPI = {
+  create: (form /* FormData */) =>
+    api
+      .post('/projects/tasks', form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data),
+};
+
+// --- task categories ---
+export const taskCategoriesAPI = {
+  list: () => api.get('/task/task-categories').then(r => r.data),
+};
+
+// --- all projects for dropdown ---
+export const allProjectsAPI = {
+  list: () => api.get('/projects/AllProject').then(r => r.data),
+};
+
+// --- employees (paged) ---
+export const employeesAPI = {
+  listAll: (page = 0, size = 50) =>
+    api
+      .get(`/employee/all`, { params: { page, size } })
+      .then(r => r.data?.content ?? []),
+};
+
+// --- labels & milestones depend on project ---
+export const projectLabelsAPI = {
+  list: projectId => api.get(`/projects/${projectId}/labels`).then(r => r.data),
+};
+export const projectMilestonesAPI = {
+  list: projectId =>
+    api.get(`/api/projects/${projectId}/milestones`).then(r => r.data),
+};
 
 export default api;

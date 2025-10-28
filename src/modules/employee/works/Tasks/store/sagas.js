@@ -4,6 +4,7 @@ import {
   myTasksAPI,
   taskPinAPI,
   statusesAPI,
+  tasksAPI,
 } from '../../../../../services/api';
 import * as T from './types';
 
@@ -54,8 +55,23 @@ function* fetchStatusesSaga() {
   }
 }
 
+function* createTaskSaga({ payload }) {
+  try {
+    const data = yield call(tasksAPI.create, payload);
+    yield put({ type: T.CREATE_TASK_SUCCESS, payload: data });
+    // refresh my tasks
+    yield put({ type: T.FETCH_MY_TASKS_REQUEST });
+  } catch (e) {
+    yield put({
+      type: T.CREATE_TASK_FAILURE,
+      error: e?.message || 'Failed to create task',
+    });
+  }
+}
+
 export function* employeeTasksWatcher() {
   yield takeLatest(T.FETCH_MY_TASKS_REQUEST, fetchMyTasksSaga);
   yield takeLatest(T.TOGGLE_PIN_TASK_REQUEST, togglePinTaskSaga);
   yield takeLatest(T.FETCH_STATUSES_REQUEST, fetchStatusesSaga);
+  yield takeLatest(T.CREATE_TASK_REQUEST, createTaskSaga);
 }

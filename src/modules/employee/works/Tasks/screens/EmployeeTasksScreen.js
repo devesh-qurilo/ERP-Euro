@@ -8,6 +8,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import NewTaskModal from '../components/NewTaskModal';
 
 import { fetchMyTasks, togglePinTaskRequest } from '../store/actions';
 import {
@@ -78,6 +79,7 @@ export default function EmployeeTasksScreen() {
   const error = useSelector(selectTasksError);
   const pinned = useSelector(selectPinnedTasks);
   const waiting = useSelector(selectWaitingTasks);
+  const [newOpen, setNewOpen] = useState(false);
 
   // kanban data
   const statuses = useSelector(selectStatuses);
@@ -194,7 +196,7 @@ export default function EmployeeTasksScreen() {
         >
           <Pressable
             style={[styles.primaryBtn, { backgroundColor: '#1d4ed8' }]}
-            onPress={() => {}}
+            onPress={() => setNewOpen(true)}
           >
             <Text style={[styles.primaryTxt, { color: '#fff' }]}>
               + New Task
@@ -337,6 +339,7 @@ export default function EmployeeTasksScreen() {
         task={activeTask}
         onClose={() => setTaskModalOpen(false)}
       />
+      <NewTaskModal visible={newOpen} onClose={() => setNewOpen(false)} />
     </ScrollView>
   );
 }

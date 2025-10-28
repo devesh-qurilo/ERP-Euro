@@ -55,6 +55,12 @@ export default function employeeTasksReducer(state = initialState, action) {
     case T.TOGGLE_PIN_TASK_SUCCESS:
       return state;
 
+    case T.CREATE_TASK_SUCCESS:
+      return {
+        ...state,
+        list: [action.payload, ...state.list], // optimistic insert
+      };
+
     // rollback on failure
     case T.TOGGLE_PIN_TASK_FAILURE: {
       const { taskId, prevPinned } = action;
