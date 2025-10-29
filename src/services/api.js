@@ -253,6 +253,7 @@ export const projectMilestonesAPI = {
 export const myTimesheetsAPI = {
   list: (params = {}) =>
     api.get('/timesheets/me', { params }).then(r => r.data),
+  create: payload => api.post('/timesheets', payload).then(r => r.data),
 };
 
 // --- WEEKLY TIMESHEETS ---

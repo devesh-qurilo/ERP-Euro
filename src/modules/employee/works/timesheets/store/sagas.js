@@ -17,6 +17,22 @@ function* fetchMine({ params }) {
   }
 }
 
+function* createTimesheetSaga({ payload }) {
+  try {
+    const created = yield call(myTimesheetsAPI.create, payload);
+    console.log('bholuuuuuu', created);
+    yield put({ type: T.CREATE_TIMESHEET_SUCCESS, payload: created });
+    // optionally re-fetch full list (commented; we already prepend in reducer)
+    const list = yield call(myTimesheetsAPI.list, {});
+    yield put({ type: T.FETCH_MY_TIMESHEETS_SUCCESS, payload: list });
+  } catch (e) {
+    yield put({
+      type: T.CREATE_TIMESHEET_FAILURE,
+      error: e?.message || 'Failed to save',
+    });
+  }
+}
+
 function* createWeekly({ payload }) {
   try {
     const res = yield call(weeklyTimesheetsAPI.create, payload);
@@ -71,6 +87,7 @@ function* getWeeklySaga({ weekStartDate }) {
 export function* employeeTimesheetsWatcher() {
   yield all([
     takeLatest(T.FETCH_MY_TIMESHEETS_REQUEST, fetchMine),
+    takeLatest(T.CREATE_TIMESHEET_REQUEST, createTimesheetSaga),
     takeLatest(T.CREATE_WEEKLY_TS_REQUEST, createWeekly),
     takeLatest(T.GET_WEEKLY_TS_REQUEST, getWeekly),
 

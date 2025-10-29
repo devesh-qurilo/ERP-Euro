@@ -10,11 +10,12 @@ import {
   Image,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-
+import AddTimeLogModal from '../components/AddTimeLogModal';
 import {
   fetchMyTimesheets,
   createWeeklyTimesheet,
   getWeeklyTimesheet,
+  createTimesheet,
 } from '../store/actions';
 import {
   selectMyTimesheets,
@@ -22,6 +23,7 @@ import {
   selectMyTimesheetsError,
   selectWeeklyTimesheet,
   selectWeeklyTimesheetLoad,
+  selectCreateTimesheetLoading,
 } from '../store/selectors';
 // import {
 //   selectMyTimesheets,
@@ -87,10 +89,12 @@ export default function EmployeeTimesheetsScreen() {
   const list = useSelector(selectMyTimesheets);
   const loading = useSelector(selectMyTimesheetsLoad);
   const error = useSelector(selectMyTimesheetsError);
+  // console.log('ggggggggggg', list[0].employeeId);
 
   // weekly
   const weekly = useSelector(selectWeeklyTimesheet);
   const weeklyLoading = useSelector(selectWeeklyTimesheetLoad);
+  const creating = useSelector(selectCreateTimesheetLoading);
 
   // ✅ my tasks for weekly dropdown
   const myTasks = useSelector(selectTasks);
@@ -130,6 +134,7 @@ export default function EmployeeTimesheetsScreen() {
   const [active, setActive] = useState(null);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [weeklyOpen, setWeeklyOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
 
   const openView = ts => {
     setActive(ts);
@@ -168,9 +173,7 @@ export default function EmployeeTimesheetsScreen() {
           />
           <Pressable
             style={[styles.primaryBtn]}
-            onPress={() => {
-              /* future: Add Log modal */
-            }}
+            onPress={() => setAddOpen(true)}
           >
             <Text style={styles.primaryTxt}>+ Add Log</Text>
           </Pressable>
@@ -310,18 +313,14 @@ export default function EmployeeTimesheetsScreen() {
         onClose={() => setWeeklyOpen(false)}
       />
 
-      {/* <WeeklyTimesheetModal
-        visible={weeklyOpen}
-        tasks={myTasks}
-        loading={weeklyLoading}
-        weekly={weekly}
-        weeklyAll={weeklyAll}
-        createLoading={weeklyCreateLoading}
-        onFetch={weekStartDate => dispatch(getWeeklyTimesheet(weekStartDate))}
-        onFetchAll={() => dispatch(getWeeklyTimesheetsAll())}
-        onCreate={payload => dispatch(createWeeklyTimesheet(payload))}
-        onClose={() => setWeeklyOpen(false)}
-      /> */}
+      <AddTimeLogModal
+        visible={addOpen}
+        onClose={() => setAddOpen(false)}
+        saving={creating}
+        // (optional) tasks prop. If you omit, it will use selectTasks from store
+        // tasks={useSelector(selectTasks)}
+        onSubmit={payload => dispatch(createTimesheet(payload))}
+      />
     </ScrollView>
   );
 }

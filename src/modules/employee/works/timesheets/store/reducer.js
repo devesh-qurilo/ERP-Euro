@@ -19,6 +19,18 @@ export default function employeeTimesheetsReducer(state = initial, action) {
     case T.FETCH_MY_TIMESHEETS_FAILURE:
       return { ...state, loading: false, error: action.error };
 
+    case T.CREATE_TIMESHEET_REQUEST:
+      return { ...state, create: { loading: true, error: null } };
+    case T.CREATE_TIMESHEET_SUCCESS:
+      return {
+        ...state,
+        create: { loading: false, error: null },
+        // optimistic prepend to list
+        my: { ...state.my, data: [action.payload, ...state.my.data] },
+      };
+    case T.CREATE_TIMESHEET_FAILURE:
+      return { ...state, create: { loading: false, error: action.error } };
+
     case T.CREATE_WEEKLY_TS_REQUEST:
       return { ...state, weeklyLoading: true, weeklyError: null };
     case T.CREATE_WEEKLY_TS_SUCCESS:

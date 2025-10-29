@@ -1,3 +1,4 @@
+// src/modules/employee/works/timesheets/components/AddTimeLogModal.js
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Modal,
@@ -10,65 +11,142 @@ import {
   Image,
 } from 'react-native';
 import { useSelector } from 'react-redux';
-import { selectTasks } from '../../tasks/store/selectors';
-import api from '../../../../../services/api'; // uses your axios instance
+import { selectTasks as selectMyTasks } from '../../tasks/store/selectors'; // <- your tasks selector path
+import { selectMyTimesheets } from '../store/selectors';
 
-// Optional convenience if you prefer a tiny wrapper:
-async function createTimesheet(payload) {
-  // POST /timesheets
-  const res = await api.post('/timesheets', payload);
-  return res.data;
-}
-
-const Input = props => (
-  <View style={{ marginBottom: 10 }}>
-    <Text style={styles.label}>
-      {props.label}{' '}
-      {props.required ? <Text style={{ color: '#dc2626' }}>*</Text> : null}
-    </Text>
-    <TextInput
-      {...props}
-      style={[styles.input, props.style]}
-      placeholderTextColor="#9ca3af"
-      autoCapitalize="none"
-    />
-  </View>
+/* ----------------------------- tiny components ---------------------------- */
+const FieldLabel = ({ children, required }) => (
+  <Text style={styles.label}>
+    {children} {required ? <Text style={{ color: '#ef4444' }}>*</Text> : null}
+  </Text>
 );
 
-export default function AddTimeLogModal({ visible, onClose, onSaved }) {
-  // Pull *my tasks* to derive Project + Task options
-  const myTasks = useSelector(selectTasks) || [];
+const Select = ({ placeholder = 'Select', value, onChange, options = [] }) => {
+  const [open, setOpen] = useState(false);
+  const current = options.find(o => String(o.value) === String(value));
+  return (
+    <View style={{ marginBottom: 12 }}>
+      <Pressable
+        style={styles.selectBtn}
+        onPress={() => setOpen(o => !o)}
+        accessibilityRole="button"
+      >
+        <Text style={[styles.value, !current && { color: '#9ca3af' }]}>
+          {current ? current.label : placeholder}
+        </Text>
+        <Text style={styles.caret}>{open ? '▴' : '▾'}</Text>
+      </Pressable>
+      {open && (
+        <View style={styles.menu}>
+          <ScrollView style={{ maxHeight: 220 }}>
+            {options.map(o => (
+              <Pressable
+                key={String(o.value)}
+                onPress={() => {
+                  onChange(o.value, o);
+                  setOpen(false);
+                }}
+                style={styles.menuItem}
+              >
+                <Text style={styles.menuTxt} numberOfLines={1}>
+                  {o.label}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
+      )}
+    </View>
+  );
+};
 
+/* -------------------------------- utilities ------------------------------- */
+const parseHM = s => {
+  // "09:00" -> minutes since 00:00  (returns null on bad input)
+  if (!s || typeof s !== 'string') return null;
+  const m = s.match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return null;
+  const hh = Number(m[1]);
+  const mm = Number(m[2]);
+  if (hh > 23 || mm > 59) return null;
+  return hh * 60 + mm;
+};
+
+const diffHours = (sd, st, ed, et) => {
+  const d1 = sd ? new Date(sd) : null;
+  const d2 = ed ? new Date(ed) : null;
+  const m1 = parseHM(st);
+  const m2 = parseHM(et);
+  if (!d1 || !d2 || m1 == null || m2 == null) return 0;
+  // build full Date objects with local time
+  const start = new Date(
+    d1.getFullYear(),
+    d1.getMonth(),
+    d1.getDate(),
+    Math.floor(m1 / 60),
+    m1 % 60,
+    0,
+    0,
+  );
+  const end = new Date(
+    d2.getFullYear(),
+    d2.getMonth(),
+    d2.getDate(),
+    Math.floor(m2 / 60),
+    m2 % 60,
+    0,
+    0,
+  );
+  const ms = end.getTime() - start.getTime();
+  if (Number.isNaN(ms) || ms <= 0) return 0;
+  return +(ms / 3600000).toFixed(2);
+};
+
+/* ---------------------------------- main ---------------------------------- */
+export default function AddTimeLogModal({
+  visible,
+  onClose,
+  onSubmit,
+  tasks: tasksProp, // optional; if not passed, we read from store
+  employee, // optional {name, profileUrl, roleText}
+  saving = false, // optional: show "Saving…" on Save button
+}) {
+  // tasks source
+  const tasksFromStore = useSelector(selectMyTasks);
+  const tasks =
+    tasksProp && Array.isArray(tasksProp) ? tasksProp : tasksFromStore;
+
+  // project list derived from tasks (unique)
   const projectOptions = useMemo(() => {
     const map = new Map();
-    myTasks.forEach(t => {
-      if (!map.has(t.projectId)) {
-        map.set(t.projectId, {
-          id: t.projectId,
-          name: t.projectName || `Project #${t.projectId}`,
-        });
-      }
+    tasks.forEach(t => {
+      const pid = t.projectId;
+      const label = t.projectName || `Project #${pid}`;
+      if (!map.has(pid)) map.set(pid, { value: pid, label });
     });
     return Array.from(map.values());
-  }, [myTasks]);
+  }, [tasks]);
 
+  // tasks filtered by selected project
+  const taskOptions = useMemo(() => {
+    if (!tasks?.length) return [];
+    if (!projectOptions.length) return [];
+    return tasks
+      .filter(t => (projectId ? t.projectId === projectId : true))
+      .map(t => ({ value: t.id, label: t.title || `Task #${t.id}` }));
+  }, [tasks]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // form state
   const [projectId, setProjectId] = useState(null);
-  const taskOptions = useMemo(
-    () => myTasks.filter(t => (projectId ? t.projectId === projectId : true)),
-    [myTasks, projectId],
-  );
-
-  // Form state
   const [taskId, setTaskId] = useState(null);
-  const [startDate, setStartDate] = useState('');
-  const [startTime, setStartTime] = useState('');
+  const [startDate, setStartDate] = useState(''); // YYYY-MM-DD
+  const [startTime, setStartTime] = useState(''); // HH:MM
   const [endDate, setEndDate] = useState('');
   const [endTime, setEndTime] = useState('');
   const [memo, setMemo] = useState('');
-  const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
 
-  // Clear form when closing/opening
+  // reset when opened/closed
   useEffect(() => {
     if (!visible) {
       setProjectId(null);
@@ -79,56 +157,62 @@ export default function AddTimeLogModal({ visible, onClose, onSaved }) {
       setEndTime('');
       setMemo('');
       setErr('');
-      setSaving(false);
     }
   }, [visible]);
 
-  // Basic validation
+  // when project changes, filter tasks and clear selected task if not in list
+  useEffect(() => {
+    if (!projectId || !taskId) return;
+    const ok = tasks.some(t => t.id === taskId && t.projectId === projectId);
+    if (!ok) setTaskId(null);
+  }, [projectId, taskId, tasks]);
+
+  const totalHours = useMemo(
+    () => diffHours(startDate, startTime, endDate, endTime),
+    [startDate, startTime, endDate, endTime],
+  );
+
   const validate = () => {
-    if (!projectId) return 'Please select a Project.';
-    if (!taskId) return 'Please select a Task.';
-    if (!startDate) return 'Please enter Start Date (YYYY-MM-DD).';
-    if (!startTime) return 'Please enter Start Time (HH:mm:ss).';
-    if (!endDate) return 'Please enter End Date (YYYY-MM-DD).';
-    if (!endTime) return 'Please enter End Time (HH:mm:ss).';
-    if (!memo.trim()) return 'Please add a Memo.';
+    if (!projectId) return 'Please select a project.';
+    if (!taskId) return 'Please select a task.';
+    if (!startDate) return 'Start date is required (YYYY-MM-DD).';
+    if (!startTime) return 'Start time is required (HH:MM).';
+    if (!endDate) return 'End date is required (YYYY-MM-DD).';
+    if (!endTime) return 'End time is required (HH:MM).';
+    if (parseHM(startTime) == null)
+      return 'Invalid start time. Use HH:MM (24h).';
+    if (parseHM(endTime) == null) return 'Invalid end time. Use HH:MM (24h).';
+    if (diffHours(startDate, startTime, endDate, endTime) <= 0)
+      return 'End must be after start.';
+    if (!memo.trim()) return 'Memo is required.';
     return '';
   };
 
-  const handleSave = async () => {
+  const list = useSelector(selectMyTimesheets);
+  const emp = list[0]?.employeeId;
+
+  const handleSave = () => {
     const v = validate();
     if (v) {
       setErr(v);
       return;
     }
     setErr('');
-    setSaving(true);
-
-    try {
-      const payload = {
-        projectId,
-        taskId,
-        // backend derives employeeId from token; if required, add here:
-        // employeeId: 'EMP-010',
-        startDate,
-        startTime,
-        endDate,
-        endTime,
-        memo: memo.trim(),
-      };
-      const created = await createTimesheet(payload);
-      onSaved?.(created); // let parent refresh list (or push row)
-      onClose?.();
-    } catch (e) {
-      setErr(e?.message || 'Failed to save time log.');
-    } finally {
-      setSaving(false);
-    }
+    const payload = {
+      projectId,
+      taskId,
+      startDate,
+      startTime,
+      endDate,
+      endTime,
+      employeeId: emp,
+      memo: memo.trim(),
+    };
+    console.log('[TimeLog][REQUEST] payload ->', payload);
+    onSubmit?.(payload);
   };
 
-  // simple dropdowns without 3rd-party libs
-  const [openProj, setOpenProj] = useState(false);
-  const [openTask, setOpenTask] = useState(false);
+  if (!visible) return null;
 
   return (
     <Modal
@@ -139,197 +223,146 @@ export default function AddTimeLogModal({ visible, onClose, onSaved }) {
     >
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
-          {/* header */}
           <View style={styles.header}>
-            <Text style={styles.title}>TimeLog Details</Text>
-            <Pressable onPress={onClose} style={styles.close}>
+            <Text style={styles.h1}>TimeLog Details</Text>
+            <Pressable onPress={onClose} hitSlop={10}>
               <Text style={{ fontWeight: '900' }}>✕</Text>
             </Pressable>
           </View>
 
-          <ScrollView contentContainerStyle={{ padding: 12 }}>
+          <ScrollView
+            contentContainerStyle={{ padding: 14, paddingBottom: 24 }}
+            showsVerticalScrollIndicator={false}
+          >
             {/* Project */}
-            <Text style={styles.label}>
-              Project <Text style={{ color: '#dc2626' }}>*</Text>
-            </Text>
-            <Pressable
-              style={styles.selectBtn}
-              onPress={() => setOpenProj(o => !o)}
-            >
-              <Text style={styles.value}>
-                {projectId
-                  ? projectOptions.find(p => p.id === projectId)?.name ||
-                    `Project #${projectId}`
-                  : 'Project Name'}
-              </Text>
-              <Text style={styles.caret}>{openProj ? '▴' : '▾'}</Text>
-            </Pressable>
-            {openProj && (
-              <View style={styles.menu}>
-                <ScrollView style={{ maxHeight: 220 }}>
-                  {projectOptions.map(p => (
-                    <Pressable
-                      key={p.id}
-                      style={styles.menuItem}
-                      onPress={() => {
-                        setProjectId(p.id);
-                        setTaskId(null);
-                        setOpenProj(false);
-                      }}
-                    >
-                      <Text style={styles.menuTxt}>{p.name}</Text>
-                    </Pressable>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
+            <FieldLabel required>Project</FieldLabel>
+            <Select
+              placeholder="Project Name"
+              value={projectId}
+              onChange={v => setProjectId(v)}
+              options={projectOptions}
+            />
 
             {/* Task */}
-            <Text style={[styles.label, { marginTop: 10 }]}>
-              Task <Text style={{ color: '#dc2626' }}>*</Text>
-            </Text>
-            <Pressable
-              style={styles.selectBtn}
-              onPress={() => setOpenTask(o => !o)}
-            >
-              <Text style={styles.value}>
-                {taskId
-                  ? taskOptions.find(t => t.id === taskId)?.title ||
-                    `#${taskId}`
-                  : 'Task Name'}
-              </Text>
-              <Text style={styles.caret}>{openTask ? '▴' : '▾'}</Text>
-            </Pressable>
-            {openTask && (
-              <View style={styles.menu}>
-                <ScrollView style={{ maxHeight: 260 }}>
-                  {taskOptions.map(t => (
-                    <Pressable
-                      key={t.id}
-                      style={styles.menuItem}
-                      onPress={() => {
-                        setTaskId(t.id);
-                        setOpenTask(false);
-                      }}
-                    >
-                      <Text style={styles.menuTxt} numberOfLines={1}>
-                        {t.title}
-                      </Text>
-                      <Text style={styles.menuHint}>
-                        #{String(t.id).padStart(3, '0')} •{' '}
-                        {t.taskStage?.name || '—'}
-                      </Text>
-                    </Pressable>
-                  ))}
-                  {!taskOptions.length && (
-                    <Text
-                      style={[
-                        styles.menuTxt,
-                        { padding: 10, color: '#6b7280' },
-                      ]}
-                    >
-                      Select a project first.
-                    </Text>
-                  )}
-                </ScrollView>
-              </View>
-            )}
+            <FieldLabel required>Task</FieldLabel>
+            <Select
+              placeholder="Task Name"
+              value={taskId}
+              onChange={v => setTaskId(v)}
+              options={
+                projectId
+                  ? tasks
+                      .filter(t => t.projectId === projectId)
+                      .map(t => ({
+                        value: t.id,
+                        label: t.title || `Task #${t.id}`,
+                      }))
+                  : taskOptions
+              }
+            />
 
-            {/* (optional) employee inline preview from first task assignee */}
-            {taskId ? (
+            {/* Employee (read-only display if provided) */}
+            {employee ? (
               <View
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: 10,
-                  marginTop: 10,
+                  marginTop: 6,
                 }}
               >
-                {taskOptions.find(t => t.id === taskId)?.assignedEmployees?.[0]
-                  ?.profileUrl ? (
+                {employee.profileUrl ? (
                   <Image
-                    source={{
-                      uri: taskOptions.find(t => t.id === taskId)
-                        .assignedEmployees[0].profileUrl,
-                    }}
-                    style={{ width: 36, height: 36, borderRadius: 18 }}
+                    source={{ uri: employee.profileUrl }}
+                    style={styles.avatar}
                   />
                 ) : (
-                  <View
-                    style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 18,
-                      backgroundColor: '#f3f4f6',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
+                  <View style={[styles.avatar, styles.avatarEmpty]}>
                     <Text>👤</Text>
                   </View>
                 )}
                 <View>
-                  <Text style={{ fontWeight: '900', color: '#111827' }}>
-                    {taskOptions.find(t => t.id === taskId)
-                      ?.assignedEmployees?.[0]?.name || '—'}
+                  <Text style={styles.empName}>{employee.name}</Text>
+                  <Text style={styles.dim}>
+                    {employee.roleText || 'Trainee'}
                   </Text>
-                  <Text style={{ color: '#6b7280' }}>Trainee</Text>
                 </View>
               </View>
             ) : null}
 
-            {/* Dates/Times */}
-            <Input
-              label="Start Date"
-              required
-              placeholder="YYYY-MM-DD"
-              value={startDate}
-              onChangeText={setStartDate}
-            />
-            <Input
-              label="Start Time"
-              required
-              placeholder="HH:mm:ss"
-              value={startTime}
-              onChangeText={setStartTime}
-            />
-            <Input
-              label="End Date"
-              required
-              placeholder="YYYY-MM-DD"
-              value={endDate}
-              onChangeText={setEndDate}
-            />
-            <Input
-              label="End Time"
-              required
-              placeholder="HH:mm:ss"
-              value={endTime}
-              onChangeText={setEndTime}
-            />
-            <Input
-              label="Memo"
-              required
-              placeholder="Worked on project tasks"
+            {/* Dates / Times */}
+            <View style={{ marginTop: 10 }}>
+              <FieldLabel required>Start Date</FieldLabel>
+              <TextInput
+                value={startDate}
+                onChangeText={setStartDate}
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor="#9ca3af"
+                style={styles.input}
+              />
+              <FieldLabel required>Start Time</FieldLabel>
+              <TextInput
+                value={startTime}
+                onChangeText={setStartTime}
+                placeholder="HH:MM:SS (24h)"
+                placeholderTextColor="#9ca3af"
+                style={styles.input}
+                autoCapitalize="none"
+              />
+
+              <FieldLabel required>End Date</FieldLabel>
+              <TextInput
+                value={endDate}
+                onChangeText={setEndDate}
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor="#9ca3af"
+                style={styles.input}
+              />
+              <FieldLabel required>End Time</FieldLabel>
+              <TextInput
+                value={endTime}
+                onChangeText={setEndTime}
+                placeholder="HH:MM:SS (24h)"
+                placeholderTextColor="#9ca3af"
+                style={styles.input}
+                autoCapitalize="none"
+              />
+            </View>
+
+            {/* Memo */}
+            <FieldLabel required>Memo</FieldLabel>
+            <TextInput
               value={memo}
               onChangeText={setMemo}
+              placeholder="What did you work on?"
+              placeholderTextColor="#9ca3af"
+              style={[styles.input, { height: 92, textAlignVertical: 'top' }]}
+              multiline
             />
 
-            {!!err && <Text style={styles.err}>Error: {err}</Text>}
+            {/* total hours */}
+            <Text style={styles.totalLabel}>Total Hours</Text>
+            <Text style={styles.totalValue}>{totalHours}h</Text>
 
-            {/* Buttons */}
-            <View style={{ flexDirection: 'row', gap: 12, marginTop: 6 }}>
+            {err ? <Text style={styles.err}>{err}</Text> : null}
+
+            {/* actions */}
+            <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
               <Pressable
                 onPress={handleSave}
-                style={[styles.saveBtn, saving && { opacity: 0.7 }]}
+                style={[
+                  styles.primaryBtn,
+                  { backgroundColor: '#3b82f6', borderColor: '#3b82f6' },
+                  saving && { opacity: 0.6 },
+                ]}
                 disabled={saving}
               >
-                <Text style={styles.saveTxt}>
+                <Text style={[styles.primaryTxt, { color: '#fff' }]}>
                   {saving ? 'Saving…' : 'Save'}
                 </Text>
               </Pressable>
-              <Pressable onPress={onClose} style={styles.cancelBtn}>
-                <Text style={styles.cancelTxt}>Cancel</Text>
+              <Pressable onPress={onClose} style={styles.secondaryBtn}>
+                <Text style={styles.secondaryTxt}>Cancel</Text>
               </Pressable>
             </View>
           </ScrollView>
@@ -339,10 +372,11 @@ export default function AddTimeLogModal({ visible, onClose, onSaved }) {
   );
 }
 
+/* ---------------------------------- styles -------------------------------- */
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.28)',
+    backgroundColor: 'rgba(0,0,0,0.25)',
     justifyContent: 'flex-end',
   },
   sheet: {
@@ -351,49 +385,58 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 16,
     maxHeight: '92%',
   },
-
   header: {
-    padding: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderColor: '#e5e7eb',
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  title: { fontSize: 22, fontWeight: '900', color: '#111827' },
-  close: { padding: 6 },
+  h1: { fontSize: 22, fontWeight: '900', color: '#0b0b0c' },
 
-  label: { fontSize: 14, fontWeight: '900', color: '#374151', marginBottom: 6 },
+  label: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#374151',
+    marginBottom: 6,
+    marginTop: 8,
+  },
   input: {
     borderWidth: 1,
     borderColor: '#e5e7eb',
+    backgroundColor: '#fff',
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: '#fff',
     color: '#111827',
+    marginBottom: 8,
   },
 
   selectBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    borderRadius: 10,
     backgroundColor: '#fff',
     paddingHorizontal: 12,
     paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
+    borderRadius: 10,
   },
   value: { flex: 1, color: '#111827' },
   caret: { color: '#6b7280' },
-
   menu: {
+    position: 'absolute',
+    top: 46,
+    left: 0,
+    right: 0,
+    backgroundColor: '#fff',
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    borderRadius: 10,
-    backgroundColor: '#fff',
     overflow: 'hidden',
-    marginTop: 6,
+    zIndex: 50,
   },
   menuItem: {
     paddingVertical: 10,
@@ -401,26 +444,44 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#f1f5f9',
   },
-  menuTxt: { color: '#111827', fontWeight: '900' },
-  menuHint: { color: '#6b7280', fontSize: 12 },
+  menuTxt: { color: '#111827' },
 
-  saveBtn: {
-    backgroundColor: '#3b82f6',
-    borderRadius: 12,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+  avatar: { width: 40, height: 40, borderRadius: 20 },
+  avatarEmpty: {
+    backgroundColor: '#f3f4f6',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  saveTxt: { color: '#fff', fontWeight: '900', fontSize: 16 },
+  empName: { fontWeight: '900', color: '#111827' },
+  dim: { color: '#6b7280' },
 
-  cancelBtn: {
-    backgroundColor: '#eef2ff',
-    borderRadius: 12,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+  totalLabel: { marginTop: 8, color: '#374151', fontWeight: '800' },
+  totalValue: {
+    fontSize: 28,
+    fontWeight: '900',
+    color: '#1d4ed8',
+    marginTop: 2,
+  },
+
+  primaryBtn: {
     borderWidth: 1,
-    borderColor: '#c7d2fe',
+    borderColor: '#1d4ed8',
+    borderRadius: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
   },
-  cancelTxt: { color: '#3b82f6', fontWeight: '900', fontSize: 16 },
+  primaryTxt: { fontWeight: '900', color: '#111827' },
 
-  err: { color: '#b00020', marginTop: 8 },
+  secondaryBtn: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
+  },
+  secondaryTxt: { fontWeight: '900', color: '#111827' },
+
+  err: { color: '#b00020', marginTop: 8, fontWeight: '800' },
 });

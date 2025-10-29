@@ -5,6 +5,11 @@ export const fetchMyTimesheets = (params = {}) => ({
   params,
 });
 
+export const createTimesheet = payload => ({
+  type: T.CREATE_TIMESHEET_REQUEST,
+  payload,
+});
+
 export const createWeeklyTimesheet = payload => ({
   type: T.CREATE_WEEKLY_TS_REQUEST,
   payload,
