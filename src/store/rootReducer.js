@@ -13,6 +13,7 @@ import projectNotesReducer from '../modules/employee/works/projects/store/projec
 import projectActivityReducer from '../modules/employee/works/projects/store/projectActivity/reducer';
 import employeeTasksReducer from '../modules/employee/works/tasks/store/reducers';
 import employeeTimesheetsReducer from '../modules/employee/works/timesheets/store/reducer';
+import weeklyReducer from '../modules/employee/works/timesheets/store/weekly/reducer';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -30,6 +31,7 @@ const rootReducer = combineReducers({
       projectActivity: projectActivityReducer, // ✅ NEW
       tasks: employeeTasksReducer,
       timesheets: employeeTimesheetsReducer,
+      timesheetsWeekly: weeklyReducer,
     }),
   }),
 });

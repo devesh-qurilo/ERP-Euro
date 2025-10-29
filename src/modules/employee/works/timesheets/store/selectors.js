@@ -1,6 +1,13 @@
 export const selectMyTimesheets = s =>
   s.employee?.works?.timesheets?.list || [];
-export const selectMyTimesheetsLoading = s =>
+export const selectMyTimesheetsLoad = s =>
   !!s.employee?.works?.timesheets?.loading;
 export const selectMyTimesheetsError = s =>
   s.employee?.works?.timesheets?.error || null;
+
+export const selectWeeklyTimesheet = s =>
+  s.employee?.works?.timesheets?.weekly || null;
+export const selectWeeklyTimesheetLoad = s =>
+  !!s.employee?.works?.timesheets?.weeklyLoading;
+export const selectWeeklyTimesheetError = s =>
+  s.employee?.works?.timesheets?.weeklyError || null;

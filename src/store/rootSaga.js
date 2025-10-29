@@ -17,6 +17,8 @@ import { projectActivityWatcher } from '../modules/employee/works/projects/store
 import { employeeTasksWatcher } from '../modules/employee/works/tasks/store/sagas';
 import { employeeTimesheetsWatcher } from '../modules/employee/works/timesheets/store/sagas';
 
+import { weeklyWatcher } from '../modules/employee/works/timesheets/store/weekly/sagas';
+
 // Root saga that combines all sagas
 export default function* rootSaga() {
   yield all([
@@ -34,5 +36,6 @@ export default function* rootSaga() {
     projectActivityWatcher(),
     employeeTasksWatcher(),
     employeeTimesheetsWatcher(),
+    weeklyWatcher(),
   ]);
 }

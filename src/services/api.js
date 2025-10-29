@@ -249,9 +249,19 @@ export const projectMilestonesAPI = {
     api.get(`/api/projects/${projectId}/milestones`).then(r => r.data),
 };
 
+// --- MY TIMESHEETS (list) ---
 export const myTimesheetsAPI = {
-  listMine: (params = {}) =>
+  list: (params = {}) =>
     api.get('/timesheets/me', { params }).then(r => r.data),
+};
+
+// --- WEEKLY TIMESHEETS ---
+export const weeklyTimesheetsAPI = {
+  create: payload => api.post('/weekly-timesheets', payload).then(r => r.data),
+  getMine: weekStartDate =>
+    api
+      .get('/weekly-timesheets/me', { params: { weekStartDate } })
+      .then(r => r.data),
 };
 
 export default api;
