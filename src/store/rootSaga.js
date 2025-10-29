@@ -18,6 +18,7 @@ import { employeeTasksWatcher } from '../modules/employee/works/tasks/store/saga
 import { employeeTimesheetsWatcher } from '../modules/employee/works/timesheets/store/sagas';
 
 import { weeklyWatcher } from '../modules/employee/works/timesheets/store/weekly/sagas';
+import { chatWatcher } from '../modules/employee/messages/store/sagas';
 
 // Root saga that combines all sagas
 export default function* rootSaga() {
@@ -37,5 +38,6 @@ export default function* rootSaga() {
     employeeTasksWatcher(),
     employeeTimesheetsWatcher(),
     weeklyWatcher(),
+    chatWatcher(),
   ]);
 }

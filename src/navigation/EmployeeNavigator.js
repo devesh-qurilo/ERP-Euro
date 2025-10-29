@@ -37,7 +37,7 @@ import EmployeeWorkTimesheetScreen from '../modules/employee/works/timesheets/sc
 import EmployeeWorkRoadmapScreen from '../modules/employee/works/Roadmap/screens/EmployeeWorkRoadmapScreen';
 
 // Common
-import MessagesScreen from '../modules/common/screens/MessagesScreen';
+import EmployeeMessagesScreen from '../modules/employee/messages/screens/EmployeeMessagesScreen';
 import EmployeeNotificationsScreen from '../modules/employee/notifications/screens/EmployeeNotificationsScreen';
 import EmployeeSettingsScreen from '../modules/employee/settings/screens/EmployeeSettingsScreen';
 
@@ -520,7 +520,7 @@ export default function EmployeeNavigator() {
       {/* Common */}
       <Drawer.Screen
         name="Messages"
-        component={MessagesScreen}
+        component={EmployeeMessagesScreen}
         options={{ title: 'Messages' }}
       />
       <Drawer.Screen

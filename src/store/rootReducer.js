@@ -14,6 +14,7 @@ import projectActivityReducer from '../modules/employee/works/projects/store/pro
 import employeeTasksReducer from '../modules/employee/works/tasks/store/reducers';
 import employeeTimesheetsReducer from '../modules/employee/works/timesheets/store/reducer';
 import weeklyReducer from '../modules/employee/works/timesheets/store/weekly/reducer';
+import chatReducer from '../modules/employee/messages/store/reducers';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -33,6 +34,7 @@ const rootReducer = combineReducers({
       timesheets: employeeTimesheetsReducer,
       timesheetsWeekly: weeklyReducer,
     }),
+    messages: chatReducer,
   }),
 });
 

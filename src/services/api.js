@@ -264,5 +264,103 @@ export const weeklyTimesheetsAPI = {
       .get('/weekly-timesheets/me', { params: { weekStartDate } })
       .then(r => r.data),
 };
+// export const chatAPI = {
+//   listRooms: () => api.get('/api/chat/rooms').then(r => r.data),
+//   history: peerId =>
+//     api
+//       .get(`/api/chat/history/${encodeURIComponent(peerId)}`)
+//       .then(r => r.data),
 
+//   send: async ({ receiverId, content, messageType = 'TEXT' }) => {
+//     const fd = new FormData();
+//     fd.append('receiverId', String(receiverId));
+//     fd.append('content', String(content));
+//     fd.append('messageType', String(messageType));
+
+//     // DO NOT set Content-Type; let RN/axios add the boundary
+//     try {
+//       const res = await api.post('/api/chat/send', fd);
+//       return res.data;
+//     } catch (err) {
+//       // If this is a tunnel/HTTPS boundary issue, try a JSON fallback (only if backend accepts JSON)
+//       console.log(
+//         '[CHAT] multipart failed, trying JSON fallback…',
+//         err?.message,
+//       );
+//       try {
+//         const res2 = await api.post('/api/chat/send', {
+//           receiverId,
+//           content,
+//           messageType,
+//         });
+//         return res2.data;
+//       } catch (err2) {
+//         // rethrow with details so saga logs it
+//         throw err2;
+//       }
+//     }
+//   },
+// };
+
+export const chatAPI = {
+  listRooms: () => api.get('/api/chat/rooms').then(r => r.data),
+  history: peerId =>
+    api
+      .get(`/api/chat/history/${encodeURIComponent(peerId)}`)
+      .then(r => r.data),
+
+  send: async ({ receiverId, content, messageType = 'TEXT' }) => {
+    // 1) Build FormData (server expects multipart)
+    const fd = new FormData();
+    fd.append('receiverId', String(receiverId));
+    fd.append('content', String(content));
+    fd.append('messageType', String(messageType));
+
+    // 2) First try axios (Authorization will be added by your interceptor)
+    try {
+      console.log('[CHAT] axios POST =>', '/api/chat/send', {
+        receiverId,
+        content,
+        messageType,
+      });
+      const res = await api.post('/api/chat/send', fd); // do NOT set Content-Type manually
+      return res.data;
+    } catch (err) {
+      console.log('[CHAT] axios multipart failed:', err?.message);
+    }
+
+    // 3) Fallback to fetch with Authorization (this was missing, causing 401)
+    try {
+      const base = api.defaults?.baseURL?.replace(/\/+$/, '') || '';
+      const url = `${base}/api/chat/send`;
+      const token = await AsyncStorage.getItem('authToken');
+
+      console.log('[CHAT] fetch POST =>', url);
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: token
+          ? { Authorization: `Bearer ${token}` } // NO Content-Type for FormData
+          : undefined,
+        body: fd,
+      });
+
+      const text = await resp.text();
+      console.log('[CHAT] fetch status:', resp.status, 'body:', text);
+
+      if (!resp.ok) {
+        throw new Error(`HTTP ${resp.status}`);
+      }
+      // try parse if server returns JSON
+      try {
+        return JSON.parse(text);
+      } catch {
+        // if backend returns empty or non-JSON, adapt here:
+        return text;
+      }
+    } catch (err2) {
+      console.log('[CHAT] fetch multipart failed:', err2?.message);
+      throw err2;
+    }
+  },
+};
 export default api;
