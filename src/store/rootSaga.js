@@ -20,6 +20,8 @@ import { employeeTimesheetsWatcher } from '../modules/employee/works/timesheets/
 import { weeklyWatcher } from '../modules/employee/works/timesheets/store/weekly/sagas';
 import { chatWatcher } from '../modules/employee/messages/store/sagas';
 
+import { adminLeadsWatcher } from '../modules/admin/leads/store/sagas';
+
 // Root saga that combines all sagas
 export default function* rootSaga() {
   yield all([
@@ -39,5 +41,6 @@ export default function* rootSaga() {
     employeeTimesheetsWatcher(),
     weeklyWatcher(),
     chatWatcher(),
+    adminLeadsWatcher(),
   ]);
 }

@@ -20,7 +20,7 @@ import {
 } from '../store/selectors';
 
 const LoginScreen = ({ navigation }) => {
-  const [employeeId, setEmployeeId] = useState('EMP-010');
+  const [employeeId, setEmployeeId] = useState('EMP-009');
   const [password, setPassword] = useState('password123');
   const [errors, setErrors] = useState({});
 

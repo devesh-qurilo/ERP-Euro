@@ -16,6 +16,9 @@ import employeeTimesheetsReducer from '../modules/employee/works/timesheets/stor
 import weeklyReducer from '../modules/employee/works/timesheets/store/weekly/reducer';
 import chatReducer from '../modules/employee/messages/store/reducers';
 
+// ⬇️ Admin modules
+import adminLeadsReducer from '../modules/admin/leads/store/reducers';
+
 const rootReducer = combineReducers({
   auth: userReducer,
   employee: combineReducers({
@@ -35,6 +38,10 @@ const rootReducer = combineReducers({
       timesheetsWeekly: weeklyReducer,
     }),
     messages: chatReducer,
+  }),
+
+  admin: combineReducers({
+    leads: adminLeadsReducer, // ✅ <-- this is the Admin Lead Contacts reducer
   }),
 });
 
