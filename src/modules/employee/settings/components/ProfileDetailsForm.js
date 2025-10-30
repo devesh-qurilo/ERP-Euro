@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,15 +8,23 @@ import {
   Image,
   Alert,
   ActivityIndicator,
-  ScrollView,
 } from 'react-native';
+// using ONE picker only
 import { pick, types, isCancel } from '@react-native-documents/picker';
 
+/**
+ * Props:
+ *  - initialValues: object with employee fields (name, email, etc.)
+ *  - profilePictureUrl: remote URL string (from server)
+ *  - saving: boolean (disable button / show loader)
+ *  - onSubmit: function({ employee, profilePictureFile })
+ *  - style: optional container style
+ */
 export default function ProfileDetailsForm({
   initialValues = {},
   profilePictureUrl,
   saving = false,
-  onSubmit, // ({ employee, profilePictureFile })
+  onSubmit,
   style,
 }) {
   const [form, setForm] = useState({
@@ -33,26 +41,37 @@ export default function ProfileDetailsForm({
     slackMemberId: '',
     maritalStatus: '',
   });
+
+  // local selected file for immediate preview + upload
   const [pickedFile, setPickedFile] = useState(null);
 
+  // ensure initial values populate once they arrive/refresh
   useEffect(() => {
     setForm(prev => ({ ...prev, ...initialValues }));
   }, [initialValues]);
 
+  // helper: derive a stable preview URI and force Image rerender on change
+  const previewUri = pickedFile?.uri || profilePictureUrl || null;
+  const previewKey = useMemo(
+    () => (previewUri ? `${previewUri}?ts=${Date.now()}` : 'no-img'),
+    [previewUri],
+  );
+
   const pickPhoto = async () => {
     try {
-      const res = await DocumentPicker.pickSingle({
-        type: [DocumentPicker.types.images],
-      });
-      setPickedFile({ uri: res.uri, name: res.name, type: res.type });
       const files = await pick({
         allowMultiSelection: false,
-        type: [types.images], // or [types.jpeg, types.png]
+        type: [types.images], // you can also specify [types.jpeg, types.png]
       });
       const f = files?.[0];
-      if (f) {
-        setPickedFile({ uri: f.uri, name: f.name, type: f.mimeType });
-      }
+      if (!f?.uri) return;
+
+      // RN FormData likes { uri, name, type }
+      setPickedFile({
+        uri: f.uri,
+        name: f.name || getFileNameFromUri(f.uri) || 'profile.jpg',
+        type: f.mimeType || guessMimeFromName(f.name) || 'image/jpeg',
+      });
     } catch (e) {
       if (!isCancel(e)) {
         Alert.alert('Picker error', String(e?.message || e));
@@ -65,48 +84,53 @@ export default function ProfileDetailsForm({
       Alert.alert('Missing fields', 'Your Name and Email Id are required.');
       return;
     }
+
+    // Normalize a few fields if your backend expects lowercase values
+    const employee = {
+      name: form.name?.trim(),
+      email: form.email?.trim(),
+      gender: form.gender, // keep as-is or enforce lowercase if required
+      birthday: form.birthday,
+      bloodGroup: form.bloodGroup,
+      language: form.language,
+      country: form.country,
+      mobile: form.mobile,
+      address: form.address,
+      about: form.about,
+      slackMemberId: form.slackMemberId,
+      maritalStatus: form.maritalStatus,
+    };
+
     onSubmit?.({
-      employee: {
-        name: form.name,
-        email: form.email,
-        gender: form.gender,
-        birthday: form.birthday,
-        bloodGroup: form.bloodGroup,
-        language: form.language,
-        country: form.country,
-        mobile: form.mobile,
-        address: form.address,
-        about: form.about,
-        slackMemberId: form.slackMemberId,
-        maritalStatus: form.maritalStatus,
-      },
-      profilePictureFile: pickedFile,
+      employee,
+      profilePictureFile: pickedFile || null, // saga will send as FormData field: "file"
     });
   };
 
   return (
     <View style={[styles.card, style]}>
       <Text style={styles.title}>Profile Details</Text>
-
       <View style={styles.divider} />
 
       {/* Profile picture */}
       <Text style={styles.label}>Profile Picture</Text>
       <Pressable onPress={pickPhoto} style={styles.uploadBox}>
-        {pickedFile?.uri || profilePictureUrl ? (
+        {previewUri ? (
           <Image
-            source={{ uri: pickedFile?.uri || profilePictureUrl }}
+            key={previewKey} // force rerender on new pick
+            source={{ uri: previewUri }}
             style={styles.preview}
+            resizeMode="cover"
           />
         ) : (
           <>
             <Text style={styles.uploadIcon}>🖼️➕</Text>
-            <Text style={styles.uploadHint}>Choose a file</Text>
+            <Text style={styles.uploadHint}>Tap to choose a photo</Text>
           </>
         )}
       </Pressable>
 
-      {/* Form */}
+      {/* Form fields */}
       <Field label="Your Name *">
         <TextInput
           style={styles.input}
@@ -116,7 +140,7 @@ export default function ProfileDetailsForm({
         />
       </Field>
 
-      <Field label="Email Id *" hint="Must have at least 8 characters">
+      <Field label="Email Id *">
         <TextInput
           style={styles.input}
           value={form.email}
@@ -247,6 +271,24 @@ function Field({ label, hint, children, style }) {
   );
 }
 
+/* helpers */
+function getFileNameFromUri(uri = '') {
+  try {
+    const p = uri.split('?')[0];
+    const seg = p.split('/').pop();
+    return seg || null;
+  } catch {
+    return null;
+  }
+}
+function guessMimeFromName(name = '') {
+  const n = name.toLowerCase();
+  if (n.endsWith('.png')) return 'image/png';
+  if (n.endsWith('.jpg') || n.endsWith('.jpeg')) return 'image/jpeg';
+  if (n.endsWith('.heic')) return 'image/heic';
+  return null;
+}
+
 /* styles */
 const styles = StyleSheet.create({
   card: {
@@ -266,7 +308,6 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     borderRadius: 1,
   },
-
   label: { color: '#374151', fontWeight: '800', marginBottom: 6 },
   uploadBox: {
     height: 140,
@@ -277,6 +318,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 12,
     backgroundColor: '#f8fafc',
+    overflow: 'hidden',
   },
   preview: { width: '100%', height: '100%', borderRadius: 12 },
   uploadIcon: { fontSize: 28, color: '#9aa0a6' },

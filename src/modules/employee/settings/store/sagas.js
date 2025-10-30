@@ -34,7 +34,7 @@ function* updateMeSaga(action) {
     const fd = new FormData();
     fd.append('employee', JSON.stringify(employee || {}));
     if (profilePictureFile?.uri) {
-      fd.append('profilePicture', {
+      fd.append('file', {
         uri: profilePictureFile.uri,
         name: profilePictureFile.name || 'profile.jpg',
         type: profilePictureFile.type || 'image/jpeg',
@@ -46,7 +46,7 @@ function* updateMeSaga(action) {
   } catch (err) {
     yield put({
       type: UPDATE_ME_FAILURE,
-      error: err?.message || 'Failed to save changes',
+      error: err?.message || 'Failed to save changes devesh',
     });
   }
 }
