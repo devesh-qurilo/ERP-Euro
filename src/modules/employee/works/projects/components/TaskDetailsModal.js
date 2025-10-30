@@ -10,7 +10,7 @@ import {
   Image,
   TextInput,
 } from 'react-native';
-import DocumentPicker from 'react-native-document-picker';
+import { pick, isCancel } from '@react-native-documents/picker';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchTaskFiles,
@@ -114,15 +114,22 @@ export default function TaskDetailsModal({ visible, task, onClose }) {
   const loadFiles = () => taskId && dispatch(fetchTaskFiles(taskId));
   const pickAndUpload = async () => {
     try {
-      const res = await DocumentPicker.pickSingle();
+      // returns an array; we only need one file
+      const [res] = await pick({
+        allowMultiSelection: false,
+        // optionally restrict types:
+        // type: [types.images, types.pdf, types.plainText, types.allFiles]
+      });
       const file = {
         uri: res.uri,
-        name: res.name,
-        type: res.type || 'application/octet-stream',
+        name: res.name ?? 'file',
+        // some providers expose mime as `mimeType`
+        type: res.type ?? res?.mimeType ?? 'application/octet-stream',
       };
       dispatch(uploadTaskFile(taskId, file));
     } catch (e) {
-      if (DocumentPicker.isCancel(e)) return;
+      if (isCancel(e)) return; // user cancelled picker
+      // optionally handle/log other errors
     }
   };
 

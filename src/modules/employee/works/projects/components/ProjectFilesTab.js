@@ -8,7 +8,7 @@ import {
   Linking,
   RefreshControl,
 } from 'react-native';
-import DocumentPicker from 'react-native-document-picker';
+import { pick, isCancel } from '@react-native-documents/picker';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchProjectFiles,
@@ -44,15 +44,21 @@ export default function ProjectFilesTab({ route }) {
 
   const pickAndUpload = async () => {
     try {
-      const picked = await DocumentPicker.pickSingle();
+      // @react-native-documents/picker returns an array
+      const [picked] = await pick({
+        allowMultiSelection: false,
+        // optionally restrict:
+        // type: [types.images, types.pdf, types.plainText, types.allFiles]
+      });
       const file = {
         uri: picked.uri,
-        name: picked.name,
-        type: picked.type || 'application/octet-stream',
+        name: picked.name ?? 'file',
+        // some providers expose mime as `mimeType`
+        type: res.type ?? res.mimeType ?? 'application/octet-stream',
       };
       dispatch(uploadProjectFile(projectId, file));
     } catch (e) {
-      if (DocumentPicker.isCancel(e)) return;
+      if (isCancel(e)) return; // user cancelled
       // optional: show toast
       console.warn('File pick error', e);
     }

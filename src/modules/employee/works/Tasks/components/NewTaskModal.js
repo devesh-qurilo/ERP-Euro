@@ -8,7 +8,9 @@ import {
   TextInput,
   ScrollView,
 } from 'react-native';
-import DocumentPicker from 'react-native-document-picker';
+// import DocumentPicker from 'react-native-document-picker';
+import { pick, isCancel } from '@react-native-documents/picker';
+
 import { useDispatch } from 'react-redux';
 import {
   taskCategoriesAPI,
@@ -156,14 +158,22 @@ export default function NewTaskModal({ visible, onClose }) {
 
   const pickFile = async () => {
     try {
-      const res = await DocumentPicker.pickSingle();
+      // returns an array; we only want one
+      const [res] = await pick({
+        allowMultiSelection: false,
+        // you can restrict types if you want:
+        // type: [types.images, types.pdf, types.plainText, types.allFiles]
+      });
+
       setFile({
         uri: res.uri,
-        name: res.name,
-        type: res.type || 'application/octet-stream',
+        name: res.name ?? 'file',
+        // some providers expose mime as `mimeType`
+        type: res.type ?? res.mimeType ?? 'application/octet-stream',
       });
     } catch (e) {
-      if (DocumentPicker.isCancel(e)) return;
+      if (isCancel(e)) return; // user cancelled
+      // optionally toast/log other errors
     }
   };
 
