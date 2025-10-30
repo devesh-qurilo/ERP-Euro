@@ -1,5 +1,5 @@
 // src/modules/admin/leads/screens/AdminLeadContactsScreen.js
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import {
   setAdminLeadsFilters,
   deleteAdminLead,
   updateAdminLead,
+  createAdminLeadRequest, // <-- if your action is named differently, adjust here
 } from '../store/actions';
 import {
   selectAdminLeads,
@@ -24,15 +25,16 @@ import {
   selectAdminLeadsBusyIds,
 } from '../store/selectors';
 import LeadsTable from '../components/LeadsTable';
+import AddLeadModal from '../contacts/components/AddLeadModal';
 
 const Select = ({ label, value, options, onChange, style }) => {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   return (
     <View style={[{ minWidth: 150, marginRight: 8, marginBottom: 8 }, style]}>
       <Text style={styles.label}>{label}</Text>
       <Pressable style={styles.selectBtn} onPress={() => setOpen(o => !o)}>
         <Text style={styles.value} numberOfLines={1}>
-          {value}
+          {String(value ?? 'All')}
         </Text>
         <Text style={styles.caret}>{open ? '▴' : '▾'}</Text>
       </Pressable>
@@ -56,56 +58,103 @@ const Select = ({ label, value, options, onChange, style }) => {
   );
 };
 
-export default function AdminLeadContactsScreen({ navigation }) {
+export default function AdminLeadContactsScreen() {
   const dispatch = useDispatch();
+
+  // ------- Redux state -------
   const list = useSelector(selectAdminLeads);
   const loading = useSelector(selectAdminLeadsLoading);
   const error = useSelector(selectAdminLeadsError);
-  const filters = useSelector(selectAdminLeadsFilters);
+  const filters = useSelector(selectAdminLeadsFilters) || {
+    q: '',
+    source: 'All',
+    owner: 'All',
+    status: 'All',
+    start: '',
+    end: '',
+  };
   const busyIds = useSelector(selectAdminLeadsBusyIds);
+  const me = useSelector(s => s?.auth?.profile?.employeeId) || 'EMP-009';
 
   useEffect(() => {
     dispatch(fetchAdminLeads());
   }, [dispatch]);
 
+  // ------- Filters options -------
   const sources = useMemo(
-    () => ['All', ...new Set(list.map(x => x.leadSource).filter(Boolean))],
+    () => [
+      'All',
+      ...Array.from(
+        new Set((list || []).map(x => x.leadSource).filter(Boolean)),
+      ),
+    ],
     [list],
   );
   const owners = useMemo(
-    () => ['All', ...new Set(list.map(x => x.leadOwner).filter(Boolean))],
+    () => [
+      'All',
+      ...Array.from(
+        new Set((list || []).map(x => x.leadOwner).filter(Boolean)),
+      ),
+    ],
     [list],
   );
   const statuses = useMemo(
-    () => ['All', ...new Set(list.map(x => x.status).filter(Boolean))],
+    () => [
+      'All',
+      ...Array.from(new Set((list || []).map(x => x.status).filter(Boolean))),
+    ],
     [list],
   );
 
+  // ------- Filtering -------
   const filtered = useMemo(() => {
-    const q = (filters.q || '').trim().toLowerCase();
-    return list.filter(l => {
+    const q = String(filters.q || '')
+      .trim()
+      .toLowerCase();
+    return (list || []).filter(l => {
       if (q) {
-        const hay =
-          `${l.name} ${l.email} ${l.companyName} ${l.mobileNumber} ${l.city} ${l.country}`.toLowerCase();
+        const hay = `${l.name} ${l.email} ${l.companyName || ''} ${
+          l.mobileNumber || ''
+        } ${l.city || ''} ${l.country || ''}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
-      if (filters.source !== 'All' && (l.leadSource || '') !== filters.source)
+      if (
+        (filters.source || 'All') !== 'All' &&
+        (l.leadSource || '') !== filters.source
+      )
         return false;
-      if (filters.owner !== 'All' && (l.leadOwner || '') !== filters.owner)
+      if (
+        (filters.owner || 'All') !== 'All' &&
+        (l.leadOwner || '') !== filters.owner
+      )
         return false;
-      if (filters.status !== 'All' && (l.status || '') !== filters.status)
+      if (
+        (filters.status || 'All') !== 'All' &&
+        (l.status || '') !== filters.status
+      )
         return false;
+
+      const c = l.createdAt ? new Date(l.createdAt) : null;
       if (filters.start) {
-        const c = l.createdAt ? new Date(l.createdAt) : null;
-        if (c && new Date(filters.start) > c) return false;
+        const s = new Date(filters.start);
+        if (c && s > c) return false;
       }
       if (filters.end) {
-        const c = l.createdAt ? new Date(l.createdAt) : null;
-        if (c && new Date(filters.end) < c) return false;
+        const e = new Date(filters.end);
+        if (c && e < c) return false;
       }
       return true;
     });
   }, [list, filters]);
+
+  const hasFilters =
+    !!String(filters.q || '').trim() ||
+    !!filters.start ||
+    !!filters.end ||
+    (filters.source || 'All') !== 'All' ||
+    (filters.owner || 'All') !== 'All' ||
+    (filters.status || 'All') !== 'All';
 
   const resetFilters = () =>
     dispatch(
@@ -119,9 +168,15 @@ export default function AdminLeadContactsScreen({ navigation }) {
       }),
     );
 
-  // actions
-  const onView = lead => navigation.navigate('AdminLeadView', { id: lead.id }); // future screen
-  const onEdit = lead => navigation.navigate('AdminLeadEdit', { id: lead.id }); // future screen
+  // ------- Row actions -------
+  const onView = lead => {
+    // future screen
+    Alert.alert('View Lead', `Open view for: ${lead.name}`);
+  };
+  const onEdit = lead => {
+    // future screen
+    Alert.alert('Edit Lead', `Open edit for: ${lead.name}`);
+  };
   const onDelete = lead => {
     Alert.alert('Delete Lead', `Delete ${lead.name}?`, [
       { text: 'Cancel' },
@@ -132,17 +187,13 @@ export default function AdminLeadContactsScreen({ navigation }) {
       },
     ]);
   };
-  const onConvert = lead =>
-    navigation.navigate('AdminLeadConvert', { id: lead.id }); // future form
+  const onConvert = lead => {
+    // future screen
+    Alert.alert('Convert', `Convert ${lead.name} to Client (future screen).`);
+  };
 
-  const hasFilters = !!(
-    (filters.q || '').trim() ||
-    filters.start ||
-    filters.end ||
-    filters.source !== 'All' ||
-    filters.owner !== 'All' ||
-    filters.status !== 'All'
-  );
+  // ------- Add Lead modal wiring -------
+  const [openAdd, setOpenAdd] = useState(false);
 
   return (
     <ScrollView contentContainerStyle={styles.wrap}>
@@ -152,7 +203,7 @@ export default function AdminLeadContactsScreen({ navigation }) {
           <View style={{ flexBasis: '60%', minWidth: 220, paddingRight: 8 }}>
             <Text style={styles.label}>Search</Text>
             <TextInput
-              value={filters.q || ''}
+              value={String(filters.q || '')}
               onChangeText={q => dispatch(setAdminLeadsFilters({ q }))}
               placeholder="name, email, company, phone, location"
               placeholderTextColor="#9ca3af"
@@ -163,7 +214,7 @@ export default function AdminLeadContactsScreen({ navigation }) {
           <View style={{ flexBasis: '20%', minWidth: 150, paddingRight: 8 }}>
             <Text style={styles.label}>Start From</Text>
             <TextInput
-              value={filters.start}
+              value={String(filters.start || '')}
               onChangeText={start => dispatch(setAdminLeadsFilters({ start }))}
               placeholder="YYYY-MM-DD"
               placeholderTextColor="#9ca3af"
@@ -173,7 +224,7 @@ export default function AdminLeadContactsScreen({ navigation }) {
           <View style={{ flexBasis: '20%', minWidth: 150 }}>
             <Text style={styles.label}>End To</Text>
             <TextInput
-              value={filters.end}
+              value={String(filters.end || '')}
               onChangeText={end => dispatch(setAdminLeadsFilters({ end }))}
               placeholder="YYYY-MM-DD"
               placeholderTextColor="#9ca3af"
@@ -185,19 +236,19 @@ export default function AdminLeadContactsScreen({ navigation }) {
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 8 }}>
           <Select
             label="Source"
-            value={filters.source}
+            value={filters.source || 'All'}
             options={sources}
             onChange={source => dispatch(setAdminLeadsFilters({ source }))}
           />
           <Select
             label="Owner"
-            value={filters.owner}
+            value={filters.owner || 'All'}
             options={owners}
             onChange={owner => dispatch(setAdminLeadsFilters({ owner }))}
           />
           <Select
             label="Status"
-            value={filters.status}
+            value={filters.status || 'All'}
             options={statuses}
             onChange={status => dispatch(setAdminLeadsFilters({ status }))}
           />
@@ -210,12 +261,12 @@ export default function AdminLeadContactsScreen({ navigation }) {
         )}
       </View>
 
-      {/* 2) Add Lead button */}
+      {/* 2) Header + Add */}
       <View style={styles.headerRow}>
         <Text style={styles.sectionTitle}>Lead Contacts</Text>
         <Pressable
           style={[styles.primaryBtn, { backgroundColor: '#1d4ed8' }]}
-          onPress={() => navigation.navigate('AdminLeadCreate')} // future screen
+          onPress={() => setOpenAdd(true)}
         >
           <Text style={[styles.primaryTxt, { color: '#fff' }]}>+ Add Lead</Text>
         </Pressable>
@@ -232,6 +283,24 @@ export default function AdminLeadContactsScreen({ navigation }) {
         onConvert={onConvert}
       />
       {error && <Text style={styles.err}>Error: {String(error)}</Text>}
+
+      {/* Add Lead Modal (inline) */}
+      <AddLeadModal
+        visible={openAdd}
+        onClose={() => setOpenAdd(false)}
+        onSave={payload => {
+          // auto-inject sensible defaults if the modal doesn’t already
+          const body = {
+            ...payload,
+            addedBy: payload?.addedBy || me,
+            leadOwner: payload?.leadOwner || me,
+          };
+          dispatch(createAdminLeadRequest(body));
+          setOpenAdd(false);
+        }}
+        currentUserId={me}
+        defaultOwnerId={me}
+      />
     </ScrollView>
   );
 }

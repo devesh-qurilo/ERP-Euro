@@ -14,6 +14,9 @@ const initial = {
     end: '',
   },
   busyIds: {}, // per-row spinners for destructive ops
+
+  creating: false,
+  createError: null,
 };
 
 export default function adminLeadsReducer(state = initial, action) {
@@ -27,6 +30,18 @@ export default function adminLeadsReducer(state = initial, action) {
 
     case T.SET_ADMIN_LEADS_FILTERS:
       return { ...state, filters: { ...state.filters, ...action.filters } };
+
+    case T.CREATE_LEAD_REQUEST:
+      return { ...state, creating: true, createError: null };
+    case T.CREATE_LEAD_SUCCESS:
+      // prepend new lead
+      return {
+        ...state,
+        creating: false,
+        list: [action.payload, ...state.list],
+      };
+    case T.CREATE_LEAD_FAILURE:
+      return { ...state, creating: false, createError: action.error };
 
     case T.DELETE_ADMIN_LEAD_REQUEST:
     case T.UPDATE_LEAD_REQUEST:
