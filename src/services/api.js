@@ -373,4 +373,36 @@ export const adminLeadsAPI = {
 
   // change-to-client will navigate to a screen (no API yet)
 };
+
+// --- ADMIN SETTINGS APIS ---
+export const adminSettingsAPI = {
+  // multipart: { profile: object with fields, file: optional RN file { uri, name, type } }
+  updateMe: async ({ profile = {}, file = null }) => {
+    const fd = new FormData();
+    fd.append('employee', JSON.stringify(profile));
+    if (file) {
+      fd.append('file', file); // { uri, name, type }
+    }
+    return api
+      .put('/employee/me', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+
+  getCompany: () => api.get('/employee/company').then(r => r.data),
+
+  // multipart: fields + optional logoFile
+  upsertCompany: async ({ company = {}, logoFile = null }) => {
+    const fd = new FormData();
+    Object.entries(company).forEach(([k, v]) => fd.append(k, String(v ?? '')));
+    if (logoFile) fd.append('logoFile', logoFile); // { uri, name, type }
+    return api
+      .post('/employee/company', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+};
+
 export default api;

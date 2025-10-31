@@ -17,15 +17,15 @@ import {
   DrawerContentScrollView,
 } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import AdminLeadContactsScreen from '../modules/admin/leads/screens/AdminLeadContactsScreen';
 import LinearGradient from 'react-native-linear-gradient';
 
-const Drawer = createDrawerNavigator();
-const Stack = createNativeStackNavigator();
-const { width } = Dimensions.get('window');
+// REAL SCREENS YOU HAVE
+import AdminLeadContactsScreen from '../modules/admin/leads/screens/AdminLeadContactsScreen';
+import AdminProfileSettingsScreen from '../modules/admin/settings/screens/AdminProfileSettingsScreen';
+import AdminCompanySettingsScreen from '../modules/admin/settings/screens/AdminCompanySettingsScreen';
 
 // ---------------------------------------------------------------------------
-// PLACEHOLDERS (replace each with real screen when ready)
+// PLACEHOLDERS (swap with real screens later)
 // ---------------------------------------------------------------------------
 const P = ({ title }) => (
   <View style={styles.screenWrap}>
@@ -34,16 +34,12 @@ const P = ({ title }) => (
   </View>
 );
 
-// Dashboard & Single-level modules
 const AdminDashboardScreen = () => <P title="Admin • Dashboard" />;
 const AdminClientsScreen = () => <P title="Admin • Clients" />;
 const AdminMessagesScreen = () => <P title="Admin • Messages" />;
 
-// Leads
-// const AdminLeadsContactsScreen = () => <P title="Leads • Lead Contacts" />;
 const AdminLeadsDealsScreen = () => <P title="Leads • Deals" />;
 
-// HR
 const AdminHREmployeesScreen = () => <P title="HR • Employees" />;
 const AdminHRLeavesScreen = () => <P title="HR • Leaves" />;
 const AdminHRHolidaysScreen = () => <P title="HR • Holidays" />;
@@ -52,22 +48,21 @@ const AdminHRDesignationsScreen = () => <P title="HR • Designations" />;
 const AdminHRDepartmentsScreen = () => <P title="HR • Departments" />;
 const AdminHRAppreciationsScreen = () => <P title="HR • Appreciations" />;
 
-// Work
 const AdminWorkProjectsScreen = () => <P title="Work • Projects" />;
 const AdminWorkTasksScreen = () => <P title="Work • Tasks" />;
 const AdminWorkTimesheetsScreen = () => <P title="Work • Timesheets" />;
 const AdminWorkRoadmapScreen = () => <P title="Work • Project Roadmap" />;
 
-// Finance
 const AdminFinanceInvoicesScreen = () => <P title="Finance • Invoices" />;
 const AdminFinanceDealsScreen = () => <P title="Finance • Deals" />;
 
-// Settings
-const AdminCompanySettingsScreen = () => <P title="Settings • Company" />;
-const AdminProfileSettingsScreen = () => <P title="Settings • Profile" />;
+// ---------------------------------------------------------------------------
+const Drawer = createDrawerNavigator();
+const Stack = createNativeStackNavigator();
+const { width } = Dimensions.get('window');
 
 // ---------------------------------------------------------------------------
-// ICONS (replace with your PNGs)
+// ICONS
 // ---------------------------------------------------------------------------
 const icons = {
   dashboard: require('../assets/icons/dashboard.png'),
@@ -94,7 +89,10 @@ if (
 // ---------------------------------------------------------------------------
 function LeadsStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator
+      screenOptions={{ headerShown: false }}
+      initialRouteName="LeadsContacts"
+    >
       <Stack.Screen name="LeadsContacts" component={AdminLeadContactsScreen} />
       <Stack.Screen name="LeadsDeals" component={AdminLeadsDealsScreen} />
     </Stack.Navigator>
@@ -103,7 +101,10 @@ function LeadsStack() {
 
 function HRStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator
+      screenOptions={{ headerShown: false }}
+      initialRouteName="HREmployees"
+    >
       <Stack.Screen name="HREmployees" component={AdminHREmployeesScreen} />
       <Stack.Screen name="HRLeaves" component={AdminHRLeavesScreen} />
       <Stack.Screen name="HRHolidays" component={AdminHRHolidaysScreen} />
@@ -123,7 +124,10 @@ function HRStack() {
 
 function WorkStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator
+      screenOptions={{ headerShown: false }}
+      initialRouteName="WorkProjects"
+    >
       <Stack.Screen name="WorkProjects" component={AdminWorkProjectsScreen} />
       <Stack.Screen name="WorkTasks" component={AdminWorkTasksScreen} />
       <Stack.Screen
@@ -137,7 +141,10 @@ function WorkStack() {
 
 function FinanceStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator
+      screenOptions={{ headerShown: false }}
+      initialRouteName="FinanceInvoices"
+    >
       <Stack.Screen
         name="FinanceInvoices"
         component={AdminFinanceInvoicesScreen}
@@ -149,7 +156,10 @@ function FinanceStack() {
 
 function SettingsStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator
+      screenOptions={{ headerShown: false }}
+      initialRouteName="CompanySettings"
+    >
       <Stack.Screen
         name="CompanySettings"
         component={AdminCompanySettingsScreen}
@@ -217,11 +227,41 @@ function GlassDrawerItem({
 }
 
 // ---------------------------------------------------------------------------
-// Custom Drawer Content (collapsible groups per your modules)
+// Helper: find active nested child for highlighting
+// ---------------------------------------------------------------------------
+function useActiveHelpers(drawerState) {
+  const activeTop = drawerState.routeNames[drawerState.index];
+  const routes = drawerState.routes;
+
+  // returns childRouteName if current top route is a stack and has nested state
+  const getActiveChild = stackName => {
+    const route = routes.find(r => r.name === stackName);
+    const nested = route?.state;
+    if (nested && typeof nested.index === 'number') {
+      return (
+        nested.routeNames?.[nested.index] || nested.routes?.[nested.index]?.name
+      );
+    }
+    // React Navigation v6 stores in nested.routes
+    const nr = route?.state?.routes?.[route.state.index];
+    return nr?.name;
+  };
+
+  const isActiveStack = (stackName, childName) => {
+    if (activeTop !== stackName) return false;
+    const child = getActiveChild(stackName);
+    return child === childName;
+  };
+
+  return { activeTop, isActiveStack };
+}
+
+// ---------------------------------------------------------------------------
+// Custom Drawer Content (collapsible groups + proper nested navigation)
 // ---------------------------------------------------------------------------
 function AdminDrawerContent(props) {
   const { navigation, state } = props;
-  const activeRoute = state.routeNames[state.index];
+  const { activeTop, isActiveStack } = useActiveHelpers(state);
 
   const [leadsOpen, setLeadsOpen] = React.useState(false);
   const [hrOpen, setHrOpen] = React.useState(false);
@@ -232,9 +272,10 @@ function AdminDrawerContent(props) {
   const animate = () =>
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 
-  const go = routeName => {
+  // Navigate into a stack's specific child
+  const navigateTo = (stackName, childName) => {
     animate();
-    navigation.navigate(routeName);
+    navigation.navigate(stackName, { screen: childName });
   };
 
   const GroupHeader = ({ label, icon, open, onToggle }) => (
@@ -303,42 +344,42 @@ function AdminDrawerContent(props) {
             <GlassDrawerItem
               label="Dashboard"
               icon={icons.dashboard}
-              onPress={() => go('AdminDashboard')}
-              isActive={activeRoute === 'AdminDashboard'}
+              onPress={() => navigation.navigate('AdminDashboard')}
+              isActive={activeTop === 'AdminDashboard'}
             />
 
-            {/* Leads (a) Lead Contacts (b) Deals */}
+            {/* Leads group */}
             <GroupHeader
               label="Leads"
               icon={icons.leads}
               open={leadsOpen}
-              onToggle={() => setLeadsOpen(o => !o)}
+              onToggle={() => setLeadsOpen(v => !v)}
             />
             {leadsOpen && (
               <View style={styles.hrList}>
                 <GlassDrawerItem
                   label="Lead Contacts"
                   icon={icons.leads}
-                  onPress={() => go('Leads')}
-                  isActive={activeRoute === 'Leads'}
+                  onPress={() => navigateTo('Leads', 'LeadsContacts')}
+                  isActive={isActiveStack('Leads', 'LeadsContacts')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Deals"
                   icon={icons.leads}
-                  onPress={() => go('Leads')} // same stack, different screen
-                  isActive={false}
+                  onPress={() => navigateTo('Leads', 'LeadsDeals')}
+                  isActive={isActiveStack('Leads', 'LeadsDeals')}
                   isSubItem
                 />
               </View>
             )}
 
-            {/* Clients */}
+            {/* Clients (single) */}
             <GlassDrawerItem
               label="Clients"
               icon={icons.clients}
-              onPress={() => go('Clients')}
-              isActive={activeRoute === 'Clients'}
+              onPress={() => navigation.navigate('Clients')}
+              isActive={activeTop === 'Clients'}
             />
 
             {/* HR group */}
@@ -346,51 +387,57 @@ function AdminDrawerContent(props) {
               label="HR"
               icon={icons.hr}
               open={hrOpen}
-              onToggle={() => setHrOpen(o => !o)}
+              onToggle={() => setHrOpen(v => !v)}
             />
             {hrOpen && (
               <View style={styles.hrList}>
                 <GlassDrawerItem
                   label="Employees"
                   icon={icons.hr}
-                  onPress={() => go('HR')}
-                  isActive={activeRoute === 'HR'}
+                  onPress={() => navigateTo('HR', 'HREmployees')}
+                  isActive={isActiveStack('HR', 'HREmployees')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Leaves"
                   icon={icons.hr}
-                  onPress={() => go('HR')}
+                  onPress={() => navigateTo('HR', 'HRLeaves')}
+                  isActive={isActiveStack('HR', 'HRLeaves')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Holidays"
                   icon={icons.hr}
-                  onPress={() => go('HR')}
+                  onPress={() => navigateTo('HR', 'HRHolidays')}
+                  isActive={isActiveStack('HR', 'HRHolidays')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Attendance"
                   icon={icons.hr}
-                  onPress={() => go('HR')}
+                  onPress={() => navigateTo('HR', 'HRAttendance')}
+                  isActive={isActiveStack('HR', 'HRAttendance')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Designations"
                   icon={icons.hr}
-                  onPress={() => go('HR')}
+                  onPress={() => navigateTo('HR', 'HRDesignations')}
+                  isActive={isActiveStack('HR', 'HRDesignations')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Departments"
                   icon={icons.hr}
-                  onPress={() => go('HR')}
+                  onPress={() => navigateTo('HR', 'HRDepartments')}
+                  isActive={isActiveStack('HR', 'HRDepartments')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Appreciations"
                   icon={icons.hr}
-                  onPress={() => go('HR')}
+                  onPress={() => navigateTo('HR', 'HRAppreciations')}
+                  isActive={isActiveStack('HR', 'HRAppreciations')}
                   isSubItem
                 />
               </View>
@@ -401,33 +448,36 @@ function AdminDrawerContent(props) {
               label="Work"
               icon={icons.work}
               open={workOpen}
-              onToggle={() => setWorkOpen(o => !o)}
+              onToggle={() => setWorkOpen(v => !v)}
             />
             {workOpen && (
               <View style={styles.hrList}>
                 <GlassDrawerItem
                   label="Projects"
                   icon={icons.work}
-                  onPress={() => go('Work')}
-                  isActive={activeRoute === 'Work'}
+                  onPress={() => navigateTo('Work', 'WorkProjects')}
+                  isActive={isActiveStack('Work', 'WorkProjects')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Tasks"
                   icon={icons.work}
-                  onPress={() => go('Work')}
+                  onPress={() => navigateTo('Work', 'WorkTasks')}
+                  isActive={isActiveStack('Work', 'WorkTasks')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Timesheets"
                   icon={icons.work}
-                  onPress={() => go('Work')}
+                  onPress={() => navigateTo('Work', 'WorkTimesheets')}
+                  isActive={isActiveStack('Work', 'WorkTimesheets')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Project Roadmap"
                   icon={icons.work}
-                  onPress={() => go('Work')}
+                  onPress={() => navigateTo('Work', 'WorkRoadmap')}
+                  isActive={isActiveStack('Work', 'WorkRoadmap')}
                   isSubItem
                 />
               </View>
@@ -438,32 +488,33 @@ function AdminDrawerContent(props) {
               label="Finance"
               icon={icons.finance}
               open={financeOpen}
-              onToggle={() => setFinanceOpen(o => !o)}
+              onToggle={() => setFinanceOpen(v => !v)}
             />
             {financeOpen && (
               <View style={styles.hrList}>
                 <GlassDrawerItem
                   label="Invoices"
                   icon={icons.finance}
-                  onPress={() => go('Finance')}
-                  isActive={activeRoute === 'Finance'}
+                  onPress={() => navigateTo('Finance', 'FinanceInvoices')}
+                  isActive={isActiveStack('Finance', 'FinanceInvoices')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Deals"
                   icon={icons.finance}
-                  onPress={() => go('Finance')}
+                  onPress={() => navigateTo('Finance', 'FinanceDeals')}
+                  isActive={isActiveStack('Finance', 'FinanceDeals')}
                   isSubItem
                 />
               </View>
             )}
 
-            {/* Messages */}
+            {/* Messages (single) */}
             <GlassDrawerItem
               label="Messages"
               icon={icons.messages}
-              onPress={() => go('Messages')}
-              isActive={activeRoute === 'Messages'}
+              onPress={() => navigation.navigate('Messages')}
+              isActive={activeTop === 'Messages'}
             />
 
             {/* Settings group */}
@@ -471,21 +522,22 @@ function AdminDrawerContent(props) {
               label="Settings"
               icon={icons.settings}
               open={settingsOpen}
-              onToggle={() => setSettingsOpen(o => !o)}
+              onToggle={() => setSettingsOpen(v => !v)}
             />
             {settingsOpen && (
               <View style={styles.hrList}>
                 <GlassDrawerItem
                   label="Company Settings"
                   icon={icons.settings}
-                  onPress={() => go('Settings')}
-                  isActive={activeRoute === 'Settings'}
+                  onPress={() => navigateTo('Settings', 'CompanySettings')}
+                  isActive={isActiveStack('Settings', 'CompanySettings')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Profile Settings"
                   icon={icons.settings}
-                  onPress={() => go('Settings')}
+                  onPress={() => navigateTo('Settings', 'ProfileSettings')}
+                  isActive={isActiveStack('Settings', 'ProfileSettings')}
                   isSubItem
                 />
               </View>
@@ -523,7 +575,7 @@ export default function AdminNavigator() {
       }}
       drawerContent={props => <AdminDrawerContent {...props} />}
     >
-      {/* Single screens */}
+      {/* Singles */}
       <Drawer.Screen
         name="AdminDashboard"
         component={AdminDashboardScreen}
@@ -540,7 +592,7 @@ export default function AdminNavigator() {
         options={{ title: 'Messages', drawerItemStyle: { height: 0 } }}
       />
 
-      {/* Group stacks (hidden in drawer; navigated via group items) */}
+      {/* Groups (hidden in drawer; enter via nested nav) */}
       <Drawer.Screen
         name="Leads"
         component={LeadsStack}

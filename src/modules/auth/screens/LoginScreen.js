@@ -20,7 +20,7 @@ import {
 } from '../store/selectors';
 
 const LoginScreen = ({ navigation }) => {
-  const [employeeId, setEmployeeId] = useState('EMP-012');
+  const [employeeId, setEmployeeId] = useState('EMP-009');
   const [password, setPassword] = useState('password123');
   const [errors, setErrors] = useState({});
 
@@ -98,7 +98,7 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.loginTitle}>Log In</Text>
 
           {/* User Type Selection */}
-          <View style={styles.userTypeContainer}>
+          {/* <View style={styles.userTypeContainer}>
             <TouchableOpacity
               style={[
                 styles.userTypeButton,
@@ -134,7 +134,7 @@ const LoginScreen = ({ navigation }) => {
                 Employee
               </Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
 
           {/* Employee ID Input */}
           <View style={styles.inputContainer}>
