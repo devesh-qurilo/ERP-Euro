@@ -19,6 +19,7 @@ import chatReducer from '../modules/employee/messages/store/reducers';
 // ⬇️ Admin modules
 import adminLeadsReducer from '../modules/admin/leads/store/reducers';
 import adminSettingsReducer from '../modules/admin/settings/store/reducer';
+import adminDesignationsReducer from '../modules/admin/hr/designations/store/reducers';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -44,6 +45,10 @@ const rootReducer = combineReducers({
   admin: combineReducers({
     leads: adminLeadsReducer, // ✅ <-- this is the Admin Lead Contacts reducer
     settings: adminSettingsReducer,
+    hr: combineReducers({
+      // ...other hr reducers
+      designations: adminDesignationsReducer, // ✅ add this
+    }),
   }),
 });
 

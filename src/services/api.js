@@ -405,4 +405,13 @@ export const adminSettingsAPI = {
   },
 };
 
+export const adminDesignationsAPI = {
+  list: () => api.get('/admin/designations').then(r => r.data),
+  get: id => api.get(`/admin/designations/${id}`).then(r => r.data),
+  create: payload => api.post('/admin/designations', payload).then(r => r.data),
+  update: (id, payload) =>
+    api.put(`/admin/designations/${id}`, payload).then(r => r.data),
+  remove: id => api.delete(`/admin/designations/${id}`).then(r => r.data),
+};
+
 export default api;
