@@ -24,6 +24,7 @@ import AdminLeadContactsScreen from '../modules/admin/leads/screens/AdminLeadCon
 import AdminProfileSettingsScreen from '../modules/admin/settings/screens/AdminProfileSettingsScreen';
 import AdminCompanySettingsScreen from '../modules/admin/settings/screens/AdminCompanySettingsScreen';
 import AdminDesignationsScreen from '../modules/admin/hr/designations/screens/AdminDesignationsScreen';
+import AdminDepartmentsScreen from '../modules/admin/hr/departments/screens/AdminDepartmentsScreen';
 
 // ---------------------------------------------------------------------------
 // PLACEHOLDERS (swap with real screens later)
@@ -111,7 +112,7 @@ function HRStack() {
       <Stack.Screen name="HRHolidays" component={AdminHRHolidaysScreen} />
       <Stack.Screen name="HRAttendance" component={AdminHRAttendanceScreen} />
       <Stack.Screen name="HRDesignations" component={AdminDesignationsScreen} />
-      <Stack.Screen name="HRDepartments" component={AdminHRDepartmentsScreen} />
+      <Stack.Screen name="HRDepartments" component={AdminDepartmentsScreen} />
       <Stack.Screen
         name="HRAppreciations"
         component={AdminHRAppreciationsScreen}

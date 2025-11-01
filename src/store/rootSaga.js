@@ -23,6 +23,7 @@ import { chatWatcher } from '../modules/employee/messages/store/sagas';
 import { adminLeadsWatcher } from '../modules/admin/leads/store/sagas';
 import { adminSettingsWatcher } from '../modules/admin/settings/store/sagas';
 import { adminDesignationsWatcher } from '../modules/admin/hr/designations/store/sagas';
+import { adminDepartmentsWatcher } from '../modules/admin/hr/departments/store/sagas';
 
 // Root saga that combines all sagas
 export default function* rootSaga() {
@@ -46,5 +47,6 @@ export default function* rootSaga() {
     adminLeadsWatcher(),
     adminSettingsWatcher(),
     adminDesignationsWatcher(),
+    adminDepartmentsWatcher(),
   ]);
 }

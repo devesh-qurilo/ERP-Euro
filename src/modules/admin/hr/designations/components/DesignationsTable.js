@@ -6,6 +6,7 @@ import {
   ScrollView,
   Pressable,
   Alert,
+  Modal,
 } from 'react-native';
 
 const RowHead = ({ cols, widths }) => (
@@ -31,85 +32,97 @@ export default function DesignationsTable({
   onEdit,
   onDelete,
 }) {
-  const [openMenuId, setOpenMenuId] = useState(null);
+  const [menuFor, setMenuFor] = useState(null); // row object or null
 
   const widths = [120, 200, 160, 140];
   const cols = ['#ID', 'Designation', 'Parent', 'Action'];
 
+  const busy = id => busyIds.includes(id);
+
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      style={styles.tableWrap}
-    >
-      <View style={styles.table}>
-        <RowHead cols={cols} widths={widths} />
-        {(loading ? [] : data).map(row => {
-          const busy = busyIds.includes(row.id);
-          const parent =
-            row.parentDesignationName ||
-            (row.parentDesignationId ? `#${row.parentDesignationId}` : '—');
-          return (
-            <Row key={row.id}>
-              <Cell w={widths[0]} text={`#${row.id}`} />
-              <Cell w={widths[1]} text={row.designationName} />
-              <Cell w={widths[2]} text={parent} />
-              <Cell w={widths[3]}>
-                <View style={{ position: 'relative' }}>
+    <>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.tableWrap}
+      >
+        <View style={styles.table /* no overflow hidden! */}>
+          <RowHead cols={cols} widths={widths} />
+          {(loading ? [] : data).map(row => {
+            const parent =
+              row.parentDesignationName ||
+              (row.parentDesignationId ? `#${row.parentDesignationId}` : '—');
+            return (
+              <Row key={row.id}>
+                <Cell w={widths[0]} text={`#${row.id}`} />
+                <Cell w={widths[1]} text={row.designationName} />
+                <Cell w={widths[2]} text={parent} />
+                <Cell w={widths[3]}>
                   <Pressable
                     style={styles.menuBtn}
-                    onPress={() =>
-                      setOpenMenuId(openMenuId === row.id ? null : row.id)
-                    }
-                    disabled={busy}
+                    onPress={() => setMenuFor(row)}
+                    disabled={busy(row.id)}
                   >
-                    <Text style={styles.menuTxt}>{busy ? '…' : '⋮'}</Text>
+                    <Text style={styles.menuTxt}>
+                      {busy(row.id) ? '…' : '⋮'}
+                    </Text>
                   </Pressable>
-                  {openMenuId === row.id && (
-                    <View style={styles.menu}>
-                      <Pressable
-                        style={styles.menuItem}
-                        onPress={() => {
-                          setOpenMenuId(null);
-                          onEdit(row);
-                        }}
-                      >
-                        <Text style={styles.menuItemTxt}>Edit</Text>
-                      </Pressable>
-                      <Pressable
-                        style={styles.menuItem}
-                        onPress={() => {
-                          setOpenMenuId(null);
-                          Alert.alert(
-                            'Delete',
-                            `Delete ${row.designationName}?`,
-                            [
-                              { text: 'Cancel' },
-                              {
-                                text: 'Delete',
-                                style: 'destructive',
-                                onPress: () => onDelete(row),
-                              },
-                            ],
-                          );
-                        }}
-                      >
-                        <Text
-                          style={[styles.menuItemTxt, { color: '#b00020' }]}
-                        >
-                          Delete
-                        </Text>
-                      </Pressable>
-                    </View>
-                  )}
-                </View>
-              </Cell>
-            </Row>
-          );
-        })}
-        {loading && <Text style={[styles.dim, { padding: 10 }]}>Loading…</Text>}
-      </View>
-    </ScrollView>
+                </Cell>
+              </Row>
+            );
+          })}
+          {loading && (
+            <Text style={[styles.dim, { padding: 10 }]}>Loading…</Text>
+          )}
+        </View>
+      </ScrollView>
+
+      {/* Floating modal menu so it never gets clipped */}
+      <Modal
+        visible={!!menuFor}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setMenuFor(null)}
+      >
+        <Pressable style={styles.backdrop} onPress={() => setMenuFor(null)}>
+          <View style={styles.menuSheet}>
+            <Text style={styles.menuTitle}>{menuFor?.designationName}</Text>
+            <Pressable
+              style={styles.menuItem}
+              onPress={() => {
+                const row = menuFor;
+                setMenuFor(null);
+                onEdit(row);
+              }}
+            >
+              <Text style={styles.menuItemTxt}>Edit</Text>
+            </Pressable>
+            <Pressable
+              style={styles.menuItem}
+              onPress={() => {
+                const row = menuFor;
+                setMenuFor(null);
+                Alert.alert('Delete', `Delete ${row?.designationName}?`, [
+                  { text: 'Cancel' },
+                  {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: () => onDelete(row),
+                  },
+                ]);
+              }}
+            >
+              <Text style={[styles.menuItemTxt, { color: '#b00020' }]}>
+                Delete
+              </Text>
+            </Pressable>
+            <Pressable style={styles.closeBtn} onPress={() => setMenuFor(null)}>
+              <Text style={styles.closeTxt}>Close</Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
+    </>
   );
 }
 
@@ -119,7 +132,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e5e7eb',
     borderRadius: 12,
-    overflow: 'hidden',
+    // IMPORTANT: don't clip children so menus can extend (we use Modal now anyway)
+    // overflow: 'hidden',
   },
   trHead: { flexDirection: 'row', backgroundColor: '#e8f0ff' },
   th: {
@@ -149,23 +163,29 @@ const styles = StyleSheet.create({
   },
   menuTxt: { color: '#fff', fontWeight: '900' },
 
-  menu: {
-    position: 'absolute',
-    top: 40,
-    right: 0,
+  // Modal menu
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  menuSheet: {
     backgroundColor: '#fff',
+    borderRadius: 22,
+    padding: 42,
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    borderRadius: 8,
-    overflow: 'hidden',
-    minWidth: 120,
-    zIndex: 5,
+    width: 220,
   },
-  menuItem: {
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#f1f5f9',
-  },
+  menuTitle: { fontWeight: '900', color: '#0b0b0c', marginBottom: 8 },
+  menuItem: { paddingVertical: 10 },
   menuItemTxt: { color: '#111827', fontWeight: '700' },
+  closeBtn: {
+    alignSelf: 'flex-end',
+    marginTop: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  closeTxt: { color: '#111827', fontWeight: '800' },
 });

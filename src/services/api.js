@@ -414,4 +414,12 @@ export const adminDesignationsAPI = {
   remove: id => api.delete(`/admin/designations/${id}`).then(r => r.data),
 };
 
+export const adminDepartmentsAPI = {
+  list: () => api.get('/admin/departments').then(r => r.data),
+  create: payload => api.post('/admin/departments', payload).then(r => r.data),
+  update: (id, payload) =>
+    api.put(`/admin/departments/${id}`, payload).then(r => r.data),
+  remove: id => api.delete(`/admin/departments/${id}`).then(r => r.data),
+};
+
 export default api;
