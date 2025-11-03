@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
   menuBtnTxt: { color: '#fff', fontWeight: '900' },
 
   menu: {
-    position: 'absolute',
+    position: 'static',
     top: 40,
     right: 0,
     backgroundColor: '#fff',

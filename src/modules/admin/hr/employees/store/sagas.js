@@ -69,6 +69,19 @@ function* patchRole({ employeeId, role }) {
   }
 }
 
+function* inviteWorker({ payload }) {
+  try {
+    yield call(API.invite, payload); // { to, message }
+    yield put({ type: T.INVITE_EMPLOYEE_SUCCESS });
+  } catch (e) {
+    yield put({
+      type: T.INVITE_EMPLOYEE_FAILURE,
+      error:
+        e?.response?.data?.message || e?.message || 'Failed to send invite',
+    });
+  }
+}
+
 export function* adminEmployeesWatcher() {
   yield all([
     takeLatest(T.FETCH_EMP_REQ, fetchList),
@@ -76,5 +89,6 @@ export function* adminEmployeesWatcher() {
     takeLatest(T.UPDATE_EMP_REQ, updateOne),
     takeLatest(T.DELETE_EMP_REQ, deleteOne),
     takeLatest(T.PATCH_ROLE_REQ, patchRole),
+    takeLatest(T.INVITE_EMPLOYEE_REQUEST, inviteWorker),
   ]);
 }

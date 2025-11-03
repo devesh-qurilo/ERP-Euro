@@ -21,6 +21,10 @@ const init = {
     role: 'All',
     active: 'All',
   },
+
+  inviteLoading: false,
+  inviteError: null,
+  inviteSuccess: false,
 };
 
 export default function adminEmployeesReducer(state = init, action) {
@@ -129,6 +133,30 @@ export default function adminEmployeesReducer(state = init, action) {
       return {
         ...state,
         busyIds: state.busyIds.filter(x => x !== `role:${action.employeeId}`),
+      };
+
+    case T.INVITE_EMPLOYEE_REQUEST:
+      return {
+        ...state,
+        inviteLoading: true,
+        inviteError: null,
+        inviteSuccess: false,
+      };
+    case T.INVITE_EMPLOYEE_SUCCESS:
+      return { ...state, inviteLoading: false, inviteSuccess: true };
+    case T.INVITE_EMPLOYEE_FAILURE:
+      return {
+        ...state,
+        inviteLoading: false,
+        inviteError: action.error,
+        inviteSuccess: false,
+      };
+    case T.INVITE_EMPLOYEE_CLEAR:
+      return {
+        ...state,
+        inviteLoading: false,
+        inviteError: null,
+        inviteSuccess: false,
       };
 
     default:

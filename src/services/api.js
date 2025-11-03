@@ -464,6 +464,9 @@ export const adminEmployeesAPI = {
     api
       .patch(`/employee/${encodeURIComponent(employeeId)}/role`, { role })
       .then(r => r.data),
+
+  invite: ({ to, message }) =>
+    api.post('/employee/invite', { to, message }).then(r => r.data),
 };
 
 export default api;

@@ -31,6 +31,9 @@ import {
 import EmployeesTable from '../components/EmployeesTable';
 import EmployeeModal from '../components/EmployeeModal';
 
+import InviteEmployeeModal from '../components/InviteEmployeeModal';
+import { inviteEmployee, clearInviteState } from '../store/actions';
+
 const Pill = ({ label, active, onPress }) => (
   <Pressable
     onPress={onPress}
@@ -83,6 +86,15 @@ export default function AdminEmployeesScreen({ navigation }) {
   const editing = useSelector(selectEmpEditing);
   const filters = useSelector(selectEmpFilters);
 
+  const [inviteOpen, setInviteOpen] = React.useState(false);
+
+  const inviteLoading = useSelector(
+    s => !!s.admin?.hr?.employees?.inviteLoading,
+  );
+  const inviteSuccess = useSelector(
+    s => !!s.admin?.hr?.employees?.inviteSuccess,
+  );
+
   useEffect(() => {
     dispatch(fetchEmployees());
   }, [dispatch]);
@@ -124,6 +136,16 @@ export default function AdminEmployeesScreen({ navigation }) {
   const onDelete = empId => dispatch(deleteEmployee(empId));
   const onRoleChange = (empId, role) =>
     dispatch(patchEmployeeRole(empId, role));
+
+  const openInvite = () => {
+    dispatch(clearInviteState());
+    setInviteOpen(true);
+  };
+  const closeInvite = () => setInviteOpen(false);
+
+  const handleInviteSend = ({ to, message }) => {
+    dispatch(inviteEmployee({ to, message }));
+  };
 
   const handleSave = ({ employee, file }) => {
     if (editing)
@@ -183,7 +205,7 @@ export default function AdminEmployeesScreen({ navigation }) {
       {/* 2) Buttons */}
       <View style={styles.headerRow}>
         <Text style={styles.sectionTitle}>Employees Details</Text>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
+        <View style={{ flexDirection: 'column', gap: 8 }}>
           <Pressable
             style={[styles.primaryBtn, { backgroundColor: '#1d4ed8' }]}
             onPress={() => dispatch(openEmpModal(null))}
@@ -192,12 +214,7 @@ export default function AdminEmployeesScreen({ navigation }) {
               + Add Employee
             </Text>
           </Pressable>
-          <Pressable
-            style={styles.primaryBtn}
-            onPress={() => {
-              /* future Invite modal */
-            }}
-          >
+          <Pressable style={styles.primaryBtn} onPress={openInvite}>
             <Text style={styles.primaryTxt}>+ Invite Employee</Text>
           </Pressable>
         </View>
@@ -220,6 +237,13 @@ export default function AdminEmployeesScreen({ navigation }) {
         editing={editing}
         onSave={handleSave}
         onClose={() => dispatch(closeEmpModal())}
+      />
+      <InviteEmployeeModal
+        visible={inviteOpen}
+        onClose={closeInvite}
+        onSend={handleInviteSend}
+        loading={inviteLoading}
+        lastSuccess={inviteSuccess}
       />
     </ScrollView>
   );
@@ -285,7 +309,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     backgroundColor: '#fff',
   },
-  primaryTxt: { fontWeight: '900', color: '#111827' },
+  primaryTxt: { fontWeight: '400', color: '#111827' },
   clearBtn: {
     alignSelf: 'flex-start',
     marginTop: 8,

@@ -26,3 +26,11 @@ export const CLOSE_INVITE_MODAL = 'admin/employees/CLOSE_INVITE_MODAL';
 
 export const SET_EMP_FILTERS = 'admin/employees/SET_FILTERS';
 export const SET_EMP_PAGE = 'admin/employees/SET_PAGE';
+
+export const INVITE_EMPLOYEE_REQUEST =
+  'admin/hr/employees/INVITE_EMPLOYEE_REQUEST';
+export const INVITE_EMPLOYEE_SUCCESS =
+  'admin/hr/employees/INVITE_EMPLOYEE_SUCCESS';
+export const INVITE_EMPLOYEE_FAILURE =
+  'admin/hr/employees/INVITE_EMPLOYEE_FAILURE';
+export const INVITE_EMPLOYEE_CLEAR = 'admin/hr/employees/INVITE_EMPLOYEE_CLEAR';

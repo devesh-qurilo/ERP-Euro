@@ -33,3 +33,10 @@ export const patchEmployeeRole = (employeeId, role) => ({
   employeeId,
   role,
 });
+
+export const inviteEmployee = payload => ({
+  type: T.INVITE_EMPLOYEE_REQUEST,
+  payload, // { to, message }
+});
+
+export const clearInviteState = () => ({ type: T.INVITE_EMPLOYEE_CLEAR });
