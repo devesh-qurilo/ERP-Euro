@@ -21,6 +21,7 @@ import adminLeadsReducer from '../modules/admin/leads/store/reducers';
 import adminSettingsReducer from '../modules/admin/settings/store/reducer';
 import adminDesignationsReducer from '../modules/admin/hr/designations/store/reducers';
 import adminDepartmentsReducer from '../modules/admin/hr/departments/store/reducers';
+import adminEmployeesReducer from '../modules/admin/hr/employees/store/reducers';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -50,6 +51,7 @@ const rootReducer = combineReducers({
       // ...other hr reducers
       designations: adminDesignationsReducer, // ✅ add this
       departments: adminDepartmentsReducer,
+      employees: adminEmployeesReducer,
     }),
   }),
 });

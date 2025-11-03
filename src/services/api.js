@@ -422,4 +422,48 @@ export const adminDepartmentsAPI = {
   remove: id => api.delete(`/admin/departments/${id}`).then(r => r.data),
 };
 
+// NOTE: list uses server paging ?page=&size=
+export const adminEmployeesAPI = {
+  list: ({ page = 0, size = 20 } = {}) =>
+    api.get('/employee', { params: { page, size } }).then(r => r.data),
+
+  me: () => api.get('/employee/me').then(r => r.data),
+
+  create: ({ employee, file }) => {
+    const fd = new FormData();
+    fd.append('employee', JSON.stringify(employee));
+    if (file) {
+      fd.append('file', {
+        uri: file.uri,
+        name: file.name || 'profile.jpg',
+        type: file.type || 'image/jpeg',
+      });
+    }
+    return api.post('/employee', fd).then(r => r.data);
+  },
+
+  update: (employeeId, { employee, file }) => {
+    const fd = new FormData();
+    fd.append('employee', JSON.stringify(employee));
+    if (file) {
+      fd.append('file', {
+        uri: file.uri,
+        name: file.name || 'profile.jpg',
+        type: file.type || 'image/jpeg',
+      });
+    }
+    return api
+      .put(`/employee/${encodeURIComponent(employeeId)}`, fd)
+      .then(r => r.data);
+  },
+
+  remove: employeeId =>
+    api.delete(`/employee/${encodeURIComponent(employeeId)}`).then(r => r.data),
+
+  patchRole: (employeeId, role) =>
+    api
+      .patch(`/employee/${encodeURIComponent(employeeId)}/role`, { role })
+      .then(r => r.data),
+};
+
 export default api;

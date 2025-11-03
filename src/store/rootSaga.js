@@ -24,6 +24,7 @@ import { adminLeadsWatcher } from '../modules/admin/leads/store/sagas';
 import { adminSettingsWatcher } from '../modules/admin/settings/store/sagas';
 import { adminDesignationsWatcher } from '../modules/admin/hr/designations/store/sagas';
 import { adminDepartmentsWatcher } from '../modules/admin/hr/departments/store/sagas';
+import { adminEmployeesWatcher } from '../modules/admin/hr/employees/store/sagas';
 
 // Root saga that combines all sagas
 export default function* rootSaga() {
@@ -48,5 +49,6 @@ export default function* rootSaga() {
     adminSettingsWatcher(),
     adminDesignationsWatcher(),
     adminDepartmentsWatcher(),
+    adminEmployeesWatcher(),
   ]);
 }

@@ -1,0 +1,18 @@
+const root = s => s.admin?.hr?.employees || {};
+
+export const selectEmpList = s => root(s).list || [];
+export const selectEmpLoading = s => !!root(s).loading;
+export const selectEmpError = s => root(s).error;
+export const selectEmpBusyIds = s => root(s).busyIds || [];
+
+export const selectEmpPage = s => root(s).page || 0;
+export const selectEmpSize = s => root(s).size || 20;
+export const selectEmpTotalPages = s => root(s).totalPages || 0;
+export const selectEmpTotalElements = s => root(s).totalElements || 0;
+
+export const selectEmpFilters = s => root(s).filters || {};
+
+export const selectEmpModalOpen = s => !!root(s).modalOpen;
+export const selectEmpEditing = s => root(s).editing;
+
+export const selectInviteOpen = s => !!root(s).inviteOpen;
