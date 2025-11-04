@@ -130,8 +130,7 @@ export default function AdminEmployeesScreen({ navigation }) {
   const resetFilters = () =>
     dispatch(setEmpFilters({ q: '', role: 'All', active: 'All' }));
 
-  const onView = emp =>
-    navigation.navigate('AdminEmployeeView', { id: emp.employeeId }); // future
+  const onView = emp => navigation.navigate('AdminEmployeeView', { emp: emp }); // future
   const onEdit = emp => dispatch(openEmpModal(emp));
   const onDelete = empId => dispatch(deleteEmployee(empId));
   const onRoleChange = (empId, role) =>
