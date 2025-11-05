@@ -3,12 +3,11 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 
 const statuses = [
-  'PLANNED',
+  'NOT_STARTED',
   'IN_PROGRESS',
   'ON_HOLD',
-  'COMPLETED',
+  'FINISHED',
   'CANCELLED',
-  'ARCHIVED',
 ];
 
 const TinySelect = ({ value, onChange }) => {

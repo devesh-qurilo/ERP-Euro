@@ -53,9 +53,7 @@ const rootReducer = combineReducers({
       departments: adminDepartmentsReducer,
 
       employees: adminEmployeesReducer,
-      work: combineReducers({
-        projects: empProjectsReducer,
-      }),
+      projects: empProjectsReducer,
     }),
   }),
 });

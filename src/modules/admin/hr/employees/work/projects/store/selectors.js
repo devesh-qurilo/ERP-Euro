@@ -1,4 +1,4 @@
-const root = s => s.admin?.hr?.employees?.work?.projects || {};
+const root = s => s.admin?.hr?.projects || {};
 
 export const selectEmpProjects = s => root(s).list || [];
 export const selectEmpProjectsLoading = s => !!root(s).loading;

@@ -87,7 +87,7 @@ export default function AdminEmployeeProjectsScreen({ emp }) {
   return (
     <ScrollView contentContainerStyle={styles.wrap}>
       <View style={styles.headerRow}>
-        <Text style={styles.title}>Projects of {emp?.name || employeeId}</Text>
+        <Text style={styles.title}>{emp?.name || employeeId}</Text>
         <Pressable style={styles.addBtn} onPress={onAdd}>
           <Text style={styles.addTxt}>+ Add Project</Text>
         </Pressable>
