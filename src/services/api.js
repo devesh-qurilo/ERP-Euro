@@ -615,4 +615,13 @@ export const AdminleavesAPI = {
     api.delete(`/employee/api/leaves/${leaveId}`).then(r => r.data),
 };
 
+// GET /employee/api/holidays
+export const fetchHolidaysAPI = () =>
+  api.get('/employee/api/holidays').then(r => r.data);
+
+// POST /employee/api/holidays/bulk
+// payload = { holidays: [{ date: 'YYYY-MM-DD', occasion: '...' }, ...] }
+export const createHolidaysBulkAPI = payload =>
+  api.post('/employee/api/holidays/bulk', payload).then(r => r.data);
+
 export default api;

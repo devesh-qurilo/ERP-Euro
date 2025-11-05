@@ -24,6 +24,7 @@ import adminDepartmentsReducer from '../modules/admin/hr/departments/store/reduc
 import adminEmployeesReducer from '../modules/admin/hr/employees/store/reducers';
 import empProjectsReducer from '../modules/admin/hr/employees/work/projects/store/reducers';
 import adminLeavesReducer from '../modules/admin/hr/leaves/store/reducers';
+import adminHolidaysReducer from '../modules/admin/hr/holidays/store/reducers';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -56,6 +57,7 @@ const rootReducer = combineReducers({
       employees: adminEmployeesReducer,
       projects: empProjectsReducer,
       leaves: adminLeavesReducer,
+      holidays: adminHolidaysReducer,
     }),
   }),
 });

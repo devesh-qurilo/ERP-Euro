@@ -28,6 +28,7 @@ import AdminDepartmentsScreen from '../modules/admin/hr/departments/screens/Admi
 import AdminEmployeesScreen from '../modules/admin/hr/employees/screens/AdminEmployeesScreen';
 import AdminEmployeeViewScreen from '../modules/admin/hr/employees/screens/AdminEmployeeViewScreen';
 import AdminLeavesScreen from '../modules/admin/hr/leaves/screens/AdminLeavesScreen';
+import AdminHolidaysScreen from '../modules/admin/hr/holidays/screens/AdminHolidaysScreen';
 
 // ---------------------------------------------------------------------------
 // PLACEHOLDERS (swap with real screens later)
@@ -117,7 +118,7 @@ function HRStack() {
         options={{ title: 'Employee' }}
       />
       <Stack.Screen name="HRLeaves" component={AdminLeavesScreen} />
-      <Stack.Screen name="HRHolidays" component={AdminHRHolidaysScreen} />
+      <Stack.Screen name="HRHolidays" component={AdminHolidaysScreen} />
       <Stack.Screen name="HRAttendance" component={AdminHRAttendanceScreen} />
       <Stack.Screen name="HRDesignations" component={AdminDesignationsScreen} />
       <Stack.Screen name="HRDepartments" component={AdminDepartmentsScreen} />
