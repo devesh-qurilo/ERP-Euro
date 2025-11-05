@@ -624,4 +624,24 @@ export const fetchHolidaysAPI = () =>
 export const createHolidaysBulkAPI = payload =>
   api.post('/employee/api/holidays/bulk', payload).then(r => r.data);
 
+export const adminAttendanceAPI = {
+  // POST /employee/attendance/mark  (by specific dates)
+  markByDates: payload =>
+    api.post('/employee/attendance/mark', payload).then(r => r.data),
+
+  // POST /employee/attendance/mark/month  (by month)
+  markByMonth: payload =>
+    api.post('/employee/attendance/mark/month', payload).then(r => r.data),
+
+  // GET /employee/attendance/GetAllAttendance  (big list)
+  listAll: () =>
+    api.get('/employee/attendance/GetAllAttendance').then(r => r.data),
+
+  // GET /employee/attendance/{employeeId}/all-saved  (attendance by member)
+  byEmployee: employeeId =>
+    api
+      .get(`/employee/attendance/${encodeURIComponent(employeeId)}/all-saved`)
+      .then(r => r.data),
+};
+
 export default api;

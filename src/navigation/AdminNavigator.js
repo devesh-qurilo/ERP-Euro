@@ -29,6 +29,7 @@ import AdminEmployeesScreen from '../modules/admin/hr/employees/screens/AdminEmp
 import AdminEmployeeViewScreen from '../modules/admin/hr/employees/screens/AdminEmployeeViewScreen';
 import AdminLeavesScreen from '../modules/admin/hr/leaves/screens/AdminLeavesScreen';
 import AdminHolidaysScreen from '../modules/admin/hr/holidays/screens/AdminHolidaysScreen';
+import AdminAttendanceScreen from '../modules/admin/hr/attendance/screens/AdminAttendanceScreen';
 
 // ---------------------------------------------------------------------------
 // PLACEHOLDERS (swap with real screens later)
@@ -119,7 +120,7 @@ function HRStack() {
       />
       <Stack.Screen name="HRLeaves" component={AdminLeavesScreen} />
       <Stack.Screen name="HRHolidays" component={AdminHolidaysScreen} />
-      <Stack.Screen name="HRAttendance" component={AdminHRAttendanceScreen} />
+      <Stack.Screen name="HRAttendance" component={AdminAttendanceScreen} />
       <Stack.Screen name="HRDesignations" component={AdminDesignationsScreen} />
       <Stack.Screen name="HRDepartments" component={AdminDepartmentsScreen} />
       <Stack.Screen

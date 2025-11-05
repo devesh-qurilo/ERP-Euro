@@ -28,6 +28,7 @@ import { adminEmployeesWatcher } from '../modules/admin/hr/employees/store/sagas
 import { empProjectsWatcher } from '../modules/admin/hr/employees/work/projects/store/sagas';
 import { adminLeavesWatcher } from '../modules/admin/hr/leaves/store/sagas';
 import { holidaysWatcher } from '../modules/admin/hr/holidays/store/sagas';
+import { adminAttendanceWatcher } from '../modules/admin/hr/attendance/store/sagas';
 
 // Root saga that combines all sagas
 export default function* rootSaga() {
@@ -56,5 +57,6 @@ export default function* rootSaga() {
     empProjectsWatcher(),
     adminLeavesWatcher(),
     holidaysWatcher(),
+    adminAttendanceWatcher(),
   ]);
 }
