@@ -468,5 +468,110 @@ export const adminEmployeesAPI = {
   invite: ({ to, message }) =>
     api.post('/employee/invite', { to, message }).then(r => r.data),
 };
+// --- PROJECTS ---
+
+export const projectsApi = {
+  listByEmployee: employeeId =>
+    api
+      .get(`/api/projects/employee/${encodeURIComponent(employeeId)}`)
+      .then(r => r.data),
+
+  create: payload => {
+    const fd = new FormData();
+    fd.append('shortCode', payload.shortCode);
+    fd.append('projectName', payload.projectName);
+    fd.append('startDate', payload.startDate);
+    fd.append('deadline', payload.deadline);
+    fd.append('noDeadline', String(!!payload.noDeadline));
+    fd.append('projectCategory', payload.projectCategory);
+    fd.append('departmentId', String(payload.departmentId));
+    if (payload.clientId) fd.append('clientId', payload.clientId);
+    if (payload.projectSummary)
+      fd.append('projectSummary', payload.projectSummary);
+    fd.append(
+      'tasksNeedAdminApproval',
+      String(!!payload.tasksNeedAdminApproval),
+    );
+    fd.append('currency', payload.currency);
+    if (payload.projectBudget != null)
+      fd.append('projectBudget', String(payload.projectBudget));
+    if (payload.hoursEstimate != null)
+      fd.append('hoursEstimate', String(payload.hoursEstimate));
+    fd.append('allowManualTimeLogs', String(!!payload.allowManualTimeLogs));
+    if (payload.companyFile) {
+      fd.append('companyFile', {
+        uri: payload.companyFile.uri,
+        name: payload.companyFile.name || 'upload.bin',
+        type: payload.companyFile.type || 'application/octet-stream',
+      });
+    }
+    if (payload.assignedEmployeeIds?.length) {
+      fd.append('assignedEmployeeIds', payload.assignedEmployeeIds.join(','));
+    }
+    return api
+      .post('/api/projects', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+
+  update: (projectId, payload) => {
+    const fd = new FormData();
+    if (payload.projectName) fd.append('name', payload.projectName);
+    if (payload.startDate) fd.append('startDate', payload.startDate);
+    if (payload.deadline) fd.append('deadline', payload.deadline);
+    if (payload.noDeadline != null)
+      fd.append('noDeadline', String(!!payload.noDeadline));
+    if (payload.category) fd.append('category', payload.category);
+    if (payload.departmentId != null)
+      fd.append('departmentId', String(payload.departmentId));
+    if (payload.summary) fd.append('summary', payload.summary);
+    if (payload.tasksNeedAdminApproval != null)
+      fd.append(
+        'tasksNeedAdminApproval',
+        String(!!payload.tasksNeedAdminApproval),
+      );
+    if (payload.currency) fd.append('currency', payload.currency);
+    if (payload.budget != null) fd.append('budget', String(payload.budget));
+    if (payload.hoursEstimate != null)
+      fd.append('hoursEstimate', String(payload.hoursEstimate));
+    if (payload.allowManualTimeLogs != null)
+      fd.append('allowManualTimeLogs', String(!!payload.allowManualTimeLogs));
+    if (payload.projectStatus)
+      fd.append('projectStatus', payload.projectStatus);
+    if (payload.progressPercent != null)
+      fd.append('progressPercent', String(payload.progressPercent));
+    if (payload.calculateProgressThroughTasks != null)
+      fd.append(
+        'calculateProgressThroughTasks',
+        String(!!payload.calculateProgressThroughTasks),
+      );
+    if (payload.companyFile) {
+      fd.append('companyFile', {
+        uri: payload.companyFile.uri,
+        name: payload.companyFile.name || 'upload.bin',
+        type: payload.companyFile.type || 'application/octet-stream',
+      });
+    }
+    return api
+      .put(`/api/projects/${projectId}`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+
+  remove: projectId =>
+    api.delete(`/api/projects/${projectId}`).then(r => r.data),
+
+  patchStatus: (projectId, status) => {
+    const fd = new FormData();
+    fd.append('status', status);
+    return api
+      .patch(`/api/projects/${projectId}/status`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+};
 
 export default api;

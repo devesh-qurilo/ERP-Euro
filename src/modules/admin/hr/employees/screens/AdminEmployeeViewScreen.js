@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useSelector } from 'react-redux';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import AdminEmployeeProjectsScreen from '../../employees/work/projects/screens/AdminEmployeeProjectsScreen';
 
 // If you pass the whole employee object via navigation, great.
 // Otherwise we try to find it from Redux list by id.
@@ -189,7 +190,7 @@ export default function AdminEmployeeViewScreen({ route }) {
 
   const renderScene = SceneMap({
     profile: () => <ProfileTab emp={emp} />,
-    work: () => <Placeholder label="Work" />,
+    work: () => <AdminEmployeeProjectsScreen emp={emp} />,
     docs: () => <Placeholder label="Documents" />,
     emergency: () => <Placeholder label="Emergency" />,
     promotion: () => <Placeholder label="Promotion" />,

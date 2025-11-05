@@ -22,6 +22,7 @@ import adminSettingsReducer from '../modules/admin/settings/store/reducer';
 import adminDesignationsReducer from '../modules/admin/hr/designations/store/reducers';
 import adminDepartmentsReducer from '../modules/admin/hr/departments/store/reducers';
 import adminEmployeesReducer from '../modules/admin/hr/employees/store/reducers';
+import empProjectsReducer from '../modules/admin/hr/employees/work/projects/store/reducers';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -48,10 +49,13 @@ const rootReducer = combineReducers({
     leads: adminLeadsReducer, // ✅ <-- this is the Admin Lead Contacts reducer
     settings: adminSettingsReducer,
     hr: combineReducers({
-      // ...other hr reducers
       designations: adminDesignationsReducer, // ✅ add this
       departments: adminDepartmentsReducer,
+
       employees: adminEmployeesReducer,
+      work: combineReducers({
+        projects: empProjectsReducer,
+      }),
     }),
   }),
 });
