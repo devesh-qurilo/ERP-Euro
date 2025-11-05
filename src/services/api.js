@@ -574,4 +574,45 @@ export const projectsApi = {
   },
 };
 
+// --- LEAVES (ADMIN/HR) --- //
+export const AdminleavesAPI = {
+  // list all employees' leaves
+  list: () => api.get('/employee/api/leaves').then(r => r.data),
+
+  // current user's quota (for the Profile tab)
+  myQuota: () => api.get('/employee/leave-quota/me').then(r => r.data),
+
+  // apply leaves (admin can apply for multiple employees)
+  apply: ({ leaveData, documents /* File[] | undefined */ }) => {
+    const fd = new FormData();
+    fd.append('leaveData', JSON.stringify(leaveData));
+    (documents || []).forEach((f, idx) => {
+      // @react-native-documents/picker gives us { uri, name, type }
+      fd.append('documents', {
+        uri: f.uri,
+        name: f.name || `doc_${idx}.pdf`,
+        type: f.type || 'application/octet-stream',
+      });
+    });
+    return api
+      .post('/employee/api/leaves/admin/apply', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+
+  // approve / reject
+  patchStatus: (leaveId, { status, rejectionReason }) =>
+    api
+      .patch(`/employee/api/leaves/${leaveId}/status`, {
+        status,
+        rejectionReason,
+      })
+      .then(r => r.data),
+
+  // delete a leave
+  remove: leaveId =>
+    api.delete(`/employee/api/leaves/${leaveId}`).then(r => r.data),
+};
+
 export default api;

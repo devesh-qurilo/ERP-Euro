@@ -23,6 +23,7 @@ import adminDesignationsReducer from '../modules/admin/hr/designations/store/red
 import adminDepartmentsReducer from '../modules/admin/hr/departments/store/reducers';
 import adminEmployeesReducer from '../modules/admin/hr/employees/store/reducers';
 import empProjectsReducer from '../modules/admin/hr/employees/work/projects/store/reducers';
+import adminLeavesReducer from '../modules/admin/hr/leaves/store/reducers';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -54,6 +55,7 @@ const rootReducer = combineReducers({
 
       employees: adminEmployeesReducer,
       projects: empProjectsReducer,
+      leaves: adminLeavesReducer,
     }),
   }),
 });
