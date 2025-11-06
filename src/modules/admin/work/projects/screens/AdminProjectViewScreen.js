@@ -1,26 +1,109 @@
 // src/modules/admin/work/projects/screens/AdminWorkProjectView.js
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 
+/* --------------------------- helpers / formatters --------------------------- */
 function fmtDate(d) {
   if (!d) return '—';
-  try {
-    const dt = new Date(d);
-    if (isNaN(dt)) return String(d);
-    return dt.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
-  } catch {
-    return String(d);
-  }
+  const dt = new Date(d);
+  return isNaN(dt)
+    ? String(d)
+    : dt.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
 }
-const num = (v, def = 0) =>
-  v == null || Number.isNaN(Number(v)) ? def : Number(v);
+const num = (v, def = 0) => (v == null || Number.isNaN(+v) ? def : +v);
 
-export default function AdminWorkProjectView({ route, navigation }) {
-  // accept any common param key and fall back safely
+/* --------------------------------- Overview -------------------------------- */
+function OverviewTab({ project }) {
+  const p = project || {};
+  const progress = num(p.progressPercent, 0);
+  const members = Array.isArray(p.assignedEmployees) ? p.assignedEmployees : [];
+
+  return (
+    <ScrollView contentContainerStyle={s.wrap}>
+      <View style={s.card}>
+        <Text style={s.h6}>Project progress</Text>
+        <View style={s.progressTrack}>
+          <View
+            style={[s.progressFill, { width: `${Math.min(progress, 100)}%` }]}
+          />
+        </View>
+        <View style={s.rowBetween}>
+          <Text style={s.progressTxt}>{progress}%</Text>
+          <Text style={s.meta}>
+            {fmtDate(p.startDate)} → {fmtDate(p.deadline)}
+          </Text>
+        </View>
+      </View>
+
+      <View style={s.card}>
+        <Text style={s.h6}>Client</Text>
+        <Text style={s.kv}>
+          <Text style={s.k}>Name:</Text> {p.client?.name ?? '—'}
+        </Text>
+        <Text style={s.kv}>
+          <Text style={s.k}>Code:</Text> {p.shortCode ?? '—'}
+        </Text>
+        <Text style={s.kv}>
+          <Text style={s.k}>Category:</Text> {p.category ?? '—'}
+        </Text>
+        <Text style={s.kv}>
+          <Text style={s.k}>Status:</Text> {p.projectStatus ?? '—'}
+        </Text>
+      </View>
+
+      <View style={s.card}>
+        <Text style={s.h6}>Members ({members.length})</Text>
+        {members.length ? (
+          members.map(m => (
+            <Text key={m.employeeId} style={s.kv}>
+              {m.name} • {m.designation ?? '—'} • {m.department ?? '—'}
+            </Text>
+          ))
+        ) : (
+          <Text style={s.muted}>— No members —</Text>
+        )}
+      </View>
+
+      <View style={s.card}>
+        <Text style={s.h6}>Budget & Hours</Text>
+        <Text style={s.kv}>
+          <Text style={s.k}>Currency:</Text> {p.currency ?? '—'}
+        </Text>
+        <Text style={s.kv}>
+          <Text style={s.k}>Budget:</Text> {p.budget ?? '—'}
+        </Text>
+        <Text style={s.kv}>
+          <Text style={s.k}>Hours Estimate:</Text> {p.hoursEstimate ?? '—'}
+        </Text>
+        <Text style={s.kv}>
+          <Text style={s.k}>Manual Time:</Text>{' '}
+          {p.allowManualTimeLogs ? 'Allowed' : 'Not allowed'}
+        </Text>
+      </View>
+
+      <View style={s.card}>
+        <Text style={s.h6}>Project Summary</Text>
+        <Text style={s.body}>{p.summary || '—'}</Text>
+      </View>
+    </ScrollView>
+  );
+}
+
+/* ----------------------------- simple placeholders ----------------------------- */
+const Placeholder = ({ label }) => (
+  <View style={s.placeholder}>
+    <Text style={s.placeholderTxt}>{label} (coming soon)</Text>
+  </View>
+);
+
+/* ---------------------------------- Screen ---------------------------------- */
+export default function AdminWorkProjectViewScreen({ route }) {
+  // accept { project } or fallbacks like { item } or { row }
   const project = useMemo(
     () =>
       route?.params?.project ??
@@ -30,141 +113,62 @@ export default function AdminWorkProjectView({ route, navigation }) {
     [route?.params],
   );
 
+  const [index, setIndex] = React.useState(0);
+  const layoutW = Dimensions.get('window').width;
+
+  const [routes] = React.useState([
+    { key: 'overview', title: 'Overview' },
+    { key: 'invoices', title: 'Invoices' },
+    { key: 'payments', title: 'Payments' },
+    { key: 'files', title: 'File' },
+    { key: 'activity', title: 'Activity' },
+    { key: 'notes', title: 'Notes' },
+    { key: 'discussion', title: 'Discussion' },
+  ]);
+
+  const renderScene = SceneMap({
+    overview: () => <OverviewTab project={project} />,
+    invoices: () => <Placeholder label="Invoices" />,
+    payments: () => <Placeholder label="Payments" />,
+    files: () => <Placeholder label="Files" />,
+    activity: () => <Placeholder label="Activity" />,
+    notes: () => <Placeholder label="Notes" />,
+    discussion: () => <Placeholder label="Discussion" />,
+  });
+
   if (!project) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.err}>No project data provided.</Text>
-        <Text style={styles.hint}>
-          Navigate with: {'{ project: item }'} and ensure the route name
-          matches.
-        </Text>
+      <View style={s.center}>
+        <Text style={s.err}>No project data provided.</Text>
+        <Text style={s.hint}>Navigate with: {'{ project: item }'}</Text>
       </View>
     );
   }
 
-  const p = project || {};
-  const progress = num(p.progressPercent, 0); // ✅ avoid “progressPercent of undefined”
-  const start = fmtDate(p.startDate); // ✅ avoid “startDate of undefined”
-  const end = fmtDate(p.deadline);
-
-  const members = Array.isArray(p.assignedEmployees) ? p.assignedEmployees : [];
-  const clientName = p.client?.name ?? '—';
-
   return (
-    <ScrollView contentContainerStyle={styles.wrap}>
-      {/* Tabs header (static for now) */}
-      <View style={styles.tabs}>
-        {[
-          'Overview',
-          'Invoices',
-          'Payments',
-          'File',
-          'Activity',
-          'Notes',
-          'Discussion',
-        ].map(t => (
-          <View
-            key={t}
-            style={[styles.tab, t === 'Overview' && styles.tabActive]}
-          >
-            <Text
-              style={[styles.tabTxt, t === 'Overview' && styles.tabTxtActive]}
-            >
-              {t}
-            </Text>
-          </View>
-        ))}
-      </View>
-
-      {/* Overview */}
-      <View style={styles.grid}>
-        <View style={styles.card}>
-          <Text style={styles.h6}>Project progress</Text>
-          <View style={styles.row}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.big}>{progress}%</Text>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.kv}>
-                <Text style={styles.k}>Start Date:</Text> {start}
-              </Text>
-              <Text style={styles.kv}>
-                <Text style={styles.k}>End Date:</Text> {end}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.h6}>Client</Text>
-          <Text style={styles.kv}>
-            <Text style={styles.k}>Name:</Text> {clientName}
-          </Text>
-          <Text style={styles.kv}>
-            <Text style={styles.k}>Code:</Text> {p.shortCode ?? '—'}
-          </Text>
-          <Text style={styles.kv}>
-            <Text style={styles.k}>Category:</Text> {p.category ?? '—'}
-          </Text>
-          <Text style={styles.kv}>
-            <Text style={styles.k}>Status:</Text> {p.projectStatus ?? '—'}
-          </Text>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.h6}>Members ({members.length})</Text>
-          {members.length === 0 ? (
-            <Text style={styles.muted}>— No members —</Text>
-          ) : (
-            members.map(m => (
-              <Text key={m.employeeId} style={styles.kv}>
-                {m.name} • {m.designation ?? '—'} • {m.department ?? '—'}
-              </Text>
-            ))
-          )}
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.h6}>Budget & Hours</Text>
-          <Text style={styles.kv}>
-            <Text style={styles.k}>Currency:</Text> {p.currency ?? '—'}
-          </Text>
-          <Text style={styles.kv}>
-            <Text style={styles.k}>Budget:</Text> {p.budget ?? '—'}
-          </Text>
-          <Text style={styles.kv}>
-            <Text style={styles.k}>Hours Estimate:</Text>{' '}
-            {p.hoursEstimate ?? '—'}
-          </Text>
-          <Text style={styles.kv}>
-            <Text style={styles.k}>Manual Time:</Text>{' '}
-            {p.allowManualTimeLogs ? 'Allowed' : 'Not allowed'}
-          </Text>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.h6}>Summary</Text>
-          <Text style={styles.body}>{p.summary || '—'}</Text>
-        </View>
-      </View>
-    </ScrollView>
+    <TabView
+      navigationState={{ index, routes }}
+      renderScene={renderScene}
+      onIndexChange={setIndex}
+      initialLayout={{ width: layoutW }}
+      renderTabBar={props => (
+        <TabBar
+          {...props}
+          scrollEnabled
+          style={{ backgroundColor: '#eef2ff' }}
+          indicatorStyle={{ backgroundColor: '#1d4ed8', height: 3 }}
+          activeColor="#111827"
+          inactiveColor="#6b7280"
+          labelStyle={{ textTransform: 'none', fontWeight: '700' }}
+        />
+      )}
+    />
   );
 }
 
-const styles = StyleSheet.create({
+/* ----------------------------------- styles ---------------------------------- */
+const s = StyleSheet.create({
   wrap: { padding: 12, gap: 12 },
-  tabs: { flexDirection: 'row', gap: 8 },
-  tab: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: '#f3f4f6',
-  },
-  tabActive: { backgroundColor: '#111827' },
-  tabTxt: { color: '#111827' },
-  tabTxtActive: { color: '#fff', fontWeight: '700' },
-
-  grid: { gap: 12 },
   card: {
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -172,13 +176,32 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
     padding: 12,
   },
-  h6: { fontSize: 16, fontWeight: '800', marginBottom: 8, color: '#111827' },
-  row: { flexDirection: 'row', gap: 12, alignItems: 'center' },
-  big: { fontSize: 28, fontWeight: '900', color: '#111827' },
+  h6: { fontSize: 16, fontWeight: '800', color: '#111827', marginBottom: 8 },
+  progressTrack: {
+    height: 12,
+    borderRadius: 8,
+    backgroundColor: '#eef2ff',
+    overflow: 'hidden',
+  },
+  progressFill: { height: 12, backgroundColor: '#3b82f6' },
+  rowBetween: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  progressTxt: { fontWeight: '800', color: '#111827' },
+  meta: { color: '#6b7280' },
   kv: { color: '#111827', marginBottom: 4 },
   k: { color: '#6b7280' },
   body: { color: '#111827' },
   muted: { color: '#9ca3af' },
+  placeholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  placeholderTxt: { color: '#6b7280', fontWeight: '700' },
   center: {
     flex: 1,
     alignItems: 'center',
@@ -186,5 +209,5 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   err: { color: '#b00020', fontWeight: '700', marginBottom: 6 },
-  hint: { color: '#6b7280', textAlign: 'center' },
+  hint: { color: '#6b7280' },
 });
