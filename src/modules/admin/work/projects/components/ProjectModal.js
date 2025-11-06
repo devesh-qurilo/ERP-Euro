@@ -7,6 +7,10 @@ import {
   Modal,
   Pressable,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Switch,
 } from 'react-native';
 
 export default function ProjectModal({
@@ -25,16 +29,16 @@ export default function ProjectModal({
           deadline: editing.deadline || '',
           noDeadline: !!editing.noDeadline,
           projectCategory: editing.category || '',
-          departmentId: editing.departmentId || '',
+          departmentId: String(editing.departmentId ?? ''),
           clientId: editing.clientId || '',
           projectSummary: editing.summary || '',
           tasksNeedAdminApproval: !!editing.tasksNeedAdminApproval,
           currency: editing.currency || 'USD',
-          projectBudget: editing.budget ?? '',
-          hoursEstimate: editing.hoursEstimate ?? '',
+          projectBudget: editing.budget?.toString() ?? '',
+          hoursEstimate: editing.hoursEstimate?.toString() ?? '',
           allowManualTimeLogs: !!editing.allowManualTimeLogs,
           assignedEmployeeIds: (editing.assignedEmployeeIds || []).join(','),
-          companyFile: null,
+          companyFile: null, // keep for future file picker
         }
       : {
           shortCode: '',
@@ -56,7 +60,6 @@ export default function ProjectModal({
         },
   );
 
-  // simple setter
   const patch = (k, val) => setV(s => ({ ...s, [k]: val }));
 
   const disabled = useMemo(() => {
@@ -91,90 +94,119 @@ export default function ProjectModal({
       animationType="slide"
       onRequestClose={onClose}
     >
-      <View style={styles.backdrop}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.backdrop}
+      >
         <View style={styles.card}>
           <Text style={styles.title}>
             {editing ? 'Edit Project' : 'Add Project'}
           </Text>
 
-          <View style={styles.row}>
-            <Field
-              label="Short Code"
-              value={v.shortCode}
-              onChange={t => patch('shortCode', t)}
-            />
-            <Field
-              label="Project Name"
-              value={v.projectName}
-              onChange={t => patch('projectName', t)}
-            />
-          </View>
+          {/* CONTENT SCROLLER */}
+          <ScrollView
+            contentContainerStyle={styles.formWrap}
+            keyboardShouldPersistTaps="handled"
+          >
+            {/* GRID: two columns that wrap */}
+            <View style={styles.grid}>
+              <Field
+                label="Short Code"
+                value={v.shortCode}
+                onChange={t => patch('shortCode', t)}
+              />
+              <Field
+                label="Project Name"
+                value={v.projectName}
+                onChange={t => patch('projectName', t)}
+              />
 
-          <View style={styles.row}>
-            <Field
-              label="Start Date (YYYY-MM-DD)"
-              value={v.startDate}
-              onChange={t => patch('startDate', t)}
-            />
-            <Field
-              label="Deadline (YYYY-MM-DD)"
-              value={v.deadline}
-              onChange={t => patch('deadline', t)}
-            />
-          </View>
+              <Field
+                label="Start Date (YYYY-MM-DD)"
+                value={v.startDate}
+                onChange={t => patch('startDate', t)}
+              />
+              {!v.noDeadline && (
+                <Field
+                  label="Deadline (YYYY-MM-DD)"
+                  value={v.deadline}
+                  onChange={t => patch('deadline', t)}
+                />
+              )}
 
-          <View style={styles.row}>
-            <Field
-              label="Category"
-              value={v.projectCategory}
-              onChange={t => patch('projectCategory', t)}
-            />
-            <Field
-              label="Department Id"
-              value={String(v.departmentId)}
-              onChange={t => patch('departmentId', t)}
-            />
-          </View>
+              <Toggle
+                label="No Deadline"
+                value={v.noDeadline}
+                onChange={val => patch('noDeadline', val)}
+              />
 
-          <View style={styles.row}>
-            <Field
-              label="Client Id"
-              value={v.clientId}
-              onChange={t => patch('clientId', t)}
-            />
-            <Field
-              label="Currency"
-              value={v.currency}
-              onChange={t => patch('currency', t)}
-            />
-          </View>
+              <Field
+                label="Category"
+                value={v.projectCategory}
+                onChange={t => patch('projectCategory', t)}
+              />
+              <Field
+                label="Department Id"
+                value={v.departmentId}
+                onChange={t => patch('departmentId', t)}
+                keyboardType="numeric"
+              />
+              <Field
+                label="Client Id"
+                value={v.clientId}
+                onChange={t => patch('clientId', t)}
+              />
+              <Field
+                label="Currency"
+                value={v.currency}
+                onChange={t => patch('currency', t)}
+              />
 
-          <Field
-            label="Summary"
-            value={v.projectSummary}
-            onChange={t => patch('projectSummary', t)}
-            multiline
-          />
+              <Field
+                label="Summary"
+                value={v.projectSummary}
+                onChange={t => patch('projectSummary', t)}
+                multiline
+                full
+              />
 
-          <Field
-            label="Members (comma-separated employeeIds)"
-            value={v.assignedEmployeeIds}
-            onChange={t => patch('assignedEmployeeIds', t)}
-          />
+              <Field
+                label="Members (comma-separated employeeIds)"
+                value={v.assignedEmployeeIds}
+                onChange={t => patch('assignedEmployeeIds', t)}
+                full
+              />
 
-          <View style={styles.row}>
-            <Field
-              label="Budget"
-              value={String(v.projectBudget)}
-              onChange={t => patch('projectBudget', t)}
-            />
-            <Field
-              label="Hours Est."
-              value={String(v.hoursEstimate)}
-              onChange={t => patch('hoursEstimate', t)}
-            />
-          </View>
+              <Field
+                label="Budget"
+                value={v.projectBudget}
+                onChange={t => patch('projectBudget', t)}
+                keyboardType="numeric"
+              />
+              <Field
+                label="Hours Estimate"
+                value={v.hoursEstimate}
+                onChange={t => patch('hoursEstimate', t)}
+                keyboardType="numeric"
+              />
 
+              <Toggle
+                label="Allow Manual Time Logs"
+                value={v.allowManualTimeLogs}
+                onChange={val => patch('allowManualTimeLogs', val)}
+              />
+              <Toggle
+                label="Tasks Need Admin Approval"
+                value={v.tasksNeedAdminApproval}
+                onChange={val => patch('tasksNeedAdminApproval', val)}
+              />
+
+              {/* File picker placeholder (kept simple) */}
+              {/* Hook your document picker here and set v.companyFile */}
+            </View>
+          </ScrollView>
+
+          {/* ACTIONS */}
           <View style={styles.actions}>
             <Pressable onPress={onClose} style={[styles.btn, styles.outline]}>
               <Text style={styles.btnTxt}>Cancel</Text>
@@ -197,24 +229,40 @@ export default function ProjectModal({
             </Pressable>
           </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
-function Field({ label, value, onChange, multiline = false }) {
+function Field({
+  label,
+  value,
+  onChange,
+  multiline = false,
+  full = false,
+  keyboardType = 'default',
+}) {
   return (
-    <View style={{ flex: 1, marginBottom: 10, marginRight: 8 }}>
+    <View
+      style={[styles.field, full && { flexBasis: '100%', minWidth: '100%' }]}
+    >
       <Text style={styles.label}>{label}</Text>
       <TextInput
         value={value}
         onChangeText={onChange}
-        style={[
-          styles.input,
-          multiline && { height: 90, textAlignVertical: 'top' },
-        ]}
+        style={[styles.input, multiline && styles.textarea]}
         multiline={multiline}
+        keyboardType={keyboardType}
       />
+    </View>
+  );
+}
+
+function Toggle({ label, value, onChange }) {
+  return (
+    <View style={[styles.field, styles.toggleRow]}>
+      <Text style={styles.label}>{label}</Text>
+      <Switch value={value} onValueChange={onChange} />
     </View>
   );
 }
@@ -222,19 +270,39 @@ function Field({ label, value, onChange, multiline = false }) {
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'rgba(0,0,0,0.35)',
     justifyContent: 'center',
     padding: 16,
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 14,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: '#e5e7eb',
+    padding: 12,
+    // Crucial: limit height so inside can scroll
+    maxHeight: '88%',
   },
-  title: { fontSize: 18, fontWeight: '900', marginBottom: 10 },
-  row: { flexDirection: 'row', gap: 8 },
+  title: { fontSize: 18, fontWeight: '900', marginBottom: 8, color: '#0b0b0c' },
+
+  formWrap: { paddingBottom: 8 },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap', // <<< allows wrapping to next line
+    columnGap: 10,
+    rowGap: 10,
+  },
+  field: {
+    flexGrow: 1,
+    flexBasis: '48%', // <<< two columns by default
+    minWidth: 240, // <<< prevents tiny columns on narrow widths
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
   label: { fontSize: 12, fontWeight: '800', color: '#374151', marginBottom: 6 },
   input: {
     borderWidth: 1,
@@ -245,6 +313,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     color: '#111827',
   },
+  textarea: { height: 100, textAlignVertical: 'top' },
+
   actions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',

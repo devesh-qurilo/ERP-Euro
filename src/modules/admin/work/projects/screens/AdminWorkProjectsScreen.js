@@ -34,8 +34,10 @@ import {
 } from '../store/actions';
 import ProjectsTable from '../components/ProjectsTable';
 import ProjectModal from '../components/ProjectModal';
+import { useNavigation } from '@react-navigation/native';
 
 export default function AdminWorkProjectsScreen() {
+  const navigation = useNavigation();
   const dispatch = useDispatch();
   const list = useSelector(selectAWPList);
   const loading = useSelector(selectAWPLoading);
@@ -74,6 +76,10 @@ export default function AdminWorkProjectsScreen() {
     else dispatch(createProject(payload));
     // createBusy reset is handled by redux fetch; but keep a guard:
     setTimeout(() => setCreateBusy(false), 1200);
+  };
+
+  const onView = item => {
+    navigation.navigate('AdminProjectView', { project: item });
   };
 
   return (
@@ -159,7 +165,7 @@ export default function AdminWorkProjectsScreen() {
           data={filtered}
           loading={loading}
           busyIds={busyIds}
-          onView={p => {}}
+          onView={onView}
           onEdit={p => dispatch(openModal(p))}
           onDelete={id => dispatch(deleteProject(id))}
           onStatus={(id, status) => dispatch(patchStatus(id, status))}

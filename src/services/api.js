@@ -1,8 +1,8 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// const API_BASE_URL = 'https://chat.swiftandgo.in'; // Replace with your actual gateway URL
-const API_BASE_URL = 'https://6jnqmj85-80.inc1.devtunnels.ms';
+const API_BASE_URL = 'https://chat.swiftandgo.in'; // Replace with your actual gateway URL
+// const API_BASE_URL = 'https://6jnqmj85-80.inc1.devtunnels.ms';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

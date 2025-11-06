@@ -33,6 +33,8 @@ import AdminAttendanceScreen from '../modules/admin/hr/attendance/screens/AdminA
 
 import AdminWorkProjectsScreen from '../modules/admin/work/projects/screens/AdminWorkProjectsScreen';
 
+import AdminProjectViewScreen from '../modules/admin/work/projects/screens/AdminProjectViewScreen';
+
 // ---------------------------------------------------------------------------
 // PLACEHOLDERS (swap with real screens later)
 // ---------------------------------------------------------------------------
@@ -141,6 +143,11 @@ function WorkStack() {
     >
       <Stack.Screen name="WorkProjects" component={AdminWorkProjectsScreen} />
       <Stack.Screen name="WorkTasks" component={AdminWorkTasksScreen} />
+      <Stack.Screen
+        name="AdminProjectView"
+        component={AdminProjectViewScreen}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="WorkTimesheets"
         component={AdminWorkTimesheetsScreen}

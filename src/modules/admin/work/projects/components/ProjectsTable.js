@@ -46,72 +46,72 @@ export default function ProjectsTable({
         </View>
 
         {/* Rows */}
-        {data.map(p => {
-          const isBusy = busyIds.includes(p.id);
+        {data.map(item => {
+          const isBusy = busyIds.includes(item.id);
           return (
-            <View key={p.id} style={styles.row}>
-              <Text style={styles.cell}>#{p.shortCode || '—'}</Text>
+            <View key={item.id} style={styles.row}>
+              <Text style={styles.cell}>#{item.shortCode || '—'}</Text>
               <Text style={[styles.cell, { minWidth: 220 }]} numberOfLines={1}>
-                {p.name}
+                {item.name}
               </Text>
               <View style={[styles.cell, styles.members]}>
-                {(p.assignedEmployees || []).slice(0, 4).map(m => (
+                {(item.assignedEmployees || []).slice(0, 4).map(m => (
                   <Image
                     key={m.employeeId}
                     source={{ uri: m.profileUrl }}
                     style={styles.avatar}
                   />
                 ))}
-                {p.assignedEmployees?.length > 4 && (
+                {item.assignedEmployees?.length > 4 && (
                   <View style={styles.more}>
                     <Text style={styles.moreTxt}>
-                      +{p.assignedEmployees.length - 4}
+                      +{item.assignedEmployees.length - 4}
                     </Text>
                   </View>
                 )}
               </View>
-              <Text style={styles.cell}>{p.startDate || '—'}</Text>
+              <Text style={styles.cell}>{item.startDate || '—'}</Text>
               <Text style={styles.cell}>
-                {p.deadline || (p.noDeadline ? 'No deadline' : '—')}
+                {item.deadline || (item.noDeadline ? 'No deadline' : '—')}
               </Text>
               <View style={[styles.cell, styles.client]}>
-                {p.client?.profilePictureUrl ? (
+                {item.client?.profilePictureUrl ? (
                   <Image
-                    source={{ uri: p.client.profilePictureUrl }}
+                    source={{ uri: item.client.profilePictureUrl }}
                     style={styles.clientPic}
                   />
                 ) : null}
                 <Text numberOfLines={1} style={{ maxWidth: 160 }}>
-                  {p.client?.name || '—'}
+                  {item.client?.name || '—'}
                 </Text>
               </View>
               <View style={[styles.cell, styles.progress]}>
-                <Text>{p.projectStatus || '—'}</Text>
-                {p.progressPercent != null && (
+                <Text>{item.projectStatus || '—'}</Text>
+                {item.progressPercent != null && (
                   <View style={styles.barWrap}>
                     <View
                       style={[
                         styles.barFill,
-                        { width: `${Math.min(100, p.progressPercent)}%` },
+                        { width: `${Math.min(100, item.progressPercent)}%` },
                       ]}
                     />
-                    <Text style={styles.barPct}>{p.progressPercent}%</Text>
+                    <Text style={styles.barPct}>{item.progressPercent}%</Text>
                   </View>
                 )}
               </View>
 
               <View style={[styles.cell, styles.actions]}>
-                <Pressable onPress={() => onView?.(p)} style={styles.dotBtn}>
+                <Pressable onPress={() => onView(item)} style={styles.dotBtn}>
                   <Text>👁️</Text>
                 </Pressable>
                 <Pressable onPress={() => onEdit?.(p)} style={styles.dotBtn}>
                   <Text>✏️</Text>
                 </Pressable>
 
-                {p.pinned ? (
+                {item.pinned ? (
                   <Pressable
                     disabled={isBusy}
-                    onPress={() => onUnpin?.(p.id)}
+                    onPress={() => onUnpin?.(item.id)}
                     style={styles.dotBtn}
                   >
                     <Text>📌×</Text>
@@ -119,17 +119,17 @@ export default function ProjectsTable({
                 ) : (
                   <Pressable
                     disabled={isBusy}
-                    onPress={() => onPin?.(p.id)}
+                    onPress={() => onPin?.(item.id)}
                     style={styles.dotBtn}
                   >
                     <Text>📌</Text>
                   </Pressable>
                 )}
 
-                {p.archived ? (
+                {item.archived ? (
                   <Pressable
                     disabled={isBusy}
-                    onPress={() => onUnarchive?.(p.id)}
+                    onPress={() => onUnarchive?.(item.id)}
                     style={styles.dotBtn}
                   >
                     <Text>🗂️↩︎</Text>
@@ -137,7 +137,7 @@ export default function ProjectsTable({
                 ) : (
                   <Pressable
                     disabled={isBusy}
-                    onPress={() => onArchive?.(p.id)}
+                    onPress={() => onArchive?.(item.id)}
                     style={styles.dotBtn}
                   >
                     <Text>🗂️</Text>
@@ -146,7 +146,7 @@ export default function ProjectsTable({
 
                 <Pressable
                   disabled={isBusy}
-                  onPress={() => onDelete?.(p.id)}
+                  onPress={() => onDelete?.(item.id)}
                   style={styles.dotBtn}
                 >
                   <Text>🗑️</Text>
