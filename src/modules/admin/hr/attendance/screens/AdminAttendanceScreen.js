@@ -404,10 +404,10 @@ export default function AdminAttendanceScreen() {
     <ScrollView contentContainerStyle={styles.wrap}>
       {/* Top title + segmented 3 buttons */}
       <View style={styles.headerRow}>
-        <Text style={styles.sectionTitle}>Mark Attendance</Text>
+        {/* <Text style={styles.sectionTitle}>Ma</Text> */}
         <View style={styles.segBar}>
           <SegBtn
-            label="+ Add Attendance"
+            label="+ Mark Attendance"
             active={false}
             onPress={() => dispatch(openAttModal())}
           />
@@ -503,9 +503,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     gap: 6,
   },
-  segBtn: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10 },
+  segBtn: { paddingVertical: 8, paddingHorizontal: 10, borderRadius: 10 },
   segBtnActive: { backgroundColor: '#111827' },
-  segTxt: { fontWeight: '800', color: '#111827' },
+  segTxt: { fontWeight: '300', color: '#111827' },
   segTxtActive: { color: '#fff' },
 
   card: {

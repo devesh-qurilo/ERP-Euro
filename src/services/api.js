@@ -643,5 +643,107 @@ export const adminAttendanceAPI = {
       .get(`/employee/attendance/${encodeURIComponent(employeeId)}/all-saved`)
       .then(r => r.data),
 };
+// src/api/adminAwardsAPI.js
+const toFormFile = f =>
+  f
+    ? {
+        uri: f.uri,
+        name: f.name || 'file',
+        type: f.type || 'application/octet-stream',
+      }
+    : null;
+
+export const adminAwardsAPI = {
+  // GET /employee/api/awards  (list)
+  list: () => api.get('/employee/api/awards').then(r => r.data),
+
+  // POST /employee/api/awards  (create; multipart)
+  create: ({ title, summary, iconFile }) => {
+    const fd = new FormData();
+    fd.append('title', String(title));
+    fd.append('summary', String(summary || ''));
+    const f = toFormFile(iconFile);
+    if (f) fd.append('iconFile', f);
+    return api
+      .post('/employee/api/awards', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+
+  // PUT /employee/api/awards/{id}  (update; multipart)
+  update: (id, { title, summary, iconFile }) => {
+    const fd = new FormData();
+    fd.append('title', String(title));
+    fd.append('summary', String(summary || ''));
+    const f = toFormFile(iconFile);
+    if (f) fd.append('iconFile', f);
+    return api
+      .put(`/employee/api/awards/${encodeURIComponent(id)}`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+
+  // PATCH /employee/api/awards/{id}/toggle-status
+  toggleStatus: id =>
+    api
+      .patch(`/employee/api/awards/${encodeURIComponent(id)}/toggle-status`)
+      .then(r => r.data),
+};
+
+// src/api/adminAppreciationsAPI.js
+// NOTE: expects a pre-configured axios instance exported as `api`
+// const toFormFile = (f) =>
+//   f
+//     ? {
+//         uri: f.uri,
+//         name: f.name || 'file',
+//         type: f.type || 'application/octet-stream',
+//       }
+//     : null;
+
+export const adminAppreciationsAPI = {
+  // GET /employee/appreciations  (list)
+  list: () => api.get('/employee/appreciations').then(r => r.data),
+
+  // // POST /employee/appreciations  (create; multipart)
+  // create: ({ awardId, givenToEmployeeId, date, summary, photoFile }) => {
+  //   const fd = new FormData();
+  //   fd.append('awardId', String(awardId));
+  //   fd.append('givenToEmployeeId', String(givenToEmployeeId));
+  //   fd.append('date', String(date));
+  //   fd.append('summary', String(summary || ''));
+  //   const f = toFormFile(photoFile);
+  //   if (f) fd.append('photoFile', f);
+  //   return api
+  //     .post('/employee/appreciations', fd, {
+  //       headers: { 'Content-Type': 'multipart/form-data' },
+  //     })
+  //     .then(r => r.data);
+  // },
+
+  // // PUT /employee/admin/appreciations/{id}  (update; multipart)
+  // update: (id, { awardId, givenToEmployeeId, date, summary, photoFile }) => {
+  //   const fd = new FormData();
+  //   fd.append('awardId', String(awardId));
+  //   fd.append('givenToEmployeeId', String(givenToEmployeeId));
+  //   fd.append('date', String(date));
+  //   fd.append('summary', String(summary || ''));
+  //   const f = toFormFile(photoFile);
+  //   if (f) fd.append('photoFile', f);
+  //   return api
+  //     .put(`/employee/admin/appreciations/${encodeURIComponent(id)}`, fd, {
+  //       headers: { 'Content-Type': 'multipart/form-data' },
+  //     })
+  //     .then(r => r.data);
+  // },
+
+  // // DELETE /employee/admin/appreciations/{id}
+  // remove: id =>
+  //   api
+  //     .delete(`/employee/admin/appreciations/${encodeURIComponent(id)}`)
+  //     .then(r => r.data),
+};
 
 export default api;
