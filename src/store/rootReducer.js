@@ -28,6 +28,8 @@ import adminHolidaysReducer from '../modules/admin/hr/holidays/store/reducers';
 import adminAttendanceReducer from '../modules/admin/hr/attendance/store/reducers';
 import appreciationsReducer from '../modules/admin/hr/appreciations/store/reducers';
 
+import adminWorkProjectsReducer from '../modules/admin/work/projects/store/reducers';
+
 const rootReducer = combineReducers({
   auth: userReducer,
   employee: combineReducers({
@@ -62,6 +64,10 @@ const rootReducer = combineReducers({
       holidays: adminHolidaysReducer,
       attendance: adminAttendanceReducer,
       appreciations: appreciationsReducer,
+    }),
+    work: combineReducers({
+      projects: adminWorkProjectsReducer, // ← mount here
+      // timesheets, tasks, roadmap can be added later
     }),
   }),
 });

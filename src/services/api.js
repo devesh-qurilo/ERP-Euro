@@ -1,8 +1,8 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = 'https://chat.swiftandgo.in'; // Replace with your actual gateway URL
-// const API_BASE_URL = 'https://6jnqmj85-80.inc1.devtunnels.ms';
+// const API_BASE_URL = 'https://chat.swiftandgo.in'; // Replace with your actual gateway URL
+const API_BASE_URL = 'https://6jnqmj85-80.inc1.devtunnels.ms';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -744,6 +744,33 @@ export const adminAppreciationsAPI = {
   //   api
   //     .delete(`/employee/admin/appreciations/${encodeURIComponent(id)}`)
   //     .then(r => r.data),
+};
+
+// --- ADMIN PROJECTS (all projects) ---
+
+export const adminWorkProjectsAPI = {
+  // Full list (used for list, calendar, pinned, archived client-side)
+  list: () => api.get('/api/projects').then(r => r.data),
+
+  // Create (multipart)
+  create: payload => projectsApi.create(payload),
+
+  // Update (multipart)
+  update: (id, payload) => projectsApi.update(id, payload),
+
+  // Delete
+  remove: id => api.delete(`/api/projects/${id}`).then(r => r.data),
+
+  // Status (multipart form with 'status')
+  patchStatus: (id, status) => projectsApi.patchStatus(id, status),
+
+  // Pin / Unpin
+  pin: id => api.post(`/projects/${id}/pin`).then(r => r.data),
+  unpin: id => api.delete(`/projects/${id}/pin`).then(r => r.data),
+
+  // Archive / Unarchive
+  archive: id => api.post(`/projects/${id}/archive`).then(r => r.data),
+  unarchive: id => api.delete(`/projects/${id}/archive`).then(r => r.data),
 };
 
 export default api;

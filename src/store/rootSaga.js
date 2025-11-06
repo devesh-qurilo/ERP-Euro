@@ -31,6 +31,8 @@ import { holidaysWatcher } from '../modules/admin/hr/holidays/store/sagas';
 import { adminAttendanceWatcher } from '../modules/admin/hr/attendance/store/sagas';
 import { appreciationsWatcher } from '../modules/admin/hr/appreciations/store/sagas';
 
+import adminWorkProjectsWatcher from '../modules/admin/work/projects/store/sagas';
+
 // Root saga that combines all sagas
 export default function* rootSaga() {
   yield all([
@@ -60,5 +62,6 @@ export default function* rootSaga() {
     holidaysWatcher(),
     adminAttendanceWatcher(),
     // appreciationsWatcher(),
+    adminWorkProjectsWatcher(),
   ]);
 }

@@ -31,6 +31,8 @@ import AdminLeavesScreen from '../modules/admin/hr/leaves/screens/AdminLeavesScr
 import AdminHolidaysScreen from '../modules/admin/hr/holidays/screens/AdminHolidaysScreen';
 import AdminAttendanceScreen from '../modules/admin/hr/attendance/screens/AdminAttendanceScreen';
 
+import AdminWorkProjectsScreen from '../modules/admin/work/projects/screens/AdminWorkProjectsScreen';
+
 // ---------------------------------------------------------------------------
 // PLACEHOLDERS (swap with real screens later)
 // ---------------------------------------------------------------------------
@@ -55,7 +57,7 @@ const AdminHRDesignationsScreen = () => <P title="HR • Designations" />;
 const AdminHRDepartmentsScreen = () => <P title="HR • Departments" />;
 const AdminHRAppreciationsScreen = () => <P title="HR • Appreciations" />;
 
-const AdminWorkProjectsScreen = () => <P title="Work • Projects" />;
+// const AdminWorkProjectsScreen = () => <P title="Work • Projects" />;
 const AdminWorkTasksScreen = () => <P title="Work • Tasks" />;
 const AdminWorkTimesheetsScreen = () => <P title="Work • Timesheets" />;
 const AdminWorkRoadmapScreen = () => <P title="Work • Project Roadmap" />;
