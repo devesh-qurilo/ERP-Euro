@@ -95,3 +95,199 @@ To learn more about React Native, take a look at the following resources:
 - [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
 - [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
 - [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+
+[
+{
+"id": 4,
+"shortCode": "PRJ003",
+"name": "Website Redesign",
+"startDate": "2025-10-01",
+"deadline": "2026-01-31",
+"noDeadline": false,
+"category": "Design",
+"departmentId": 12,
+"clientId": "CLI010",
+"client": null,
+"summary": "Complete redesign",
+"tasksNeedAdminApproval": true,
+"companyFiles": [],
+"currency": "USD",
+"budget": 25000.00,
+"hoursEstimate": 400,
+"allowManualTimeLogs": true,
+"addedBy": "EMP-009",
+"companyFile": null,
+"assignedEmployeeIds": [
+"EMP-010",
+"EMP-009",
+"EMP-008"
+],
+"assignedEmployees": [
+{
+"employeeId": "EMP-010",
+"name": "Devesh kumar Singh",
+"profileUrl": "https://prrvlneocitoxmkkwqsd.storage.supabase.co/storage/v1/object/public/ERP-BUCKET/profile-pics/EMP-010/profile-picture",
+"designation": "Senior Manager",
+"department": "Finance"
+},
+{
+"employeeId": "EMP-009",
+"name": "Krishan Sharma",
+"profileUrl": "https://prrvlneocitoxmkkwqsd.storage.supabase.co/storage/v1/object/public/ERP-BUCKET/profile-pics/EMP-009/72c83fc8-542b-4aa5-bcae-3c16fafd8c03-test.jpeg",
+"designation": "Lead Developer",
+"department": "Sales"
+}
+],
+"projectStatus": "IN_PROGRESS",
+"progressPercent": null,
+"calculateProgressThroughTasks": false,
+"createdBy": "EMP-009",
+"createdAt": "2025-10-27T06:46:31.023141Z",
+"updatedBy": null,
+"updatedAt": "2025-11-05T10:26:20.385728Z",
+"projectAdminId": null,
+"projectAdmin": null,
+"isRequesterProjectAdmin": false,
+"totalTimeLoggedMinutes": null,
+"expenses": null,
+"profit": null,
+"earning": null,
+"pinned": false,
+"pinnedAt": null,
+"archived": false,
+"archivedAt": null
+},
+{
+"id": 3,
+"shortCode": "PRJ003",
+"name": "Website Redesign",
+"startDate": "2025-10-01",
+"deadline": "2026-01-31",
+"noDeadline": false,
+"category": "Design",
+"departmentId": 12,
+"clientId": "CLI010",
+"client": null,
+"summary": "Complete redesign",
+"tasksNeedAdminApproval": true,
+"companyFiles": [
+{
+"id": 6,
+"projectId": 3,
+"taskId": 1,
+"filename": "WhatsApp Image 2024-05-31 at 23.28.46_c0ab786e.jpg",
+"bucket": "ERP-BUCKET",
+"path": "projects/3/tasks/1/1761669696604-156961e8-WhatsApp Image 2024-05-31 at 23.28.46_c0ab786e.jpg",
+"url": "https://prrvlneocitoxmkkwqsd.storage.supabase.co/storage/v1/object/public/ERP-BUCKET/projects%2F3%2Ftasks%2F1%2F1761669696604-156961e8-WhatsApp+Image+2024-05-31+at+23.28.46_c0ab786e.jpg",
+"mimeType": "image/jpeg",
+"size": 1097070,
+"uploadedBy": "EMP-009",
+"createdAt": null
+}
+],
+"currency": "USD",
+"budget": 25000.00,
+"hoursEstimate": 400,
+"allowManualTimeLogs": true,
+"addedBy": "EMP-009",
+"companyFile": null,
+"assignedEmployeeIds": [
+"EMP-010",
+"EMP-009",
+"EMP-008"
+],
+"assignedEmployees": [
+{
+"employeeId": "EMP-010",
+"name": "Devesh kumar Singh",
+"profileUrl": "https://prrvlneocitoxmkkwqsd.storage.supabase.co/storage/v1/object/public/ERP-BUCKET/profile-pics/EMP-010/profile-picture",
+"designation": "Senior Manager",
+"department": "Finance"
+},
+{
+"employeeId": "EMP-009",
+"name": "Krishan Sharma",
+"profileUrl": "https://prrvlneocitoxmkkwqsd.storage.supabase.co/storage/v1/object/public/ERP-BUCKET/profile-pics/EMP-009/72c83fc8-542b-4aa5-bcae-3c16fafd8c03-test.jpeg",
+"designation": "Lead Developer",
+"department": "Sales"
+}
+],
+"projectStatus": "CANCELLED",
+"progressPercent": null,
+"calculateProgressThroughTasks": false,
+"createdBy": "EMP-009",
+"createdAt": "2025-10-27T06:25:37.874830Z",
+"updatedBy": null,
+"updatedAt": "2025-11-05T10:26:53.009904Z",
+"projectAdminId": null,
+"projectAdmin": null,
+"isRequesterProjectAdmin": false,
+"totalTimeLoggedMinutes": null,
+"expenses": null,
+"profit": null,
+"earning": null,
+"pinned": false,
+"pinnedAt": null,
+"archived": false,
+"archivedAt": null
+},
+{
+"id": 7,
+"shortCode": "PRJ003",
+"name": "Website Redesign",
+"startDate": "2025-10-01",
+"deadline": "2026-01-31",
+"noDeadline": false,
+"category": "Design",
+"departmentId": 12,
+"clientId": "CLI010",
+"client": null,
+"summary": "Complete redesign",
+"tasksNeedAdminApproval": true,
+"companyFiles": [],
+"currency": "USD",
+"budget": 25000.00,
+"hoursEstimate": 400,
+"allowManualTimeLogs": true,
+"addedBy": "EMP-009",
+"companyFile": null,
+"assignedEmployeeIds": [
+"EMP-010",
+"EMP-009",
+"EMP-008"
+],
+"assignedEmployees": [
+{
+"employeeId": "EMP-010",
+"name": "Devesh kumar Singh",
+"profileUrl": "https://prrvlneocitoxmkkwqsd.storage.supabase.co/storage/v1/object/public/ERP-BUCKET/profile-pics/EMP-010/profile-picture",
+"designation": "Senior Manager",
+"department": "Finance"
+},
+{
+"employeeId": "EMP-009",
+"name": "Krishan Sharma",
+"profileUrl": "https://prrvlneocitoxmkkwqsd.storage.supabase.co/storage/v1/object/public/ERP-BUCKET/profile-pics/EMP-009/72c83fc8-542b-4aa5-bcae-3c16fafd8c03-test.jpeg",
+"designation": "Lead Developer",
+"department": "Sales"
+}
+],
+"projectStatus": "ON_HOLD",
+"progressPercent": null,
+"calculateProgressThroughTasks": false,
+"createdBy": "EMP-009",
+"createdAt": "2025-10-27T12:50:49.880839Z",
+"updatedBy": null,
+"updatedAt": "2025-11-05T10:27:11.445222Z",
+"projectAdminId": null,
+"projectAdmin": null,
+"isRequesterProjectAdmin": false,
+"totalTimeLoggedMinutes": null,
+"expenses": null,
+"profit": null,
+"earning": null,
+"pinned": false,
+"pinnedAt": null,
+"archived": false,
+"archivedAt": null
+},
