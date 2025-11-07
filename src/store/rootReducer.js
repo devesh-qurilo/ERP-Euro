@@ -30,6 +30,7 @@ import appreciationsReducer from '../modules/admin/hr/appreciations/store/reduce
 
 import adminWorkProjectsReducer from '../modules/admin/work/projects/store/reducers';
 import tasksReducer from '../modules/admin/work/projects/store/tasks/reducer';
+import adminFinanceInvoiceReducer from '../modules/admin/finance/invoice/store/reducers';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -69,6 +70,9 @@ const rootReducer = combineReducers({
     work: combineReducers({
       projects: adminWorkProjectsReducer, // ← mount here
       tasks: tasksReducer,
+    }),
+    finance: combineReducers({
+      invoice: adminFinanceInvoiceReducer,
     }),
   }),
 });

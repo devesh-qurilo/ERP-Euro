@@ -861,4 +861,106 @@ export const adminProjectTasksAPI = {
       .then(r => r.data),
 };
 
+// --- ADMIN FINANCE: INVOICES / PAYMENTS / RECEIPTS ---
+export const adminFinanceInvoicesAPI = {
+  // LIST with optional paging & filters
+  list: ({ page = 0, size = 20, q, clientId, status, dateFrom, dateTo } = {}) =>
+    api
+      .get('/api/invoices', {
+        params: { page, size, q, clientId, status, dateFrom, dateTo },
+      })
+      .then(r => r.data),
+
+  // CREATE (JSON body as per spec)
+  create: payload => api.post('/api/invoices', payload).then(r => r.data),
+
+  // GET ONE (by invoiceNumber)
+  getOne: invoiceNumber =>
+    api
+      .get(`/api/invoices/${encodeURIComponent(invoiceNumber)}`)
+      .then(r => r.data),
+
+  // UPDATE (by invoiceNumber)
+  update: (invoiceNumber, payload) =>
+    api
+      .put(`/api/invoices/${encodeURIComponent(invoiceNumber)}`, payload)
+      .then(r => r.data),
+
+  // FILES: upload (FormData: field name "file")
+  uploadFile: (invoiceNumber, file /* { uri, name, type } */) => {
+    const fd = new FormData();
+    fd.append('file', {
+      uri: file.uri,
+      name: file.name || 'upload.bin',
+      type: file.type || 'application/octet-stream',
+    });
+    return api
+      .post(`/api/invoices/${encodeURIComponent(invoiceNumber)}/files`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+
+  // FILES: delete (by fileUrl)
+  deleteFile: (invoiceNumber, fileUrl) =>
+    api
+      .delete(`/api/invoices/${encodeURIComponent(invoiceNumber)}/files`, {
+        params: { fileUrl },
+      })
+      .then(r => r.data),
+  deleteInvoice: invoiceNumber =>
+    api
+      .delete(`/api/invoices/${encodeURIComponent(invoiceNumber)}`)
+      .then(r => r.data),
+
+  // REMINDER (by invoiceNumber)
+  sendReminder: invoiceNumber =>
+    api
+      .post(
+        `/api/invoices/${encodeURIComponent(
+          invoiceNumber,
+        )}/actions/send-reminder-email`,
+      )
+      .then(r => r.data),
+
+  // MARK PAID (uses invoiceId)
+  markPaid: invoiceId =>
+    api
+      .post(`/api/invoices/${encodeURIComponent(invoiceId)}/mark-paid`)
+      .then(r => r.data),
+
+  // ADD RECEIPT (singular endpoint /api/invoice)
+  addReceipt: payload => api.post('/api/invoice', payload).then(r => r.data),
+
+  // VIEW RECEIPTS by invoiceId
+  listReceiptsByInvoiceId: invoiceId =>
+    api
+      .get(`/api/invoice/receipt/${encodeURIComponent(invoiceId)}`)
+      .then(r => r.data),
+
+  // PAYMENTS: create (FormData: "payment" JSON + optional "file")
+  createPayment: ({ payment, file = null }) => {
+    const fd = new FormData();
+    fd.append('payment', JSON.stringify(payment));
+    if (file) {
+      fd.append('file', {
+        uri: file.uri,
+        name: file.name || 'receipt.png',
+        type: file.type || 'application/octet-stream',
+      });
+    }
+    return api
+      .post('/api/payments', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+
+  // PAYMENTS: list by invoiceNumber
+  listPaymentsByInvoiceNumber: invoiceNumber =>
+    api
+      .get(`/api/payments/invoice/${encodeURIComponent(invoiceNumber)}`)
+      .then(r => r.data),
+};
+
 export default api;

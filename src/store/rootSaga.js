@@ -33,6 +33,7 @@ import { appreciationsWatcher } from '../modules/admin/hr/appreciations/store/sa
 
 import adminWorkProjectsWatcher from '../modules/admin/work/projects/store/sagas';
 import { adminProjectTasksWatcher } from '../modules/admin/work/projects/store/tasks/sagas';
+import { adminFinanceInvoiceWatcher } from '../modules/admin/finance/invoice/store/sagas';
 
 // Root saga that combines all sagas
 export default function* rootSaga() {
@@ -66,6 +67,8 @@ export default function* rootSaga() {
     adminWorkProjectsWatcher(),
     // adminProjectTasksWatcher(),
     fork(adminProjectTasksWatcher),
+    adminFinanceInvoiceWatcher(),
     ,
   ]);
 }
+// adminFinanceInvoiceWatcher

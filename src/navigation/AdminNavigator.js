@@ -34,6 +34,9 @@ import AdminAttendanceScreen from '../modules/admin/hr/attendance/screens/AdminA
 import AdminWorkProjectsScreen from '../modules/admin/work/projects/screens/AdminWorkProjectsScreen';
 
 import AdminProjectViewScreen from '../modules/admin/work/projects/screens/AdminProjectViewScreen';
+import AdminFinanceInvoice from '../modules/admin/finance/invoice/screens/AdminFinanceInvoice';
+import InvoiceReceiptsScreen from '../modules/admin/finance/invoice/screens/InvoiceReceiptsScreen';
+import InvoicePaymentsScreen from '../modules/admin/finance/invoice/screens/InvoicePaymentsScreen';
 
 // ---------------------------------------------------------------------------
 // PLACEHOLDERS (swap with real screens later)
@@ -163,11 +166,16 @@ function FinanceStack() {
       screenOptions={{ headerShown: false }}
       initialRouteName="FinanceInvoices"
     >
-      <Stack.Screen
-        name="FinanceInvoices"
-        component={AdminFinanceInvoicesScreen}
-      />
+      <Stack.Screen name="FinanceInvoices" component={AdminFinanceInvoice} />
       <Stack.Screen name="FinanceDeals" component={AdminFinanceDealsScreen} />
+      <Stack.Screen
+        name="InvoiceReceiptsScreen"
+        component={InvoiceReceiptsScreen}
+      />
+      <Stack.Screen
+        name="InvoicePaymentsScreen"
+        component={InvoicePaymentsScreen}
+      />
     </Stack.Navigator>
   );
 }
