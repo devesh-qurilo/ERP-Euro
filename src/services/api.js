@@ -1006,4 +1006,19 @@ export const adminFinanceInvoicesAPI = {
       .then(r => r.data),
 };
 
+export const financeCreditNotesAPI = {
+  // GET all credit notes
+  listAll: () => api.get('/api/credit-notes/getAll').then(r => r.data),
+
+  // PUT /api/credit-notes/:id  (edit)
+  update: (id, payload) =>
+    api
+      .put(`/api/credit-notes/${encodeURIComponent(id)}`, payload)
+      .then(r => r.data),
+
+  // DELETE /api/credit-notes/:id
+  remove: id =>
+    api.delete(`/api/credit-notes/${encodeURIComponent(id)}`).then(r => r.data),
+};
+
 export default api;

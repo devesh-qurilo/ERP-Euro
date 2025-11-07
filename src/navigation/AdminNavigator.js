@@ -39,6 +39,7 @@ import InvoiceReceiptsScreen from '../modules/admin/finance/invoice/screens/Invo
 import InvoicePaymentsScreen from '../modules/admin/finance/invoice/screens/InvoicePaymentsScreen';
 
 import CreditNotesScreen from '../modules/admin/finance/invoice/screens/CreditNotesScreen';
+import AdminFinanceCreditNotes from '../modules/admin/finance/credit-notes/screens/AdminFinanceCreditNotes';
 
 // ---------------------------------------------------------------------------
 // PLACEHOLDERS (swap with real screens later)
@@ -169,8 +170,9 @@ function FinanceStack() {
       initialRouteName="FinanceInvoices"
     >
       <Stack.Screen name="FinanceInvoices" component={AdminFinanceInvoice} />
-      <Stack.Screen name="FinanceDeals" component={AdminFinanceDealsScreen} />
+      <Stack.Screen name="FinanceDeals" component={AdminFinanceCreditNotes} />
       <Stack.Screen name="CreditNotesScreen" component={CreditNotesScreen} />
+      {/* <Stack.Screen name="AdminFinanceCreditNotes" component={AdminFinanceCreditNotes} /> */}
       <Stack.Screen
         name="InvoiceReceiptsScreen"
         component={InvoiceReceiptsScreen}

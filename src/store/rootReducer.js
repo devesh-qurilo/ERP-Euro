@@ -31,6 +31,7 @@ import appreciationsReducer from '../modules/admin/hr/appreciations/store/reduce
 import adminWorkProjectsReducer from '../modules/admin/work/projects/store/reducers';
 import tasksReducer from '../modules/admin/work/projects/store/tasks/reducer';
 import adminFinanceInvoiceReducer from '../modules/admin/finance/invoice/store/reducers';
+import creditNotesReducer from '../modules/admin/finance/credit-notes/store/reducer';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -73,6 +74,7 @@ const rootReducer = combineReducers({
     }),
     finance: combineReducers({
       invoice: adminFinanceInvoiceReducer,
+      creditNotes: creditNotesReducer,
     }),
   }),
 });
