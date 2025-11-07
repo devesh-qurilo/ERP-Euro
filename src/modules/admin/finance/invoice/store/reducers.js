@@ -21,7 +21,20 @@ const initial = {
   files: { working: false, error: null },
   actions: { reminding: false, markingPaid: false, error: null },
   receipts: { items: [], loading: false, error: null },
-  payments: { items: [], loading: false, error: null },
+  payments: {
+    items: [],
+    loading: false,
+    error: null,
+    editing: false,
+    deleting: false,
+  },
+  receipts: {
+    items: [],
+    loading: false,
+    error: null,
+    deleting: false,
+    downloading: false,
+  },
 };
 
 export default function reducer(state = initial, action) {
@@ -92,6 +105,36 @@ export default function reducer(state = initial, action) {
         crud: { ...state.crud, creating: false, error: action.payload },
       };
 
+    case T.RECEIPT_DELETE_REQUEST:
+      return {
+        ...state,
+        receipts: { ...state.receipts, deleting: true, error: null },
+      };
+    case T.RECEIPT_DELETE_SUCCESS:
+      return { ...state, receipts: { ...state.receipts, deleting: false } };
+    case T.RECEIPT_DELETE_FAILURE:
+      return {
+        ...state,
+        receipts: { ...state.receipts, deleting: false, error: action.payload },
+      };
+
+    case T.RECEIPT_DOWNLOAD_REQUEST:
+      return {
+        ...state,
+        receipts: { ...state.receipts, downloading: true, error: null },
+      };
+    case T.RECEIPT_DOWNLOAD_SUCCESS:
+      return { ...state, receipts: { ...state.receipts, downloading: false } };
+    case T.RECEIPT_DOWNLOAD_FAILURE:
+      return {
+        ...state,
+        receipts: {
+          ...state.receipts,
+          downloading: false,
+          error: action.payload,
+        },
+      };
+
     case T.UPDATE_REQUEST:
       return { ...state, crud: { ...state.crud, updating: true, error: null } };
     case T.UPDATE_SUCCESS:
@@ -129,6 +172,52 @@ export default function reducer(state = initial, action) {
       return {
         ...state,
         actions: { ...state.actions, reminding: false, error: action.payload },
+      };
+
+    case T.LIST_PAYMENTS_REQUEST:
+      return {
+        ...state,
+        payments: { ...state.payments, loading: true, error: null },
+      };
+    case T.LIST_PAYMENTS_SUCCESS:
+      return {
+        ...state,
+        payments: {
+          ...state.payments,
+          loading: false,
+          items: action.payload || [],
+        },
+      };
+    case T.LIST_PAYMENTS_FAILURE:
+      return {
+        ...state,
+        payments: { ...state.payments, loading: false, error: action.payload },
+      };
+
+    case T.EDIT_PAYMENT_REQUEST:
+      return {
+        ...state,
+        payments: { ...state.payments, editing: true, error: null },
+      };
+    case T.EDIT_PAYMENT_SUCCESS:
+      return { ...state, payments: { ...state.payments, editing: false } };
+    case T.EDIT_PAYMENT_FAILURE:
+      return {
+        ...state,
+        payments: { ...state.payments, editing: false, error: action.payload },
+      };
+
+    case T.DELETE_PAYMENT_REQUEST:
+      return {
+        ...state,
+        payments: { ...state.payments, deleting: true, error: null },
+      };
+    case T.DELETE_PAYMENT_SUCCESS:
+      return { ...state, payments: { ...state.payments, deleting: false } };
+    case T.DELETE_PAYMENT_FAILURE:
+      return {
+        ...state,
+        payments: { ...state.payments, deleting: false, error: action.payload },
       };
 
     case T.MARK_PAID_REQUEST:

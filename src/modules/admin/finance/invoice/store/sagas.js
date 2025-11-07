@@ -247,6 +247,97 @@ function* addPaymentSaga({ payload: { payment, file } }) {
   }
 }
 
+function arrayBufferToBase64(buf) {
+  let binary = '';
+  const bytes = new Uint8Array(buf);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) binary += String.fromCharCode(bytes[i]);
+  return typeof btoa !== 'undefined'
+    ? btoa(binary)
+    : Buffer.from(binary, 'binary').toString('base64');
+}
+
+function* deleteReceiptSaga({ payload: { createdId, invoiceId } }) {
+  try {
+    yield call(API.deleteReceipt, createdId);
+    yield put({ type: T.RECEIPT_DELETE_SUCCESS });
+    // refresh current list
+    yield put({ type: T.LIST_RECEIPTS_REQUEST, payload: { invoiceId } });
+  } catch (e) {
+    yield put({
+      type: T.RECEIPT_DELETE_FAILURE,
+      payload: e?.message || 'Delete failed',
+    });
+  }
+}
+
+function* downloadReceiptSaga({ payload: { createdId } }) {
+  try {
+    const arr = yield call(API.downloadReceiptPdf, createdId); // ArrayBuffer
+    // Web: trigger a real download
+    if (Platform.OS === 'web') {
+      const blob = new Blob([arr], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `receipt-${createdId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } else {
+      // Native: open data URL in default viewer (works on most devices)
+      const b64 = arrayBufferToBase64(arr);
+      const dataUrl = `data:application/pdf;base64,${b64}`;
+      yield call(Linking.openURL, dataUrl);
+    }
+    yield put({ type: T.RECEIPT_DOWNLOAD_SUCCESS });
+  } catch (e) {
+    yield put({
+      type: T.RECEIPT_DOWNLOAD_FAILURE,
+      payload: e?.message || 'Download failed',
+    });
+  }
+}
+
+// function* listPaymentsSaga({ payload: { invoiceNumber } }) {
+//   try {
+//     const data = yield call(API.listPaymentsByInvoice, invoiceNumber); // you already have this in API as /api/payments/invoice/{invoiceNumber}
+//     yield put({ type: T.LIST_PAYMENTS_SUCCESS, payload: data });
+//   } catch (e) {
+//     yield put({
+//       type: T.LIST_PAYMENTS_FAILURE,
+//       payload: e?.message || 'Load payments failed',
+//     });
+//   }
+// }
+
+function* editPaymentSaga({ payload: { paymentId, payload, invoiceNumber } }) {
+  try {
+    yield call(API.updatePayment, paymentId, payload);
+    yield put({ type: T.EDIT_PAYMENT_SUCCESS });
+    yield put({ type: T.LIST_PAYMENTS_REQUEST, payload: { invoiceNumber } });
+  } catch (e) {
+    yield put({
+      type: T.EDIT_PAYMENT_FAILURE,
+      payload: e?.message || 'Edit failed',
+    });
+  }
+}
+
+function* deletePaymentSaga({ payload: { paymentId, invoiceNumber } }) {
+  try {
+    yield call(API.deletePayment, paymentId);
+    yield put({ type: T.DELETE_PAYMENT_SUCCESS });
+    yield put({ type: T.LIST_PAYMENTS_REQUEST, payload: { invoiceNumber } });
+  } catch (e) {
+    yield put({
+      type: T.DELETE_PAYMENT_FAILURE,
+      payload: e?.message || 'Delete failed',
+    });
+  }
+}
+
 export function* adminFinanceInvoiceWatcher() {
   yield all([
     takeLatest(T.LIST_REQUEST, listSaga),
@@ -265,6 +356,13 @@ export function* adminFinanceInvoiceWatcher() {
     takeLatest(T.MARK_PAID_REQUEST, markPaidSaga),
     takeLatest(T.ADD_PAYMENT_REQUEST, addPaymentSaga),
     takeLatest(T.DELETE_REQUEST, deleteSaga),
+
+    takeLatest(T.RECEIPT_DELETE_REQUEST, deleteReceiptSaga),
+    takeLatest(T.RECEIPT_DOWNLOAD_REQUEST, downloadReceiptSaga),
+
+    takeLatest(T.LIST_PAYMENTS_REQUEST, listPaymentsSaga),
+    takeLatest(T.EDIT_PAYMENT_REQUEST, editPaymentSaga),
+    takeLatest(T.DELETE_PAYMENT_REQUEST, deletePaymentSaga),
   ]);
 }
 

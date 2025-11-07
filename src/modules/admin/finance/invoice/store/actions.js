@@ -58,3 +58,25 @@ export const deleteInvoice = invoiceNumber => ({
   type: T.DELETE_REQUEST,
   payload: { invoiceNumber },
 });
+
+export const deleteReceipt = (createdId, invoiceId) => ({
+  type: T.RECEIPT_DELETE_REQUEST,
+  payload: { createdId, invoiceId }, // invoiceId so we can refresh list
+});
+
+export const downloadReceipt = createdId => ({
+  type: T.RECEIPT_DOWNLOAD_REQUEST,
+  payload: { createdId },
+});
+
+// export const listPayments = (invoiceNumber) => ({ type: T.LIST_PAYMENTS_REQUEST, payload: { invoiceNumber } });
+
+export const editPayment = (paymentId, payload, invoiceNumber) => ({
+  type: T.EDIT_PAYMENT_REQUEST,
+  payload: { paymentId, payload, invoiceNumber },
+});
+
+export const deletePayment = (paymentId, invoiceNumber) => ({
+  type: T.DELETE_PAYMENT_REQUEST,
+  payload: { paymentId, invoiceNumber },
+});

@@ -961,6 +961,30 @@ export const adminFinanceInvoicesAPI = {
     api
       .get(`/api/payments/invoice/${encodeURIComponent(invoiceNumber)}`)
       .then(r => r.data),
+
+  deleteReceipt: createdId =>
+    api
+      .delete(`/api/invoice/${encodeURIComponent(createdId)}`)
+      .then(r => r.data),
+
+  // DOWNLOAD receipt PDF (returns ArrayBuffer)
+  downloadReceiptPdf: createdId =>
+    api
+      .get(`/api/invoice/${encodeURIComponent(createdId)}/pdf`, {
+        params: { disposition: 'attachment' },
+        responseType: 'arraybuffer',
+      })
+      .then(r => r.data),
+
+  updatePayment: (paymentId, payload) =>
+    api
+      .put(`/api/payments/${encodeURIComponent(paymentId)}`, payload)
+      .then(r => r.data),
+
+  deletePayment: paymentId =>
+    api
+      .delete(`/api/payments/${encodeURIComponent(paymentId)}`)
+      .then(r => r.data),
 };
 
 export default api;
