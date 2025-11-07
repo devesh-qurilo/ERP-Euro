@@ -2,6 +2,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import ProjectTasksPanel from '../components/ProjectTasksPanel';
 
 /* --------------------------- helpers / formatters --------------------------- */
 function fmtDate(d) {
@@ -89,6 +90,10 @@ function OverviewTab({ project }) {
       <View style={s.card}>
         <Text style={s.h6}>Project Summary</Text>
         <Text style={s.body}>{p.summary || '—'}</Text>
+      </View>
+
+      <View style={{ marginTop: 12 }}>
+        <ProjectTasksPanel projectId={p.id} />
       </View>
     </ScrollView>
   );

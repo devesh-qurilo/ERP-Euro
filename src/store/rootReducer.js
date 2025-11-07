@@ -29,6 +29,7 @@ import adminAttendanceReducer from '../modules/admin/hr/attendance/store/reducer
 import appreciationsReducer from '../modules/admin/hr/appreciations/store/reducers';
 
 import adminWorkProjectsReducer from '../modules/admin/work/projects/store/reducers';
+import tasksReducer from '../modules/admin/work/projects/store/tasks/reducer';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -67,7 +68,7 @@ const rootReducer = combineReducers({
     }),
     work: combineReducers({
       projects: adminWorkProjectsReducer, // ← mount here
-      // timesheets, tasks, roadmap can be added later
+      tasks: tasksReducer,
     }),
   }),
 });

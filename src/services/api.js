@@ -772,5 +772,93 @@ export const adminWorkProjectsAPI = {
   archive: id => api.post(`/projects/${id}/archive`).then(r => r.data),
   unarchive: id => api.delete(`/projects/${id}/archive`).then(r => r.data),
 };
+export const adminProjectTasksAPI = {
+  // GET /projects/{projectId}/tasks
+  listByProject: projectId =>
+    api
+      .get(`/projects/${encodeURIComponent(projectId)}/tasks`)
+      .then(r => r.data),
+
+  // POST /api/projects/tasks  (multipart if file present)
+  create: payload => {
+    const fd = new FormData();
+    // text fields
+    [
+      'title',
+      'category',
+      'startDate',
+      'dueDate',
+      'noDueDate',
+      'taskStageId',
+      'description',
+      'milestoneId',
+      'priority',
+      'isPrivate',
+      'timeEstimateMinutes',
+      'isDependent',
+      'projectId',
+    ].forEach(k => {
+      if (payload[k] !== undefined && payload[k] !== null)
+        fd.append(k, String(payload[k]));
+    });
+
+    // arrays -> comma separated strings (server accepts)
+    if (payload.assignedEmployeeIds)
+      fd.append('assignedEmployeeIds', payload.assignedEmployeeIds.join(','));
+    if (payload.labelIds) fd.append('labelIds', payload.labelIds.join(','));
+
+    if (payload.taskFile) {
+      fd.append('taskFile', {
+        uri: payload.taskFile.uri,
+        name: payload.taskFile.name || 'upload.bin',
+        type: payload.taskFile.type || 'application/octet-stream',
+      });
+    }
+    return api
+      .post('/api/projects/tasks', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+
+  // PUT /api/projects/tasks/{taskId}
+  update: (taskId, payload) => {
+    const fd = new FormData();
+    [
+      'title',
+      'category',
+      'noDueDate',
+      'description',
+      'priority',
+      'isPrivate',
+      'timeEstimateMinutes',
+      'isDependent',
+      'projectId',
+    ].forEach(k => {
+      if (payload[k] !== undefined && payload[k] !== null)
+        fd.append(k, String(payload[k]));
+    });
+
+    if (payload.assignedEmployeeIds)
+      fd.append('assignedEmployeeIds', payload.assignedEmployeeIds.join(','));
+    if (payload.labelIds) fd.append('labelIds', payload.labelIds.join(','));
+
+    return api
+      .put(`/api/projects/tasks/${encodeURIComponent(taskId)}`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+
+  // DELETE /api/projects/{projectId}/tasks/{taskId}
+  remove: ({ projectId, taskId }) =>
+    api
+      .delete(
+        `/api/projects/${encodeURIComponent(
+          projectId,
+        )}/tasks/${encodeURIComponent(taskId)}`,
+      )
+      .then(r => r.data),
+};
 
 export default api;
