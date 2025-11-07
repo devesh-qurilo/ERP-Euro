@@ -926,7 +926,7 @@ export const adminFinanceInvoicesAPI = {
   // MARK PAID (uses invoiceId)
   markPaid: invoiceId =>
     api
-      .post(`/api/invoices/${encodeURIComponent(invoiceId)}/mark-paid`)
+      .patch(`/api/invoices/${encodeURIComponent(invoiceId)}/mark-paid`)
       .then(r => r.data),
 
   // ADD RECEIPT (singular endpoint /api/invoice)

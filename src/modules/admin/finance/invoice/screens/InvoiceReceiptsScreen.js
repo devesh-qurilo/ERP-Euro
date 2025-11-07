@@ -5,12 +5,18 @@ import * as A from '../store/actions';
 import { selectReceipts, selectReceiptsBusy } from '../store/selectors';
 
 export default function InvoiceReceiptsScreen({ route }) {
+  const raju = route.params;
+  console.log('raju', raju);
+
   const { invoiceId } = route.params;
+  console.log('invoiceId', invoiceId);
   const dispatch = useDispatch();
   const items = useSelector(selectReceipts);
   const busy = useSelector(selectReceiptsBusy);
 
   useEffect(() => {
+    console.log('invoiceId', invoiceId);
+
     dispatch(A.listReceipts(invoiceId));
   }, [invoiceId, dispatch]);
 

@@ -63,6 +63,19 @@ export default function AdminFinanceInvoice({ navigation }) {
     const invId = row.id;
 
     switch (action) {
+      case 'Delete':
+        // optional confirm
+        // if (Platform.OS==='web' ? window.confirm('Delete this invoice?') : true)
+        dispatch(A.deleteInvoice(invNo));
+        break;
+
+      //   case 'Mark as paid':
+      //     dispatch(A.markPaid(invId)); // backend expects invoiceId – keep invId
+      //     break;
+
+      case 'Add payment':
+        setPaymentOpen(true); // modal opens
+        break;
       case 'View':
         dispatch(A.getOne(invNo));
         setViewOpen(true);
@@ -81,8 +94,8 @@ export default function AdminFinanceInvoice({ navigation }) {
         break;
       case 'View receipt':
         if (navigation)
-          navigation.navigate('InvoiceReceiptsScreen', { invoiceId: invId });
-        else dispatch(A.listReceipts(invId));
+          navigation.navigate('InvoiceReceiptsScreen', { invoiceId: invNo });
+        else dispatch(A.listReceipts(invNo));
         break;
       case 'Add payment':
         setPaymentOpen(true);
@@ -98,7 +111,7 @@ export default function AdminFinanceInvoice({ navigation }) {
         dispatch(A.sendReminder(invNo));
         break;
       case 'Mark as paid':
-        dispatch(A.markPaid(invId));
+        dispatch(A.markPaid(invNo));
         break;
       case 'Create duplicate':
         setAddOpen(true);
@@ -186,7 +199,7 @@ export default function AdminFinanceInvoice({ navigation }) {
         visible={paymentOpen}
         onClose={() => setPaymentOpen(false)}
         onSubmit={({ payment, file }) => {
-          dispatch(A.addPayment({ payment, file }));
+          dispatch(A.addPayment({ payment, file })); // ✅ triggers saga now
           setPaymentOpen(false);
         }}
       />

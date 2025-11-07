@@ -137,20 +137,20 @@ function* reminderSaga({ payload: { invoiceNumber } }) {
   }
 }
 
-function* markPaidSaga({ payload: { invoiceId } }) {
-  try {
-    yield call(API.markPaid, invoiceId);
-    console.log('invoive number', invoiceId);
-    yield put({ type: T.MARK_PAID_SUCCESS });
-    yield put(listAction());
-  } catch (e) {
-    console.log('dddddinvoive number', invoiceId);
-    yield put({
-      type: T.MARK_PAID_FAILURE,
-      payload: e?.message || 'Mark paid failed',
-    });
-  }
-}
+// function* markPaidSaga({ payload: { invoiceId } }) {
+//   try {
+//     yield call(API.markPaid, invoiceId);
+//     console.log('invoive number', invoiceId);
+//     yield put({ type: T.MARK_PAID_SUCCESS });
+//     yield put(listAction());
+//   } catch (e) {
+//     console.log('dddddinvoive number', invoiceId);
+//     yield put({
+//       type: T.MARK_PAID_FAILURE,
+//       payload: e?.message || 'Mark paid failed',
+//     });
+//   }
+// }
 
 function* addReceiptSaga({ payload }) {
   try {
@@ -168,7 +168,7 @@ function* addReceiptSaga({ payload }) {
 function* listReceiptsSaga({ payload: { invoiceId } }) {
   try {
     const rows = yield call(API.listReceiptsByInvoiceId, invoiceId);
-    console.log('listReceiptsSaga');
+    console.log('listReceiptsSaga', invoiceId);
     yield put({ type: T.LIST_RECEIPTS_SUCCESS, payload: rows });
   } catch (e) {
     yield put({
@@ -178,19 +178,19 @@ function* listReceiptsSaga({ payload: { invoiceId } }) {
   }
 }
 
-function* addPaymentSaga({ payload: { payment, file } }) {
-  try {
-    const res = yield call(API.createPayment, { payment, file });
-    console.log('addPaymentSaga', res);
-    yield put({ type: T.ADD_PAYMENT_SUCCESS, payload: res });
-    yield put(listAction());
-  } catch (e) {
-    yield put({
-      type: T.ADD_PAYMENT_FAILURE,
-      payload: e?.message || 'Add payment failed',
-    });
-  }
-}
+// function* addPaymentSaga({ payload: { payment, file } }) {
+//   try {
+//     const res = yield call(API.createPayment, { payment, file });
+//     console.log('addPaymentSaga', res);
+//     yield put({ type: T.ADD_PAYMENT_SUCCESS, payload: res });
+//     yield put(listAction());
+//   } catch (e) {
+//     yield put({
+//       type: T.ADD_PAYMENT_FAILURE,
+//       payload: e?.message || 'Add payment failed',
+//     });
+//   }
+// }
 
 function* listPaymentsSaga({ payload: { invoiceNumber } }) {
   try {
@@ -201,6 +201,48 @@ function* listPaymentsSaga({ payload: { invoiceNumber } }) {
     yield put({
       type: T.LIST_PAYMENTS_FAILURE,
       payload: e?.message || 'Load payments failed',
+    });
+  }
+}
+
+function* deleteSaga({ payload: { invoiceNumber } }) {
+  try {
+    yield call(API.deleteInvoice, invoiceNumber);
+    yield put({ type: T.DELETE_SUCCESS });
+    yield put(listAction()); // refresh
+  } catch (e) {
+    yield put({
+      type: T.DELETE_FAILURE,
+      payload: e?.message || 'Delete failed',
+    });
+  }
+}
+
+function* markPaidSaga({ payload: { invoiceId } }) {
+  try {
+    console.log('invoiceNumber ', invoiceId);
+    // let invoiceId = invoiceNumber;
+    // NOTE: backend expects invoiceId here, not invoiceNumber
+    yield call(API.markPaid, invoiceId);
+    yield put({ type: T.MARK_PAID_SUCCESS });
+    yield put(listAction());
+  } catch (e) {
+    yield put({
+      type: T.MARK_PAID_FAILURE,
+      payload: e?.message || 'Mark paid failed',
+    });
+  }
+}
+
+function* addPaymentSaga({ payload: { payment, file } }) {
+  try {
+    const res = yield call(API.createPayment, { payment, file });
+    yield put({ type: T.ADD_PAYMENT_SUCCESS, payload: res });
+    yield put(listAction());
+  } catch (e) {
+    yield put({
+      type: T.ADD_PAYMENT_FAILURE,
+      payload: e?.message || 'Add payment failed',
     });
   }
 }
@@ -219,6 +261,10 @@ export function* adminFinanceInvoiceWatcher() {
     takeLatest(T.LIST_RECEIPTS_REQUEST, listReceiptsSaga),
     takeLatest(T.ADD_PAYMENT_REQUEST, addPaymentSaga),
     takeLatest(T.LIST_PAYMENTS_REQUEST, listPaymentsSaga),
+
+    takeLatest(T.MARK_PAID_REQUEST, markPaidSaga),
+    takeLatest(T.ADD_PAYMENT_REQUEST, addPaymentSaga),
+    takeLatest(T.DELETE_REQUEST, deleteSaga),
   ]);
 }
 

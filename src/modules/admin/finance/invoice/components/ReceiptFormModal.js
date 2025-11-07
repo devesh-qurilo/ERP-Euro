@@ -46,7 +46,11 @@ export default function ReceiptFormModal({
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <ScrollView
-        contentContainerStyle={{ padding: 16, backgroundColor: '#fff' }}
+        contentContainerStyle={{
+          padding: 16,
+          backgroundColor: '#fff',
+          marginTop: 50,
+        }}
       >
         <View
           style={{

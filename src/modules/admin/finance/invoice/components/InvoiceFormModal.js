@@ -41,7 +41,11 @@ export default function InvoiceFormModal({
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView
-          contentContainerStyle={{ padding: 16, backgroundColor: '#fff' }}
+          contentContainerStyle={{
+            padding: 16,
+            backgroundColor: '#fff',
+            marginTop: 50,
+          }}
         >
           <View
             style={{
