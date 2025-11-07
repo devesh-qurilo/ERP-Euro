@@ -35,6 +35,7 @@ const initial = {
     deleting: false,
     downloading: false,
   },
+  creditNotes: { items: [], loading: false, creating: false, error: null },
 };
 
 export default function reducer(state = initial, action) {
@@ -116,6 +117,50 @@ export default function reducer(state = initial, action) {
       return {
         ...state,
         receipts: { ...state.receipts, deleting: false, error: action.payload },
+      };
+
+    case T.CREDIT_NOTE_LIST_REQUEST:
+      return {
+        ...state,
+        creditNotes: { ...state.creditNotes, loading: true, error: null },
+      };
+    case T.CREDIT_NOTE_LIST_SUCCESS:
+      return {
+        ...state,
+        creditNotes: {
+          ...state.creditNotes,
+          loading: false,
+          items: action.payload || [],
+        },
+      };
+    case T.CREDIT_NOTE_LIST_FAILURE:
+      return {
+        ...state,
+        creditNotes: {
+          ...state.creditNotes,
+          loading: false,
+          error: action.payload,
+        },
+      };
+
+    case T.CREDIT_NOTE_ADD_REQUEST:
+      return {
+        ...state,
+        creditNotes: { ...state.creditNotes, creating: true, error: null },
+      };
+    case T.CREDIT_NOTE_ADD_SUCCESS:
+      return {
+        ...state,
+        creditNotes: { ...state.creditNotes, creating: false },
+      };
+    case T.CREDIT_NOTE_ADD_FAILURE:
+      return {
+        ...state,
+        creditNotes: {
+          ...state.creditNotes,
+          creating: false,
+          error: action.payload,
+        },
       };
 
     case T.RECEIPT_DOWNLOAD_REQUEST:

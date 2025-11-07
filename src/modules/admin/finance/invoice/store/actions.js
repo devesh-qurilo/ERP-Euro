@@ -71,6 +71,15 @@ export const downloadReceipt = createdId => ({
 
 // export const listPayments = (invoiceNumber) => ({ type: T.LIST_PAYMENTS_REQUEST, payload: { invoiceNumber } });
 
+export const addCreditNote = (invoiceNumber, creditNote, file) => ({
+  type: T.CREDIT_NOTE_ADD_REQUEST,
+  payload: { invoiceNumber, creditNote, file },
+});
+export const listCreditNotes = invoiceNumber => ({
+  type: T.CREDIT_NOTE_LIST_REQUEST,
+  payload: { invoiceNumber },
+});
+
 export const editPayment = (paymentId, payload, invoiceNumber) => ({
   type: T.EDIT_PAYMENT_REQUEST,
   payload: { paymentId, payload, invoiceNumber },

@@ -38,6 +38,8 @@ import AdminFinanceInvoice from '../modules/admin/finance/invoice/screens/AdminF
 import InvoiceReceiptsScreen from '../modules/admin/finance/invoice/screens/InvoiceReceiptsScreen';
 import InvoicePaymentsScreen from '../modules/admin/finance/invoice/screens/InvoicePaymentsScreen';
 
+import CreditNotesScreen from '../modules/admin/finance/invoice/screens/CreditNotesScreen';
+
 // ---------------------------------------------------------------------------
 // PLACEHOLDERS (swap with real screens later)
 // ---------------------------------------------------------------------------
@@ -168,6 +170,7 @@ function FinanceStack() {
     >
       <Stack.Screen name="FinanceInvoices" component={AdminFinanceInvoice} />
       <Stack.Screen name="FinanceDeals" component={AdminFinanceDealsScreen} />
+      <Stack.Screen name="CreditNotesScreen" component={CreditNotesScreen} />
       <Stack.Screen
         name="InvoiceReceiptsScreen"
         component={InvoiceReceiptsScreen}

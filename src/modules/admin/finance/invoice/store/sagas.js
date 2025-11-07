@@ -338,6 +338,36 @@ function* deletePaymentSaga({ payload: { paymentId, invoiceNumber } }) {
   }
 }
 
+function* listCreditNotesSaga({ payload: { invoiceNumber } }) {
+  try {
+    const data = yield call(API.listCreditNotes, invoiceNumber);
+    yield put({ type: T.CREDIT_NOTE_LIST_SUCCESS, payload: data });
+  } catch (e) {
+    yield put({
+      type: T.CREDIT_NOTE_LIST_FAILURE,
+      payload: e?.message || 'Load failed',
+    });
+  }
+}
+
+function* addCreditNoteSaga({ payload: { invoiceNumber, creditNote, file } }) {
+  try {
+    const res = yield call(API.addCreditNote, invoiceNumber, {
+      creditNote,
+      file,
+    });
+    yield put({ type: T.CREDIT_NOTE_ADD_SUCCESS, payload: res });
+    // refresh credit-notes + invoices list
+    yield put({ type: T.CREDIT_NOTE_LIST_REQUEST, payload: { invoiceNumber } });
+    yield put({ type: T.LIST_REQUEST }); // refresh invoices table
+  } catch (e) {
+    yield put({
+      type: T.CREDIT_NOTE_ADD_FAILURE,
+      payload: e?.message || 'Create failed',
+    });
+  }
+}
+
 export function* adminFinanceInvoiceWatcher() {
   yield all([
     takeLatest(T.LIST_REQUEST, listSaga),
@@ -363,6 +393,9 @@ export function* adminFinanceInvoiceWatcher() {
     takeLatest(T.LIST_PAYMENTS_REQUEST, listPaymentsSaga),
     takeLatest(T.EDIT_PAYMENT_REQUEST, editPaymentSaga),
     takeLatest(T.DELETE_PAYMENT_REQUEST, deletePaymentSaga),
+
+    takeLatest(T.CREDIT_NOTE_LIST_REQUEST, listCreditNotesSaga),
+    takeLatest(T.CREDIT_NOTE_ADD_REQUEST, addCreditNoteSaga),
   ]);
 }
 

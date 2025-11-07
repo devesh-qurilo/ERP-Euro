@@ -985,6 +985,25 @@ export const adminFinanceInvoicesAPI = {
     api
       .delete(`/api/payments/${encodeURIComponent(paymentId)}`)
       .then(r => r.data),
+
+  addCreditNote: (invoiceNumber, { creditNote, file }) => {
+    const fd = new FormData();
+    fd.append('creditNote', JSON.stringify(creditNote)); // <-- text field
+    if (file) fd.append('file', file); // <-- optional file
+    return api
+      .post(
+        `/api/invoices/${encodeURIComponent(invoiceNumber)}/credit-notes`,
+        fd,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        },
+      )
+      .then(r => r.data);
+  },
+  listCreditNotes: invoiceNumber =>
+    api
+      .get(`/api/invoices/${encodeURIComponent(invoiceNumber)}/credit-notes`)
+      .then(r => r.data),
 };
 
 export default api;

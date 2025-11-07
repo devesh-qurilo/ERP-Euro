@@ -19,6 +19,7 @@ import InvoiceViewModal from '../components/InvoiceViewModal';
 import UploadFileModal from '../components/UploadFileModal';
 import ReceiptFormModal from '../components/ReceiptFormModal';
 import PaymentFormModal from '../components/PaymentFormModal';
+import CreditNoteFormModal from '../components/CreditNoteFormModal';
 
 // If using react-navigation, inject `navigation` prop
 export default function AdminFinanceInvoice({ navigation }) {
@@ -28,6 +29,9 @@ export default function AdminFinanceInvoice({ navigation }) {
   const filters = useSelector(selectInvoiceFilters);
   const current = useSelector(selectCurrentInvoice);
   const currentBusy = useSelector(selectCurrentBusy);
+
+  const [creditNoteOpen, setCreditNoteOpen] = useState(false);
+  const [creditFor, setCreditFor] = useState(null);
 
   const [actionState, setActionState] = useState({ open: false, row: null });
   const [addOpen, setAddOpen] = useState(false);
@@ -72,6 +76,16 @@ export default function AdminFinanceInvoice({ navigation }) {
       //   case 'Mark as paid':
       //     dispatch(A.markPaid(invId)); // backend expects invoiceId – keep invId
       //     break;
+
+      case 'Add credit notes':
+        setCreditFor(row);
+        setCreditNoteOpen(true);
+        break;
+      case 'View credit note':
+        if (navigation)
+          navigation.navigate('CreditNotesScreen', { invoiceNumber: invNo });
+        else dispatch(A.listCreditNotes(invNo));
+        break;
 
       case 'Add payment':
         setPaymentOpen(true); // modal opens
@@ -201,6 +215,19 @@ export default function AdminFinanceInvoice({ navigation }) {
         onSubmit={({ payment, file }) => {
           dispatch(A.addPayment({ payment, file })); // ✅ triggers saga now
           setPaymentOpen(false);
+        }}
+      />
+      <CreditNoteFormModal
+        visible={creditNoteOpen}
+        onClose={() => {
+          setCreditNoteOpen(false);
+          setCreditFor(null);
+        }}
+        invoiceNumber={creditFor?.invoiceNumber}
+        onSubmit={(invoiceNumber, notePayload, file) => {
+          dispatch(A.addCreditNote(invoiceNumber, notePayload, file));
+          setCreditNoteOpen(false);
+          setCreditFor(null);
         }}
       />
     </View>

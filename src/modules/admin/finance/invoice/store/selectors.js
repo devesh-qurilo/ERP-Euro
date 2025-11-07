@@ -23,3 +23,7 @@ export const selectReceiptsBusy = s => root(s).receipts.loading;
 
 export const selectPayments = s => root(s).payments.items;
 export const selectPaymentsBusy = s => root(s).payments.loading;
+
+export const selectCreditNotes = s => s.admin.finance.invoice.creditNotes.items;
+export const selectCreditNotesBusy = s =>
+  s.admin.finance.invoice.creditNotes.loading;
