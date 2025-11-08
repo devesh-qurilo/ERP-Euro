@@ -1060,6 +1060,7 @@ export const clientsAPI = {
 
   remove: id =>
     api.delete(`/clients/${encodeURIComponent(id)}`).then(r => r.data),
+  get: id => api.get(`/clients/${encodeURIComponent(id)}`).then(r => r.data),
 };
 
 export default api;

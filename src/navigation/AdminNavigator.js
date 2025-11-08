@@ -43,6 +43,7 @@ import AdminFinanceCreditNotes from '../modules/admin/finance/credit-notes/scree
 
 // import AdminClientScreen from '../modules/admin/client/screens/AdminClientScreen';
 import AdminClientsScreen from '../modules/admin/clients/screens/AdminClientsScreen';
+import AdminClientViewScreen from '../modules/admin/clients/view/screens/AdminClientViewScreen';
 
 // ---------------------------------------------------------------------------
 // PLACEHOLDERS (swap with real screens later)
@@ -115,6 +116,18 @@ function LeadsStack() {
     >
       <Stack.Screen name="LeadsContacts" component={AdminLeadContactsScreen} />
       <Stack.Screen name="LeadsDeals" component={AdminLeadsDealsScreen} />
+    </Stack.Navigator>
+  );
+}
+
+function Clients() {
+  return (
+    <Stack.Navigator
+      screenOptions={{ headerShown: false }}
+      initialRouteName="AdminClients"
+    >
+      <Stack.Screen name="AdminClients" component={AdminClientsScreen} />
+      <Stack.Screen name="AdminClientView" component={AdminClientViewScreen} />
     </Stack.Navigator>
   );
 }
@@ -617,7 +630,7 @@ export default function AdminNavigator() {
       />
       <Drawer.Screen
         name="Clients"
-        component={AdminClientsScreen}
+        component={Clients}
         options={{ title: 'Clients', drawerItemStyle: { height: 0 } }}
       />
       <Drawer.Screen
