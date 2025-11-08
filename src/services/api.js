@@ -1071,4 +1071,11 @@ export const clientProjectsAPI = {
       .then(r => r.data),
 };
 
+export const clientInvoicesAPI = {
+  listByClient: clientId =>
+    api
+      .get(`/api/invoices/client/${encodeURIComponent(clientId)}`)
+      .then(r => r.data),
+};
+
 export default api;

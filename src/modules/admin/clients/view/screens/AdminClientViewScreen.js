@@ -13,6 +13,7 @@ import { useRoute } from '@react-navigation/native';
 import { loadClient } from '../store/actions';
 import { selectClientDetail, selectClientDetailBusy } from '../store/selectors';
 import ClientProjectsTab from '../projects/ClientProjectsTab';
+import ClientInvoicesTab from '../invoices/ClientInvoicesTab';
 
 // ---------- Profile Tab ----------
 function ProfileTab() {
@@ -203,7 +204,7 @@ export default function AdminClientViewScreen() {
   const renderScene = SceneMap({
     profile: ProfileTab,
     projects: ClientProjectsTab,
-    invoices: () => <Placeholder label="Invoices" />,
+    invoices: ClientInvoicesTab,
     payments: () => <Placeholder label="Payments" />,
     creditNotes: () => <Placeholder label="Credit Notes" />,
     documents: () => <Placeholder label="Documents" />,
