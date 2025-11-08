@@ -14,6 +14,7 @@ import { loadClient } from '../store/actions';
 import { selectClientDetail, selectClientDetailBusy } from '../store/selectors';
 import ClientProjectsTab from '../projects/ClientProjectsTab';
 import ClientInvoicesTab from '../invoices/ClientInvoicesTab';
+import ClientPaymentsTab from '../payments/ClientPaymentsTab';
 
 // ---------- Profile Tab ----------
 function ProfileTab() {
@@ -205,7 +206,7 @@ export default function AdminClientViewScreen() {
     profile: ProfileTab,
     projects: ClientProjectsTab,
     invoices: ClientInvoicesTab,
-    payments: () => <Placeholder label="Payments" />,
+    payments: ClientPaymentsTab,
     creditNotes: () => <Placeholder label="Credit Notes" />,
     documents: () => <Placeholder label="Documents" />,
     notes: () => <Placeholder label="Notes" />,

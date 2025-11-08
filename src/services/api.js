@@ -1078,4 +1078,24 @@ export const clientInvoicesAPI = {
       .then(r => r.data),
 };
 
+// --- PAYMENTS (BY CLIENT) ---
+export const clientPaymentsAPI = {
+  // If your backend path differs, change it here.
+  listByClient: clientId =>
+    api
+      .get(`/api/payments/client/${encodeURIComponent(clientId)}`)
+      .then(r => r.data),
+
+  // Existing (edit/delete) endpoints you already shared earlier:
+  update: (paymentId, payload) =>
+    api
+      .put(`/api/payments/${encodeURIComponent(paymentId)}`, payload)
+      .then(r => r.data),
+
+  remove: paymentId =>
+    api
+      .delete(`/api/payments/${encodeURIComponent(paymentId)}`)
+      .then(r => r.data),
+};
+
 export default api;
