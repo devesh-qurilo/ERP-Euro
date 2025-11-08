@@ -8,6 +8,7 @@ import {
 import AuthNavigator from './AuthNavigator';
 import AdminNavigator from './AdminNavigator';
 import EmployeeNavigator from './EmployeeNavigator';
+import { navigationRef } from './rootNav';
 
 const AppNavigator = () => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
@@ -29,7 +30,11 @@ const AppNavigator = () => {
     return <AuthNavigator />;
   };
 
-  return <NavigationContainer>{getNavigator()}</NavigationContainer>;
+  return (
+    <NavigationContainer ref={navigationRef}>
+      {getNavigator()}
+    </NavigationContainer>
+  );
 };
 
 export default AppNavigator;

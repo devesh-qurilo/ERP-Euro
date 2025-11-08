@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useRoute } from '@react-navigation/native';
 import { loadClient } from '../store/actions';
 import { selectClientDetail, selectClientDetailBusy } from '../store/selectors';
+import ClientProjectsTab from '../projects/ClientProjectsTab';
 
 // ---------- Profile Tab ----------
 function ProfileTab() {
@@ -201,7 +202,7 @@ export default function AdminClientViewScreen() {
 
   const renderScene = SceneMap({
     profile: ProfileTab,
-    projects: () => <Placeholder label="Projects" />,
+    projects: ClientProjectsTab,
     invoices: () => <Placeholder label="Invoices" />,
     payments: () => <Placeholder label="Payments" />,
     creditNotes: () => <Placeholder label="Credit Notes" />,

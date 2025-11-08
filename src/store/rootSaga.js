@@ -39,6 +39,7 @@ import { creditNotesWatcher } from '../modules/admin/finance/credit-notes/store/
 import { adminClientsWatcher } from '../modules/admin/client/store/sagas';
 import { clientsWatcher } from '../modules/admin/clients/store/sagas';
 import { clientsViewWatcher } from '../modules/admin/clients/view/store/sagas';
+import { clientsViewProjectsWatcher } from '../modules/admin/clients/view/projects/store/sagas';
 
 // Root saga that combines all sagas
 export default function* rootSaga() {
@@ -77,6 +78,7 @@ export default function* rootSaga() {
     // adminClientsWatcher(),
     fork(clientsWatcher),
     fork(clientsViewWatcher),
+    fork(clientsViewProjectsWatcher),
   ]);
 }
 // adminFinanceInvoiceWatcher

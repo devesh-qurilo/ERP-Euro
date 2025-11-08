@@ -1063,4 +1063,12 @@ export const clientsAPI = {
   get: id => api.get(`/clients/${encodeURIComponent(id)}`).then(r => r.data),
 };
 
+// add near other project APIs
+export const clientProjectsAPI = {
+  listByClient: clientId =>
+    api
+      .get(`/api/projects/client/${encodeURIComponent(clientId)}`)
+      .then(r => r.data),
+};
+
 export default api;

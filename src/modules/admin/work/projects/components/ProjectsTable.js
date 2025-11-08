@@ -21,6 +21,7 @@ export default function ProjectsTable({
   onUnpin,
   onArchive,
   onUnarchive,
+  showClientColumn = true, // 👈 new prop (default true)
 }) {
   if (loading) return <ActivityIndicator style={{ marginTop: 20 }} />;
 
@@ -29,36 +30,45 @@ export default function ProjectsTable({
       <View style={styles.table}>
         {/* Header */}
         <View style={[styles.row, styles.head]}>
-          {[
-            'Code',
-            'Project Name',
-            'Members',
-            'Start Date',
-            'Deadline',
-            'Clients',
-            'Status',
-            'Actions',
-          ].map(h => (
-            <Text key={h} style={[styles.cell, styles.hcell]}>
-              {h}
+          <Text style={[styles.cell, styles.hcell]}>Code</Text>
+          <Text style={[styles.cell, styles.hcell, { minWidth: 220 }]}>
+            Project Name
+          </Text>
+          <Text style={[styles.cell, styles.hcell, { minWidth: 160 }]}>
+            Members
+          </Text>
+          <Text style={[styles.cell, styles.hcell]}>Start Date</Text>
+          <Text style={[styles.cell, styles.hcell]}>Deadline</Text>
+          {showClientColumn && (
+            <Text style={[styles.cell, styles.hcell, { minWidth: 200 }]}>
+              Client
             </Text>
-          ))}
+          )}
+          <Text style={[styles.cell, styles.hcell, { minWidth: 200 }]}>
+            Status
+          </Text>
+          <Text style={[styles.cell, styles.hcell, { minWidth: 220 }]}>
+            Actions
+          </Text>
         </View>
 
         {/* Rows */}
         {data.map(item => {
-          const isBusy = busyIds.includes(item.id);
+          const isBusy = busyIds.includes?.(item.id);
+
           return (
             <View key={item.id} style={styles.row}>
               <Text style={styles.cell}>#{item.shortCode || '—'}</Text>
+
               <Text style={[styles.cell, { minWidth: 220 }]} numberOfLines={1}>
-                {item.name}
+                {item.name || '—'}
               </Text>
+
               <View style={[styles.cell, styles.members]}>
                 {(item.assignedEmployees || []).slice(0, 4).map(m => (
                   <Image
                     key={m.employeeId}
-                    source={{ uri: m.profileUrl }}
+                    source={m.profileUrl ? { uri: m.profileUrl } : undefined}
                     style={styles.avatar}
                   />
                 ))}
@@ -70,21 +80,27 @@ export default function ProjectsTable({
                   </View>
                 )}
               </View>
+
               <Text style={styles.cell}>{item.startDate || '—'}</Text>
+
               <Text style={styles.cell}>
                 {item.deadline || (item.noDeadline ? 'No deadline' : '—')}
               </Text>
-              <View style={[styles.cell, styles.client]}>
-                {item.client?.profilePictureUrl ? (
-                  <Image
-                    source={{ uri: item.client.profilePictureUrl }}
-                    style={styles.clientPic}
-                  />
-                ) : null}
-                <Text numberOfLines={1} style={{ maxWidth: 160 }}>
-                  {item.client?.name || '—'}
-                </Text>
-              </View>
+
+              {showClientColumn && (
+                <View style={[styles.cell, styles.client]}>
+                  {item.client?.profilePictureUrl ? (
+                    <Image
+                      source={{ uri: item.client.profilePictureUrl }}
+                      style={styles.clientPic}
+                    />
+                  ) : null}
+                  <Text numberOfLines={1} style={{ maxWidth: 160 }}>
+                    {item.client?.name || '—'}
+                  </Text>
+                </View>
+              )}
+
               <View style={[styles.cell, styles.progress]}>
                 <Text>{item.projectStatus || '—'}</Text>
                 {item.progressPercent != null && (
@@ -101,10 +117,12 @@ export default function ProjectsTable({
               </View>
 
               <View style={[styles.cell, styles.actions]}>
-                <Pressable onPress={() => onView(item)} style={styles.dotBtn}>
+                <Pressable onPress={() => onView?.(item)} style={styles.dotBtn}>
                   <Text>👁️</Text>
                 </Pressable>
-                <Pressable onPress={() => onEdit?.(p)} style={styles.dotBtn}>
+
+                {/* ✅ FIX: use `item`, not `p` */}
+                <Pressable onPress={() => onEdit?.(item)} style={styles.dotBtn}>
                   <Text>✏️</Text>
                 </Pressable>
 
@@ -177,6 +195,7 @@ const styles = StyleSheet.create({
   head: { backgroundColor: '#f8fafc' },
   cell: { paddingVertical: 12, paddingHorizontal: 12, minWidth: 140 },
   hcell: { fontWeight: '800', color: '#111827' },
+
   members: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -197,6 +216,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   moreTxt: { fontSize: 12, fontWeight: '700' },
+
   client: { flexDirection: 'row', alignItems: 'center', gap: 8, minWidth: 200 },
   clientPic: {
     width: 28,
@@ -204,6 +224,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: '#e5e7eb',
   },
+
   progress: { minWidth: 200 },
   barWrap: {
     marginTop: 6,
@@ -221,6 +242,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1d4ed8',
   },
   barPct: { fontSize: 10, textAlign: 'center', color: '#fff' },
+
   actions: {
     flexDirection: 'row',
     alignItems: 'center',

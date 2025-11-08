@@ -16,6 +16,7 @@ function* fetchAll() {
 function* createProject({ payload }) {
   try {
     yield put({ type: T.AWP_BUSY, id: 'create', on: true });
+    console.log('clent project', payload);
     yield call(adminWorkProjectsAPI.create, payload);
     yield put({ type: T.AWP_CLOSE_MODAL });
     yield put({ type: T.AWP_FETCH_ALL });
