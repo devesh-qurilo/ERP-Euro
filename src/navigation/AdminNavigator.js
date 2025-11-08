@@ -41,6 +41,8 @@ import InvoicePaymentsScreen from '../modules/admin/finance/invoice/screens/Invo
 import CreditNotesScreen from '../modules/admin/finance/invoice/screens/CreditNotesScreen';
 import AdminFinanceCreditNotes from '../modules/admin/finance/credit-notes/screens/AdminFinanceCreditNotes';
 
+import AdminClientScreen from '../modules/admin/client/screens/AdminClientScreen';
+
 // ---------------------------------------------------------------------------
 // PLACEHOLDERS (swap with real screens later)
 // ---------------------------------------------------------------------------
@@ -531,7 +533,7 @@ function AdminDrawerContent(props) {
                   isSubItem
                 />
                 <GlassDrawerItem
-                  label="Deals"
+                  label="Credit Notes"
                   icon={icons.finance}
                   onPress={() => navigateTo('Finance', 'FinanceDeals')}
                   isActive={isActiveStack('Finance', 'FinanceDeals')}
@@ -614,7 +616,7 @@ export default function AdminNavigator() {
       />
       <Drawer.Screen
         name="Clients"
-        component={AdminClientsScreen}
+        component={AdminClientScreen}
         options={{ title: 'Clients', drawerItemStyle: { height: 0 } }}
       />
       <Drawer.Screen

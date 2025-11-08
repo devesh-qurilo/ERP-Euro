@@ -1021,4 +1021,46 @@ export const financeCreditNotesAPI = {
     api.delete(`/api/credit-notes/${encodeURIComponent(id)}`).then(r => r.data),
 };
 
+// --- ADMIN CLIENTS (exact to your contract) ---
+const toRNFile = f =>
+  f
+    ? {
+        uri: f.uri,
+        name: f.name || 'file',
+        type: f.type || 'application/octet-stream',
+      }
+    : null;
+
+export const adminClientsAPI = {
+  list: (params = {}) => api.get('/clients', { params }).then(r => r.data),
+  create: ({ client, profilePicture, companyLogo }) => {
+    const fd = new FormData();
+    fd.append('client', JSON.stringify(client));
+    const p = toRNFile(profilePicture);
+    const c = toRNFile(companyLogo);
+    if (p) fd.append('profilePicture', p);
+    if (c) fd.append('companyLogo', c);
+    return api
+      .post('/clients', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+  update: (id, { client, profilePicture, companyLogo }) => {
+    const fd = new FormData();
+    fd.append('client', JSON.stringify(client));
+    const p = toRNFile(profilePicture);
+    const c = toRNFile(companyLogo);
+    if (p) fd.append('profilePicture', p);
+    if (c) fd.append('companyLogo', c);
+    return api
+      .put(`/clients/${encodeURIComponent(id)}`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+  remove: id =>
+    api.delete(`/clients/${encodeURIComponent(id)}`).then(r => r.data),
+};
+
 export default api;
