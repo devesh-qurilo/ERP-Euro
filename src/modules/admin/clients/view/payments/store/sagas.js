@@ -1,6 +1,6 @@
 import { all, call, put, takeLatest } from 'redux-saga/effects';
 import * as T from './types';
-import { clientPaymentsAPI } from '../../../../../../services/api';
+import { clientPaymentsAPI, paymentsAPI } from '../../../../../../services/api';
 
 function* listByClientSaga({ payload: { clientId } }) {
   try {
@@ -29,6 +29,20 @@ function* updatePaymentSaga({ payload: { paymentId, payload, clientId } }) {
   }
 }
 
+function* createPaymentSaga({ payload: { payload, clientId } }) {
+  try {
+    const res = yield call(paymentsAPI.create, payload);
+    yield put({ type: T.CREATE_SUCCESS, payload: res });
+    // refresh same client list
+    yield put({ type: T.LIST_BY_CLIENT_REQUEST, payload: { clientId } });
+  } catch (e) {
+    yield put({
+      type: T.CREATE_FAILURE,
+      payload: e?.message || 'Failed to create payment',
+    });
+  }
+}
+
 function* deletePaymentSaga({ payload: { paymentId, clientId } }) {
   try {
     yield call(clientPaymentsAPI.remove, paymentId);
@@ -48,5 +62,6 @@ export function* clientsViewPaymentsWatcher() {
     takeLatest(T.LIST_BY_CLIENT_REQUEST, listByClientSaga),
     takeLatest(T.UPDATE_REQUEST, updatePaymentSaga),
     takeLatest(T.DELETE_REQUEST, deletePaymentSaga),
+    takeLatest(T.CREATE_REQUEST, createPaymentSaga),
   ]);
 }

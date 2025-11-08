@@ -1098,4 +1098,24 @@ export const clientPaymentsAPI = {
       .then(r => r.data),
 };
 
+// --- PAYMENTS (CREATE) ---
+export const paymentsAPI = {
+  create: async ({ payment, file }) => {
+    const fd = new FormData();
+    fd.append('payment', JSON.stringify(payment));
+    if (file) {
+      fd.append('file', {
+        uri: file.uri,
+        name: file.name || 'receipt.pdf',
+        type: file.type || 'application/octet-stream',
+      });
+    }
+    return api
+      .post('/api/payments', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+};
+
 export default api;

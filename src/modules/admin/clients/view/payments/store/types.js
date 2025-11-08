@@ -16,3 +16,10 @@ export const UPDATE_FAILURE = `${NS}/UPDATE_FAILURE`;
 export const DELETE_REQUEST = `${NS}/DELETE_REQUEST`;
 export const DELETE_SUCCESS = `${NS}/DELETE_SUCCESS`;
 export const DELETE_FAILURE = `${NS}/DELETE_FAILURE`;
+
+// ...
+export const CREATE_OPEN = `${NS}/CREATE_OPEN`;
+export const CREATE_CLOSE = `${NS}/CREATE_CLOSE`;
+export const CREATE_REQUEST = `${NS}/CREATE_REQUEST`;
+export const CREATE_SUCCESS = `${NS}/CREATE_SUCCESS`;
+export const CREATE_FAILURE = `${NS}/CREATE_FAILURE`;

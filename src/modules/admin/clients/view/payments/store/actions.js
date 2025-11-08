@@ -20,3 +20,14 @@ export const deletePayment = (paymentId, clientId) => ({
   type: T.DELETE_REQUEST,
   payload: { paymentId, clientId },
 });
+
+export const openCreate = (preset = {}) => ({
+  type: T.CREATE_OPEN,
+  payload: preset,
+});
+export const closeCreate = () => ({ type: T.CREATE_CLOSE });
+
+export const createPayment = (payload, clientId) => ({
+  type: T.CREATE_REQUEST,
+  payload: { payload, clientId },
+});

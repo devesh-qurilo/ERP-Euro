@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Linking,
   Alert,
+  Pressable,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
@@ -13,6 +14,13 @@ import { useFocusEffect, useRoute } from '@react-navigation/native';
 import PaymentsTable from './components/PaymentsTable';
 import PaymentViewModal from './components/PaymentViewModal';
 import PaymentEditModal from './components/PaymentEditModal';
+import PaymentCreateModal from './components/PaymentCreateModal';
+import { openCreate, closeCreate, createPayment } from './store/actions';
+import {
+  selectClientPaymentsCreateOpen,
+  selectClientPaymentsCreatingPreset,
+  selectClientPaymentsCreateBusy,
+} from './store/selectors';
 
 import {
   listByClient,
@@ -54,6 +62,10 @@ export default function ClientPaymentsTab() {
   const editing = useSelector(selectClientPaymentsEditing);
   const saving = useSelector(selectClientPaymentsSaving);
   const busyIds = useSelector(selectClientPaymentsBusyIds);
+
+  const createOpen = useSelector(selectClientPaymentsCreateOpen);
+  const creatingPreset = useSelector(selectClientPaymentsCreatingPreset);
+  const createBusy = useSelector(selectClientPaymentsCreateBusy);
 
   const [q, setQ] = useState('');
 
@@ -116,6 +128,25 @@ export default function ClientPaymentsTab() {
         )}
       </View>
 
+      <View style={{ marginTop: 8, flexDirection: 'row', gap: 8 }}>
+        <Pressable
+          style={[s.btn, s.primary]}
+          onPress={() => {
+            // preset helpful defaults from current context
+            dispatch(
+              openCreate({
+                clientId:
+                  route?.params?.client?.clientId ||
+                  route?.params?.clientId ||
+                  '',
+              }),
+            );
+          }}
+        >
+          <Text style={[s.btnTxt, { color: '#fff' }]}>+ Add Payment</Text>
+        </Pressable>
+      </View>
+
       {/* Table */}
       <PaymentsTable
         data={filtered}
@@ -142,6 +173,15 @@ export default function ClientPaymentsTab() {
         onClose={() => dispatch(closeEdit())}
         onSave={onSaveEdit}
       />
+
+      {/* Create Modal */}
+      <PaymentCreateModal
+        visible={createOpen}
+        preset={creatingPreset}
+        busy={createBusy}
+        onClose={() => dispatch(closeCreate())}
+        onSave={payload => dispatch(createPayment(payload, clientId))}
+      />
     </View>
   );
 }
@@ -165,4 +205,14 @@ const s = StyleSheet.create({
     backgroundColor: '#fff',
     color: '#111827',
   },
+  btn: {
+    borderWidth: 1,
+    borderColor: '#1d4ed8',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    alignItems: 'center',
+  },
+  btnTxt: { color: '#1d4ed8', fontWeight: '600' },
+  primary: { backgroundColor: '#1d4ed8', borderColor: '#1d4ed8' },
 });

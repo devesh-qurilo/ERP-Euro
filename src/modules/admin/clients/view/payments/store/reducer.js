@@ -14,6 +14,10 @@ const initial = {
 
   busy: false,
   busyIds: [],
+
+  createOpen: false,
+  creatingPreset: null,
+  createBusy: false,
 };
 
 export default function clientsViewPaymentsReducer(state = initial, action) {
@@ -88,6 +92,30 @@ export default function clientsViewPaymentsReducer(state = initial, action) {
         busy: false,
         busyIds: state.busyIds.filter(id => id !== action.meta?.paymentId),
         error: action.payload || 'Delete failed',
+      };
+    case T.CREATE_OPEN:
+      return {
+        ...state,
+        createOpen: true,
+        creatingPreset: action.payload || null,
+      };
+    case T.CREATE_CLOSE:
+      return { ...state, createOpen: false, creatingPreset: null };
+
+    case T.CREATE_REQUEST:
+      return { ...state, createBusy: true, error: null };
+    case T.CREATE_SUCCESS:
+      return {
+        ...state,
+        createBusy: false,
+        createOpen: false,
+        creatingPreset: null,
+      };
+    case T.CREATE_FAILURE:
+      return {
+        ...state,
+        createBusy: false,
+        error: action.payload || 'Create failed',
       };
 
     default:

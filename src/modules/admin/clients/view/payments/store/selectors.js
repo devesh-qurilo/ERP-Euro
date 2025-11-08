@@ -19,3 +19,10 @@ export const selectClientPaymentsSaving = s =>
   !!s?.admin?.clientsViewPayments?.busy;
 export const selectClientPaymentsBusyIds = s =>
   s?.admin?.clientsViewPayments?.busyIds || [];
+
+export const selectClientPaymentsCreateOpen = s =>
+  !!s?.admin?.clientsViewPayments?.createOpen;
+export const selectClientPaymentsCreatingPreset = s =>
+  s?.admin?.clientsViewPayments?.creatingPreset || {};
+export const selectClientPaymentsCreateBusy = s =>
+  !!s?.admin?.clientsViewPayments?.createBusy;
