@@ -40,9 +40,11 @@ import { adminClientsWatcher } from '../modules/admin/client/store/sagas';
 import { clientsWatcher } from '../modules/admin/clients/store/sagas';
 import { clientsViewWatcher } from '../modules/admin/clients/view/store/sagas';
 import { clientsViewProjectsWatcher } from '../modules/admin/clients/view/projects/store/sagas';
-import { clientsViewInvoicesWatcher } from '../modules/admin/clients/view/invoices/store/sagas';
+// import { clientsViewInvoicesWatcher } from '../modules/admin/clients/view/invoices/store/sagas';
 import { clientsViewInvoicesWatcher } from '../modules/admin/clients/view/invoices/store/sagas';
 import { clientsViewPaymentsWatcher } from '../modules/admin/clients/view/payments/store/sagas';
+
+import { clientsViewCreditNotesWatcher } from '../modules/admin/clients/view/credit-notes/store/sagas';
 
 // Root saga that combines all sagas
 export default function* rootSaga() {
@@ -84,6 +86,7 @@ export default function* rootSaga() {
     fork(clientsViewProjectsWatcher),
     fork(clientsViewInvoicesWatcher),
     fork(clientsViewPaymentsWatcher),
+    fork(clientsViewCreditNotesWatcher),
   ]);
 }
 // adminFinanceInvoiceWatcher

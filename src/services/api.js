@@ -1118,4 +1118,20 @@ export const paymentsAPI = {
   },
 };
 
+// --- CREDIT NOTES (CLIENT) ---
+export const clientCreditNotesAPI = {
+  listByClient: clientId =>
+    api
+      .get(`/api/credit-notes/client/${encodeURIComponent(clientId)}`)
+      .then(r => r.data),
+
+  update: (id, payload) =>
+    api
+      .put(`/api/credit-notes/${encodeURIComponent(id)}`, payload)
+      .then(r => r.data),
+
+  remove: id =>
+    api.delete(`/api/credit-notes/${encodeURIComponent(id)}`).then(r => r.data),
+};
+
 export default api;

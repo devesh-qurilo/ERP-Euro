@@ -1,3 +1,4 @@
+// src/modules/admin/clients/view/screens/AdminClientViewScreen.js
 import * as React from 'react';
 import {
   View,
@@ -7,7 +8,7 @@ import {
   TouchableOpacity,
   useWindowDimensions,
 } from 'react-native';
-import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import { TabView, TabBar } from 'react-native-tab-view';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRoute } from '@react-navigation/native';
 import { loadClient } from '../store/actions';
@@ -15,8 +16,9 @@ import { selectClientDetail, selectClientDetailBusy } from '../store/selectors';
 import ClientProjectsTab from '../projects/ClientProjectsTab';
 import ClientInvoicesTab from '../invoices/ClientInvoicesTab';
 import ClientPaymentsTab from '../payments/ClientPaymentsTab';
+import ClientCreditNotesTab from '../credit-notes/ClientCreditNotesTab';
 
-// ---------- Profile Tab ----------
+/* ---------------- Profile Tab (unchanged) ---------------- */
 function ProfileTab() {
   const data = useSelector(selectClientDetail);
   const busy = useSelector(selectClientDetailBusy);
@@ -52,7 +54,6 @@ function ProfileTab() {
 
   return (
     <ScrollView contentContainerStyle={{ padding: 12 }}>
-      {/* top card */}
       <View
         style={{
           borderWidth: 1,
@@ -96,7 +97,6 @@ function ProfileTab() {
         </TouchableOpacity>
       </View>
 
-      {/* Profile Information */}
       <View
         style={{
           borderWidth: 1,
@@ -125,7 +125,6 @@ function ProfileTab() {
         {row('Language', data.language || '—')}
       </View>
 
-      {/* Quick pie placeholders like screenshot (static for now) */}
       <View style={{ flexDirection: 'row', gap: 12 }}>
         <View
           style={{
@@ -172,45 +171,105 @@ function ProfileTab() {
   );
 }
 
-// ---------- Placeholder tabs (wire next) ----------
+/* ---------------- Placeholder ---------------- */
 const Placeholder = ({ label }) => (
   <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
     <Text style={{ color: '#6b7280' }}>{label} — coming up</Text>
   </View>
 );
 
-// ---------- Main screen with TabView ----------
+/* ---------------- Main Screen ---------------- */
 export default function AdminClientViewScreen() {
   const layout = useWindowDimensions();
   const route = useRoute();
   const dispatch = useDispatch();
-  const id =
-    route?.params?.id ?? route?.params?.clientId ?? route?.params?.client?.id;
 
+  // Resolve client identifiers from the navigation payload
+  const navClient = route?.params?.client || null;
+  const paramClientId =
+    route?.params?.clientId ?? route?.params?.id ?? navClient?.clientId;
+
+  // Load full client detail for Profile tab
   React.useEffect(() => {
-    if (id) dispatch(loadClient(id));
-  }, [id, dispatch]);
+    if (paramClientId) dispatch(loadClient(paramClientId));
+  }, [paramClientId, dispatch]);
 
+  // Build routes WITH client data embedded (so each tab receives it)
   const [index, setIndex] = React.useState(0);
-  const [routes] = React.useState([
-    { key: 'profile', title: 'Profile' },
-    { key: 'projects', title: 'Projects' },
-    { key: 'invoices', title: 'Invoices' },
-    { key: 'payments', title: 'Payments' },
-    { key: 'creditNotes', title: 'Credit Note' },
-    { key: 'documents', title: 'Documents' },
-    { key: 'notes', title: 'Notes' },
-  ]);
+  const routes = React.useMemo(
+    () => [
+      {
+        key: 'profile',
+        title: 'Profile',
+        clientId: paramClientId,
+        client: navClient,
+      },
+      {
+        key: 'projects',
+        title: 'Projects',
+        clientId: paramClientId,
+        client: navClient,
+      },
+      {
+        key: 'invoices',
+        title: 'Invoices',
+        clientId: paramClientId,
+        client: navClient,
+      },
+      {
+        key: 'payments',
+        title: 'Payments',
+        clientId: paramClientId,
+        client: navClient,
+      },
+      {
+        key: 'creditNotes',
+        title: 'Credit Note',
+        clientId: paramClientId,
+        client: navClient,
+      },
+      {
+        key: 'documents',
+        title: 'Documents',
+        clientId: paramClientId,
+        client: navClient,
+      },
+      {
+        key: 'notes',
+        title: 'Notes',
+        clientId: paramClientId,
+        client: navClient,
+      },
+    ],
+    [paramClientId, navClient],
+  );
 
-  const renderScene = SceneMap({
-    profile: ProfileTab,
-    projects: ClientProjectsTab,
-    invoices: ClientInvoicesTab,
-    payments: ClientPaymentsTab,
-    creditNotes: () => <Placeholder label="Credit Notes" />,
-    documents: () => <Placeholder label="Documents" />,
-    notes: () => <Placeholder label="Notes" />,
-  });
+  // DO NOT use SceneMap; inject route params manually to each tab
+  const renderScene = ({ route }) => {
+    const injected = {
+      ...route,
+      params: { clientId: route.clientId, client: route.client },
+    };
+
+    switch (route.key) {
+      case 'profile':
+        return <ProfileTab />;
+      case 'projects':
+        return <ClientProjectsTab route={injected} />;
+      case 'invoices':
+        return <ClientInvoicesTab route={injected} />;
+      case 'payments':
+        return <ClientPaymentsTab route={injected} />;
+      case 'creditNotes':
+        return <ClientCreditNotesTab route={injected} />;
+      case 'documents':
+        return <Placeholder label="Documents" />;
+      case 'notes':
+        return <Placeholder label="Notes" />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <TabView

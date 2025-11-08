@@ -37,9 +37,10 @@ import adminClientsReducer from '../modules/admin/client/store/reducers';
 import clientsReducer from '../modules/admin/clients/store/reducers';
 import clientsViewReducer from '../modules/admin/clients/view/store/reducer';
 import clientsViewProjectsReducer from '../modules/admin/clients/view/projects/store/reducer';
-import clientsViewInvoicesReducer from '../modules/admin/clients/view/invoices/store/reducer';
+// import clientsViewInvoicesReducer from '../modules/admin/clients/view/invoices/store/reducer';
 import clientsViewInvoicesReducer from '../modules/admin/clients/view/invoices/store/reducer';
 import clientsViewPaymentsReducer from '../modules/admin/clients/view/payments/store/reducer';
+import clientsViewCreditNotesReducer from '../modules/admin/clients/view/credit-notes/store/reducer';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -90,7 +91,9 @@ const rootReducer = combineReducers({
     clientsViewProjects: clientsViewProjectsReducer,
     clientsViewInvoices: clientsViewInvoicesReducer,
     clientsViewPayments: clientsViewPaymentsReducer,
+    clientsViewCreditNotes: clientsViewCreditNotesReducer,
   }),
 });
 
 export default rootReducer;
+clientsViewInvoicesReducer;
