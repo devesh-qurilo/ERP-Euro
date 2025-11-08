@@ -18,7 +18,7 @@ function* createClientWorker({ payload }) {
   try {
     const res = yield call(adminClientsAPI.create, payload);
     yield put({ type: T.CREATE_CLIENT_SUCCESS, payload: res });
-    yield fetchClientsWorker({}); // refresh
+    yield put({ type: T.FETCH_CLIENTS_REQUEST }); // refresh from server
     yield put({ type: T.SET_CLIENT_MODAL, visible: false }); // close modal
     yield put({ type: T.SET_SELECTED_CLIENT, client: null });
   } catch (error) {
@@ -28,10 +28,12 @@ function* createClientWorker({ payload }) {
 
 function* updateClientWorker({ id, payload }) {
   try {
-    const res = yield call(adminClientsAPI.update, id, payload);
-    yield put({ type: T.UPDATE_CLIENT_SUCCESS, payload: res });
-    yield fetchClientsWorker({});
-    yield put({ type: T.SET_CLIENT_MODAL, visible: false });
+    // some backends return {message: "..."} only; so ALWAYS refresh after update
+    yield call(adminClientsAPI.update, id, payload);
+    yield put({ type: T.UPDATE_CLIENT_SUCCESS, payload: { id } }); // optimistic
+    yield put({ type: T.FETCH_CLIENTS_REQUEST }); // authoritative refresh
+    yield put({ type: T.SET_CLIENT_MODAL, visible: false }); // close modal
+    yield put({ type: T.SET_SELECTED_CLIENT, client: null });
   } catch (error) {
     yield put({ type: T.UPDATE_CLIENT_FAILURE, error });
   }

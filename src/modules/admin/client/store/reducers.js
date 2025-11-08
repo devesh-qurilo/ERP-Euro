@@ -61,18 +61,24 @@ export default function adminClientsReducer(state = initial, action) {
         saving: false,
         items: [action.payload, ...state.items],
       };
-    case T.UPDATE_CLIENT_SUCCESS:
-      return {
-        ...state,
-        saving: false,
-        items: state.items.map(x =>
-          x.id === action.payload.id ? action.payload : x,
-        ),
-        selected:
-          state.selected?.id === action.payload.id
-            ? action.payload
-            : state.selected,
-      };
+    // case T.UPDATE_CLIENT_SUCCESS:
+    //   return {
+    //     ...state,
+    //     saving: false,
+    //     items: state.items.map(x =>
+    //       x.id === action.payload.id ? action.payload : x,
+    //     ),
+    //     selected:
+    //       state.selected?.id === action.payload.id
+    //         ? action.payload
+    //         : state.selected,
+    //   };
+
+    case T.UPDATE_CLIENT_SUCCESS: {
+      const { id } = action.payload || {};
+      // we immediately refresh list after, so just noop/mark saving=false
+      return { ...state, saving: false };
+    }
     case T.DELETE_CLIENT_SUCCESS:
       return {
         ...state,

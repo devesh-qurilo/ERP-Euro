@@ -41,7 +41,8 @@ import InvoicePaymentsScreen from '../modules/admin/finance/invoice/screens/Invo
 import CreditNotesScreen from '../modules/admin/finance/invoice/screens/CreditNotesScreen';
 import AdminFinanceCreditNotes from '../modules/admin/finance/credit-notes/screens/AdminFinanceCreditNotes';
 
-import AdminClientScreen from '../modules/admin/client/screens/AdminClientScreen';
+// import AdminClientScreen from '../modules/admin/client/screens/AdminClientScreen';
+import AdminClientsScreen from '../modules/admin/clients/screens/AdminClientsScreen';
 
 // ---------------------------------------------------------------------------
 // PLACEHOLDERS (swap with real screens later)
@@ -54,7 +55,7 @@ const P = ({ title }) => (
 );
 
 const AdminDashboardScreen = () => <P title="Admin • Dashboard" />;
-const AdminClientsScreen = () => <P title="Admin • Clients" />;
+// const AdminClientsScreen = () => <P title="Admin • Clients" />;
 const AdminMessagesScreen = () => <P title="Admin • Messages" />;
 
 const AdminLeadsDealsScreen = () => <P title="Leads • Deals" />;
@@ -616,7 +617,7 @@ export default function AdminNavigator() {
       />
       <Drawer.Screen
         name="Clients"
-        component={AdminClientScreen}
+        component={AdminClientsScreen}
         options={{ title: 'Clients', drawerItemStyle: { height: 0 } }}
       />
       <Drawer.Screen

@@ -1031,34 +1031,33 @@ const toRNFile = f =>
       }
     : null;
 
-export const adminClientsAPI = {
+export const clientsAPI = {
   list: (params = {}) => api.get('/clients', { params }).then(r => r.data),
-  create: ({ client, profilePicture, companyLogo }) => {
+
+  create: async ({ client, profilePicture, companyLogo }) => {
     const fd = new FormData();
     fd.append('client', JSON.stringify(client));
-    const p = toRNFile(profilePicture);
-    const c = toRNFile(companyLogo);
-    if (p) fd.append('profilePicture', p);
-    if (c) fd.append('companyLogo', c);
+    if (profilePicture) fd.append('profilePicture', profilePicture); // {uri,name,type}
+    if (companyLogo) fd.append('companyLogo', companyLogo);
     return api
       .post('/clients', fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       .then(r => r.data);
   },
-  update: (id, { client, profilePicture, companyLogo }) => {
+
+  update: async (id, { client, profilePicture, companyLogo }) => {
     const fd = new FormData();
     fd.append('client', JSON.stringify(client));
-    const p = toRNFile(profilePicture);
-    const c = toRNFile(companyLogo);
-    if (p) fd.append('profilePicture', p);
-    if (c) fd.append('companyLogo', c);
+    if (profilePicture) fd.append('profilePicture', profilePicture);
+    if (companyLogo) fd.append('companyLogo', companyLogo);
     return api
       .put(`/clients/${encodeURIComponent(id)}`, fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       .then(r => r.data);
   },
+
   remove: id =>
     api.delete(`/clients/${encodeURIComponent(id)}`).then(r => r.data),
 };

@@ -34,6 +34,7 @@ import adminFinanceInvoiceReducer from '../modules/admin/finance/invoice/store/r
 import creditNotesReducer from '../modules/admin/finance/credit-notes/store/reducer';
 
 import adminClientsReducer from '../modules/admin/client/store/reducers';
+import clientsReducer from '../modules/admin/clients/store/reducers';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -78,7 +79,8 @@ const rootReducer = combineReducers({
       invoice: adminFinanceInvoiceReducer,
       creditNotes: creditNotesReducer,
     }),
-    clients: adminClientsReducer,
+    // clients: adminClientsReducer,
+    clients: clientsReducer,
   }),
 });
 
