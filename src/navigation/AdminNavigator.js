@@ -47,6 +47,7 @@ import AdminClientViewScreen from '../modules/admin/clients/view/screens/AdminCl
 
 import AdminDealScreen from '../modules/admin/leads/deals/screens/AdminDealScreen';
 import AdminDealViewScreen from '../modules/admin/leads/deals/screens/AdminDealViewScreen';
+import AdminWorkTaskScreen from '../modules/admin/work/tasks/screens/AdminWorkTaskScreen';
 
 // ---------------------------------------------------------------------------
 // PLACEHOLDERS (swap with real screens later)
@@ -169,7 +170,7 @@ function WorkStack() {
       initialRouteName="WorkProjects"
     >
       <Stack.Screen name="WorkProjects" component={AdminWorkProjectsScreen} />
-      <Stack.Screen name="WorkTasks" component={AdminWorkTasksScreen} />
+      <Stack.Screen name="WorkTasks" component={AdminWorkTaskScreen} />
       <Stack.Screen
         name="AdminProjectView"
         component={AdminProjectViewScreen}

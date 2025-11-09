@@ -1314,4 +1314,26 @@ export const adminDealViewAPI = {
       .then(r => r.data),
 };
 
+// --- ADMIN TASKS (INDEPENDENT) ---
+export const adminTasksAPI = {
+  // master list (independent of project/employee)
+  listAll: () => api.get('/api/projects/tasks/getAll').then(r => r.data),
+
+  // create (multipart)
+  create: payload => adminProjectTasksAPI.create(payload),
+
+  // update (multipart)
+  update: (taskId, payload) => adminProjectTasksAPI.update(taskId, payload),
+
+  // delete
+  remove: taskId =>
+    api
+      .delete(`/api/projects/tasks/${encodeURIComponent(taskId)}/delete`)
+      .then(r => r.data),
+
+  // pin / unpin
+  pin: taskId => taskPinAPI.pin(taskId),
+  unpin: taskId => taskPinAPI.unpin(taskId),
+};
+
 export default api;

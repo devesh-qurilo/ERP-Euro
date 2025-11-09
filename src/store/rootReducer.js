@@ -45,6 +45,7 @@ import clientsViewDocumentsReducer from '../modules/admin/clients/view/documents
 import clientsViewNotesReducer from '../modules/admin/clients/view/notes/store/reducer';
 import adminDealsReducer from '../modules/admin/leads/deals/store/reducer';
 import adminDealsViewReducer from '../modules/admin/leads/deals/view/store/reducer';
+import adminTasksReducer from '../modules/admin/work/tasks/store/reducer';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -84,6 +85,7 @@ const rootReducer = combineReducers({
     work: combineReducers({
       projects: adminWorkProjectsReducer, // ← mount here
       tasks: tasksReducer,
+      tasks: adminTasksReducer,
     }),
     finance: combineReducers({
       invoice: adminFinanceInvoiceReducer,
