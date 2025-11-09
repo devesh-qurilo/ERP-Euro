@@ -17,6 +17,7 @@ import ClientProjectsTab from '../projects/ClientProjectsTab';
 import ClientInvoicesTab from '../invoices/ClientInvoicesTab';
 import ClientPaymentsTab from '../payments/ClientPaymentsTab';
 import ClientCreditNotesTab from '../credit-notes/ClientCreditNotesTab';
+import ClientDocumentsTab from '../documents/ClientDocumentsTab';
 
 /* ---------------- Profile Tab (unchanged) ---------------- */
 function ProfileTab() {
@@ -263,7 +264,7 @@ export default function AdminClientViewScreen() {
       case 'creditNotes':
         return <ClientCreditNotesTab route={injected} />;
       case 'documents':
-        return <Placeholder label="Documents" />;
+        return <ClientDocumentsTab route={injected} />;
       case 'notes':
         return <Placeholder label="Notes" />;
       default:

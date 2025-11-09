@@ -45,6 +45,7 @@ import { clientsViewInvoicesWatcher } from '../modules/admin/clients/view/invoic
 import { clientsViewPaymentsWatcher } from '../modules/admin/clients/view/payments/store/sagas';
 
 import { clientsViewCreditNotesWatcher } from '../modules/admin/clients/view/credit-notes/store/sagas';
+import { clientsViewDocumentsWatcher } from '../modules/admin/clients/view/documents/store/sagas';
 
 // Root saga that combines all sagas
 export default function* rootSaga() {
@@ -87,6 +88,7 @@ export default function* rootSaga() {
     fork(clientsViewInvoicesWatcher),
     fork(clientsViewPaymentsWatcher),
     fork(clientsViewCreditNotesWatcher),
+    fork(clientsViewDocumentsWatcher),
   ]);
 }
 // adminFinanceInvoiceWatcher

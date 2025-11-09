@@ -1134,4 +1134,43 @@ export const clientCreditNotesAPI = {
     api.delete(`/api/credit-notes/${encodeURIComponent(id)}`).then(r => r.data),
 };
 
+// --- Client Documents (per client) ---
+export const clientDocumentsAPI = {
+  list: clientId =>
+    api
+      .get(`/clients/${encodeURIComponent(clientId)}/documents`)
+      .then(r => r.data),
+
+  upload: (clientId, file /* { uri, name, type } */) => {
+    const fd = new FormData();
+    fd.append('file', {
+      uri: file.uri,
+      name: file.name || 'upload.bin',
+      type: file.type || 'application/octet-stream',
+    });
+    return api
+      .post(`/clients/${encodeURIComponent(clientId)}/documents`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+
+  remove: (clientId, docId) =>
+    api
+      .delete(
+        `/clients/${encodeURIComponent(
+          clientId,
+        )}/documents/${encodeURIComponent(docId)}`,
+      )
+      .then(r => r.data),
+
+  // NOTE: Mobile me download ko usually open URL se handle karte hain (Linking),
+  // agar API direct attachment return karta hai to aap RNFS/FileViewer se save/open kar sakte ho.
+  // Yaha hum UI me Linking.openURL fallback karenge.
+  downloadUrl: (clientId, docId) =>
+    `${API_BASE_URL.replace(/\/+$/, '')}/clients/${encodeURIComponent(
+      clientId,
+    )}/documents/${encodeURIComponent(docId)}`,
+};
+
 export default api;
