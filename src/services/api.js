@@ -1173,4 +1173,34 @@ export const clientDocumentsAPI = {
     )}/documents/${encodeURIComponent(docId)}`,
 };
 
+// --- Client Notes ---
+export const clientNotesAPI = {
+  list: clientId =>
+    api.get(`/clients/${encodeURIComponent(clientId)}/notes`).then(r => r.data),
+
+  create: (clientId, payload /* { title, detail, type } */) =>
+    api
+      .post(`/clients/${encodeURIComponent(clientId)}/notes`, payload)
+      .then(r => r.data),
+
+  update: (clientId, noteId, payload) =>
+    api
+      .put(
+        `/clients/${encodeURIComponent(clientId)}/notes/${encodeURIComponent(
+          noteId,
+        )}`,
+        payload,
+      )
+      .then(r => r.data),
+
+  remove: (clientId, noteId) =>
+    api
+      .delete(
+        `/clients/${encodeURIComponent(clientId)}/notes/${encodeURIComponent(
+          noteId,
+        )}`,
+      )
+      .then(r => r.data),
+};
+
 export default api;
