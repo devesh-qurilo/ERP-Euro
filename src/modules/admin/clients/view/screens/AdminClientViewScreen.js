@@ -187,14 +187,24 @@ export default function AdminClientViewScreen() {
   const dispatch = useDispatch();
 
   // Resolve client identifiers from the navigation payload
+  //   const navClient = route?.params?.client || null;
+  //   const paramClientId =
+  //     route?.params?.clientId ?? route?.params?.id ?? navClient?.clientId;
+
   const navClient = route?.params?.client || null;
-  const paramClientId =
-    route?.params?.clientId ?? route?.params?.id ?? navClient?.clientId;
+  // numeric DB id for /clients/:id
+  const paramId = route?.params?.id ?? navClient?.id;
+  // external code like "CLI001" for children tabs
+  const paramClientId = route?.params?.clientId ?? navClient?.clientId;
 
   // Load full client detail for Profile tab
+  //   React.useEffect(() => {
+  //     if (paramClientId) dispatch(loadClient(paramClientId));
+  //   }, [paramClientId, dispatch]);
+
   React.useEffect(() => {
-    if (paramClientId) dispatch(loadClient(paramClientId));
-  }, [paramClientId, dispatch]);
+    if (paramId) dispatch(loadClient(paramId));
+  }, [paramId, dispatch]);
 
   // Build routes WITH client data embedded (so each tab receives it)
   const [index, setIndex] = React.useState(0);
@@ -267,7 +277,7 @@ export default function AdminClientViewScreen() {
       case 'documents':
         return <ClientDocumentsTab route={injected} />;
       case 'notes':
-        return <ClientNotesTab />;
+        return <ClientNotesTab route={injected} />;
       default:
         return null;
     }
