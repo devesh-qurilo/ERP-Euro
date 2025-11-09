@@ -45,6 +45,9 @@ import AdminFinanceCreditNotes from '../modules/admin/finance/credit-notes/scree
 import AdminClientsScreen from '../modules/admin/clients/screens/AdminClientsScreen';
 import AdminClientViewScreen from '../modules/admin/clients/view/screens/AdminClientViewScreen';
 
+import AdminDealScreen from '../modules/admin/leads/deals/screens/AdminDealScreen';
+import AdminDealViewScreen from '../modules/admin/leads/deals/screens/AdminDealViewScreen';
+
 // ---------------------------------------------------------------------------
 // PLACEHOLDERS (swap with real screens later)
 // ---------------------------------------------------------------------------
@@ -59,7 +62,7 @@ const AdminDashboardScreen = () => <P title="Admin • Dashboard" />;
 // const AdminClientsScreen = () => <P title="Admin • Clients" />;
 const AdminMessagesScreen = () => <P title="Admin • Messages" />;
 
-const AdminLeadsDealsScreen = () => <P title="Leads • Deals" />;
+// const AdminLeadsDealsScreen = () => <P title="Leads • Deals" />;
 
 const AdminHREmployeesScreen = () => <P title="HR • Employees" />;
 const AdminHRLeavesScreen = () => <P title="HR • Leaves" />;
@@ -114,8 +117,10 @@ function LeadsStack() {
       screenOptions={{ headerShown: false }}
       initialRouteName="LeadsContacts"
     >
+      <Stack.Screen name="AdminDeal" component={AdminDealScreen} />
+      <Stack.Screen name="AdminDealView" component={AdminDealViewScreen} />
       <Stack.Screen name="LeadsContacts" component={AdminLeadContactsScreen} />
-      <Stack.Screen name="LeadsDeals" component={AdminLeadsDealsScreen} />
+      {/* <Stack.Screen name="LeadsDeals" component={AdminLeadsDealsScreen} /> */}
     </Stack.Navigator>
   );
 }
@@ -414,8 +419,8 @@ function AdminDrawerContent(props) {
                 <GlassDrawerItem
                   label="Deals"
                   icon={icons.leads}
-                  onPress={() => navigateTo('Leads', 'LeadsDeals')}
-                  isActive={isActiveStack('Leads', 'LeadsDeals')}
+                  onPress={() => navigateTo('Leads', 'AdminDeal')}
+                  isActive={isActiveStack('Leads', 'AdminDeal')}
                   isSubItem
                 />
               </View>

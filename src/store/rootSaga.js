@@ -48,6 +48,7 @@ import { clientsViewCreditNotesWatcher } from '../modules/admin/clients/view/cre
 import { clientsViewDocumentsWatcher } from '../modules/admin/clients/view/documents/store/sagas';
 
 import { clientsViewNotesWatcher } from '../modules/admin/clients/view/notes/store/sagas';
+import adminDealsWatcher from '../modules/admin/leads/deals/store/sagas';
 
 // Root saga that combines all sagas
 export default function* rootSaga() {
@@ -69,6 +70,7 @@ export default function* rootSaga() {
     weeklyWatcher(),
     chatWatcher(),
     adminLeadsWatcher(),
+    fork(adminDealsWatcher),
     adminSettingsWatcher(),
     adminDesignationsWatcher(),
     adminDepartmentsWatcher(),

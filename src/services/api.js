@@ -1203,4 +1203,20 @@ export const clientNotesAPI = {
       .then(r => r.data),
 };
 
+// --- ADMIN DEALS ---
+export const adminDealsAPI = {
+  list: (params = {}) => api.get('/deals', { params }).then(r => r.data),
+  get: id => api.get(`/deals/${encodeURIComponent(id)}`).then(r => r.data),
+  create: (payload /* JSON */) => api.post('/deals', payload).then(r => r.data),
+  update: (id, payload /* JSON */) =>
+    api.put(`/deals/${encodeURIComponent(id)}`, payload).then(r => r.data),
+  remove: id =>
+    api.delete(`/deals/${encodeURIComponent(id)}`).then(r => r.data),
+
+  addFollowup: (dealId, payload /* JSON */) =>
+    api
+      .post(`/deals/${encodeURIComponent(dealId)}/followups`, payload)
+      .then(r => r.data),
+};
+
 export default api;
