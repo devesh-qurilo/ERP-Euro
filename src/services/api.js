@@ -1219,4 +1219,99 @@ export const adminDealsAPI = {
       .then(r => r.data),
 };
 
+// ---- DEAL VIEW SUB-APIS (comments, tags, documents, notes, followups)
+export const adminDealViewAPI = {
+  // COMMENTS
+  listComments: dealId =>
+    api.get(`/deals/${encodeURIComponent(dealId)}/comments`).then(r => r.data),
+  addComment: (dealId, payload) =>
+    api
+      .post(`/deals/${encodeURIComponent(dealId)}/comments`, payload)
+      .then(r => r.data),
+  updateComment: (dealId, commentId, payload) =>
+    api
+      .put(
+        `/deals/${encodeURIComponent(dealId)}/comments/${encodeURIComponent(
+          commentId,
+        )}`,
+        payload,
+      )
+      .then(r => r.data),
+  deleteComment: (dealId, commentId) =>
+    api
+      .delete(
+        `/deals/${encodeURIComponent(dealId)}/comments/${encodeURIComponent(
+          commentId,
+        )}`,
+      )
+      .then(r => r.data),
+
+  // TAGS
+  listTags: dealId =>
+    api.get(`/deals/${encodeURIComponent(dealId)}/tags`).then(r => r.data),
+  addTag: (dealId, payload /* { tagName } */) =>
+    api
+      .post(`/deals/${encodeURIComponent(dealId)}/tags`, payload)
+      .then(r => r.data),
+  deleteTag: (dealId, tagId) =>
+    api
+      .delete(
+        `/deals/${encodeURIComponent(dealId)}/tags/${encodeURIComponent(
+          tagId,
+        )}`,
+      )
+      .then(r => r.data),
+
+  // DOCUMENTS
+  listDocuments: dealId =>
+    api.get(`/deals/${encodeURIComponent(dealId)}/documents`).then(r => r.data),
+  uploadDocument: (dealId, file /* {uri,name,type} */) => {
+    const fd = new FormData();
+    fd.append('file', {
+      uri: file.uri,
+      name: file.name || 'upload.bin',
+      type: file.type || 'application/octet-stream',
+    });
+    return api
+      .post(`/deals/${encodeURIComponent(dealId)}/documents`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+
+  // NOTES
+  listNotes: dealId =>
+    api.get(`/deals/${encodeURIComponent(dealId)}/notes`).then(r => r.data),
+  addNote: (dealId, payload) =>
+    api
+      .post(`/deals/${encodeURIComponent(dealId)}/notes`, payload)
+      .then(r => r.data),
+  updateNote: (dealId, noteId, payload) =>
+    api
+      .put(
+        `/deals/${encodeURIComponent(dealId)}/notes/${encodeURIComponent(
+          noteId,
+        )}`,
+        payload,
+      )
+      .then(r => r.data),
+
+  // FOLLOWUPS
+  listFollowups: dealId =>
+    api.get(`/deals/${encodeURIComponent(dealId)}/followups`).then(r => r.data),
+  addFollowup: (dealId, payload) =>
+    api
+      .post(`/deals/${encodeURIComponent(dealId)}/followups`, payload)
+      .then(r => r.data),
+  updateFollowup: (dealId, followupId, payload) =>
+    api
+      .put(
+        `/deals/${encodeURIComponent(dealId)}/followups/${encodeURIComponent(
+          followupId,
+        )}`,
+        payload,
+      )
+      .then(r => r.data),
+};
+
 export default api;
