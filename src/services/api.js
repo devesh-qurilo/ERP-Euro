@@ -1315,23 +1315,45 @@ export const adminDealViewAPI = {
 };
 
 // --- ADMIN TASKS (INDEPENDENT) ---
+// export const adminTasksAPI = {
+//   // master list (independent of project/employee)
+//   listAll: () => api.get('/api/projects/tasks/getAll').then(r => r.data),
+
+//   // create (multipart)
+//   create: payload => adminProjectTasksAPI.create(payload),
+
+//   // update (multipart)
+//   update: (taskId, payload) => adminProjectTasksAPI.update(taskId, payload),
+
+//   // delete
+//   remove: taskId =>
+//     api
+//       .delete(`/api/projects/tasks/${encodeURIComponent(taskId)}/delete`)
+//       .then(r => r.data),
+
+//   // pin / unpin
+//   pin: taskId => taskPinAPI.pin(taskId),
+//   unpin: taskId => taskPinAPI.unpin(taskId),
+// };
+
+// --- ADMIN TASKS (ALL) ---  // 🔁 reusable by shared/tasks saga
 export const adminTasksAPI = {
-  // master list (independent of project/employee)
+  // LIST ALL
   listAll: () => api.get('/api/projects/tasks/getAll').then(r => r.data),
 
-  // create (multipart)
-  create: payload => adminProjectTasksAPI.create(payload),
+  // CREATE (re-use your tasksAPI multipart)
+  create: formData => tasksAPI.create(formData),
 
-  // update (multipart)
+  // UPDATE (re-use your adminProjectTasksAPI.update)
   update: (taskId, payload) => adminProjectTasksAPI.update(taskId, payload),
 
-  // delete
+  // DELETE (as per your spec: /api/projects/tasks/{taskId}/delete)
   remove: taskId =>
     api
       .delete(`/api/projects/tasks/${encodeURIComponent(taskId)}/delete`)
       .then(r => r.data),
 
-  // pin / unpin
+  // PIN / UNPIN (already have these)
   pin: taskId => taskPinAPI.pin(taskId),
   unpin: taskId => taskPinAPI.unpin(taskId),
 };

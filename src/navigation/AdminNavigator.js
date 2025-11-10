@@ -47,7 +47,7 @@ import AdminClientViewScreen from '../modules/admin/clients/view/screens/AdminCl
 
 import AdminDealScreen from '../modules/admin/leads/deals/screens/AdminDealScreen';
 import AdminDealViewScreen from '../modules/admin/leads/deals/screens/AdminDealViewScreen';
-import AdminWorkTaskScreen from '../modules/admin/work/tasks/screens/AdminWorkTaskScreen';
+import AdminWorkTaskScreen from '../modules/admin/work/Task/screens/AdminWorkTaskScreen';
 import AdminTaskDetailScreen from '../modules/admin/work/tasks/screens/AdminTaskDetailScreen';
 
 // ---------------------------------------------------------------------------

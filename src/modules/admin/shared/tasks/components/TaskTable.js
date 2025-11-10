@@ -7,20 +7,17 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { HeaderCol } from './ui';
-import TaskRow from './TaskRow';
-import HideCompleted from './TaskListHideCompleted';
+import TaskRow from '../../../work/tasks/components/TaskRow';
 
-export default function TaskListCard({
-  title,
+export default function TaskTable({
   data,
   busy,
   total,
-  hideCompleted,
-  onToggleHide,
   onView,
   onEdit,
   onDelete,
   onTogglePin,
+  titleSlot,
 }) {
   return (
     <View
@@ -32,17 +29,8 @@ export default function TaskListCard({
         padding: 12,
       }}
     >
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 8,
-        }}
-      >
-        <Text style={{ fontSize: 20, fontWeight: '700' }}>{title}</Text>
-        <HideCompleted active={hideCompleted} onToggle={onToggleHide} />
-      </View>
+      {/* optional header slot (e.g., "Task Details" + Hide Completed chip) */}
+      {titleSlot}
 
       <View
         style={{

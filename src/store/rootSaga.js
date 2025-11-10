@@ -52,6 +52,8 @@ import adminDealsWatcher from '../modules/admin/leads/deals/store/sagas';
 import dealsViewWatcher from '../modules/admin/leads/deals/view/store/sagas';
 import { adminTasksWatcher } from '../modules/admin/work/tasks/store/sagas';
 
+import tasksWatcher from '../modules/admin/shared/tasks/store/sagas';
+
 // Root saga that combines all sagas
 export default function* rootSaga() {
   yield all([
@@ -98,6 +100,7 @@ export default function* rootSaga() {
     fork(clientsViewNotesWatcher),
     fork(dealsViewWatcher),
     fork(adminTasksWatcher),
+    fork(tasksWatcher),
   ]);
 }
 // adminFinanceInvoiceWatcher
