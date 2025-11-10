@@ -14,6 +14,7 @@ import {
   deleteTask,
   pinTask,
   unpinTask,
+  setScope,
 } from '../../tasks/store/actions';
 
 import {
@@ -24,6 +25,7 @@ import {
   selectView,
   selectModal,
   selectTotal,
+  selectScope,
 } from '../../tasks/store/selectors';
 
 import HeaderToolbar from '../components/HeaderToolbar';
@@ -37,6 +39,7 @@ const isPinned = t => t?.pinned === true || !!t?.pinnedAt;
 export default function AdminWorkTaskScreen() {
   const dispatch = useDispatch();
   const nav = useNavigation();
+  const scope = useSelector(selectScope);
 
   const busy = useSelector(selectBusy);
   const list = useSelector(selectList);
@@ -86,12 +89,21 @@ export default function AdminWorkTaskScreen() {
       {/* 2) Toolbar with 7 buttons in your wording */}
       <HeaderToolbar
         view={view}
-        onChangeView={mode => dispatch(setViewMode(mode))}
+        onChangeView={mode => {
+          // if switching to calendar/pin, ensure we’re on ALL tasks
+          if (mode === 'calendar' || mode === 'pin') {
+            dispatch(setScope('all'));
+            dispatch(fetchTasks());
+          }
+          dispatch(setViewMode(mode));
+        }}
         onAdd={() =>
           dispatch(setModal({ visible: true, mode: 'add', record: null }))
         }
         onMyTask={() => {
-          /* add filter to my tasks later if you want */
+          dispatch(setScope('my'));
+          dispatch(setViewMode('list')); // list stays the UI for my tasks
+          dispatch(fetchTasks());
         }}
         onApprove={() => dispatch(setViewMode('approval'))}
         search={q}

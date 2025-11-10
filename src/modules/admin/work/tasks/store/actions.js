@@ -38,3 +38,8 @@ export const pinFailure = error => ({ type: T.PIN_FAILURE, error });
 export const unpinTask = taskId => ({ type: T.UNPIN_REQUEST, taskId });
 export const unpinSuccess = taskId => ({ type: T.UNPIN_SUCCESS, taskId });
 export const unpinFailure = error => ({ type: T.UNPIN_FAILURE, error });
+
+export const setScope = (scope /* 'all' | 'my' */) => ({
+  type: T.SET_SCOPE,
+  scope,
+});

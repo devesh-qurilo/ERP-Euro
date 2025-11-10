@@ -28,3 +28,5 @@ export const PIN_FAILURE = '@admin/work/tasks/PIN_FAILURE';
 export const UNPIN_REQUEST = '@admin/work/tasks/UNPIN_REQUEST';
 export const UNPIN_SUCCESS = '@admin/work/tasks/UNPIN_SUCCESS';
 export const UNPIN_FAILURE = '@admin/work/tasks/UNPIN_FAILURE';
+
+export const SET_SCOPE = '@admin/work/tasks/SET_SCOPE';

@@ -1,7 +1,7 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import * as T from './types';
 import * as A from './actions';
-import { adminTasksAPI } from '../../../../../services/api';
+import { adminTasksAPI, myTasksAPI } from '../../../../../services/api';
 
 const selectParams = state => {
   const s = state.admin?.work?.tasks;
@@ -12,8 +12,14 @@ const selectParams = state => {
 function* fetchWorker({ params }) {
   try {
     yield put(A.setBusy(true));
-    const _ = params || (yield select(selectParams)); // future use
-    const data = yield call(adminTasksAPI.listAll);
+    const p = params || (yield select(selectParams));
+    const { scope } = p || {};
+
+    const data =
+      scope === 'my'
+        ? yield call(myTasksAPI.list) // 👈 /me/tasks
+        : yield call(adminTasksAPI.listAll); // 👈 /api/projects/tasks/getAll
+
     yield put(A.fetchSuccess(data));
   } catch (err) {
     yield put(A.fetchFailure(err?.message || 'Failed to load tasks'));

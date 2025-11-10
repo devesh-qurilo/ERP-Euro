@@ -10,3 +10,4 @@ export const selectPage = root => base(root)?.page ?? 0;
 export const selectSize = root => base(root)?.size ?? 20;
 export const selectTotal = root => base(root)?.total ?? 0;
 export const selectModal = root => base(root)?.modal || { visible: false };
+export const selectScope = root => base(root)?.scope || 'all';

@@ -10,6 +10,7 @@ const initial = {
   size: 20,
   total: 0,
   view: 'list',
+  scope: 'all',
   modal: { visible: false, mode: 'add', record: null },
 };
 
@@ -25,6 +26,9 @@ export default function reducer(state = initial, action) {
       return { ...state, page: action.page, size: action.size };
     case T.SET_VIEW_MODE:
       return { ...state, view: action.view };
+
+    case T.SET_SCOPE:
+      return { ...state, scope: action.scope };
 
     case T.FETCH_REQUEST:
       return { ...state, busy: true, error: null };
