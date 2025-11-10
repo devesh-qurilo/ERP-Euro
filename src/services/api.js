@@ -1358,4 +1358,42 @@ export const adminTasksAPI = {
   unpin: taskId => taskPinAPI.unpin(taskId),
 };
 
+// Task Files
+export const AtaskFilesAPI = {
+  list: taskId => api.get(`/files/tasks/${taskId}`).then(r => r.data),
+  upload: (taskId, file) => {
+    const form = new FormData();
+    form.append('file', file); // { uri, name, type }
+    return api
+      .post(`/files/tasks/${taskId}`, form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+  remove: fileId =>
+    api.delete(`/files/${encodeURIComponent(fileId)}`).then(r => r.data), // 👈 NEW
+};
+
+// Subtasks
+export const AsubtasksAPI = {
+  list: taskId => api.get(`/tasks/${taskId}/subtasks`).then(r => r.data),
+  create: (taskId, payload) =>
+    api.post(`/tasks/${taskId}/subtasks`, payload).then(r => r.data),
+  update: (taskId, subId, payload) =>
+    api.put(`/tasks/${taskId}/subtasks/${subId}`, payload).then(r => r.data), // 👈 NEW
+  remove: (taskId, subId) =>
+    api.delete(`/tasks/${taskId}/subtasks/${subId}`).then(r => r.data), // 👈 NEW
+};
+
+// Notes
+export const AnotesAPI = {
+  list: taskId => api.get(`/tasks/${taskId}/notes`).then(r => r.data),
+  create: (taskId, payload) =>
+    api.post(`/tasks/${taskId}/notes`, payload).then(r => r.data),
+  removeByTaskNoteId: taskNoteId =>
+    api
+      .delete(`/notes/task/${encodeURIComponent(taskNoteId)}`)
+      .then(r => r.data), // 👈 NEW (your delete path)
+};
+
 export default api;

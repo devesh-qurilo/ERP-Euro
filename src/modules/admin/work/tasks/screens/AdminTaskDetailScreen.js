@@ -2,12 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { adminTasksAPI } from '../../../../../services/api';
+import TaskBottomTabsRedux from '../../../shared/tasks/detail/components/TaskBottomTabsRedux';
+import { setTaskId, setTab } from '../../../shared/tasks/detail/store/actions';
+import { useDispatch } from 'react-redux';
 
 export default function AdminTaskDetailScreen() {
   const { params } = useRoute();
   const taskId = params?.taskId;
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const [task, setTask] = useState(null);
+  useEffect(() => {
+    if (taskId) {
+      dispatch(setTaskId(taskId)); // 👈 tabs ke sagas is id par chalenge
+      dispatch(setTab('files')); // default tab
+    }
+  }, [taskId, dispatch]);
 
   useEffect(() => {
     let ok = true;
@@ -59,6 +69,7 @@ export default function AdminTaskDetailScreen() {
         </Text>
         <Text style={{ marginTop: 10 }}>{task?.description || '—'}</Text>
       </View>
+      <TaskBottomTabsRedux />
     </View>
   );
 }
