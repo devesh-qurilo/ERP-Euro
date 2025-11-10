@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 
 import {
   fetchTasks,
@@ -25,13 +26,17 @@ import {
   selectTotal,
 } from '../../tasks/store/selectors';
 
-import TopFilters from '../components/TopFilters';
 import HeaderToolbar from '../components/HeaderToolbar';
 import TaskListCard from '../components/TaskListCard';
 import TaskModal from '../components/TaskModal';
+import TaskCalendar from '../components/TaskCalendar';
+import TopFilters from '../components/TopFilters';
+
+const isPinned = t => t?.pinned === true || !!t?.pinnedAt;
 
 export default function AdminWorkTaskScreen() {
   const dispatch = useDispatch();
+  const nav = useNavigation();
 
   const busy = useSelector(selectBusy);
   const list = useSelector(selectList);
@@ -45,7 +50,7 @@ export default function AdminWorkTaskScreen() {
     dispatch(fetchTasks());
   }, [dispatch]);
 
-  const filtered = useMemo(() => {
+  const searched = useMemo(() => {
     const term = (q || '').trim().toLowerCase();
     return list.filter(x => {
       if (
@@ -61,9 +66,16 @@ export default function AdminWorkTaskScreen() {
     });
   }, [list, q, filters]);
 
+  const tableData = useMemo(() => {
+    if (view === 'pin') return searched.filter(isPinned);
+    return searched;
+  }, [searched, view]);
+
+  const goView = rec => nav.navigate('AdminTaskDetail', { taskId: rec.id });
+
   return (
     <View style={{ flex: 1, backgroundColor: '#F6F7F9', padding: 14 }}>
-      {/* 1) Filters row (Duration, Status etc.) */}
+      {/* 1) Top filter row like your screenshot */}
       <TopFilters
         status={filters.status || ''}
         onStatusChange={val => dispatch(setFilters({ status: val }))}
@@ -71,7 +83,7 @@ export default function AdminWorkTaskScreen() {
         onDurationChange={val => dispatch(setFilters({ duration: val }))}
       />
 
-      {/* 2) Toolbar (Add Task / My Task + view switch) */}
+      {/* 2) Toolbar with 7 buttons in your wording */}
       <HeaderToolbar
         view={view}
         onChangeView={mode => dispatch(setViewMode(mode))}
@@ -79,43 +91,50 @@ export default function AdminWorkTaskScreen() {
           dispatch(setModal({ visible: true, mode: 'add', record: null }))
         }
         onMyTask={() => {
-          /* navigate/filter my tasks */
+          /* add filter to my tasks later if you want */
         }}
         onApprove={() => dispatch(setViewMode('approval'))}
+        search={q}
+        onSearch={t => dispatch(setSearch(t))}
       />
 
-      {/* 3) White Card with Title + horizontal table */}
-      <TaskListCard
-        title="Task Details"
-        busy={busy}
-        data={filtered}
-        total={total}
-        onView={rec =>
-          dispatch(setModal({ visible: true, mode: 'view', record: rec }))
-        }
-        onEdit={rec =>
-          dispatch(setModal({ visible: true, mode: 'edit', record: rec }))
-        }
-        onDelete={id => dispatch(deleteTask(id))}
-        onTogglePin={rec =>
-          rec?.pinned ? dispatch(unpinTask(rec.id)) : dispatch(pinTask(rec.id))
-        }
-        hideCompleted={!!filters.hideCompleted}
-        onToggleHide={() =>
-          dispatch(setFilters({ hideCompleted: !filters.hideCompleted }))
-        }
-      />
+      {/* 3) Content area: Calendar vs Table */}
+      {view === 'calendar' ? (
+        <TaskCalendar
+          data={list} // Calendar shows ALL tasks (grouped by startDate)
+          onPressTask={goView}
+        />
+      ) : (
+        <TaskListCard
+          title={view === 'pin' ? 'Pinned Tasks' : 'Task Details'}
+          busy={busy}
+          data={tableData}
+          total={tableData.length || total}
+          onView={goView}
+          onEdit={rec =>
+            dispatch(setModal({ visible: true, mode: 'edit', record: rec }))
+          }
+          onDelete={id => dispatch(deleteTask(id))}
+          onTogglePin={rec =>
+            isPinned(rec)
+              ? dispatch(unpinTask(rec.id))
+              : dispatch(pinTask(rec.id))
+          }
+          hideCompleted={!!filters.hideCompleted}
+          onToggleHide={() =>
+            dispatch(setFilters({ hideCompleted: !filters.hideCompleted }))
+          }
+        />
+      )}
 
-      {/* Add/Edit/View Modal */}
+      {/* 4) Add/Edit modal */}
       <TaskModal
         modal={modal}
         onClose={() => dispatch(setModal({ visible: false, record: null }))}
         onSubmit={payload => {
-          if (modal.mode === 'edit' && modal.record?.id) {
+          if (modal.mode === 'edit' && modal.record?.id)
             dispatch(updateTask(modal.record.id, payload));
-          } else {
-            dispatch(createTask(payload));
-          }
+          else dispatch(createTask(payload));
         }}
       />
     </View>

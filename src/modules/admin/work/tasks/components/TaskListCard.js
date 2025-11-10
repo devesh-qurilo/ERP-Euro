@@ -32,7 +32,6 @@ export default function TaskListCard({
         padding: 12,
       }}
     >
-      {/* Title row + search in screenshot 1 */}
       <View
         style={{
           flexDirection: 'row',
@@ -41,13 +40,10 @@ export default function TaskListCard({
           marginBottom: 8,
         }}
       >
-        <Text style={{ fontSize: 20, fontWeight: '700', color: '#111827' }}>
-          {title}
-        </Text>
+        <Text style={{ fontSize: 20, fontWeight: '700' }}>{title}</Text>
         <HideCompleted active={hideCompleted} onToggle={onToggleHide} />
       </View>
 
-      {/* Horizontal table */}
       <View
         style={{
           borderWidth: 1,
@@ -58,7 +54,6 @@ export default function TaskListCard({
       >
         <ScrollView horizontal>
           <View style={{ minWidth: 1200 }}>
-            {/* Header */}
             <View style={{ flexDirection: 'row' }}>
               <HeaderCol style={{ minWidth: 100 }}>Code</HeaderCol>
               <HeaderCol style={{ minWidth: 320 }}>Task Name</HeaderCol>
@@ -94,7 +89,6 @@ export default function TaskListCard({
           </View>
         </ScrollView>
 
-        {/* simple pagination like screenshot 2 (static UI) */}
         <View
           style={{
             paddingVertical: 8,
@@ -102,7 +96,7 @@ export default function TaskListCard({
             backgroundColor: '#fff',
           }}
         >
-          <Text>Prev | 1 | 2 | 3 | 4 | ..... Next</Text>
+          <Text>Prev | 1 | 2 | 3 | 4 | ….. Next</Text>
         </View>
       </View>
 

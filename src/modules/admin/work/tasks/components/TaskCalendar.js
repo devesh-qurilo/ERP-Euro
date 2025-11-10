@@ -13,7 +13,6 @@ const fmt = d => {
 };
 
 export default function TaskCalendar({ data = [], onPressTask }) {
-  // group by startDate
   const groups = useMemo(() => {
     const m = new Map();
     data.forEach(t => {
@@ -22,7 +21,6 @@ export default function TaskCalendar({ data = [], onPressTask }) {
       arr.push(t);
       m.set(k, arr);
     });
-    // sort by date asc (Unknown last)
     return Array.from(m.entries()).sort(([a], [b]) => {
       if (!a) return 1;
       if (!b) return -1;
@@ -40,17 +38,9 @@ export default function TaskCalendar({ data = [], onPressTask }) {
         padding: 12,
       }}
     >
-      <Text
-        style={{
-          fontSize: 20,
-          fontWeight: '700',
-          color: '#111827',
-          marginBottom: 8,
-        }}
-      >
+      <Text style={{ fontSize: 20, fontWeight: '700', marginBottom: 8 }}>
         Calendar (by Start Date)
       </Text>
-
       {groups.map(([dateKey, tasks]) => (
         <View key={dateKey} style={{ marginBottom: 14 }}>
           <View
@@ -61,11 +51,8 @@ export default function TaskCalendar({ data = [], onPressTask }) {
               paddingHorizontal: 12,
             }}
           >
-            <Text style={{ fontWeight: '700', color: '#111827' }}>
-              {fmt(dateKey)}
-            </Text>
+            <Text style={{ fontWeight: '700' }}>{fmt(dateKey)}</Text>
           </View>
-
           <View style={{ marginTop: 8 }}>
             {tasks.map(t => (
               <TouchableOpacity
@@ -81,9 +68,7 @@ export default function TaskCalendar({ data = [], onPressTask }) {
                   marginBottom: 8,
                 }}
               >
-                <Text style={{ fontWeight: '600', color: '#111827' }}>
-                  {t.title}
-                </Text>
+                <Text style={{ fontWeight: '600' }}>{t.title}</Text>
                 <Text style={{ color: '#6B7280', marginTop: 2 }}>
                   Stage: {t?.taskStage?.name || '—'} · Priority:{' '}
                   {t?.priority || '—'}

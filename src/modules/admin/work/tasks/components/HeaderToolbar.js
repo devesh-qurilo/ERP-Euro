@@ -1,70 +1,73 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, TextInput } from 'react-native';
 import { Button } from './ui';
 
 export default function HeaderToolbar({
   view,
-  onChangeView, // (mode) => void  // 'list' | 'kanban' | 'calendar' | 'pin' | 'approval'
-  onAdd, // () => void
-  onMyTask, // () => void
-  onApprove, // () => void (optional: if you have a separate approvals screen)
+  onChangeView,
+  onAdd,
+  onMyTask,
+  onApprove,
+  search,
+  onSearch,
 }) {
   const is = m => view === m;
+  const Btn = ({ label, mode }) => (
+    <Button
+      title={label}
+      onPress={() => onChangeView(mode)}
+      bg={is(mode) ? '#111827' : '#E5E7EB'}
+      color={is(mode) ? '#fff' : '#111827'}
+      style={{ paddingHorizontal: 12, paddingVertical: 8 }}
+    />
+  );
 
   return (
     <View
       style={{
-        flexDirection: 'column',
+        flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: 3,
         marginBottom: 10,
       }}
     >
-      {/* 1) Add Task */}
-      <Button title="+ Add Task" onPress={onAdd} />
+      <Button title="+ Add" onPress={onAdd} />
+      <Button title="👤" onPress={onMyTask} bg="#E5E7EB" color="#111827" />
 
-      {/* 2) My Task */}
-      <Button title="My Task" onPress={onMyTask} bg="#E5E7EB" color="#111827" />
-
-      {/* 3) List */}
+      <Btn label="≡" mode="list" />
+      <Btn label="🗓️" mode="calendar" />
+      <Btn label="Kanban" mode="kanban" />
+      <Btn label="📌" mode="pin" />
       <Button
-        title="List"
-        onPress={() => onChangeView('list')}
-        bg={is('list') ? '#111827' : '#E5E7EB'}
-        color={is('list') ? '#fff' : '#111827'}
-      />
-
-      {/* 4) Calendar */}
-      <Button
-        title="Calendar"
-        onPress={() => onChangeView('calendar')}
-        bg={is('calendar') ? '#111827' : '#E5E7EB'}
-        color={is('calendar') ? '#fff' : '#111827'}
-      />
-
-      {/* 5) Kanban */}
-      <Button
-        title="Kanban"
-        onPress={() => onChangeView('kanban')}
-        bg={is('kanban') ? '#111827' : '#E5E7EB'}
-        color={is('kanban') ? '#fff' : '#111827'}
-      />
-
-      {/* 6) Pin */}
-      <Button
-        title="Pin"
-        onPress={() => onChangeView('pin')}
-        bg={is('pin') ? '#111827' : '#E5E7EB'}
-        color={is('pin') ? '#fff' : '#111827'}
-      />
-
-      {/* 7) Approve */}
-      <Button
-        title="Approve"
+        title="⚠️"
         onPress={onApprove ? onApprove : () => onChangeView('approval')}
         bg={is('approval') ? '#111827' : '#E5E7EB'}
         color={is('approval') ? '#fff' : '#111827'}
+        style={{ paddingHorizontal: 12, paddingVertical: 8 }}
       />
+
+      {/* <View style={{ flex: 1, alignItems: 'flex-end' }}>
+        <View
+          style={{
+            width: 40,
+            height: 36,
+            backgroundColor: '#fff',
+            borderRadius: 8,
+            borderWidth: 1,
+            borderColor: '#E5E7EB',
+            paddingHorizontal: 3,
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}
+        >
+          <TextInput
+            value={search}
+            onChangeText={onSearch}
+            placeholder="Search"
+            style={{ flex: 1 }}
+          />
+        </View>
+      </View> */}
     </View>
   );
 }
