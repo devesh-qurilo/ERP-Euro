@@ -37,8 +37,8 @@ import { getWeeklyTimesheetsAll } from '../store/actions';
 //  import { selectTasks } from '../../tasks/store/selectors';
 
 // ✅ pull “my tasks” for the Weekly modal dropdown
-import { fetchMyTasks } from '../../tasks/store/actions';
-import { selectTasks } from '../../tasks/store/selectors';
+import { fetchTasks as fetchMyTasks } from '../../../shared/tasks/store/actions';
+import { selectList as selectTasks } from '../../../shared/tasks/store/selectors';
 
 import TimesheetViewModal from '../components/TimesheetViewModal';
 import WeeklyTimesheetModal from '../components/WeeklyTimesheetModal';
@@ -82,14 +82,14 @@ const Cell = ({ w, children, text }) => (
 const fmtDate = d => (d ? new Date(d).toLocaleDateString() : '—');
 const fmtTime = t => (t ? t.slice(0, 5) : '—');
 
-export default function EmployeeTimesheetsScreen() {
+export default function AdminTimesheetsScreen() {
   const dispatch = useDispatch();
 
   // timesheets
   const list = useSelector(selectMyTimesheets);
   const loading = useSelector(selectMyTimesheetsLoad);
   const error = useSelector(selectMyTimesheetsError);
-  // console.log('ggggggggggg', list[0].employeeId);
+  console.log('ggggggggggg', list);
 
   // weekly
   const weekly = useSelector(selectWeeklyTimesheet);

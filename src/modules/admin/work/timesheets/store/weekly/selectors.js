@@ -1,7 +1,6 @@
-// src/modules/employee/works/timesheets/store/weekly/selectors.js
+// src/modules/admin/works/timesheets/store/weekly/selectors.js
 export const selectWeekly = s =>
-  s.employee?.works?.timesheetsWeekly?.weekly || null;
-export const selectWeeklyLoad = s =>
-  !!s.employee?.works?.timesheetsWeekly?.loading;
+  s.admin?.work?.timesheetsWeekly?.weekly || null;
+export const selectWeeklyLoad = s => !!s.admin?.work?.timesheetsWeekly?.loading;
 export const selectWeeklyError = s =>
-  s.employee?.works?.timesheetsWeekly?.error || null;
+  s.admin?.work?.timesheetsWeekly?.error || null;

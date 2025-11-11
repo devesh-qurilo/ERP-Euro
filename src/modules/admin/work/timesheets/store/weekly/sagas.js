@@ -20,7 +20,7 @@ function* createWeeklySaga({ payload }) {
     yield put({ type: T.CREATE_WEEKLY_FAILURE, error: e?.message });
   }
 }
-export function* weeklyWatcher() {
+export function* AdminweeklyWatcher() {
   yield all([
     takeLatest(T.FETCH_WEEKLY_REQUEST, fetchWeeklySaga),
     takeLatest(T.CREATE_WEEKLY_REQUEST, createWeeklySaga),

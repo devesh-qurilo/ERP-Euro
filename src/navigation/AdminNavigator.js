@@ -49,7 +49,7 @@ import AdminDealScreen from '../modules/admin/leads/deals/screens/AdminDealScree
 import AdminDealViewScreen from '../modules/admin/leads/deals/screens/AdminDealViewScreen';
 import AdminWorkTaskScreen from '../modules/admin/work/Task/screens/AdminWorkTaskScreen';
 import AdminTaskDetailScreen from '../modules/admin/work/tasks/screens/AdminTaskDetailScreen';
-import AdminWorkTimesheetScreen from '../modules/admin/work/timesheets/screens/AdminWorkTimesheetScreen';
+import AdminTimesheetsScreen from '../modules/admin/work/timesheets/screens/AdminWorkTimesheetScreen';
 // ---------------------------------------------------------------------------
 // PLACEHOLDERS (swap with real screens later)
 // ---------------------------------------------------------------------------
@@ -178,10 +178,7 @@ function WorkStack() {
         component={AdminProjectViewScreen}
         options={{ headerShown: false }}
       />
-      <Stack.Screen
-        name="WorkTimesheets"
-        component={AdminWorkTimesheetScreen}
-      />
+      <Stack.Screen name="WorkTimesheets" component={AdminTimesheetsScreen} />
       <Stack.Screen name="WorkRoadmap" component={AdminWorkRoadmapScreen} />
     </Stack.Navigator>
   );

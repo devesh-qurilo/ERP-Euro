@@ -1,8 +1,8 @@
-// src/modules/employee/works/timesheets/store/weekly/reducer.js
+// src/modules/admin/works/timesheets/store/weekly/reducer.js
 import * as T from './types';
 
 const initial = { weekly: null, loading: false, error: null };
-export default function weeklyReducer(state = initial, action) {
+export default function AdminweeklyReducer(state = initial, action) {
   switch (action.type) {
     case T.FETCH_WEEKLY_REQUEST:
     case T.CREATE_WEEKLY_REQUEST:

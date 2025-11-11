@@ -890,7 +890,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useSelector } from 'react-redux';
-import { selectTasks } from '../../tasks/store/selectors';
+import { selectList as selectTasks } from '../../../shared/tasks/store/selectors';
 
 const dayKeys = [
   'day1Hours',

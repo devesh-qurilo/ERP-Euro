@@ -1407,8 +1407,7 @@ export const AstatusesAPI = {
 
 // --- MY TIMESHEETS (list) ---
 export const AdminmyTimesheetsAPI = {
-  list: (params = {}) =>
-    api.get('/timesheets/me', { params }).then(r => r.data),
+  list: (params = {}) => api.get('/timesheets', { params }).then(r => r.data),
   create: payload => api.post('/timesheets', payload).then(r => r.data),
 };
 
@@ -1417,7 +1416,7 @@ export const AdminweeklyTimesheetsAPI = {
   create: payload => api.post('/weekly-timesheets', payload).then(r => r.data),
   getMine: weekStartDate =>
     api
-      .get('/weekly-timesheets/me', { params: { weekStartDate } })
+      .get('/weekly-timesheets', { params: { weekStartDate } })
       .then(r => r.data),
 };
 

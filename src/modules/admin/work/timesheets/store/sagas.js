@@ -8,6 +8,7 @@ import * as T from './types';
 function* fetchMine({ params }) {
   try {
     const data = yield call(AdminmyTimesheetsAPI.list, params || {});
+    console.log('debvvvvv', data);
     yield put({ type: T.FETCH_MY_TIMESHEETS_SUCCESS, payload: data });
   } catch (e) {
     yield put({
@@ -50,6 +51,7 @@ function* createWeekly({ payload }) {
 function* getWeekly({ weekStartDate }) {
   try {
     const data = yield call(AdminweeklyTimesheetsAPI.getMine, weekStartDate);
+    console.log('weeklllly', data);
     yield put({ type: T.GET_WEEKLY_TS_SUCCESS, payload: data });
   } catch (e) {
     yield put({
@@ -62,6 +64,7 @@ function* getWeekly({ weekStartDate }) {
 function* createWeeklySaga({ payload }) {
   try {
     const res = yield call(AdminweeklyTimesheetsAPI.create, payload);
+    console.log('weekly res', res);
     yield put({ type: T.CREATE_WEEKLY_TIMESHEET_SUCCESS, payload: res });
   } catch (e) {
     yield put({

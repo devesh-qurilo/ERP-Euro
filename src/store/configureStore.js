@@ -43,7 +43,7 @@ const configureStore = () => {
     rootReducer,
     composeEnhancers(applyMiddleware(sagaMiddleware)),
   );
-  console.log('STATE check Devesh kumar singgggggg', store.getState().admin);
+  console.log('STATE check Devesh kumar singgggggg', store.getState());
 
   sagaMiddleware.run(rootSaga);
   return store;

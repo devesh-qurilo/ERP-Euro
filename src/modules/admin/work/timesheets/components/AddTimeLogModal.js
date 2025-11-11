@@ -11,7 +11,7 @@ import {
   Image,
 } from 'react-native';
 import { useSelector } from 'react-redux';
-import { selectTasks as selectMyTasks } from '../../tasks/store/selectors'; // <- your tasks selector path
+import { selectList as selectMyTasks } from '../../../shared/tasks/store/selectors'; // <- your tasks selector path
 import { selectMyTimesheets } from '../store/selectors';
 
 /* ----------------------------- tiny components ---------------------------- */

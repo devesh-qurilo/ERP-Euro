@@ -56,6 +56,9 @@ import tasksWatcher from '../modules/admin/shared/tasks/store/sagas';
 import tasksDetailWatcher from '../modules/admin/shared/tasks/detail/store/sagas';
 import taskStagesWatcher from '../modules/admin/shared/taskStages/store/sagas';
 
+import { AdminTimesheetsWatcher } from '../modules/admin/work/timesheets/store/sagas';
+import { AdminweeklyWatcher } from '../modules/admin/work/timesheets/store/weekly/sagas';
+
 // Root saga that combines all sagas
 export default function* rootSaga() {
   yield all([
@@ -105,6 +108,8 @@ export default function* rootSaga() {
     fork(tasksWatcher),
     fork(tasksDetailWatcher),
     fork(taskStagesWatcher),
+    AdminTimesheetsWatcher(),
+    AdminweeklyWatcher(),
   ]);
 }
 // adminFinanceInvoiceWatcher
