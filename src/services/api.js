@@ -1338,22 +1338,22 @@ export const adminDealViewAPI = {
 
 // --- ADMIN TASKS (ALL) ---  // 🔁 reusable by shared/tasks saga
 export const adminTasksAPI = {
-  // LIST ALL
+  // GET /api/projects/tasks/getAll
   listAll: () => api.get('/api/projects/tasks/getAll').then(r => r.data),
 
-  // CREATE (re-use your tasksAPI multipart)
-  create: formData => tasksAPI.create(formData),
+  // POST /api/projects/tasks (multipart FormData) — reuse existing tasksAPI
+  create: payload => tasksAPI.create(payload),
 
-  // UPDATE (re-use your adminProjectTasksAPI.update)
+  // PUT /api/projects/tasks/{taskId} — reuse adminProjectTasksAPI.update
   update: (taskId, payload) => adminProjectTasksAPI.update(taskId, payload),
 
-  // DELETE (as per your spec: /api/projects/tasks/{taskId}/delete)
+  // DELETE /api/projects/tasks/{taskId}/delete
   remove: taskId =>
     api
       .delete(`/api/projects/tasks/${encodeURIComponent(taskId)}/delete`)
       .then(r => r.data),
 
-  // PIN / UNPIN (already have these)
+  // PIN/UNPIN via your existing taskPinAPI
   pin: taskId => taskPinAPI.pin(taskId),
   unpin: taskId => taskPinAPI.unpin(taskId),
 };

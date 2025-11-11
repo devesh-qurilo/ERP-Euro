@@ -39,8 +39,9 @@ function* fetchWorker({ params }) {
 
 function* createWorker({ payload }) {
   try {
-    yield put(A.setBusy(true));
+    // yield put(A.setBusy(true));
     const created = yield call(adminTasksAPI.create, payload);
+    console.log('create task ', created);
     yield put(A.createOk(created));
     yield put(A.setModal({ visible: false, record: null }));
   } finally {
