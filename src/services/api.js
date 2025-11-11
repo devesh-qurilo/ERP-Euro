@@ -1398,7 +1398,9 @@ export const AnotesAPI = {
 
 export const AstatusesAPI = {
   list: () => api.get('/status').then(r => r.data),
-  create: payload => api.post('/status', payload).then(r => r.data), // { name, position, labelColor }
+  create: payload => api.post('/status', payload).then(r => r.data),
+  update: (id, payload) =>
+    api.put(`/status/${encodeURIComponent(id)}`, payload).then(r => r.data), // <—
   remove: id =>
     api.delete(`/status/${encodeURIComponent(id)}`).then(r => r.data),
 };

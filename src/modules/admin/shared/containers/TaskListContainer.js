@@ -27,9 +27,13 @@ import {
 import TaskFiltersPanel from '../tasks/components/TaskFiltersPanel';
 import TaskQuickActionsBar from '../tasks/components/TaskQuickActionsBar';
 import TaskTable from '../tasks/components/TaskTable';
-import TaskModal from '../../work/tasks/components/TaskModal'; // your existing modal
-import TaskCalendar from '../../work/tasks/components/TaskCalendar'; // simple grouped-by-startDate view
+import TaskModal from '../../work/tasks/components/TaskModal';
+import TaskCalendar from '../../work/tasks/components/TaskCalendar';
 import { View, Text } from 'react-native';
+
+// ⭐ import Kanban (from the shared component we made)
+import KanbanBoard from '../../shared/tasks/components/KanbanBoard';
+//    ^ adjust relative path if your folder depth differs
 
 const isPinned = t => t?.pinned === true || !!t?.pinnedAt;
 
@@ -45,13 +49,11 @@ export default function TaskListContainer({ initialSource, onNavigateView }) {
   const total = useSelector(selectTotal);
   const source = useSelector(selectSource);
 
-  // init source (e.g., {kind:'all'} or {kind:'project', id:3})
   useEffect(() => {
     if (initialSource) dispatch(setSource(initialSource));
     dispatch(fetchTasks());
   }, [dispatch, initialSource]);
 
-  // search/filter on client for now (server filters can be added later)
   const searched = useMemo(() => {
     const term = (q || '').trim().toLowerCase();
     return list.filter(x => {
@@ -116,13 +118,15 @@ export default function TaskListContainer({ initialSource, onNavigateView }) {
         onStatus={val => dispatch(setFilters({ status: val }))}
       />
 
-      {/* Part 2: Buttons that apply filters/source/view */}
+      {/* Part 2: Buttons */}
       <TaskQuickActionsBar
         view={view}
         setView={mode => {
-          // calendar & pin should always use ALL tasks
-          if (mode === 'calendar' || mode === 'pin')
+          // ⭐ Kanban also needs ALL tasks (like calendar & pin)
+          if (mode === 'calendar' || mode === 'pin' || mode === 'kanban') {
             dispatch(setSource({ kind: 'all' }));
+            dispatch(fetchTasks());
+          }
           dispatch(setView(mode));
         }}
         sourceKind={source.kind}
@@ -140,8 +144,12 @@ export default function TaskListContainer({ initialSource, onNavigateView }) {
       {/* Part 3: Content area */}
       {view === 'calendar' ? (
         <TaskCalendar
-          data={list} // calendar always shows ALL tasks by startDate
+          data={list} // calendar shows ALL tasks
           onPressTask={rec => (onNavigateView ? onNavigateView(rec) : null)}
+        />
+      ) : view === 'kanban' ? ( // ⭐ New Kanban branch
+        <KanbanBoard
+          onCardPress={rec => (onNavigateView ? onNavigateView(rec) : null)}
         />
       ) : (
         <TaskTable

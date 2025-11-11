@@ -21,6 +21,7 @@ const num = (v, def = 0) => (v == null || Number.isNaN(+v) ? def : +v);
 /* --------------------------------- Overview -------------------------------- */
 function OverviewTab({ project }) {
   const p = project || {};
+  console.log('tassssss', p);
   const progress = num(p.progressPercent, 0);
   const members = Array.isArray(p.assignedEmployees) ? p.assignedEmployees : [];
 

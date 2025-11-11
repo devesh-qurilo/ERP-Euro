@@ -34,6 +34,9 @@ import TaskModal from '../components/TaskModal';
 import TaskCalendar from '../components/TaskCalendar';
 import TopFilters from '../components/TopFilters';
 
+// 👇 NEW: Kanban
+import KanbanBoard from '../../../shared/tasks/components/KanbanBoard';
+
 const isPinned = t => t?.pinned === true || !!t?.pinnedAt;
 
 export default function AdminWorkTaskScreen() {
@@ -49,12 +52,10 @@ export default function AdminWorkTaskScreen() {
   const modal = useSelector(selectModal) || { visible: false };
   const total = useSelector(selectTotal) || 0;
 
-  // initial load (or when scope changes if your saga depends on it)
   useEffect(() => {
     dispatch(fetchTasks());
   }, [dispatch, scope]);
 
-  // local search + hide-completed filter
   const searched = useMemo(() => {
     const term = q.trim().toLowerCase();
     return (list || []).filter(x => {
@@ -72,7 +73,6 @@ export default function AdminWorkTaskScreen() {
     });
   }, [list, q, filters]);
 
-  // view-based table data
   const tableData = useMemo(() => {
     if (view === 'pin') return searched.filter(isPinned);
     return searched;
@@ -82,7 +82,7 @@ export default function AdminWorkTaskScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F6F7F9', padding: 14 }}>
-      {/* 1) Top filters row */}
+      {/* 1) Top filters */}
       <TopFilters
         status={filters.status || ''}
         onStatusChange={val => dispatch(setFilters({ status: val }))}
@@ -90,15 +90,13 @@ export default function AdminWorkTaskScreen() {
         onDurationChange={val => dispatch(setFilters({ duration: val }))}
       />
 
-      {/* 2) Toolbar with 7 buttons */}
+      {/* 2) Toolbar with 7 buttons (now also driving kanban) */}
       <HeaderToolbar
         view={view}
         onChangeView={mode => {
-          // pin & calendar always operate on ALL tasks
-          if (mode === 'calendar' || mode === 'pin') {
-            if (scope !== 'all') {
-              dispatch(setScope('all'));
-            }
+          // pin, calendar, kanban operate on ALL tasks
+          if (mode === 'calendar' || mode === 'pin' || mode === 'kanban') {
+            if (scope !== 'all') dispatch(setScope('all'));
             dispatch(fetchTasks());
           }
           dispatch(setViewMode(mode));
@@ -116,8 +114,10 @@ export default function AdminWorkTaskScreen() {
         onSearch={t => dispatch(setSearch(t))}
       />
 
-      {/* 3) Content: Calendar or Table */}
-      {view === 'calendar' ? (
+      {/* 3) Content: Kanban | Calendar | Table */}
+      {view === 'kanban' ? (
+        <KanbanBoard onCardPress={goView} />
+      ) : view === 'calendar' ? (
         <TaskCalendar data={list} onPressTask={goView} />
       ) : (
         <TaskListCard

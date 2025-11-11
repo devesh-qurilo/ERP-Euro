@@ -16,10 +16,11 @@ function* fetchTasksWorker({ projectId }) {
   try {
     yield put(setTasksBusy(true));
     const data = yield call(adminProjectTasksAPI.listByProject, projectId);
-    console.log('[SAGA] listByProject OK:', {
-      projectId,
-      count: (data || []).length,
-    });
+    // console.log('[SAGA] listByProject OK:', {
+    //   projectId,
+    //   count: (data || []).length,
+    // });
+    console.log('sagar task', data);
     yield put(setTasks(projectId, data || []));
   } catch (err) {
     console.log('[SAGA] fetchTasksWorker error:', err);

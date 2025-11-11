@@ -30,48 +30,65 @@ export default function TaskQuickActionsBar({
     <View
       style={{
         flexDirection: 'column',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         gap: 10,
         marginBottom: 10,
       }}
     >
-      <Button title="+ Add Task" onPress={onAdd} />
-      <Button
-        title="My Task"
-        onPress={() => {
-          setSourceKind('my');
-          setView('list');
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          gap: 10,
+          marginBottom: 10,
         }}
-        bg="#E5E7EB"
-        color="#111827"
-      />
-
-      <Btn label="List" mode="list" />
-      <Btn label="Calendar" mode="calendar" />
-      <Btn label="Kanban" mode="kanban" />
-      <Btn label="Pin" mode="pin" />
-      <Btn label="A" mode="approval" />
-
-      <View style={{ flex: 1, alignItems: 'flex-end' }}>
-        <View
-          style={{
-            width: 240,
-            height: 36,
-            backgroundColor: '#fff',
-            borderRadius: 8,
-            borderWidth: 1,
-            borderColor: '#E5E7EB',
-            paddingHorizontal: 12,
-            flexDirection: 'row',
-            alignItems: 'center',
+      >
+        <Button title="+ Add Task" onPress={onAdd} />
+        <Button
+          title="My Tasks"
+          onPress={() => {
+            setSourceKind('my');
+            setView('list');
           }}
-        >
-          <TextInput
-            value={searchValue}
-            onChangeText={onSearchChange}
-            placeholder="Search"
-            style={{ flex: 1 }}
-          />
+          bg="#E5E7EB"
+          color="#111827"
+        />
+      </View>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 3,
+          marginBottom: 10,
+        }}
+      >
+        <Btn label="List" mode="list" />
+        <Btn label="Calender" mode="calendar" />
+        <Btn label="Kanban" mode="kanban" />
+        <Btn label="Pin" mode="pin" />
+        <Btn label="Approval" mode="approval" />
+
+        <View style={{ flex: 1, alignItems: 'flex-end' }}>
+          <View
+            style={{
+              width: 50,
+              height: 36,
+              backgroundColor: '#fff',
+              borderRadius: 8,
+              borderWidth: 1,
+              borderColor: '#E5E7EB',
+              paddingHorizontal: 12,
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}
+          >
+            <TextInput
+              value={searchValue}
+              onChangeText={onSearchChange}
+              placeholder="Search"
+              style={{ flex: 1 }}
+            />
+          </View>
         </View>
       </View>
     </View>
