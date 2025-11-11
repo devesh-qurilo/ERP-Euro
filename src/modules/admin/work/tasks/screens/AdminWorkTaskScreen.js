@@ -39,36 +39,40 @@ const isPinned = t => t?.pinned === true || !!t?.pinnedAt;
 export default function AdminWorkTaskScreen() {
   const dispatch = useDispatch();
   const nav = useNavigation();
+
   const scope = useSelector(selectScope);
-
   const busy = useSelector(selectBusy);
-  const list = useSelector(selectList);
-  const filters = useSelector(selectFilters);
-  const q = useSelector(selectSearch);
-  const view = useSelector(selectView);
-  const modal = useSelector(selectModal);
-  const total = useSelector(selectTotal);
+  const list = useSelector(selectList) || [];
+  const filters = useSelector(selectFilters) || {};
+  const q = useSelector(selectSearch) || '';
+  const view = useSelector(selectView) || 'list';
+  const modal = useSelector(selectModal) || { visible: false };
+  const total = useSelector(selectTotal) || 0;
 
+  // initial load (or when scope changes if your saga depends on it)
   useEffect(() => {
     dispatch(fetchTasks());
-  }, [dispatch]);
+  }, [dispatch, scope]);
 
+  // local search + hide-completed filter
   const searched = useMemo(() => {
-    const term = (q || '').trim().toLowerCase();
-    return list.filter(x => {
+    const term = q.trim().toLowerCase();
+    return (list || []).filter(x => {
       if (
         filters.hideCompleted &&
         (x?.taskStage?.name || '').toLowerCase() === 'completed'
-      )
+      ) {
         return false;
+      }
       if (!term) return true;
       return (
-        (x.title || '').toLowerCase().includes(term) ||
+        (x?.title || '').toLowerCase().includes(term) ||
         (x?.categoryId?.name || '').toLowerCase().includes(term)
       );
     });
   }, [list, q, filters]);
 
+  // view-based table data
   const tableData = useMemo(() => {
     if (view === 'pin') return searched.filter(isPinned);
     return searched;
@@ -78,7 +82,7 @@ export default function AdminWorkTaskScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F6F7F9', padding: 14 }}>
-      {/* 1) Top filter row like your screenshot */}
+      {/* 1) Top filters row */}
       <TopFilters
         status={filters.status || ''}
         onStatusChange={val => dispatch(setFilters({ status: val }))}
@@ -86,13 +90,15 @@ export default function AdminWorkTaskScreen() {
         onDurationChange={val => dispatch(setFilters({ duration: val }))}
       />
 
-      {/* 2) Toolbar with 7 buttons in your wording */}
+      {/* 2) Toolbar with 7 buttons */}
       <HeaderToolbar
         view={view}
         onChangeView={mode => {
-          // if switching to calendar/pin, ensure we’re on ALL tasks
+          // pin & calendar always operate on ALL tasks
           if (mode === 'calendar' || mode === 'pin') {
-            dispatch(setScope('all'));
+            if (scope !== 'all') {
+              dispatch(setScope('all'));
+            }
             dispatch(fetchTasks());
           }
           dispatch(setViewMode(mode));
@@ -102,7 +108,7 @@ export default function AdminWorkTaskScreen() {
         }
         onMyTask={() => {
           dispatch(setScope('my'));
-          dispatch(setViewMode('list')); // list stays the UI for my tasks
+          dispatch(setViewMode('list'));
           dispatch(fetchTasks());
         }}
         onApprove={() => dispatch(setViewMode('approval'))}
@@ -110,12 +116,9 @@ export default function AdminWorkTaskScreen() {
         onSearch={t => dispatch(setSearch(t))}
       />
 
-      {/* 3) Content area: Calendar vs Table */}
+      {/* 3) Content: Calendar or Table */}
       {view === 'calendar' ? (
-        <TaskCalendar
-          data={list} // Calendar shows ALL tasks (grouped by startDate)
-          onPressTask={goView}
-        />
+        <TaskCalendar data={list} onPressTask={goView} />
       ) : (
         <TaskListCard
           title={view === 'pin' ? 'Pinned Tasks' : 'Task Details'}
@@ -139,14 +142,16 @@ export default function AdminWorkTaskScreen() {
         />
       )}
 
-      {/* 4) Add/Edit modal */}
+      {/* 4) Add/Edit Task modal */}
       <TaskModal
         modal={modal}
         onClose={() => dispatch(setModal({ visible: false, record: null }))}
         onSubmit={payload => {
-          if (modal.mode === 'edit' && modal.record?.id)
+          if (modal.mode === 'edit' && modal.record?.id) {
             dispatch(updateTask(modal.record.id, payload));
-          else dispatch(createTask(payload));
+          } else {
+            dispatch(createTask(payload));
+          }
         }}
       />
     </View>

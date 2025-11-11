@@ -48,6 +48,7 @@ import adminDealsViewReducer from '../modules/admin/leads/deals/view/store/reduc
 import adminTasksReducer from '../modules/admin/work/tasks/store/reducer';
 import sharedTasksReducer from '../modules/admin/shared/tasks/store/reducer';
 import tasksDetailReducer from '../modules/admin/shared/tasks/detail/store/reducer';
+import taskStagesReducer from '../modules/admin/shared/taskStages/store/reducer';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -90,6 +91,7 @@ const rootReducer = combineReducers({
       tasks: adminTasksReducer,
       tasks: sharedTasksReducer,
       taskDetail: tasksDetailReducer,
+      taskStages: taskStagesReducer,
     }),
     finance: combineReducers({
       invoice: adminFinanceInvoiceReducer,

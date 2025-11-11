@@ -54,6 +54,7 @@ import { adminTasksWatcher } from '../modules/admin/work/tasks/store/sagas';
 
 import tasksWatcher from '../modules/admin/shared/tasks/store/sagas';
 import tasksDetailWatcher from '../modules/admin/shared/tasks/detail/store/sagas';
+import taskStagesWatcher from '../modules/admin/shared/taskStages/store/sagas';
 
 // Root saga that combines all sagas
 export default function* rootSaga() {
@@ -103,6 +104,7 @@ export default function* rootSaga() {
     fork(adminTasksWatcher),
     fork(tasksWatcher),
     fork(tasksDetailWatcher),
+    fork(taskStagesWatcher),
   ]);
 }
 // adminFinanceInvoiceWatcher

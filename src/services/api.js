@@ -1396,4 +1396,11 @@ export const AnotesAPI = {
       .then(r => r.data), // 👈 NEW (your delete path)
 };
 
+export const AstatusesAPI = {
+  list: () => api.get('/status').then(r => r.data),
+  create: payload => api.post('/status', payload).then(r => r.data), // { name, position, labelColor }
+  remove: id =>
+    api.delete(`/status/${encodeURIComponent(id)}`).then(r => r.data),
+};
+
 export default api;
