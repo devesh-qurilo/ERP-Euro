@@ -1405,4 +1405,20 @@ export const AstatusesAPI = {
     api.delete(`/status/${encodeURIComponent(id)}`).then(r => r.data),
 };
 
+// --- MY TIMESHEETS (list) ---
+export const AdminmyTimesheetsAPI = {
+  list: (params = {}) =>
+    api.get('/timesheets/me', { params }).then(r => r.data),
+  create: payload => api.post('/timesheets', payload).then(r => r.data),
+};
+
+// --- WEEKLY TIMESHEETS ---
+export const AdminweeklyTimesheetsAPI = {
+  create: payload => api.post('/weekly-timesheets', payload).then(r => r.data),
+  getMine: weekStartDate =>
+    api
+      .get('/weekly-timesheets/me', { params: { weekStartDate } })
+      .then(r => r.data),
+};
+
 export default api;

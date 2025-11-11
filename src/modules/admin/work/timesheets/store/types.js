@@ -1,0 +1,38 @@
+export const FETCH_MY_TIMESHEETS_REQUEST =
+  'employee/timesheets/FETCH_MY_TIMESHEETS_REQUEST';
+export const FETCH_MY_TIMESHEETS_SUCCESS =
+  'employee/timesheets/FETCH_MY_TIMESHEETS_SUCCESS';
+export const FETCH_MY_TIMESHEETS_FAILURE =
+  'employee/timesheets/FETCH_MY_TIMESHEETS_FAILURE';
+
+export const CREATE_WEEKLY_TS_REQUEST =
+  'employee/timesheets/CREATE_WEEKLY_TS_REQUEST';
+export const CREATE_WEEKLY_TS_SUCCESS =
+  'employee/timesheets/CREATE_WEEKLY_TS_SUCCESS';
+export const CREATE_WEEKLY_TS_FAILURE =
+  'employee/timesheets/CREATE_WEEKLY_TS_FAILURE';
+
+export const GET_WEEKLY_TS_REQUEST =
+  'employee/timesheets/GET_WEEKLY_TS_REQUEST';
+export const GET_WEEKLY_TS_SUCCESS =
+  'employee/timesheets/GET_WEEKLY_TS_SUCCESS';
+export const GET_WEEKLY_TS_FAILURE =
+  'employee/timesheets/GET_WEEKLY_TS_FAILURE';
+
+export const CREATE_WEEKLY_TIMESHEET_REQUEST =
+  'timesheets/CREATE_WEEKLY_TIMESHEET_REQUEST';
+export const CREATE_WEEKLY_TIMESHEET_SUCCESS =
+  'timesheets/CREATE_WEEKLY_TIMESHEET_SUCCESS';
+export const CREATE_WEEKLY_TIMESHEET_FAILURE =
+  'timesheets/CREATE_WEEKLY_TIMESHEET_FAILURE';
+
+export const GET_WEEKLY_TIMESHEET_REQUEST =
+  'timesheets/GET_WEEKLY_TIMESHEET_REQUEST';
+export const GET_WEEKLY_TIMESHEET_SUCCESS =
+  'timesheets/GET_WEEKLY_TIMESHEET_SUCCESS';
+export const GET_WEEKLY_TIMESHEET_FAILURE =
+  'timesheets/GET_WEEKLY_TIMESHEET_FAILURE';
+
+export const CREATE_TIMESHEET_REQUEST = 'timesheets/CREATE_TIMESHEET_REQUEST'; // ← NEW
+export const CREATE_TIMESHEET_SUCCESS = 'timesheets/CREATE_TIMESHEET_SUCCESS'; // ← NEW
+export const CREATE_TIMESHEET_FAILURE = 'timesheets/CREATE_TIMESHEET_FAILURE'; // ← NEW
