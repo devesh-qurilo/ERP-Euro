@@ -50,6 +50,7 @@ import AdminDealViewScreen from '../modules/admin/leads/deals/screens/AdminDealV
 import AdminWorkTaskScreen from '../modules/admin/work/Task/screens/AdminWorkTaskScreen';
 import AdminTaskDetailScreen from '../modules/admin/work/tasks/screens/AdminTaskDetailScreen';
 import AdminTimesheetsScreen from '../modules/admin/work/timesheets/screens/AdminWorkTimesheetScreen';
+import AdminAppreciationsScreen from '../modules/admin/hr/appreciations/screens/AdminAppreciationsScreen';
 // ---------------------------------------------------------------------------
 // PLACEHOLDERS (swap with real screens later)
 // ---------------------------------------------------------------------------
@@ -158,7 +159,7 @@ function HRStack() {
       <Stack.Screen name="HRDepartments" component={AdminDepartmentsScreen} />
       <Stack.Screen
         name="HRAppreciations"
-        component={AdminHRAppreciationsScreen}
+        component={AdminAppreciationsScreen}
       />
     </Stack.Navigator>
   );

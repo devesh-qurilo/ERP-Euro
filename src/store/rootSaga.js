@@ -29,7 +29,7 @@ import { empProjectsWatcher } from '../modules/admin/hr/employees/work/projects/
 import { adminLeavesWatcher } from '../modules/admin/hr/leaves/store/sagas';
 import { holidaysWatcher } from '../modules/admin/hr/holidays/store/sagas';
 import { adminAttendanceWatcher } from '../modules/admin/hr/attendance/store/sagas';
-import { appreciationsWatcher } from '../modules/admin/hr/appreciations/store/sagas';
+import appreciationsWatcher from '../modules/admin/hr/appreciations/store/sagas';
 
 import adminWorkProjectsWatcher from '../modules/admin/work/projects/store/sagas';
 import { adminProjectTasksWatcher } from '../modules/admin/work/projects/store/tasks/sagas';
@@ -61,6 +61,7 @@ import { AdminweeklyWatcher } from '../modules/admin/work/timesheets/store/weekl
 import projectViewInvoicesSaga from '../modules/admin/work/projects/view/invoices/store/sagas';
 import projectsViewPaymentsSaga from '../modules/admin/work/projects/view/payments/store/sagas';
 import projectsViewFilesSaga from '../modules/admin/work/projects/view/files/store/sagas';
+import AdminprojectActivityRoot from '../modules/admin/work/projects/view/activity/store/saga';
 
 // Root saga that combines all sagas
 export default function* rootSaga() {
@@ -91,7 +92,7 @@ export default function* rootSaga() {
     adminLeavesWatcher(),
     holidaysWatcher(),
     adminAttendanceWatcher(),
-    // appreciationsWatcher(),
+    appreciationsWatcher(),
     adminWorkProjectsWatcher(),
     // adminProjectTasksWatcher(),
     fork(adminProjectTasksWatcher),
@@ -116,6 +117,7 @@ export default function* rootSaga() {
     projectViewInvoicesSaga(),
     projectsViewPaymentsSaga(),
     projectsViewFilesSaga(),
+    AdminprojectActivityRoot(),
   ]);
 }
 // adminFinanceInvoiceWatcher

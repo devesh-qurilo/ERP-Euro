@@ -6,6 +6,7 @@ import ProjectTasksPanel from '../components/ProjectTasksPanel';
 import ProjectInvoicesTab from '../view/invoices/ProjectInvoicesTab';
 import ProjectPaymentsTab from '../view/payments/ProjectPaymentsTab';
 import ProjectFilesTab from '../view/files/ProjectFilesTab';
+import ProjectActivityTab from '../view/activity/ProjectActivityTab';
 
 /* --------------------------- helpers / formatters --------------------------- */
 function fmtDate(d) {
@@ -132,7 +133,7 @@ export default function AdminWorkProjectViewScreen({ route }) {
     { key: 'files', title: 'File' },
     { key: 'activity', title: 'Activity' },
     { key: 'notes', title: 'Notes' },
-    { key: 'discussion', title: 'Discussion' },
+    // { key: 'discussion', title: 'Discussion' },
   ]);
 
   const renderScene = SceneMap({
@@ -144,9 +145,13 @@ export default function AdminWorkProjectViewScreen({ route }) {
     ),
     payments: () => <ProjectPaymentsTab />,
     files: () => <ProjectFilesTab />,
-    activity: () => <Placeholder label="Activity" />,
+    activity: () => (
+      <ProjectActivityTab
+        route={{ params: { project: route.params.project } }}
+      />
+    ),
     notes: () => <Placeholder label="Notes" />,
-    discussion: () => <Placeholder label="Discussion" />,
+    // discussion: () => <Placeholder label="Discussion" />,
   });
 
   if (!project) {

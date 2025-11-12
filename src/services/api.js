@@ -1471,4 +1471,11 @@ export const AdminprojectFilesAPI = {
     api.delete(`/files/${encodeURIComponent(fileId)}`).then(r => r.data),
 };
 
+export const AdminprojectActivityAPI = {
+  listByProject: projectId =>
+    api
+      .get(`/projects/${encodeURIComponent(projectId)}/activity`)
+      .then(r => r.data),
+};
+
 export default api;
