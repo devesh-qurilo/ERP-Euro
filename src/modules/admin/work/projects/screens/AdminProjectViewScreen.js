@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import ProjectTasksPanel from '../components/ProjectTasksPanel';
 import ProjectInvoicesTab from '../view/invoices/ProjectInvoicesTab';
+import ProjectPaymentsTab from '../view/payments/ProjectPaymentsTab';
 
 /* --------------------------- helpers / formatters --------------------------- */
 function fmtDate(d) {
@@ -140,7 +141,7 @@ export default function AdminWorkProjectViewScreen({ route }) {
         route={{ params: { projectId: project.id, project } }}
       />
     ),
-    payments: () => <Placeholder label="Payments" />,
+    payments: () => <ProjectPaymentsTab />,
     files: () => <Placeholder label="Files" />,
     activity: () => <Placeholder label="Activity" />,
     notes: () => <Placeholder label="Notes" />,

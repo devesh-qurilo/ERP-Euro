@@ -59,6 +59,7 @@ import taskStagesWatcher from '../modules/admin/shared/taskStages/store/sagas';
 import { AdminTimesheetsWatcher } from '../modules/admin/work/timesheets/store/sagas';
 import { AdminweeklyWatcher } from '../modules/admin/work/timesheets/store/weekly/sagas';
 import projectViewInvoicesSaga from '../modules/admin/work/projects/view/invoices/store/sagas';
+import projectsViewPaymentsSaga from '../modules/admin/work/projects/view/payments/store/sagas';
 
 // Root saga that combines all sagas
 export default function* rootSaga() {
@@ -112,6 +113,7 @@ export default function* rootSaga() {
     AdminTimesheetsWatcher(),
     AdminweeklyWatcher(),
     projectViewInvoicesSaga(),
+    projectsViewPaymentsSaga(),
   ]);
 }
 // adminFinanceInvoiceWatcher

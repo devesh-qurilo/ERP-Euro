@@ -1098,6 +1098,24 @@ export const clientPaymentsAPI = {
       .then(r => r.data),
 };
 
+export const projectPaymentsAPI = {
+  // ✅ LIST BY PROJECT
+  listByProject: projectId =>
+    api
+      .get(`/api/payments/project/${encodeURIComponent(projectId)}`)
+      .then(r => r.data),
+
+  // (keep these so edit/delete continue to work exactly like client)
+  update: (paymentId, payload) =>
+    api
+      .put(`/api/payments/${encodeURIComponent(paymentId)}`, payload)
+      .then(r => r.data),
+
+  remove: paymentId =>
+    api
+      .delete(`/api/payments/${encodeURIComponent(paymentId)}`)
+      .then(r => r.data),
+};
 // --- PAYMENTS (CREATE) ---
 export const paymentsAPI = {
   create: async ({ payment, file }) => {

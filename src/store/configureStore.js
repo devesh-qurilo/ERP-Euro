@@ -38,7 +38,7 @@ const composeEnhancers =
     })) ||
   compose;
 
-const configureStore = () => {
+export const configureStore = () => {
   const store = createStore(
     rootReducer,
     composeEnhancers(applyMiddleware(sagaMiddleware)),
