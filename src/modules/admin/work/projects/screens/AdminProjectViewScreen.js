@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import ProjectTasksPanel from '../components/ProjectTasksPanel';
+import ProjectInvoicesTab from '../view/invoices/ProjectInvoicesTab';
 
 /* --------------------------- helpers / formatters --------------------------- */
 function fmtDate(d) {
@@ -134,7 +135,11 @@ export default function AdminWorkProjectViewScreen({ route }) {
 
   const renderScene = SceneMap({
     overview: () => <OverviewTab project={project} />,
-    invoices: () => <Placeholder label="Invoices" />,
+    invoices: () => (
+      <ProjectInvoicesTab
+        route={{ params: { projectId: project.id, project } }}
+      />
+    ),
     payments: () => <Placeholder label="Payments" />,
     files: () => <Placeholder label="Files" />,
     activity: () => <Placeholder label="Activity" />,

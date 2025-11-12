@@ -150,7 +150,7 @@ export default function ProjectsTable({
                     onPress={() => onUnarchive?.(item.id)}
                     style={styles.dotBtn}
                   >
-                    <Text>🗂️↩︎</Text>
+                    <Text>🗂️↩︎oo</Text>
                   </Pressable>
                 ) : (
                   <Pressable

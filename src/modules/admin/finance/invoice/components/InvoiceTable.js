@@ -93,7 +93,7 @@ export default function InvoiceTable({ items, loading, onOpenActions }) {
             </Col>
           </Row>
 
-          {items.map((row, idx) => (
+          {items?.map((row, idx) => (
             <Row
               key={row.id || idx}
               style={{ borderBottomWidth: 1, borderColor: '#e5e7eb' }}

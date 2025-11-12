@@ -52,6 +52,8 @@ import taskStagesReducer from '../modules/admin/shared/taskStages/store/reducer'
 import AdminTimesheetsReducer from '../modules/admin/work/timesheets/store/reducer';
 import AdminweeklyReducer from '../modules/admin/work/timesheets/store/weekly/reducer';
 
+import projectViewInvoicesReducer from '../modules/admin/work/projects/view/invoices/store/reducer';
+
 const rootReducer = combineReducers({
   auth: userReducer,
   employee: combineReducers({
@@ -112,6 +114,7 @@ const rootReducer = combineReducers({
     clientsViewNotes: clientsViewNotesReducer,
     deals: adminDealsReducer,
     dealsView: adminDealsViewReducer,
+    projectViewInvoices: projectViewInvoicesReducer,
   }),
 });
 
