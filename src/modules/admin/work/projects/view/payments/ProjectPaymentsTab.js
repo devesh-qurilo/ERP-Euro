@@ -1,3 +1,4 @@
+// src/modules/admin/work/projects/view/payments/ProjectPaymentsTab.js
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   View,
@@ -44,7 +45,6 @@ import {
   selectProjectPaymentsCreateBusy,
   rahul,
 } from './store/selectors';
-import { configureStore } from '../../../../../../store/configureStore';
 
 export default function ProjectPaymentsTab() {
   const route = useRoute();
@@ -52,6 +52,7 @@ export default function ProjectPaymentsTab() {
 
   const projectId =
     route?.params?.projectId || route?.params?.project?.id || route?.params?.id;
+  const clientId = route?.params?.client?.clientId || route?.params?.clientId; // optional, useful for preset
 
   const rows = useSelector(selectProjectPayments);
   const loading = useSelector(selectProjectPaymentsBusy);
@@ -67,7 +68,6 @@ export default function ProjectPaymentsTab() {
   const creatingPreset = useSelector(selectProjectPaymentsCreatingPreset);
   const createBusy = useSelector(selectProjectPaymentsCreateBusy);
   const raju = useSelector(rahul);
-
   const [q, setQ] = useState('');
 
   useFocusEffect(
@@ -75,7 +75,7 @@ export default function ProjectPaymentsTab() {
       if (projectId) dispatch(listByProject(projectId));
     }, [dispatch, projectId]),
   );
-  console.log('STATE anywhere:', raju);
+  console.log('STATE anywhere:', raju, projectId);
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
     if (!s) return rows;
@@ -100,13 +100,18 @@ export default function ProjectPaymentsTab() {
       },
     ]);
 
-  const onDownload = row =>
-    row?.receiptFileUrl && Linking.openURL(row.receiptFileUrl);
-  const onSaveEdit = payload =>
-    editing?.id && dispatch(updatePayment(editing.id, payload, projectId));
+  const onDownload = row => {
+    if (row?.receiptFileUrl) Linking.openURL(row.receiptFileUrl);
+  };
+
+  const onSaveEdit = payload => {
+    if (!editing?.id) return;
+    dispatch(updatePayment(editing.id, payload, projectId));
+  };
 
   return (
     <View style={{ padding: 12, gap: 12 }}>
+      {/* Filters */}
       <View style={s.card}>
         <Text style={s.title}>Filters</Text>
         <Text style={s.label}>Search</Text>
@@ -124,15 +129,20 @@ export default function ProjectPaymentsTab() {
         )}
       </View>
 
+      {/* Add Payment (opens PROJECT slice modal) */}
       <View style={{ marginTop: 8, flexDirection: 'row', gap: 8 }}>
         <Pressable
           style={[s.btn, s.primary]}
-          onPress={() => dispatch(openCreate({ projectId }))}
+          onPress={() => {
+            // pass both projectId and clientId (modal will ignore what it doesn't use)
+            dispatch(openCreate({ projectId, clientId }));
+          }}
         >
           <Text style={[s.btnTxt, { color: '#fff' }]}>+ Add Payment</Text>
         </Pressable>
       </View>
 
+      {/* Table */}
       <PaymentsTable
         data={filtered}
         loading={loading}
@@ -143,11 +153,14 @@ export default function ProjectPaymentsTab() {
         onDownload={onDownload}
       />
 
+      {/* View */}
       <PaymentViewModal
         visible={viewOpen}
         payment={viewing}
         onClose={() => dispatch(closeView())}
       />
+
+      {/* Edit */}
       <PaymentEditModal
         visible={editOpen}
         payment={editing}
@@ -155,9 +168,11 @@ export default function ProjectPaymentsTab() {
         onClose={() => dispatch(closeEdit())}
         onSave={onSaveEdit}
       />
+
+      {/* Create (uses PROJECT createOpen) */}
       <PaymentCreateModal
         visible={createOpen}
-        preset={creatingPreset}
+        preset={creatingPreset} // { projectId, clientId? }
         busy={createBusy}
         onClose={() => dispatch(closeCreate())}
         onSave={payload => dispatch(createPayment(payload, projectId))}

@@ -1,30 +1,29 @@
 export const rahul = s => s?.admin || [];
-
 export const selectProjectPayments = s =>
-  s?.admin?.projectsViewPayments?.items || [];
+  s?.admin?.projectViewPayments?.items || [];
 export const selectProjectPaymentsBusy = s =>
-  !!s?.admin?.projectsViewPayments?.loading;
+  !!s?.admin?.projectViewPayments?.loading;
 export const selectProjectPaymentsError = s =>
-  s?.admin?.projectsViewPayments?.error;
+  s?.admin?.projectViewPayments?.error;
 
 export const selectProjectPaymentsViewOpen = s =>
-  !!s?.admin?.projectsViewPayments?.viewOpen;
+  !!s?.admin?.projectViewPayments?.viewOpen;
 export const selectProjectPaymentsViewing = s =>
-  s?.admin?.projectsViewPayments?.viewing;
+  s?.admin?.projectViewPayments?.viewing;
 
 export const selectProjectPaymentsEditOpen = s =>
-  !!s?.admin?.projectsViewPayments?.editOpen;
+  !!s?.admin?.projectViewPayments?.editOpen;
 export const selectProjectPaymentsEditing = s =>
-  s?.admin?.projectsViewPayments?.editing;
+  s?.admin?.projectViewPayments?.editing;
 
 export const selectProjectPaymentsSaving = s =>
-  !!s?.admin?.projectsViewPayments?.busy;
+  !!s?.admin?.projectViewPayments?.busy;
 export const selectProjectPaymentsBusyIds = s =>
-  s?.admin?.projectsViewPayments?.busyIds || [];
+  s?.admin?.projectViewPayments?.busyIds || [];
 
 export const selectProjectPaymentsCreateOpen = s =>
-  !!s?.admin?.projectsViewPayments?.createOpen;
+  !!s?.admin?.projectViewPayments?.createOpen;
 export const selectProjectPaymentsCreatingPreset = s =>
-  s?.admin?.projectsViewPayments?.creatingPreset || {};
+  s?.admin?.projectViewPayments?.creatingPreset || {};
 export const selectProjectPaymentsCreateBusy = s =>
-  !!s?.admin?.projectsViewPayments?.createBusy;
+  !!s?.admin?.projectViewPayments?.createBusy;

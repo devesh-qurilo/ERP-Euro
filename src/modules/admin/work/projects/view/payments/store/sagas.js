@@ -1,15 +1,13 @@
-// ...imports
+import { all, call, put, takeLatest } from 'redux-saga/effects';
+import * as T from './types';
 import {
   projectPaymentsAPI,
   paymentsAPI,
 } from '../../../../../../../services/api';
-import { all, call, put, takeLatest } from 'redux-saga/effects';
-import * as T from './types';
 
 function* listByProjectSaga({ payload: { projectId } }) {
   try {
-    const data = yield call(projectPaymentsAPI.listByProject, projectId); // ✅ correct endpoint
-    console.log('list by poroject', data);
+    const data = yield call(projectPaymentsAPI.listByProject, projectId);
     yield put({ type: T.LIST_BY_PROJECT_SUCCESS, payload: data });
   } catch (e) {
     yield put({
@@ -22,7 +20,6 @@ function* listByProjectSaga({ payload: { projectId } }) {
 function* updatePaymentSaga({ payload: { paymentId, payload, projectId } }) {
   try {
     const data = yield call(projectPaymentsAPI.update, paymentId, payload);
-    console.log('create project payment', data);
     yield put({ type: T.UPDATE_SUCCESS, payload: data });
     yield put({ type: T.LIST_BY_PROJECT_REQUEST, payload: { projectId } });
   } catch (e) {
@@ -63,7 +60,7 @@ function* deletePaymentSaga({ payload: { paymentId, projectId } }) {
 
 export function* projectsViewPaymentsWatcher() {
   yield all([
-    takeLatest(T.LIST_BY_PROJECT_REQUEST, listByProjectSaga), // ✅
+    takeLatest(T.LIST_BY_PROJECT_REQUEST, listByProjectSaga),
     takeLatest(T.UPDATE_REQUEST, updatePaymentSaga),
     takeLatest(T.DELETE_REQUEST, deletePaymentSaga),
     takeLatest(T.CREATE_REQUEST, createPaymentSaga),

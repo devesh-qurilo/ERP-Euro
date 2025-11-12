@@ -4,10 +4,11 @@ export const LIST_BY_PROJECT_REQUEST = `${NS}/LIST_BY_PROJECT_REQUEST`;
 export const LIST_BY_PROJECT_SUCCESS = `${NS}/LIST_BY_PROJECT_SUCCESS`;
 export const LIST_BY_PROJECT_FAILURE = `${NS}/LIST_BY_PROJECT_FAILURE`;
 
-export const EDIT_OPEN = `${NS}/EDIT_OPEN`;
-export const EDIT_CLOSE = `${NS}/EDIT_CLOSE`;
 export const VIEW_OPEN = `${NS}/VIEW_OPEN`;
 export const VIEW_CLOSE = `${NS}/VIEW_CLOSE`;
+
+export const EDIT_OPEN = `${NS}/EDIT_OPEN`;
+export const EDIT_CLOSE = `${NS}/EDIT_CLOSE`;
 
 export const UPDATE_REQUEST = `${NS}/UPDATE_REQUEST`;
 export const UPDATE_SUCCESS = `${NS}/UPDATE_SUCCESS`;
