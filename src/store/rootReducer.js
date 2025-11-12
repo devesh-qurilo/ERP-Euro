@@ -54,6 +54,7 @@ import AdminweeklyReducer from '../modules/admin/work/timesheets/store/weekly/re
 
 import projectViewInvoicesReducer from '../modules/admin/work/projects/view/invoices/store/reducer';
 import projectViewPaymentsReducer from '../modules/admin/work/projects/view/payments/store/reducer';
+import projectsViewFilesReducer from '../modules/admin/work/projects/view/files/store/reducer';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -117,6 +118,7 @@ const rootReducer = combineReducers({
     dealsView: adminDealsViewReducer,
     projectViewInvoices: projectViewInvoicesReducer,
     projectViewPayments: projectViewPaymentsReducer,
+    projectsViewFiles: projectsViewFilesReducer,
   }),
 });
 

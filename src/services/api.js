@@ -1445,4 +1445,30 @@ export const projectInvoicesAPI = {
       .then(r => (Array.isArray(r.data) ? r.data : [])),
 };
 
+// --- PROJECT FILES ---
+export const AdminprojectFilesAPI = {
+  list: projectId =>
+    api
+      .get(`/files/projects/${encodeURIComponent(projectId)}`)
+      .then(r => r.data),
+
+  upload: async (projectId, file) => {
+    const fd = new FormData();
+    // file = { uri, name, type }
+    fd.append('file', {
+      uri: file.uri,
+      name: file.name || 'upload.bin',
+      type: file.type || 'application/octet-stream',
+    });
+    return api
+      .post(`/files/projects/${encodeURIComponent(projectId)}`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
+
+  remove: fileId =>
+    api.delete(`/files/${encodeURIComponent(fileId)}`).then(r => r.data),
+};
+
 export default api;
