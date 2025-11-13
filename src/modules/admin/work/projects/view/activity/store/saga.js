@@ -5,6 +5,7 @@ import { AdminprojectActivityAPI } from '../../../../../../../services/api';
 function* listByProjectSaga({ payload: { projectId } }) {
   try {
     const data = yield call(AdminprojectActivityAPI.listByProject, projectId);
+    console.log('raggg', data);
     yield put({ type: T.LIST_BY_PROJECT_SUCCESS, payload: data });
   } catch (e) {
     yield put({

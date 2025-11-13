@@ -62,6 +62,7 @@ import projectViewInvoicesSaga from '../modules/admin/work/projects/view/invoice
 import projectsViewPaymentsSaga from '../modules/admin/work/projects/view/payments/store/sagas';
 import projectsViewFilesSaga from '../modules/admin/work/projects/view/files/store/sagas';
 import AdminprojectActivityRoot from '../modules/admin/work/projects/view/activity/store/saga';
+import projectNotesRoot from '../modules/admin/work/projects/view/notes/store/saga';
 
 // Root saga that combines all sagas
 export default function* rootSaga() {
@@ -118,6 +119,7 @@ export default function* rootSaga() {
     projectsViewPaymentsSaga(),
     projectsViewFilesSaga(),
     AdminprojectActivityRoot(),
+    projectNotesRoot(),
   ]);
 }
 // adminFinanceInvoiceWatcher

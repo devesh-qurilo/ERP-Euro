@@ -1478,4 +1478,22 @@ export const AdminprojectActivityAPI = {
       .then(r => r.data),
 };
 
+// --- PROJECT NOTES ---
+export const projectNotesAPI = {
+  listByProject: projectId =>
+    api
+      .get(`/projects/${encodeURIComponent(projectId)}/notes`)
+      .then(r => r.data),
+
+  create: (projectId, note) =>
+    api
+      .post(`/projects/${encodeURIComponent(projectId)}/notes`, note)
+      .then(r => r.data),
+
+  remove: noteId =>
+    api
+      .delete(`/notes/project/${encodeURIComponent(noteId)}`)
+      .then(r => r.data),
+};
+
 export default api;

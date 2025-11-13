@@ -7,6 +7,7 @@ import ProjectInvoicesTab from '../view/invoices/ProjectInvoicesTab';
 import ProjectPaymentsTab from '../view/payments/ProjectPaymentsTab';
 import ProjectFilesTab from '../view/files/ProjectFilesTab';
 import ProjectActivityTab from '../view/activity/ProjectActivityTab';
+import ProjectNotesTab from '../view/notes/ProjectNotesTab';
 
 /* --------------------------- helpers / formatters --------------------------- */
 function fmtDate(d) {
@@ -150,7 +151,7 @@ export default function AdminWorkProjectViewScreen({ route }) {
         route={{ params: { project: route.params.project } }}
       />
     ),
-    notes: () => <Placeholder label="Notes" />,
+    notes: () => <ProjectNotesTab />,
     // discussion: () => <Placeholder label="Discussion" />,
   });
 
