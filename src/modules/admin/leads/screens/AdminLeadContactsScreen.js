@@ -8,14 +8,17 @@ import {
   TextInput,
   Pressable,
   Alert,
+  Modal,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
+
 import {
   fetchAdminLeads,
   setAdminLeadsFilters,
   deleteAdminLead,
   updateAdminLead,
-  createAdminLeadRequest, // <-- if your action is named differently, adjust here
+  createLeadRequest,
 } from '../store/actions';
 import {
   selectAdminLeads,
@@ -24,9 +27,11 @@ import {
   selectAdminLeadsFilters,
   selectAdminLeadsBusyIds,
 } from '../store/selectors';
+
 import LeadsTable from '../components/LeadsTable';
 import AddLeadModal from '../contacts/components/AddLeadModal';
 
+// Simple select dropdown for filters
 const Select = ({ label, value, options, onChange, style }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -58,10 +63,30 @@ const Select = ({ label, value, options, onChange, style }) => {
   );
 };
 
+// Helper: only allowed fields for PUT /leads/:id
+const buildUpdateBody = payload => ({
+  name: payload.name,
+  email: payload.email,
+  clientCategory: payload.clientCategory,
+  leadSource: payload.leadSource,
+  leadOwner: payload.leadOwner,
+  addedBy: payload.addedBy,
+  autoConvertToClient: payload.autoConvertToClient,
+  companyName: payload.companyName,
+  officialWebsite: payload.officialWebsite,
+  mobileNumber: payload.mobileNumber,
+  officePhone: payload.officePhone,
+  city: payload.city,
+  state: payload.state,
+  postalCode: payload.postalCode,
+  country: payload.country,
+  companyAddress: payload.companyAddress,
+});
+
 export default function AdminLeadContactsScreen() {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
 
-  // ------- Redux state -------
   const list = useSelector(selectAdminLeads);
   const loading = useSelector(selectAdminLeadsLoading);
   const error = useSelector(selectAdminLeadsError);
@@ -74,13 +99,13 @@ export default function AdminLeadContactsScreen() {
     end: '',
   };
   const busyIds = useSelector(selectAdminLeadsBusyIds);
-  const me = useSelector(s => s?.auth?.profile?.employeeId) || 'EMP-009';
+  const me = useSelector(s => s?.auth?.profile?.employeeId) || '';
 
   useEffect(() => {
     dispatch(fetchAdminLeads());
   }, [dispatch]);
 
-  // ------- Filters options -------
+  // ------- Filter options -------
   const sources = useMemo(
     () => [
       'All',
@@ -90,6 +115,7 @@ export default function AdminLeadContactsScreen() {
     ],
     [list],
   );
+
   const owners = useMemo(
     () => [
       'All',
@@ -99,6 +125,7 @@ export default function AdminLeadContactsScreen() {
     ],
     [list],
   );
+
   const statuses = useMemo(
     () => [
       'All',
@@ -107,11 +134,12 @@ export default function AdminLeadContactsScreen() {
     [list],
   );
 
-  // ------- Filtering -------
+  // ------- Apply filters -------
   const filtered = useMemo(() => {
     const q = String(filters.q || '')
       .trim()
       .toLowerCase();
+
     return (list || []).filter(l => {
       if (q) {
         const hay = `${l.name} ${l.email} ${l.companyName || ''} ${
@@ -119,16 +147,19 @@ export default function AdminLeadContactsScreen() {
         } ${l.city || ''} ${l.country || ''}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
+
       if (
         (filters.source || 'All') !== 'All' &&
         (l.leadSource || '') !== filters.source
       )
         return false;
+
       if (
         (filters.owner || 'All') !== 'All' &&
         (l.leadOwner || '') !== filters.owner
       )
         return false;
+
       if (
         (filters.status || 'All') !== 'All' &&
         (l.status || '') !== filters.status
@@ -136,6 +167,7 @@ export default function AdminLeadContactsScreen() {
         return false;
 
       const c = l.createdAt ? new Date(l.createdAt) : null;
+
       if (filters.start) {
         const s = new Date(filters.start);
         if (c && s > c) return false;
@@ -144,6 +176,7 @@ export default function AdminLeadContactsScreen() {
         const e = new Date(filters.end);
         if (c && e < c) return false;
       }
+
       return true;
     });
   }, [list, filters]);
@@ -168,16 +201,40 @@ export default function AdminLeadContactsScreen() {
       }),
     );
 
-  // ------- Row actions -------
-  const onView = lead => {
-    // future screen
-    Alert.alert('View Lead', `Open view for: ${lead.name}`);
+  // =========================
+  //   ACTION MENU + FORMS
+  // =========================
+  const [actionLead, setActionLead] = useState(null);
+  const [showActionMenu, setShowActionMenu] = useState(false);
+
+  // formMode: 'create' | 'edit' | 'convert'
+  const [formMode, setFormMode] = useState('create');
+  const [formTarget, setFormTarget] = useState(null);
+  const [openForm, setOpenForm] = useState(false);
+
+  // 3-dot click callback from table
+  const onRowMenuPress = lead => {
+    setActionLead(lead);
+    setShowActionMenu(true);
   };
-  const onEdit = lead => {
-    // future screen
-    Alert.alert('Edit Lead', `Open edit for: ${lead.name}`);
+
+  // ------- action handlers -------
+  const handleView = lead => {
+    setShowActionMenu(false);
+    // TODO: adjust route name as per your navigator
+    // navigation.navigate('AdminLeadViewScreen', { id: lead.id });
+    navigation.navigate('AdminLeadViewScreen', { id: lead.id });
   };
-  const onDelete = lead => {
+
+  const handleEdit = lead => {
+    setShowActionMenu(false);
+    setFormMode('edit');
+    setFormTarget(lead);
+    setOpenForm(true);
+  };
+
+  const handleDelete = lead => {
+    setShowActionMenu(false);
     Alert.alert('Delete Lead', `Delete ${lead.name}?`, [
       { text: 'Cancel' },
       {
@@ -187,17 +244,52 @@ export default function AdminLeadContactsScreen() {
       },
     ]);
   };
-  const onConvert = lead => {
-    // future screen
-    Alert.alert('Convert', `Convert ${lead.name} to Client (future screen).`);
+
+  const handleConvert = lead => {
+    // "Add to Client"
+    setShowActionMenu(false);
+    setFormMode('convert');
+    setFormTarget(lead);
+    setOpenForm(true); // same AddLeadModal open
   };
 
-  // ------- Add Lead modal wiring -------
-  const [openAdd, setOpenAdd] = useState(false);
+  const openCreateModal = () => {
+    setFormMode('create');
+    setFormTarget(null);
+    setOpenForm(true);
+  };
+
+  // ------- Save from AddLeadModal -------
+  const handleSaveLead = payload => {
+    if (formMode === 'create') {
+      // POST /leads
+      const body = {
+        ...payload,
+        addedBy: payload?.addedBy || me,
+        leadOwner: payload?.leadOwner || me,
+      };
+      dispatch(createLeadRequest(body));
+    } else if (formMode === 'edit' && formTarget) {
+      // EDIT: PUT /leads/:id with ONLY allowed fields
+      const base = buildUpdateBody(payload);
+      dispatch(updateAdminLead(formTarget.id, base));
+    } else if (formMode === 'convert' && formTarget) {
+      // ADD TO CLIENT: same fields, but autoConvertToClient = true
+      const base = buildUpdateBody(payload);
+      const body = {
+        ...base,
+        autoConvertToClient: true,
+      };
+      dispatch(updateAdminLead(formTarget.id, body));
+    }
+
+    setOpenForm(false);
+    setFormTarget(null);
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.wrap}>
-      {/* 1) Filters */}
+      {/* 1) Filters card */}
       <View style={styles.card}>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
           <View style={{ flexBasis: '60%', minWidth: 220, paddingRight: 8 }}>
@@ -211,6 +303,7 @@ export default function AdminLeadContactsScreen() {
               autoCapitalize="none"
             />
           </View>
+
           <View style={{ flexBasis: '20%', minWidth: 150, paddingRight: 8 }}>
             <Text style={styles.label}>Start From</Text>
             <TextInput
@@ -221,6 +314,7 @@ export default function AdminLeadContactsScreen() {
               style={styles.input}
             />
           </View>
+
           <View style={{ flexBasis: '20%', minWidth: 150 }}>
             <Text style={styles.label}>End To</Text>
             <TextInput
@@ -261,52 +355,93 @@ export default function AdminLeadContactsScreen() {
         )}
       </View>
 
-      {/* 2) Header + Add */}
+      {/* 2) Header + Add button */}
       <View style={styles.headerRow}>
         <Text style={styles.sectionTitle}>Lead Contacts</Text>
         <Pressable
           style={[styles.primaryBtn, { backgroundColor: '#1d4ed8' }]}
-          onPress={() => setOpenAdd(true)}
+          onPress={openCreateModal}
         >
           <Text style={[styles.primaryTxt, { color: '#fff' }]}>+ Add Lead</Text>
         </Pressable>
       </View>
 
-      {/* 3) List (horizontal table) */}
+      {/* 3) Table area */}
       <LeadsTable
         data={filtered}
         loading={loading}
         busyIds={busyIds}
-        onView={onView}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        onConvert={onConvert}
+        onRowMenuPress={onRowMenuPress}
       />
       {error && <Text style={styles.err}>Error: {String(error)}</Text>}
 
-      {/* Add Lead Modal (inline) */}
+      {/* 4) Add / Edit / Add-to-client modal */}
       <AddLeadModal
-        visible={openAdd}
-        onClose={() => setOpenAdd(false)}
-        onSave={payload => {
-          // auto-inject sensible defaults if the modal doesn’t already
-          const body = {
-            ...payload,
-            addedBy: payload?.addedBy || me,
-            leadOwner: payload?.leadOwner || me,
-          };
-          dispatch(createAdminLeadRequest(body));
-          setOpenAdd(false);
+        visible={openForm}
+        onClose={() => {
+          setOpenForm(false);
+          setFormTarget(null);
         }}
+        onSave={handleSaveLead}
         currentUserId={me}
         defaultOwnerId={me}
       />
+
+      {/* 5) 3-dot Action bottom sheet */}
+      <Modal
+        visible={showActionMenu && !!actionLead}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setShowActionMenu(false)}
+      >
+        <Pressable
+          style={styles.menuBackdrop}
+          onPress={() => setShowActionMenu(false)}
+        >
+          <View style={styles.actionSheet}>
+            <Text style={styles.actionTitle}>{actionLead?.name || 'Lead'}</Text>
+
+            <Pressable
+              style={styles.actionBtn}
+              onPress={() => handleView(actionLead)}
+            >
+              <Text style={styles.actionTxt}>View</Text>
+            </Pressable>
+
+            <Pressable
+              style={styles.actionBtn}
+              onPress={() => handleEdit(actionLead)}
+            >
+              <Text style={styles.actionTxt}>Edit</Text>
+            </Pressable>
+
+            <Pressable
+              style={[styles.actionBtn, styles.actionDanger]}
+              onPress={() => handleDelete(actionLead)}
+            >
+              <Text style={[styles.actionTxt, styles.actionDangerTxt]}>
+                Delete
+              </Text>
+            </Pressable>
+
+            <Pressable
+              style={styles.actionBtn}
+              onPress={() => handleConvert(actionLead)}
+            >
+              <Text style={styles.actionTxt}>Add to Client</Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { padding: 12, gap: 12 },
+  wrap: {
+    padding: 12,
+    gap: 12,
+  },
   card: {
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -314,7 +449,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e5e7eb',
   },
-  label: { fontSize: 12, fontWeight: '800', color: '#374151', marginBottom: 6 },
+  label: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#374151',
+    marginBottom: 6,
+  },
   input: {
     borderWidth: 1,
     borderColor: '#e5e7eb',
@@ -365,6 +505,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   primaryTxt: { fontWeight: '900', color: '#111827' },
+
   clearBtn: {
     alignSelf: 'flex-start',
     marginTop: 8,
@@ -375,7 +516,10 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     backgroundColor: '#fff',
   },
-  clearTxt: { fontWeight: '800', color: '#111827' },
+  clearTxt: {
+    fontWeight: '800',
+    color: '#111827',
+  },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -387,5 +531,45 @@ const styles = StyleSheet.create({
     color: '#0b0b0c',
     marginTop: 4,
   },
-  err: { color: '#b00020', textAlign: 'center', marginTop: 10 },
+  err: {
+    color: '#b00020',
+    textAlign: 'center',
+    marginTop: 10,
+  },
+
+  // bottom sheet action menu
+  menuBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    justifyContent: 'flex-end',
+  },
+  actionSheet: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  actionTitle: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#111827',
+    marginBottom: 10,
+  },
+  actionBtn: {
+    paddingVertical: 10,
+  },
+  actionTxt: {
+    fontSize: 14,
+    color: '#111827',
+    fontWeight: '600',
+  },
+  actionDanger: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderColor: '#fee2e2',
+    marginVertical: 4,
+  },
+  actionDangerTxt: {
+    color: '#b91c1c',
+  },
 });

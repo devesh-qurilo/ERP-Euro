@@ -20,6 +20,51 @@ const Field = ({ label, required, children }) => (
   </View>
 );
 
+const ChoicePills = ({ options, value, onChange }) => {
+  return (
+    <View style={styles.pillsRow}>
+      {options.map(opt => {
+        const selected = opt === value;
+        return (
+          <Pressable
+            key={opt}
+            onPress={() => onChange(opt)}
+            style={[styles.pill, selected && styles.pillSelected]}
+          >
+            <Text
+              style={[styles.pillText, selected && styles.pillTextSelected]}
+            >
+              {opt}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+};
+
+// Option lists for dropdown-style (pills) fields
+const CLIENT_CATEGORIES = ['Development', 'Production', 'Startup', 'Agency'];
+const LEAD_SOURCES = [
+  'Website',
+  'Referral',
+  'Social Media',
+  'Cold Call',
+  'Email Campaign',
+  'Other',
+];
+
+const PIPELINES = ['Default Pipeline'];
+const DEAL_STAGES = [
+  'Generated',
+  'Qualified',
+  'Proposal',
+  'Negotiation',
+  'Win',
+  'Lost',
+];
+const DEAL_CATEGORIES = ['Sales', 'Development', 'Production'];
+
 export default function AddLeadModal({
   visible,
   onClose,
@@ -28,18 +73,34 @@ export default function AddLeadModal({
   defaultOwnerId, // e.g. EMP-010
 }) {
   const [form, setForm] = useState({
+    // Lead basic
     name: '',
     email: '',
     mobileNumber: '',
     clientCategory: 'Corporate',
+    leadSource: 'Website',
+
+    // Owner info
     addedBy: currentUserId || '',
     leadOwner: defaultOwnerId || '',
+
+    // Company details
+    companyName: '',
+    officialWebsite: '',
+    officePhone: '',
+    city: '',
+    state: '',
+    postalCode: '',
+    country: '',
+    companyAddress: '',
+
+    // Deal toggles + deal info
     createDeal: false,
     autoConvertToClient: false,
     deal: {
       title: '',
       pipeline: 'Default Pipeline',
-      dealStage: 'Win',
+      dealStage: 'Generated',
       dealCategory: 'Enterprise',
       value: '',
       expectedCloseDate: '',
@@ -47,7 +108,9 @@ export default function AddLeadModal({
       dealWatchers: [defaultOwnerId || ''],
     },
   });
+
   const [saving, setSaving] = useState(false);
+
   const valid = useMemo(
     () =>
       form.name.trim() &&
@@ -65,33 +128,45 @@ export default function AddLeadModal({
     if (!valid || saving) return;
     try {
       setSaving(true);
-      const payload = {
+
+      const payload: any = {
         name: form.name.trim(),
         email: form.email.trim(),
         mobileNumber: form.mobileNumber.trim(),
         clientCategory: form.clientCategory,
+        leadSource: form.leadSource,
         addedBy: form.addedBy,
         leadOwner: form.leadOwner,
         createDeal: !!form.createDeal,
         autoConvertToClient: !!form.autoConvertToClient,
-        ...(form.createDeal
-          ? {
-              deal: {
-                title: form.deal.title.trim(),
-                pipeline: form.deal.pipeline,
-                dealStage: form.deal.dealStage,
-                dealCategory: form.deal.dealCategory,
-                value: Number(form.deal.value || 0),
-                expectedCloseDate: form.deal.expectedCloseDate,
-                dealAgent: form.deal.dealAgent,
-                dealWatchers: form.deal.dealWatchers?.filter(Boolean) || [],
-              },
-            }
-          : {}),
+
+        // company details (NEW)
+        companyName: form.companyName.trim(),
+        officialWebsite: form.officialWebsite.trim(),
+        officePhone: form.officePhone.trim(),
+        city: form.city.trim(),
+        state: form.state.trim(),
+        postalCode: form.postalCode.trim(),
+        country: form.country.trim(),
+        companyAddress: form.companyAddress.trim(),
       };
+
+      if (form.createDeal) {
+        payload.deal = {
+          title: form.deal.title.trim(),
+          pipeline: form.deal.pipeline,
+          dealStage: form.deal.dealStage,
+          dealCategory: form.deal.dealCategory,
+          value: Number(form.deal.value || 0),
+          expectedCloseDate: form.deal.expectedCloseDate,
+          dealAgent: form.deal.dealAgent,
+          dealWatchers: form.deal.dealWatchers?.filter(Boolean) || [],
+        };
+      }
+
       console.log('[LEADS][MODAL] will save ->', payload);
+      // parent should dispatch createLeadRequest(payload) in onSave
       await onSave?.(payload);
-      dispatch(createLeadRequest(payload));
       onClose?.();
     } finally {
       setSaving(false);
@@ -108,63 +183,188 @@ export default function AddLeadModal({
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
           <Text style={styles.title}>Add Lead</Text>
-          <ScrollView contentContainerStyle={{ paddingBottom: 10 }}>
+
+          <ScrollView
+            contentContainerStyle={{ paddingBottom: 12 }}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* BASIC DETAILS */}
+            <Text style={styles.sectionTitle}>Basic Details</Text>
             <Field label="Lead Name" required>
               <TextInput
                 style={styles.input}
                 value={form.name}
                 onChangeText={v => set('name', v)}
-              />
-            </Field>
-            <Field label="Email">
-              <TextInput
-                style={styles.input}
-                value={form.email}
-                onChangeText={v => set('email', v)}
-                autoCapitalize="none"
-                keyboardType="email-address"
-              />
-            </Field>
-            <Field label="Mobile">
-              <TextInput
-                style={styles.input}
-                value={form.mobileNumber}
-                onChangeText={v => set('mobileNumber', v)}
-                keyboardType="phone-pad"
-              />
-            </Field>
-            <Field label="Client Category">
-              <TextInput
-                style={styles.input}
-                value={form.clientCategory}
-                onChangeText={v => set('clientCategory', v)}
-              />
-            </Field>
-            <Field label="Lead Owner (Employee ID)" required>
-              <TextInput
-                style={styles.input}
-                value={form.leadOwner}
-                onChangeText={v => set('leadOwner', v)}
-                autoCapitalize="characters"
-              />
-            </Field>
-            <Field label="Added By (Employee ID)" required>
-              <TextInput
-                style={styles.input}
-                value={form.addedBy}
-                onChangeText={v => set('addedBy', v)}
-                autoCapitalize="characters"
+                placeholder="Enter lead name"
               />
             </Field>
 
-            <View style={styles.row}>
+            <View style={styles.row2}>
+              <View style={styles.half}>
+                <Field label="Email">
+                  <TextInput
+                    style={styles.input}
+                    value={form.email}
+                    onChangeText={v => set('email', v)}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    placeholder="name@example.com"
+                  />
+                </Field>
+              </View>
+              <View style={styles.half}>
+                <Field label="Mobile">
+                  <TextInput
+                    style={styles.input}
+                    value={form.mobileNumber}
+                    onChangeText={v => set('mobileNumber', v)}
+                    keyboardType="phone-pad"
+                    placeholder="+91 98xxxxxx"
+                  />
+                </Field>
+              </View>
+            </View>
+
+            <Field label="Client Category">
+              <ChoicePills
+                options={CLIENT_CATEGORIES}
+                value={form.clientCategory}
+                onChange={v => set('clientCategory', v)}
+              />
+            </Field>
+
+            <Field label="Lead Source">
+              <ChoicePills
+                options={LEAD_SOURCES}
+                value={form.leadSource}
+                onChange={v => set('leadSource', v)}
+              />
+            </Field>
+
+            {/* OWNER INFO */}
+            <Text style={styles.sectionTitle}>Owner & Created By</Text>
+            <View style={styles.row2}>
+              <View style={styles.half}>
+                <Field label="Lead Owner (Employee ID)" required>
+                  <TextInput
+                    style={styles.input}
+                    value={form.leadOwner}
+                    onChangeText={v => set('leadOwner', v)}
+                    autoCapitalize="characters"
+                    placeholder="EMP-009"
+                  />
+                </Field>
+              </View>
+              <View style={styles.half}>
+                <Field label="Added By (Employee ID)" required>
+                  <TextInput
+                    style={styles.input}
+                    value={form.addedBy}
+                    onChangeText={v => set('addedBy', v)}
+                    autoCapitalize="characters"
+                    placeholder="EMP-015"
+                  />
+                </Field>
+              </View>
+            </View>
+
+            {/* COMPANY DETAILS */}
+            <Text style={styles.sectionTitle}>Company Details</Text>
+
+            <Field label="Company Name">
+              <TextInput
+                style={styles.input}
+                value={form.companyName}
+                onChangeText={v => set('companyName', v)}
+                placeholder="Global Corporation Ltd."
+              />
+            </Field>
+
+            <Field label="Official Website">
+              <TextInput
+                style={styles.input}
+                value={form.officialWebsite}
+                onChangeText={v => set('officialWebsite', v)}
+                autoCapitalize="none"
+                placeholder="https://www.example.com"
+              />
+            </Field>
+
+            <View style={styles.row2}>
+              <View style={styles.half}>
+                <Field label="Office Phone">
+                  <TextInput
+                    style={styles.input}
+                    value={form.officePhone}
+                    onChangeText={v => set('officePhone', v)}
+                    keyboardType="phone-pad"
+                    placeholder="+44-20-7940-0290"
+                  />
+                </Field>
+              </View>
+              <View style={styles.half}>
+                <Field label="Postal Code">
+                  <TextInput
+                    style={styles.input}
+                    value={form.postalCode}
+                    onChangeText={v => set('postalCode', v)}
+                    placeholder="SW1A 1AA"
+                  />
+                </Field>
+              </View>
+            </View>
+
+            <View style={styles.row2}>
+              <View style={styles.half}>
+                <Field label="City">
+                  <TextInput
+                    style={styles.input}
+                    value={form.city}
+                    onChangeText={v => set('city', v)}
+                    placeholder="London"
+                  />
+                </Field>
+              </View>
+              <View style={styles.half}>
+                <Field label="State / Province">
+                  <TextInput
+                    style={styles.input}
+                    value={form.state}
+                    onChangeText={v => set('state', v)}
+                    placeholder="England"
+                  />
+                </Field>
+              </View>
+            </View>
+
+            <Field label="Country">
+              <TextInput
+                style={styles.input}
+                value={form.country}
+                onChangeText={v => set('country', v)}
+                placeholder="United Kingdom"
+              />
+            </Field>
+
+            <Field label="Company Address">
+              <TextInput
+                style={[styles.input, { minHeight: 70 }]}
+                value={form.companyAddress}
+                onChangeText={v => set('companyAddress', v)}
+                multiline
+                placeholder="1 Parliament Square, Westminster"
+              />
+            </Field>
+
+            {/* DEAL TOGGLES */}
+            <View style={styles.rowSwitch}>
               <Text style={styles.label}>Create Deal</Text>
               <Switch
                 value={form.createDeal}
                 onValueChange={v => set('createDeal', v)}
               />
             </View>
-            <View style={[styles.row, { marginBottom: 12 }]}>
+            <View style={[styles.rowSwitch, { marginBottom: 12 }]}>
               <Text style={styles.label}>Auto Convert To Client</Text>
               <Switch
                 value={form.autoConvertToClient}
@@ -172,73 +372,97 @@ export default function AddLeadModal({
               />
             </View>
 
+            {/* DEAL DETAILS */}
             {form.createDeal && (
               <View style={styles.block}>
-                <Text style={styles.subTitle}>Deal Details</Text>
-                <Field label="Title">
+                <Text style={styles.sectionTitle}>Deal Details</Text>
+
+                <Field label="Deal Title">
                   <TextInput
                     style={styles.input}
                     value={form.deal.title}
                     onChangeText={v => setDeal('title', v)}
+                    placeholder="Misso"
                   />
                 </Field>
+
                 <Field label="Pipeline">
-                  <TextInput
-                    style={styles.input}
+                  <ChoicePills
+                    options={PIPELINES}
                     value={form.deal.pipeline}
-                    onChangeText={v => setDeal('pipeline', v)}
+                    onChange={v => setDeal('pipeline', v)}
                   />
                 </Field>
+
                 <Field label="Stage">
-                  <TextInput
-                    style={styles.input}
+                  <ChoicePills
+                    options={DEAL_STAGES}
                     value={form.deal.dealStage}
-                    onChangeText={v => setDeal('dealStage', v)}
+                    onChange={v => setDeal('dealStage', v)}
                   />
                 </Field>
+
                 <Field label="Category">
-                  <TextInput
-                    style={styles.input}
+                  <ChoicePills
+                    options={DEAL_CATEGORIES}
                     value={form.deal.dealCategory}
-                    onChangeText={v => setDeal('dealCategory', v)}
+                    onChange={v => setDeal('dealCategory', v)}
                   />
                 </Field>
-                <Field label="Value (number)">
-                  <TextInput
-                    style={styles.input}
-                    value={String(form.deal.value)}
-                    onChangeText={v => setDeal('value', v)}
-                    keyboardType="numeric"
-                  />
-                </Field>
-                <Field label="Expected Close Date (YYYY-MM-DD)">
-                  <TextInput
-                    style={styles.input}
-                    value={form.deal.expectedCloseDate}
-                    onChangeText={v => setDeal('expectedCloseDate', v)}
-                  />
-                </Field>
-                <Field label="Deal Agent (Employee ID)">
-                  <TextInput
-                    style={styles.input}
-                    value={form.deal.dealAgent}
-                    onChangeText={v => setDeal('dealAgent', v)}
-                    autoCapitalize="characters"
-                  />
-                </Field>
-                <Field label="Deal Watchers (comma-sep Employee IDs)">
-                  <TextInput
-                    style={styles.input}
-                    value={(form.deal.dealWatchers || []).join(',')}
-                    onChangeText={v =>
-                      setDeal(
-                        'dealWatchers',
-                        v.split(',').map(s => s.trim()),
-                      )
-                    }
-                    autoCapitalize="characters"
-                  />
-                </Field>
+
+                <View style={styles.row2}>
+                  <View style={styles.half}>
+                    <Field label="Value (number)">
+                      <TextInput
+                        style={styles.input}
+                        value={String(form.deal.value ?? '')}
+                        onChangeText={v => setDeal('value', v)}
+                        keyboardType="numeric"
+                        placeholder="50000"
+                      />
+                    </Field>
+                  </View>
+                  <View style={styles.half}>
+                    <Field label="Expected Close Date (YYYY-MM-DD)">
+                      <TextInput
+                        style={styles.input}
+                        value={form.deal.expectedCloseDate}
+                        onChangeText={v => setDeal('expectedCloseDate', v)}
+                        placeholder="2025-11-01"
+                      />
+                    </Field>
+                  </View>
+                </View>
+
+                <View style={styles.row2}>
+                  <View style={styles.half}>
+                    <Field label="Deal Agent (Employee ID)">
+                      <TextInput
+                        style={styles.input}
+                        value={form.deal.dealAgent}
+                        onChangeText={v => setDeal('dealAgent', v)}
+                        autoCapitalize="characters"
+                        placeholder="EMP-015"
+                      />
+                    </Field>
+                  </View>
+                  <View style={styles.half}>
+                    <Field label="Deal Watchers (comma-sep Employee IDs)">
+                      <TextInput
+                        style={styles.input}
+                        value={(form.deal.dealWatchers || []).join(',')}
+                        onChangeText={v =>
+                          setDeal(
+                            'dealWatchers',
+                            v.split(',').map(s => s.trim()),
+                          )
+                        }
+                        autoCapitalize="characters"
+                        placeholder="EMP-015, EMP-009"
+                      />
+                    </Field>
+                  </View>
+                </View>
               </View>
             )}
           </ScrollView>
@@ -276,8 +500,26 @@ const styles = StyleSheet.create({
     maxHeight: '90%',
     padding: 14,
   },
-  title: { fontSize: 20, fontWeight: '900', color: '#111827', marginBottom: 8 },
-  label: { fontSize: 12, fontWeight: '800', color: '#374151', marginBottom: 6 },
+  title: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#111827',
+    marginBottom: 8,
+  },
+  sectionTitle: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: '#6b7280',
+    marginBottom: 6,
+    marginTop: 8,
+    textTransform: 'uppercase',
+  },
+  label: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#374151',
+    marginBottom: 6,
+  },
   input: {
     borderWidth: 1,
     borderColor: '#e5e7eb',
@@ -286,19 +528,23 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     color: '#111827',
     backgroundColor: '#fff',
+    fontSize: 13,
   },
-  row: {
+  rowSwitch: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginVertical: 4,
   },
-  block: { paddingVertical: 8 },
-  subTitle: {
-    fontSize: 14,
-    fontWeight: '900',
-    color: '#1f2937',
-    marginBottom: 8,
+  row2: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  half: {
+    flex: 1,
+  },
+  block: {
+    paddingVertical: 8,
   },
   footer: {
     flexDirection: 'row',
@@ -306,10 +552,53 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: 8,
   },
-  btn: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10 },
-  cancel: { borderWidth: 1, borderColor: '#e5e7eb', backgroundColor: '#fff' },
-  save: { backgroundColor: '#111827' },
-  saveDisabled: { backgroundColor: '#9ca3af' },
-  btnTxtLight: { color: '#fff', fontWeight: '900' },
-  btnTxtDark: { color: '#111827', fontWeight: '900' },
+  btn: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  cancel: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    backgroundColor: '#fff',
+  },
+  save: {
+    backgroundColor: '#111827',
+  },
+  saveDisabled: {
+    backgroundColor: '#9ca3af',
+  },
+  btnTxtLight: {
+    color: '#fff',
+    fontWeight: '900',
+  },
+  btnTxtDark: {
+    color: '#111827',
+    fontWeight: '900',
+  },
+  pillsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  pill: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    backgroundColor: '#f9fafb',
+  },
+  pillSelected: {
+    backgroundColor: '#111827',
+    borderColor: '#111827',
+  },
+  pillText: {
+    fontSize: 11,
+    color: '#374151',
+    fontWeight: '600',
+  },
+  pillTextSelected: {
+    color: '#ffffff',
+  },
 });

@@ -7,10 +7,18 @@ import {
   ScrollView,
   Pressable,
   TextInput,
+  Modal,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 
-import { fetchLeadsRequest, createLeadRequest } from '../store/actions';
+import {
+  fetchAdminLeads,
+  createLeadRequest,
+  deleteAdminLead,
+  updateAdminLead,
+} from '../store/actions';
+
 import AddLeadModal from '../components/AddLeadModal';
 
 function TH({ w, children }) {
@@ -26,6 +34,7 @@ function TD({ w, children }) {
 
 export default function AdminLeadContactsScreen() {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
 
   // ---- redux state ----
   const leads = useSelector(s => s.admin?.leads?.list || []);
@@ -34,7 +43,7 @@ export default function AdminLeadContactsScreen() {
   const me = useSelector(s => s.auth?.profile?.employeeId) || 'EMP-009';
 
   useEffect(() => {
-    dispatch(fetchLeadsRequest());
+    dispatch(fetchAdminLeads());
   }, [dispatch]);
 
   // ---- filters ----
@@ -49,8 +58,60 @@ export default function AdminLeadContactsScreen() {
     );
   }, [leads, search]);
 
-  // ---- add modal ----
+  // ---- add / edit modal ----
   const [openAdd, setOpenAdd] = useState(false);
+  const [editLead, setEditLead] = useState(null); // null => create mode
+
+  // ---- action menu (3-dot) ----
+  const [actionLead, setActionLead] = useState(null);
+  const [showActions, setShowActions] = useState(false);
+
+  const openActionMenu = lead => {
+    setActionLead(lead);
+    setShowActions(true);
+  };
+
+  const closeActionMenu = () => {
+    setShowActions(false);
+    setActionLead(null);
+  };
+
+  const handleView = () => {
+    if (!actionLead) return;
+    closeActionMenu();
+    // TODO: change route name as per your stack
+    navigation.navigate('AdminLeadContactView', { id: actionLead.id });
+  };
+
+  const handleEdit = () => {
+    if (!actionLead) return;
+    closeActionMenu();
+    setEditLead(actionLead);
+    setOpenAdd(true);
+  };
+
+  const handleDelete = () => {
+    if (!actionLead) return;
+    dispatch(deleteAdminLead(actionLead.id)); // DELETE /leads/:id via saga/api
+    closeActionMenu();
+  };
+
+  const handleConvertToClient = () => {
+    if (!actionLead) return;
+    // TODO: call your convert-to-client API or navigation here
+    console.log('[LEAD] change to client ->', actionLead.id);
+    closeActionMenu();
+  };
+
+  const handleOpenAdd = () => {
+    setEditLead(null); // create mode
+    setOpenAdd(true);
+  };
+
+  const handleCloseAdd = () => {
+    setOpenAdd(false);
+    setEditLead(null);
+  };
 
   return (
     <ScrollView contentContainerStyle={{ padding: 12 }}>
@@ -65,8 +126,10 @@ export default function AdminLeadContactsScreen() {
             placeholderTextColor="#9ca3af"
             style={styles.input}
           />
-          <Pressable style={styles.addBtn} onPress={() => setOpenAdd(true)}>
-            <Text style={styles.addTxt}>+ Add Lead</Text>
+          <Pressable style={styles.addBtn} onPress={handleOpenAdd}>
+            <Text style={styles.addTxt}>
+              {creating ? 'Adding…' : '+ Add Lead'}
+            </Text>
           </Pressable>
         </View>
       </View>
@@ -83,7 +146,7 @@ export default function AdminLeadContactsScreen() {
             <TH w={180}>Added By</TH>
             <TH w={120}>Status</TH>
             <TH w={160}>Created On</TH>
-            <TH w={220}>Actions</TH>
+            <TH w={80}>...</TH>
           </View>
 
           {(loading ? [] : filtered).map((x, i) => (
@@ -111,7 +174,7 @@ export default function AdminLeadContactsScreen() {
               </TD>
 
               <TD w={120}>
-                <Text>{x.status}</Text>
+                <Text>{x.status || 'New'}</Text>
               </TD>
 
               <TD w={160}>
@@ -122,19 +185,13 @@ export default function AdminLeadContactsScreen() {
                 </Text>
               </TD>
 
-              <TD w={220}>
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <Pressable style={styles.act}>
-                    <Text style={styles.actTxt}>View</Text>
-                  </Pressable>
-                  <Pressable style={styles.act}>
-                    <Text style={styles.actTxt}>Edit</Text>
-                  </Pressable>
-                  <Pressable style={styles.actDanger}>
-                    <Text style={styles.actTxt}>Delete</Text>
-                  </Pressable>
-                  <Pressable style={styles.act}>
-                    <Text style={styles.actTxt}>→ Client</Text>
+              <TD w={80}>
+                <View style={styles.actionCell}>
+                  <Pressable
+                    style={styles.dotBtn}
+                    onPress={() => openActionMenu(x)}
+                  >
+                    <Text style={styles.dotText}>⋯</Text>
                   </Pressable>
                 </View>
               </TD>
@@ -147,14 +204,64 @@ export default function AdminLeadContactsScreen() {
         </View>
       </ScrollView>
 
-      {/* Add Lead Modal (WIRED TO BUTTON) */}
+      {/* Add / Edit Lead Modal */}
       <AddLeadModal
         visible={openAdd}
-        onClose={() => setOpenAdd(false)}
-        onSave={payload => dispatch(createLeadRequest(payload))}
+        onClose={handleCloseAdd}
+        // NOTE:
+        // - For CREATE -> dispatch(createLeadRequest)
+        // - For EDIT   -> dispatch(updateAdminLead)
+        onSave={payload => {
+          if (editLead) {
+            // PUT /leads/:id (edit)
+            dispatch(updateAdminLead(editLead.id, payload));
+          } else {
+            // POST /leads (create)
+            dispatch(createLeadRequest(payload));
+          }
+        }}
         currentUserId={me}
         defaultOwnerId={me}
+        mode={editLead ? 'edit' : 'create'}
+        initialData={editLead}
       />
+
+      {/* Action Modal (3-dot menu) */}
+      <Modal
+        visible={showActions}
+        transparent
+        animationType="fade"
+        onRequestClose={closeActionMenu}
+      >
+        <View style={styles.actionsBackdrop}>
+          <View style={styles.actionsSheet}>
+            <Text style={styles.actionsTitle}>Lead Actions</Text>
+
+            <Pressable style={styles.actionItem} onPress={handleView}>
+              <Text style={styles.actionItemText}>View</Text>
+            </Pressable>
+
+            <Pressable style={styles.actionItem} onPress={handleEdit}>
+              <Text style={styles.actionItemText}>Edit</Text>
+            </Pressable>
+
+            <Pressable style={styles.actionItemDanger} onPress={handleDelete}>
+              <Text style={styles.actionItemDangerText}>Delete</Text>
+            </Pressable>
+
+            <Pressable
+              style={[styles.actionItem, { marginTop: 4 }]}
+              onPress={handleConvertToClient}
+            >
+              <Text style={styles.actionItemText}>Change to Client</Text>
+            </Pressable>
+
+            <Pressable style={styles.actionCancel} onPress={closeActionMenu}>
+              <Text style={styles.actionCancelText}>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -206,6 +313,29 @@ const styles = StyleSheet.create({
   bold: { fontWeight: '900', color: '#111827' },
   dim: { color: '#6b7280', fontSize: 12 },
 
+  // 3-dot cell
+  actionCell: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dotBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f9fafb',
+  },
+  dotText: {
+    fontSize: 20,
+    lineHeight: 20,
+    color: '#111827',
+    fontWeight: '900',
+  },
+
+  // old buttons (kept in case you need them)
   act: {
     backgroundColor: '#111827',
     paddingHorizontal: 10,
@@ -219,4 +349,59 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   actTxt: { color: '#fff', fontWeight: '900' },
+
+  // action modal
+  actionsBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(15,23,42,0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  actionsSheet: {
+    width: '100%',
+    maxWidth: 360,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  actionsTitle: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#111827',
+    marginBottom: 8,
+  },
+  actionItem: {
+    paddingVertical: 10,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+  },
+  actionItemText: {
+    color: '#111827',
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  actionItemDanger: {
+    paddingVertical: 10,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+  },
+  actionItemDangerText: {
+    color: '#b91c1c',
+    fontWeight: '800',
+    fontSize: 14,
+  },
+  actionCancel: {
+    marginTop: 6,
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  actionCancelText: {
+    color: '#374151',
+    fontWeight: '700',
+  },
 });

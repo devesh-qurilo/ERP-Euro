@@ -16,7 +16,6 @@ const initial = {
 export default function AdminprojectNotesReducer(state = initial, action) {
   switch (action.type) {
     case T.LIST_BY_PROJECT_REQUEST:
-      console.log('debbbbr', payload);
       return {
         ...state,
         loading: true,
@@ -24,14 +23,12 @@ export default function AdminprojectNotesReducer(state = initial, action) {
         projectId: action.payload.projectId,
       };
     case T.LIST_BY_PROJECT_SUCCESS:
-      console.log('debbbb', payload);
       return {
         ...state,
         loading: false,
         items: Array.isArray(action.payload) ? action.payload : [],
       };
     case T.LIST_BY_PROJECT_FAILURE:
-      console.log('debbbbe', payload);
       return {
         ...state,
         loading: false,

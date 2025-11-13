@@ -56,7 +56,7 @@ import projectViewInvoicesReducer from '../modules/admin/work/projects/view/invo
 import projectViewPaymentsReducer from '../modules/admin/work/projects/view/payments/store/reducer';
 import projectsViewFilesReducer from '../modules/admin/work/projects/view/files/store/reducer';
 import AdminprojectActivityReducer from '../modules/admin/work/projects/view/activity/store/reducer';
-import AdminprojectNotesReducer from '../modules/admin/work/projects/view/notes/store/saga';
+import AdminprojectNotesReducer from '../modules/admin/work/projects/view/notes/store/reducer';
 
 const rootReducer = combineReducers({
   auth: userReducer,
