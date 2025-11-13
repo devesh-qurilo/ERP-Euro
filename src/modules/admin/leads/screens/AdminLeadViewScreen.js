@@ -12,9 +12,21 @@ import {
   Alert,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+
 import { selectAdminLeads } from '../store/selectors';
-import { adminLeadsAPI } from '../../../../services/api';
+import {
+  selectLeadNotesList,
+  selectLeadNotesLoading,
+  selectLeadNotesError,
+  selectLeadNotesBusyIds,
+} from '../notes/store/selectors';
+import {
+  fetchLeadNotes,
+  createLeadNote,
+  updateLeadNote,
+  deleteLeadNote,
+} from '../notes/store/actions';
 
 // ----------------- Small UI helpers -----------------
 const TabButton = ({ label, active, onPress }) => (
@@ -156,7 +168,9 @@ const NoteModal = ({ visible, onClose, onSave, initial }) => {
 export default function AdminLeadViewScreen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const { id } = route.params || {};
+  const dispatch = useDispatch();
+
+  const { id } = route.params || {}; // leadId from navigation
 
   const leads = useSelector(selectAdminLeads);
   const lead = useMemo(
@@ -166,10 +180,12 @@ export default function AdminLeadViewScreen() {
 
   const [tab, setTab] = useState('profile'); // 'profile' | 'notes' | 'deal'
 
-  // Notes state
-  const [notes, setNotes] = useState([]);
-  const [notesLoading, setNotesLoading] = useState(false);
-  const [notesError, setNotesError] = useState(null);
+  // Notes from Redux
+  const notes = useSelector(s => selectLeadNotesList(s, id));
+  const notesLoading = useSelector(s => selectLeadNotesLoading(s, id));
+  const notesError = useSelector(s => selectLeadNotesError(s, id));
+  const notesBusyIds = useSelector(selectLeadNotesBusyIds);
+
   const [noteModalVisible, setNoteModalVisible] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
 
@@ -187,18 +203,10 @@ export default function AdminLeadViewScreen() {
     );
   }
 
-  // ---------- Notes API helpers ----------
-  const loadNotes = async () => {
-    try {
-      setNotesLoading(true);
-      setNotesError(null);
-      const data = await adminLeadsAPI.listNotes(lead.id);
-      setNotes(Array.isArray(data) ? data : []);
-    } catch (e) {
-      setNotesError(e?.message || 'Failed to load notes');
-    } finally {
-      setNotesLoading(false);
-    }
+  // ---------- Notes helpers (Redux + Saga) ----------
+  const loadNotes = () => {
+    if (!lead?.id) return;
+    dispatch(fetchLeadNotes(lead.id));
   };
 
   const handleAddNotePress = () => {
@@ -217,13 +225,9 @@ export default function AdminLeadViewScreen() {
       {
         text: 'Delete',
         style: 'destructive',
-        onPress: async () => {
-          try {
-            await adminLeadsAPI.deleteNote(lead.id, note.id);
-            setNotes(ns => ns.filter(n => n.id !== note.id));
-          } catch (e) {
-            Alert.alert('Error', e?.message || 'Failed to delete note');
-          }
+        onPress: () => {
+          if (!lead?.id) return;
+          dispatch(deleteLeadNote(lead.id, note.id));
         },
       },
     ]);
@@ -231,27 +235,23 @@ export default function AdminLeadViewScreen() {
 
   const handleSaveNote = async payload => {
     // payload: { noteTitle, noteType, noteDetails }
+    if (!lead?.id) return;
+
     if (editingNote?.id) {
-      // edit
-      const updated = await adminLeadsAPI.updateNote(
-        lead.id,
-        editingNote.id,
-        payload,
-      );
-      setNotes(ns => ns.map(n => (n.id === updated.id ? updated : n)));
+      // EDIT
+      dispatch(updateLeadNote(lead.id, editingNote.id, payload));
     } else {
-      // create
-      const created = await adminLeadsAPI.createNote(lead.id, payload);
-      setNotes(ns => [created, ...ns]);
+      // CREATE
+      dispatch(createLeadNote(lead.id, payload));
     }
   };
 
-  // Load notes when tab is opened first time
+  // Load notes when tab is opened first time / becomes active
   useEffect(() => {
-    if (tab === 'notes') {
+    if (tab === 'notes' && lead?.id) {
       loadNotes();
     }
-  }, [tab, id]);
+  }, [tab, lead?.id]);
 
   return (
     <View style={styles.screen}>
@@ -376,47 +376,59 @@ export default function AdminLeadViewScreen() {
 
             {!notesLoading &&
               !notesError &&
-              notes.map(note => (
-                <View key={note.id} style={styles.noteCard}>
-                  <View style={styles.noteHeaderRow}>
-                    <View>
-                      <Text style={styles.noteTitle}>{note.noteTitle}</Text>
-                      <View style={styles.noteMetaRow}>
-                        <View style={styles.badge}>
-                          <Text style={styles.badgeTxt}>{note.noteType}</Text>
-                        </View>
-                        <Text style={styles.metaTxt}>
-                          By {note.createdBy || '-'}
-                        </Text>
-                        {note.createdAt && (
+              notes.map(note => {
+                const busy = !!notesBusyIds[note.id];
+                return (
+                  <View key={note.id} style={styles.noteCard}>
+                    <View style={styles.noteHeaderRow}>
+                      <View>
+                        <Text style={styles.noteTitle}>{note.noteTitle}</Text>
+                        <View style={styles.noteMetaRow}>
+                          <View style={styles.badge}>
+                            <Text style={styles.badgeTxt}>{note.noteType}</Text>
+                          </View>
                           <Text style={styles.metaTxt}>
-                            • {new Date(note.createdAt).toLocaleString()}
+                            By {note.createdBy || '-'}
                           </Text>
+                          {note.createdAt && (
+                            <Text style={styles.metaTxt}>
+                              • {new Date(note.createdAt).toLocaleString()}
+                            </Text>
+                          )}
+                        </View>
+                      </View>
+                      <View style={styles.noteActionsRow}>
+                        {busy ? (
+                          <ActivityIndicator size="small" />
+                        ) : (
+                          <>
+                            <Pressable
+                              style={styles.noteActionBtn}
+                              onPress={() => handleEditNotePress(note)}
+                            >
+                              <Text style={styles.noteActionTxt}>Edit</Text>
+                            </Pressable>
+                            <Pressable
+                              style={styles.noteActionBtn}
+                              onPress={() => handleDeleteNotePress(note)}
+                            >
+                              <Text
+                                style={[
+                                  styles.noteActionTxt,
+                                  { color: '#b91c1c' },
+                                ]}
+                              >
+                                Delete
+                              </Text>
+                            </Pressable>
+                          </>
                         )}
                       </View>
                     </View>
-                    <View style={styles.noteActionsRow}>
-                      <Pressable
-                        style={styles.noteActionBtn}
-                        onPress={() => handleEditNotePress(note)}
-                      >
-                        <Text style={styles.noteActionTxt}>Edit</Text>
-                      </Pressable>
-                      <Pressable
-                        style={styles.noteActionBtn}
-                        onPress={() => handleDeleteNotePress(note)}
-                      >
-                        <Text
-                          style={[styles.noteActionTxt, { color: '#b91c1c' }]}
-                        >
-                          Delete
-                        </Text>
-                      </Pressable>
-                    </View>
+                    <Text style={styles.noteDetails}>{note.noteDetails}</Text>
                   </View>
-                  <Text style={styles.noteDetails}>{note.noteDetails}</Text>
-                </View>
-              ))}
+                );
+              })}
           </>
         )}
 
@@ -669,7 +681,7 @@ const styles = StyleSheet.create({
   // Modal
   modalBackdrop: {
     flex: 1,
-    backgroundColor: '#1d4ed8',
+    backgroundColor: '#eeeaeaff',
     justifyContent: 'center',
     padding: 16,
   },
