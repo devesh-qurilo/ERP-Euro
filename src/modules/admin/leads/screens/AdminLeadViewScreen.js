@@ -1,10 +1,22 @@
 // src/modules/admin/leads/screens/AdminLeadViewScreen.js
-import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import React, { useMemo, useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  Modal,
+  TextInput,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 import { selectAdminLeads } from '../store/selectors';
+import { adminLeadsAPI } from '../../../../services/api';
 
+// ----------------- Small UI helpers -----------------
 const TabButton = ({ label, active, onPress }) => (
   <Pressable
     onPress={onPress}
@@ -21,6 +33,126 @@ const FieldRow = ({ label, value }) => (
   </View>
 );
 
+const TypePills = ({ value, onChange }) => {
+  const options = ['PUBLIC', 'PRIVATE'];
+  return (
+    <View style={styles.pillsRow}>
+      {options.map(opt => {
+        const active = opt === value;
+        return (
+          <Pressable
+            key={opt}
+            onPress={() => onChange(opt)}
+            style={[styles.pill, active && styles.pillActive]}
+          >
+            <Text style={[styles.pillTxt, active && styles.pillTxtActive]}>
+              {opt}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+};
+
+// ----------------- Add / Edit Note Modal -----------------
+const NoteModal = ({ visible, onClose, onSave, initial }) => {
+  const [noteTitle, setNoteTitle] = useState(initial?.noteTitle || '');
+  const [noteType, setNoteType] = useState(initial?.noteType || 'PUBLIC');
+  const [noteDetails, setNoteDetails] = useState(initial?.noteDetails || '');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (visible) {
+      setNoteTitle(initial?.noteTitle || '');
+      setNoteType(initial?.noteType || 'PUBLIC');
+      setNoteDetails(initial?.noteDetails || '');
+    }
+  }, [visible, initial]);
+
+  const valid = noteTitle.trim() && noteDetails.trim();
+
+  const handleSubmit = async () => {
+    if (!valid || saving) return;
+    try {
+      setSaving(true);
+      await onSave?.({
+        noteTitle: noteTitle.trim(),
+        noteType,
+        noteDetails: noteDetails.trim(),
+      });
+      onClose?.();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const isEdit = !!initial?.id;
+
+  return (
+    <Modal visible={visible} transparent animationType="slide">
+      <View style={styles.modalBackdrop}>
+        <View style={styles.modalSheet}>
+          <Text style={styles.modalTitle}>
+            {isEdit ? 'Edit Note' : 'Add Note'}
+          </Text>
+
+          <View style={{ marginBottom: 10 }}>
+            <Text style={styles.modalLabel}>Title</Text>
+            <TextInput
+              style={styles.modalInput}
+              value={noteTitle}
+              onChangeText={setNoteTitle}
+              placeholder="Profitable Lead"
+            />
+          </View>
+
+          <View style={{ marginBottom: 10 }}>
+            <Text style={styles.modalLabel}>Type</Text>
+            <TypePills value={noteType} onChange={setNoteType} />
+          </View>
+
+          <View style={{ marginBottom: 10 }}>
+            <Text style={styles.modalLabel}>Details</Text>
+            <TextInput
+              style={[
+                styles.modalInput,
+                { height: 100, textAlignVertical: 'top' },
+              ]}
+              value={noteDetails}
+              onChangeText={setNoteDetails}
+              multiline
+              placeholder="Need to complete at time"
+            />
+          </View>
+
+          <View style={styles.modalFooter}>
+            <Pressable
+              style={[styles.modalBtn, styles.modalCancel]}
+              onPress={onClose}
+            >
+              <Text style={styles.modalCancelTxt}>Cancel</Text>
+            </Pressable>
+            <Pressable
+              style={[
+                styles.modalBtn,
+                valid ? styles.modalSave : styles.modalSaveDisabled,
+              ]}
+              onPress={handleSubmit}
+              disabled={!valid || saving}
+            >
+              <Text style={styles.modalSaveTxt}>
+                {saving ? 'Saving…' : isEdit ? 'Update' : 'Save'}
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+// ----------------- Main Screen -----------------
 export default function AdminLeadViewScreen() {
   const route = useRoute();
   const navigation = useNavigation();
@@ -34,9 +166,16 @@ export default function AdminLeadViewScreen() {
 
   const [tab, setTab] = useState('profile'); // 'profile' | 'notes' | 'deal'
 
+  // Notes state
+  const [notes, setNotes] = useState([]);
+  const [notesLoading, setNotesLoading] = useState(false);
+  const [notesError, setNotesError] = useState(null);
+  const [noteModalVisible, setNoteModalVisible] = useState(false);
+  const [editingNote, setEditingNote] = useState(null);
+
   const title = lead?.name || 'Lead Detail';
 
-  // If not found
+  // If lead not found
   if (!lead) {
     return (
       <View style={styles.center}>
@@ -47,6 +186,72 @@ export default function AdminLeadViewScreen() {
       </View>
     );
   }
+
+  // ---------- Notes API helpers ----------
+  const loadNotes = async () => {
+    try {
+      setNotesLoading(true);
+      setNotesError(null);
+      const data = await adminLeadsAPI.listNotes(lead.id);
+      setNotes(Array.isArray(data) ? data : []);
+    } catch (e) {
+      setNotesError(e?.message || 'Failed to load notes');
+    } finally {
+      setNotesLoading(false);
+    }
+  };
+
+  const handleAddNotePress = () => {
+    setEditingNote(null);
+    setNoteModalVisible(true);
+  };
+
+  const handleEditNotePress = note => {
+    setEditingNote(note);
+    setNoteModalVisible(true);
+  };
+
+  const handleDeleteNotePress = note => {
+    Alert.alert('Delete Note', `Delete "${note.noteTitle}"?`, [
+      { text: 'Cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await adminLeadsAPI.deleteNote(lead.id, note.id);
+            setNotes(ns => ns.filter(n => n.id !== note.id));
+          } catch (e) {
+            Alert.alert('Error', e?.message || 'Failed to delete note');
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleSaveNote = async payload => {
+    // payload: { noteTitle, noteType, noteDetails }
+    if (editingNote?.id) {
+      // edit
+      const updated = await adminLeadsAPI.updateNote(
+        lead.id,
+        editingNote.id,
+        payload,
+      );
+      setNotes(ns => ns.map(n => (n.id === updated.id ? updated : n)));
+    } else {
+      // create
+      const created = await adminLeadsAPI.createNote(lead.id, payload);
+      setNotes(ns => [created, ...ns]);
+    }
+  };
+
+  // Load notes when tab is opened first time
+  useEffect(() => {
+    if (tab === 'notes') {
+      loadNotes();
+    }
+  }, [tab, id]);
 
   return (
     <View style={styles.screen}>
@@ -92,6 +297,7 @@ export default function AdminLeadViewScreen() {
         contentContainerStyle={{ paddingBottom: 20 }}
         showsVerticalScrollIndicator={false}
       >
+        {/* PROFILE TAB */}
         {tab === 'profile' && (
           <>
             {/* Basic Info */}
@@ -138,15 +344,83 @@ export default function AdminLeadViewScreen() {
           </>
         )}
 
+        {/* NOTES TAB */}
         {tab === 'notes' && (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Notes</Text>
-            <Text style={styles.placeholderTxt}>
-              Notes tab will be implemented later.
-            </Text>
-          </View>
+          <>
+            <View style={styles.notesHeaderRow}>
+              <Text style={styles.cardTitle}>Notes</Text>
+              <Pressable style={styles.addNoteBtn} onPress={handleAddNotePress}>
+                <Text style={styles.addNoteTxt}>+ Add Note</Text>
+              </Pressable>
+            </View>
+
+            {notesLoading && (
+              <View style={styles.notesCenter}>
+                <ActivityIndicator />
+              </View>
+            )}
+
+            {notesError && (
+              <View style={styles.notesCenter}>
+                <Text style={styles.notesErrorTxt}>{notesError}</Text>
+              </View>
+            )}
+
+            {!notesLoading && !notesError && notes.length === 0 && (
+              <View style={styles.notesCenter}>
+                <Text style={styles.placeholderTxt}>
+                  No notes added yet. Tap "Add Note" to create one.
+                </Text>
+              </View>
+            )}
+
+            {!notesLoading &&
+              !notesError &&
+              notes.map(note => (
+                <View key={note.id} style={styles.noteCard}>
+                  <View style={styles.noteHeaderRow}>
+                    <View>
+                      <Text style={styles.noteTitle}>{note.noteTitle}</Text>
+                      <View style={styles.noteMetaRow}>
+                        <View style={styles.badge}>
+                          <Text style={styles.badgeTxt}>{note.noteType}</Text>
+                        </View>
+                        <Text style={styles.metaTxt}>
+                          By {note.createdBy || '-'}
+                        </Text>
+                        {note.createdAt && (
+                          <Text style={styles.metaTxt}>
+                            • {new Date(note.createdAt).toLocaleString()}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                    <View style={styles.noteActionsRow}>
+                      <Pressable
+                        style={styles.noteActionBtn}
+                        onPress={() => handleEditNotePress(note)}
+                      >
+                        <Text style={styles.noteActionTxt}>Edit</Text>
+                      </Pressable>
+                      <Pressable
+                        style={styles.noteActionBtn}
+                        onPress={() => handleDeleteNotePress(note)}
+                      >
+                        <Text
+                          style={[styles.noteActionTxt, { color: '#b91c1c' }]}
+                        >
+                          Delete
+                        </Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                  <Text style={styles.noteDetails}>{note.noteDetails}</Text>
+                </View>
+              ))}
+          </>
         )}
 
+        {/* DEAL TAB (placeholder for now) */}
         {tab === 'deal' && (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Deal</Text>
@@ -156,10 +430,22 @@ export default function AdminLeadViewScreen() {
           </View>
         )}
       </ScrollView>
+
+      {/* Note Add/Edit Modal */}
+      <NoteModal
+        visible={noteModalVisible}
+        onClose={() => {
+          setNoteModalVisible(false);
+          setEditingNote(null);
+        }}
+        onSave={handleSaveNote}
+        initial={editingNote}
+      />
     </View>
   );
 }
 
+// ----------------- Styles -----------------
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
@@ -183,7 +469,7 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 14,
-    color: '#111827',
+    color: '#1d4ed8',
     marginRight: 3,
   },
   backLabel: {
@@ -216,8 +502,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9fafb',
   },
   tabBtnActive: {
-    backgroundColor: '#111827',
-    borderColor: '#111827',
+    backgroundColor: '#1d4ed8',
+    borderColor: '#1d4ed8',
   },
   tabTxt: {
     fontSize: 13,
@@ -281,13 +567,194 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   backBtn: {
-    paddingHorizontal: 25,
-    paddingVertical: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     backgroundColor: '#111827',
     borderRadius: 10,
   },
   backTxt: {
     color: '#ffffff',
     fontWeight: '800',
+  },
+
+  // Notes
+  notesHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+    marginTop: 4,
+  },
+  addNoteBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#1d4ed8',
+    borderRadius: 999,
+  },
+  addNoteTxt: {
+    color: '#ffffff',
+    fontWeight: '800',
+    fontSize: 12,
+  },
+  notesCenter: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+  },
+  notesErrorTxt: {
+    color: '#b91c1c',
+    fontSize: 13,
+  },
+  noteCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    marginBottom: 8,
+  },
+  noteHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  noteTitle: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: '#1d4ed8',
+  },
+  noteMetaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  badge: {
+    backgroundColor: '#eff6ff',
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  badgeTxt: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#1d4ed8',
+  },
+  metaTxt: {
+    fontSize: 11,
+    color: '#6b7280',
+  },
+  noteDetails: {
+    marginTop: 8,
+    fontSize: 13,
+    color: '#111827',
+  },
+  noteActionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  noteActionBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  noteActionTxt: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#1d4ed8',
+  },
+
+  // Modal
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: '#1d4ed8',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  modalSheet: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 14,
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#111827',
+    marginBottom: 10,
+  },
+  modalLabel: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#374151',
+    marginBottom: 4,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    fontSize: 13,
+    color: '#111827',
+    backgroundColor: '#ffffff',
+  },
+  modalFooter: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 12,
+    gap: 8,
+  },
+  modalBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
+  },
+  modalCancel: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    backgroundColor: '#ffffff',
+  },
+  modalCancelTxt: {
+    color: '#111827',
+    fontWeight: '800',
+  },
+  modalSave: {
+    backgroundColor: '#111827',
+  },
+  modalSaveDisabled: {
+    backgroundColor: '#9ca3af',
+  },
+  modalSaveTxt: {
+    color: '#ffffff',
+    fontWeight: '800',
+  },
+
+  // Type pills
+  pillsRow: {
+    flexDirection: 'row',
+    gap: 6,
+    flexWrap: 'wrap',
+  },
+  pill: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    backgroundColor: '#f9fafb',
+  },
+  pillActive: {
+    backgroundColor: '#111827',
+    borderColor: '#111827',
+  },
+  pillTxt: {
+    fontSize: 11,
+    color: '#4b5563',
+    fontWeight: '700',
+  },
+  pillTxtActive: {
+    color: '#ffffff',
   },
 });
