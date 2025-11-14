@@ -11,6 +11,16 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 
+const STATUS_OPTIONS = [
+  'IN_PROGRESS',
+  'ON_HOLD',
+  'CANCELLED',
+  'NOT_STARTED',
+  'FINISHED',
+];
+
+const PROGRESS_OPTIONS = Array.from({ length: 11 }, (_, i) => i * 10); // 0..100
+
 export default function ProjectsTable({
   data = [],
   loading,
@@ -18,24 +28,25 @@ export default function ProjectsTable({
   onView,
   onEdit,
   onDelete,
-  onStatus,
+  onStatus, // (id, status)
+  onProgress, // (id, percent)
   onPin,
   onUnpin,
   onArchive,
   onUnarchive,
   showClientColumn = true,
 }) {
-  const [menuItem, setMenuItem] = useState(null); // the item for which modal is open
+  const [menuItem, setMenuItem] = useState(null);
   const [menuVisible, setMenuVisible] = useState(false);
 
-  function openMenu(item) {
+  const openMenu = item => {
     setMenuItem(item);
     setMenuVisible(true);
-  }
-  function closeMenu() {
+  };
+  const closeMenu = () => {
     setMenuVisible(false);
     setMenuItem(null);
-  }
+  };
 
   if (loading) return <ActivityIndicator style={{ marginTop: 20 }} />;
 
@@ -59,8 +70,11 @@ export default function ProjectsTable({
                 Client
               </Text>
             )}
-            <Text style={[styles.cell, styles.hcell, { minWidth: 200 }]}>
+            <Text style={[styles.cell, styles.hcell, { minWidth: 140 }]}>
               Status
+            </Text>
+            <Text style={[styles.cell, styles.hcell, { minWidth: 140 }]}>
+              Progress
             </Text>
             <Text style={[styles.cell, styles.hcell, { minWidth: 120 }]}>
               Actions
@@ -70,7 +84,6 @@ export default function ProjectsTable({
           {/* Rows */}
           {data.map(item => {
             const isBusy = busyIds.includes?.(item.id);
-
             return (
               <View key={item.id} style={styles.row}>
                 <Text style={styles.cell}>#{item.shortCode || '—'}</Text>
@@ -119,25 +132,52 @@ export default function ProjectsTable({
                   </View>
                 )}
 
-                <View style={[styles.cell, styles.progress]}>
-                  <Text>{item.projectStatus || '—'}</Text>
-                  {item.progressPercent != null && (
-                    <View style={styles.barWrap}>
-                      <View
-                        style={[
-                          styles.barFill,
-                          { width: `${Math.min(100, item.progressPercent)}%` },
-                        ]}
+                {/* Status cell: shows current and a small chevron to change */}
+                <View style={[styles.cell, styles.statusCell]}>
+                  <Pressable
+                    style={styles.selectInline}
+                    disabled={isBusy}
+                    onPress={() => openMenu({ ...item, mode: 'status' })}
+                  >
+                    <Text numberOfLines={1} style={styles.selectTxt}>
+                      {item.projectStatus || '—'}
+                    </Text>
+                    <Text style={styles.caret}>▾</Text>
+                    {isBusy && (
+                      <ActivityIndicator
+                        size="small"
+                        style={{ marginLeft: 8 }}
                       />
-                      <Text style={styles.barPct}>{item.progressPercent}%</Text>
-                    </View>
-                  )}
+                    )}
+                  </Pressable>
                 </View>
 
-                {/* Single 3-dot action button */}
+                {/* Progress cell: show percent and allow quick change */}
+                <View style={[styles.cell, styles.progressCell]}>
+                  <Pressable
+                    style={styles.selectInline}
+                    disabled={isBusy}
+                    onPress={() => openMenu({ ...item, mode: 'progress' })}
+                  >
+                    <Text numberOfLines={1} style={styles.selectTxt}>
+                      {item.progressPercent != null
+                        ? `${item.progressPercent}%`
+                        : '—'}
+                    </Text>
+                    <Text style={styles.caret}>▾</Text>
+                    {isBusy && (
+                      <ActivityIndicator
+                        size="small"
+                        style={{ marginLeft: 8 }}
+                      />
+                    )}
+                  </Pressable>
+                </View>
+
+                {/* Actions */}
                 <View style={[styles.cell, styles.actions]}>
                   <Pressable
-                    onPress={() => openMenu(item)}
+                    onPress={() => openMenu({ ...item, mode: 'actions' })}
                     style={styles.dotBtn}
                     accessibilityLabel="Open actions"
                   >
@@ -150,14 +190,14 @@ export default function ProjectsTable({
         </View>
       </ScrollView>
 
-      {/* Modal menu */}
+      {/* Menu Modal (used for status, progress and full actions) */}
       <Modal
-        visible={menuVisible}
+        visible={!!menuVisible}
         animationType="fade"
         transparent
-        onRequestClose={closeMenu}
+        onRequestClose={() => setMenuVisible(false)}
       >
-        <TouchableWithoutFeedback onPress={closeMenu}>
+        <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
           <View style={styles.modalBackdrop} />
         </TouchableWithoutFeedback>
 
@@ -166,154 +206,147 @@ export default function ProjectsTable({
             {menuItem ? (
               <>
                 <Text style={styles.modalTitle} numberOfLines={1}>
-                  Actions — {menuItem.name || menuItem.shortCode || 'Project'}
+                  {menuItem.mode === 'status' &&
+                    `Change status — ${menuItem.name}`}
+                  {menuItem.mode === 'progress' &&
+                    `Change progress — ${menuItem.name}`}
+                  {menuItem.mode === 'actions' && `Actions — ${menuItem.name}`}
                 </Text>
 
-                <View style={styles.modalActions}>
-                  <Pressable
-                    style={styles.modalActionBtn}
-                    onPress={() => {
-                      closeMenu();
-                      onView?.(menuItem);
-                    }}
-                  >
-                    <Text style={styles.modalActionTxt}>View</Text>
-                  </Pressable>
-
-                  <Pressable
-                    style={styles.modalActionBtn}
-                    onPress={() => {
-                      closeMenu();
-                      onEdit?.(menuItem);
-                    }}
-                  >
-                    <Text style={styles.modalActionTxt}>Edit</Text>
-                  </Pressable>
-
-                  {/* Pin / Unpin */}
-                  {menuItem.pinned ? (
+                {/* Status selector */}
+                {menuItem.mode === 'status' &&
+                  STATUS_OPTIONS.map(s => (
                     <Pressable
+                      key={s}
                       style={styles.modalActionBtn}
                       onPress={() => {
-                        closeMenu();
-                        onUnpin?.(menuItem.id);
+                        setMenuVisible(false);
+                        onStatus?.(menuItem.id, s);
                       }}
                       disabled={busyIds.includes(menuItem.id)}
                     >
                       <Text
                         style={[
                           styles.modalActionTxt,
-                          busyIds.includes(menuItem.id) && styles.disabledTxt,
+                          menuItem.projectStatus === s
+                            ? { fontWeight: '800' }
+                            : null,
                         ]}
                       >
-                        Unpin
+                        {s}
                       </Text>
-                      {busyIds.includes(menuItem.id) && (
-                        <ActivityIndicator
-                          size="small"
-                          style={{ marginLeft: 8 }}
-                        />
-                      )}
                     </Pressable>
-                  ) : (
+                  ))}
+
+                {/* Progress selector */}
+                {menuItem.mode === 'progress' &&
+                  PROGRESS_OPTIONS.map(p => (
                     <Pressable
+                      key={p}
                       style={styles.modalActionBtn}
                       onPress={() => {
-                        closeMenu();
-                        onPin?.(menuItem.id);
+                        setMenuVisible(false);
+                        onProgress?.(menuItem.id, p);
                       }}
                       disabled={busyIds.includes(menuItem.id)}
                     >
                       <Text
                         style={[
                           styles.modalActionTxt,
-                          busyIds.includes(menuItem.id) && styles.disabledTxt,
+                          menuItem.progressPercent === p
+                            ? { fontWeight: '800' }
+                            : null,
                         ]}
                       >
-                        Pin
+                        {p}%
                       </Text>
-                      {busyIds.includes(menuItem.id) && (
-                        <ActivityIndicator
-                          size="small"
-                          style={{ marginLeft: 8 }}
-                        />
-                      )}
                     </Pressable>
-                  )}
+                  ))}
 
-                  {/* Archive / Unarchive */}
-                  {menuItem.archived ? (
+                {/* Actions menu (view/edit/pin/archive/delete) */}
+                {menuItem.mode === 'actions' && (
+                  <>
                     <Pressable
                       style={styles.modalActionBtn}
                       onPress={() => {
-                        closeMenu();
-                        onUnarchive?.(menuItem.id);
+                        setMenuVisible(false);
+                        onView?.(menuItem);
+                      }}
+                    >
+                      <Text style={styles.modalActionTxt}>View</Text>
+                    </Pressable>
+
+                    <Pressable
+                      style={styles.modalActionBtn}
+                      onPress={() => {
+                        setMenuVisible(false);
+                        onEdit?.(menuItem);
+                      }}
+                    >
+                      <Text style={styles.modalActionTxt}>Edit</Text>
+                    </Pressable>
+
+                    {menuItem.pinned ? (
+                      <Pressable
+                        style={styles.modalActionBtn}
+                        onPress={() => {
+                          setMenuVisible(false);
+                          onUnpin?.(menuItem.id);
+                        }}
+                        disabled={busyIds.includes(menuItem.id)}
+                      >
+                        <Text style={styles.modalActionTxt}>Unpin</Text>
+                      </Pressable>
+                    ) : (
+                      <Pressable
+                        style={styles.modalActionBtn}
+                        onPress={() => {
+                          setMenuVisible(false);
+                          onPin?.(menuItem.id);
+                        }}
+                        disabled={busyIds.includes(menuItem.id)}
+                      >
+                        <Text style={styles.modalActionTxt}>Pin</Text>
+                      </Pressable>
+                    )}
+
+                    {menuItem.archived ? (
+                      <Pressable
+                        style={styles.modalActionBtn}
+                        onPress={() => {
+                          setMenuVisible(false);
+                          onUnarchive?.(menuItem.id);
+                        }}
+                        disabled={busyIds.includes(menuItem.id)}
+                      >
+                        <Text style={styles.modalActionTxt}>Unarchive</Text>
+                      </Pressable>
+                    ) : (
+                      <Pressable
+                        style={styles.modalActionBtn}
+                        onPress={() => {
+                          setMenuVisible(false);
+                          onArchive?.(menuItem.id);
+                        }}
+                        disabled={busyIds.includes(menuItem.id)}
+                      >
+                        <Text style={styles.modalActionTxt}>Archive</Text>
+                      </Pressable>
+                    )}
+
+                    <Pressable
+                      style={styles.modalActionBtnDanger}
+                      onPress={() => {
+                        setMenuVisible(false);
+                        onDelete?.(menuItem.id);
                       }}
                       disabled={busyIds.includes(menuItem.id)}
                     >
-                      <Text
-                        style={[
-                          styles.modalActionTxt,
-                          busyIds.includes(menuItem.id) && styles.disabledTxt,
-                        ]}
-                      >
-                        Unarchive
+                      <Text style={[styles.modalActionTxt, styles.dangerTxt]}>
+                        Delete
                       </Text>
                     </Pressable>
-                  ) : (
-                    <Pressable
-                      style={styles.modalActionBtn}
-                      onPress={() => {
-                        closeMenu();
-                        onArchive?.(menuItem.id);
-                      }}
-                      disabled={busyIds.includes(menuItem.id)}
-                    >
-                      <Text
-                        style={[
-                          styles.modalActionTxt,
-                          busyIds.includes(menuItem.id) && styles.disabledTxt,
-                        ]}
-                      >
-                        Archive
-                      </Text>
-                    </Pressable>
-                  )}
-
-                  {/* Delete */}
-                  <Pressable
-                    style={styles.modalActionBtnDanger}
-                    onPress={() => {
-                      closeMenu();
-                      onDelete?.(menuItem.id);
-                    }}
-                    disabled={busyIds.includes(menuItem.id)}
-                  >
-                    <Text
-                      style={[
-                        styles.modalActionTxt,
-                        styles.dangerTxt,
-                        busyIds.includes(menuItem.id) && styles.disabledTxt,
-                      ]}
-                    >
-                      Delete
-                    </Text>
-                  </Pressable>
-                </View>
-
-                {/* optional status action if provided */}
-                {onStatus && (
-                  <View style={{ marginTop: 8 }}>
-                    <Pressable
-                      style={styles.modalActionBtn}
-                      onPress={() => {
-                        closeMenu();
-                        onStatus?.(menuItem);
-                      }}
-                    >
-                      <Text style={styles.modalActionTxt}>Change Status</Text>
-                    </Pressable>
-                  </View>
+                  </>
                 )}
               </>
             ) : null}
@@ -331,7 +364,7 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
     backgroundColor: '#fff',
   },
-  table: { minWidth: 1000 },
+  table: { minWidth: 1100 },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -371,7 +404,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#e5e7eb',
   },
 
-  progress: { minWidth: 200 },
+  progressCell: { minWidth: 140 },
+  statusCell: { minWidth: 140 },
+
+  selectInline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+  },
+  selectTxt: { flex: 1, fontWeight: '600' },
+  caret: { color: '#6b7280', marginLeft: 8 },
+
   barWrap: {
     marginTop: 6,
     height: 10,

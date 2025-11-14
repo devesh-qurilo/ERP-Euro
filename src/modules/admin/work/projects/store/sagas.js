@@ -13,6 +13,18 @@ function* fetchAll() {
   }
 }
 
+function* patchProgress({ id, percent }) {
+  try {
+    yield put({ type: T.AWP_BUSY, id, on: true });
+    yield call(adminWorkProjectsAPI.patchProgress, id, percent);
+    yield put({ type: T.AWP_FETCH_ALL });
+  } catch (e) {
+    yield put({ type: T.AWP_ERROR, error: emsg(e) });
+  } finally {
+    yield put({ type: T.AWP_BUSY, id, on: false });
+  }
+}
+
 function* createProject({ payload }) {
   try {
     yield put({ type: T.AWP_BUSY, id: 'create', on: true });
@@ -123,5 +135,6 @@ export default function* adminWorkProjectsWatcher() {
     takeLatest(T.AWP_UNPIN, unpin),
     takeLatest(T.AWP_ARCHIVE, archive),
     takeLatest(T.AWP_UNARCHIVE, unarchive),
+    takeLatest(T.AWP_PATCH_PROGRESS, patchProgress),
   ]);
 }

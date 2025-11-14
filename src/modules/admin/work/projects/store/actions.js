@@ -24,3 +24,10 @@ export const unarchiveProject = id => ({ type: T.AWP_UNARCHIVE, id });
 
 export const openModal = editing => ({ type: T.AWP_OPEN_MODAL, editing });
 export const closeModal = () => ({ type: T.AWP_CLOSE_MODAL });
+
+// NEW
+export const patchProgress = (id, percent) => ({
+  type: T.AWP_PATCH_PROGRESS,
+  id,
+  percent,
+});

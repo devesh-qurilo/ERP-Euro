@@ -21,3 +21,5 @@ export const AWP_UNARCHIVE = 'AWP/UNARCHIVE';
 // Modal
 export const AWP_OPEN_MODAL = 'AWP/OPEN_MODAL';
 export const AWP_CLOSE_MODAL = 'AWP/CLOSE_MODAL';
+
+export const AWP_PATCH_PROGRESS = 'AWP/PATCH_PROGRESS';

@@ -31,6 +31,7 @@ import {
   archiveProject,
   unarchiveProject,
   patchStatus,
+  patchProgress,
 } from '../store/actions';
 import ProjectsTable from '../components/ProjectsTable';
 import ProjectModal from '../components/ProjectModal';
@@ -103,10 +104,11 @@ export default function AdminWorkProjectsScreen() {
             value={filters.status}
             options={[
               'All',
+              'NOT_STARTED',
               'IN_PROGRESS',
               'ON_HOLD',
+              'FINISHED',
               'CANCELLED',
-              'COMPLETED',
             ]}
             onChange={status => dispatch(setFilters({ status }))}
           />
@@ -169,6 +171,7 @@ export default function AdminWorkProjectsScreen() {
           onEdit={p => dispatch(openModal(p))}
           onDelete={id => dispatch(deleteProject(id))}
           onStatus={(id, status) => dispatch(patchStatus(id, status))}
+          onProgress={(id, percent) => dispatch(patchProgress(id, percent))}
           onPin={id => dispatch(pinProject(id))}
           onUnpin={id => dispatch(unpinProject(id))}
           onArchive={id => dispatch(archiveProject(id))}

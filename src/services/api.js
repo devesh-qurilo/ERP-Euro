@@ -788,6 +788,11 @@ export const adminWorkProjectsAPI = {
   // Archive / Unarchive
   archive: id => api.post(`/projects/${id}/archive`).then(r => r.data),
   unarchive: id => api.delete(`/projects/${id}/archive`).then(r => r.data),
+  // Status (multipart form with 'status')
+  patchStatus: (id, status) => projectsApi.patchStatus(id, status),
+
+  // Progress (multipart form with 'percent')
+  patchProgress: (id, percent) => projectsApi.patchProgress(id, percent),
 };
 export const adminProjectTasksAPI = {
   // GET /projects/{projectId}/tasks

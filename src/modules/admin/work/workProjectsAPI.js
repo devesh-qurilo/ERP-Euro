@@ -9,7 +9,7 @@ const toFormFile = f =>
       }
     : null;
 
-export const adminWorkProjectsAPI = {
+export const kadminWorkProjectsAPI = {
   // GET /api/projects (admin: list all – used for list, calendar, pinned, archived views client-side)
   listAll: () => api.get('/api/projects').then(r => r.data),
 
