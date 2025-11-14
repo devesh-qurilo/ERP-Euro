@@ -129,7 +129,7 @@ export default function AddLeadModal({
     try {
       setSaving(true);
 
-      const payload: any = {
+      const payload = {
         name: form.name.trim(),
         email: form.email.trim(),
         mobileNumber: form.mobileNumber.trim(),

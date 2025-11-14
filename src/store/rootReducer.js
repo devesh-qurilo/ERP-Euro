@@ -58,6 +58,7 @@ import projectsViewFilesReducer from '../modules/admin/work/projects/view/files/
 import AdminprojectActivityReducer from '../modules/admin/work/projects/view/activity/store/reducer';
 import AdminprojectNotesReducer from '../modules/admin/work/projects/view/notes/store/reducer';
 import leadNotesReducer from '../modules/admin/leads/notes/store/reducer';
+import dealsKanbanReducer from '../modules/admin/leads/deals/kanban/store/reducer';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -125,6 +126,7 @@ const rootReducer = combineReducers({
     projectViewActivity: AdminprojectActivityReducer,
     projectViewNotes: AdminprojectNotesReducer,
     leadNotes: leadNotesReducer,
+    dealsKanban: dealsKanbanReducer,
   }),
 });
 

@@ -52,6 +52,7 @@ import AdminTaskDetailScreen from '../modules/admin/work/tasks/screens/AdminTask
 import AdminTimesheetsScreen from '../modules/admin/work/timesheets/screens/AdminWorkTimesheetScreen';
 import AdminAppreciationsScreen from '../modules/admin/hr/appreciations/screens/AdminAppreciationsScreen';
 import AdminLeadViewScreen from '../modules/admin/leads/screens/AdminLeadViewScreen';
+import AdminDealKanbanScreen from '../modules/admin/leads/deals/kanban/screens/AdminDealKanbanScreen';
 // ---------------------------------------------------------------------------
 // PLACEHOLDERS (swap with real screens later)
 // ---------------------------------------------------------------------------
@@ -124,6 +125,7 @@ function LeadsStack() {
       <Stack.Screen name="AdminDeal" component={AdminDealScreen} />
       <Stack.Screen name="AdminDealView" component={AdminDealViewScreen} />
       <Stack.Screen name="LeadsContacts" component={AdminLeadContactsScreen} />
+      <Stack.Screen name="AdminDealKanban" component={AdminDealKanbanScreen} />
       <Stack.Screen
         name="AdminLeadViewScreen"
         component={AdminLeadViewScreen}

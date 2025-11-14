@@ -129,25 +129,25 @@ export default function AdminWorkProjectsScreen() {
             style={styles.btn}
             onPress={() => dispatch(setMode('list'))}
           >
-            <Text style={styles.btnTxt}>List</Text>
+            <Text style={styles.btnTxt}>Li</Text>
           </Pressable>
           <Pressable
             style={styles.btn}
             onPress={() => dispatch(setMode('calendar'))}
           >
-            <Text style={styles.btnTxt}>Calendar</Text>
+            <Text style={styles.btnTxt}>Cal</Text>
           </Pressable>
           <Pressable
             style={styles.btn}
             onPress={() => dispatch(setMode('archived'))}
           >
-            <Text style={styles.btnTxt}>Archived</Text>
+            <Text style={styles.btnTxt}>Arc</Text>
           </Pressable>
           <Pressable
             style={styles.btn}
             onPress={() => dispatch(setMode('pinned'))}
           >
-            <Text style={styles.btnTxt}>Pinned</Text>
+            <Text style={styles.btnTxt}>Pin</Text>
           </Pressable>
         </View>
       </View>

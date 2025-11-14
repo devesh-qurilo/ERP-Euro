@@ -27,10 +27,12 @@ import {
 } from '../../deals/store/selectors';
 import { adminLeadsAPI } from '../../../../../services/api';
 import { useNavigation } from '@react-navigation/native';
+import { navigationRef } from '../../../../../navigation/rootNav';
 
 export default function AdminDealScreen() {
   const dispatch = useDispatch();
   const nav = useNavigation();
+  const navigation = useNavigation();
 
   const deals = useSelector(selectDeals);
   const busy = useSelector(selectDealsBusy);
@@ -154,9 +156,7 @@ export default function AdminDealScreen() {
 
       {/* Kanban button (future) */}
       <TouchableOpacity
-        onPress={() => {
-          /* TODO: Kanban in future */
-        }}
+        onPress={() => navigation.navigate('AdminDealKanban')}
         style={{
           backgroundColor: '#eee',
           paddingVertical: 10,

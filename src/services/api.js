@@ -1513,4 +1513,14 @@ export const projectNotesAPI = {
       .then(r => r.data),
 };
 
+// --- STAGES API (kanban)
+export const stagesAPI = {
+  list: () => api.get('/stages').then(r => r.data),
+  create: payload => api.post('/stages', payload).then(r => r.data),
+  update: (id, payload) =>
+    api.put(`/stages/${encodeURIComponent(id)}`, payload).then(r => r.data),
+  remove: id =>
+    api.delete(`/stages/${encodeURIComponent(id)}`).then(r => r.data),
+};
+
 export default api;
