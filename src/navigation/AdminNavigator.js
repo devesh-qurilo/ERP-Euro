@@ -390,11 +390,11 @@ function AdminDrawerContent(props) {
               <View style={styles.headerContent}>
                 <View style={styles.avatarContainer}>
                   <Image
-                    source={require('../assets/icons/dashicons_awards.png')}
+                    source={require('../assets/icons/192x192.png')}
                     style={styles.avatar}
                   />
                 </View>
-                <Text style={styles.welcomeText}>Admin Panel</Text>
+                <Text style={styles.welcomeText}>Skova</Text>
               </View>
             </LinearGradient>
           </View>
@@ -705,7 +705,7 @@ const styles = StyleSheet.create({
   },
   headerContent: { alignItems: 'center' },
   avatarContainer: {
-    width: 70,
+    width: 90,
     height: 70,
     borderRadius: 35,
     borderWidth: 3,
