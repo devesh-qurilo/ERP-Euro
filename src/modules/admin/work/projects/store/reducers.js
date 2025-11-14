@@ -9,6 +9,7 @@ const initial = {
   filters: { q: '', status: 'All' },
   modalOpen: false,
   editing: null,
+  metricsById: {},
 };
 
 export default function reducer(state = initial, action) {
@@ -43,6 +44,15 @@ export default function reducer(state = initial, action) {
 
     case T.AWP_CLOSE_MODAL:
       return { ...state, modalOpen: false, editing: null };
+
+    case T.AWP_SET_METRICS:
+      return {
+        ...state,
+        metricsById: {
+          ...state.metricsById,
+          [action.projectId]: action.metrics,
+        },
+      };
 
     default:
       return state;

@@ -31,3 +31,14 @@ export const patchProgress = (id, percent) => ({
   id,
   percent,
 });
+
+export const fetchMetrics = projectId => ({
+  type: T.AWP_FETCH_METRICS,
+  projectId,
+});
+
+export const setMetrics = (projectId, metrics) => ({
+  type: T.AWP_SET_METRICS,
+  projectId,
+  metrics,
+});

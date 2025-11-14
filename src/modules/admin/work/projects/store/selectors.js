@@ -9,3 +9,6 @@ export const selectAWPFilters = s =>
   root(s).filters || { q: '', status: 'All' };
 export const selectAWPModalOpen = s => !!root(s).modalOpen;
 export const selectAWPEditing = s => root(s).editing;
+
+export const selectAWPMetrics = (s, projectId) =>
+  (root(s).metricsById && root(s).metricsById[projectId]) || null;

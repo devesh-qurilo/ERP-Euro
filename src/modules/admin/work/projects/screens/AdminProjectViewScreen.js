@@ -8,6 +8,7 @@ import ProjectPaymentsTab from '../view/payments/ProjectPaymentsTab';
 import ProjectFilesTab from '../view/files/ProjectFilesTab';
 import ProjectActivityTab from '../view/activity/ProjectActivityTab';
 import ProjectNotesTab from '../view/notes/ProjectNotesTab';
+import OverviewTabConnected from '../components/OverviewTab';
 
 /* --------------------------- helpers / formatters --------------------------- */
 function fmtDate(d) {
@@ -24,7 +25,7 @@ function fmtDate(d) {
 const num = (v, def = 0) => (v == null || Number.isNaN(+v) ? def : +v);
 
 /* --------------------------------- Overview -------------------------------- */
-function OverviewTab({ project }) {
+function OverviewTabk({ project }) {
   const p = project || {};
   console.log('tassssss', p);
   const progress = num(p.progressPercent, 0);
@@ -138,7 +139,7 @@ export default function AdminWorkProjectViewScreen({ route }) {
   ]);
 
   const renderScene = SceneMap({
-    overview: () => <OverviewTab project={project} />,
+    overview: () => <OverviewTabConnected project={project} />,
     invoices: () => (
       <ProjectInvoicesTab
         route={{ params: { projectId: project.id, project } }}

@@ -23,3 +23,7 @@ export const AWP_OPEN_MODAL = 'AWP/OPEN_MODAL';
 export const AWP_CLOSE_MODAL = 'AWP/CLOSE_MODAL';
 
 export const AWP_PATCH_PROGRESS = 'AWP/PATCH_PROGRESS';
+
+// metrics
+export const AWP_FETCH_METRICS = 'AWP/FETCH_METRICS';
+export const AWP_SET_METRICS = 'AWP/SET_METRICS';

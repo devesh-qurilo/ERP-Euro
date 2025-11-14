@@ -793,6 +793,7 @@ export const adminWorkProjectsAPI = {
 
   // Progress (multipart form with 'percent')
   patchProgress: (id, percent) => projectsApi.patchProgress(id, percent),
+  metrics: id => api.get(`/api/projects/${id}/metrics`).then(r => r.data),
 };
 export const adminProjectTasksAPI = {
   // GET /projects/{projectId}/tasks

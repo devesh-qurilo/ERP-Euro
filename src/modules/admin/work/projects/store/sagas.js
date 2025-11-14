@@ -123,6 +123,16 @@ function* unarchive({ id }) {
     yield put({ type: T.AWP_BUSY, id, on: false });
   }
 }
+export const fetchMetrics = projectId => ({
+  type: T.AWP_FETCH_METRICS,
+  projectId,
+});
+
+export const setMetrics = (projectId, metrics) => ({
+  type: T.AWP_SET_METRICS,
+  projectId,
+  metrics,
+});
 
 export default function* adminWorkProjectsWatcher() {
   yield all([
@@ -136,5 +146,6 @@ export default function* adminWorkProjectsWatcher() {
     takeLatest(T.AWP_ARCHIVE, archive),
     takeLatest(T.AWP_UNARCHIVE, unarchive),
     takeLatest(T.AWP_PATCH_PROGRESS, patchProgress),
+    takeLatest(T.AWP_FETCH_METRICS, fetchMetrics),
   ]);
 }
