@@ -205,7 +205,7 @@ function EmployeeDrawerContent(props) {
                     style={styles.avatar}
                   />
                 </View>
-                <Text style={styles.welcomeText}>skova</Text>
+                <Text style={styles.welcomeText}>skavo</Text>
                 {/* <Text style={styles.employeeName}>John Doe</Text> */}
               </View>
             </LinearGradient>

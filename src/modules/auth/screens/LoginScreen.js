@@ -90,7 +90,7 @@ const LoginScreen = ({ navigation }) => {
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.header}>
-          <Text style={styles.appName}>SKOVA</Text>
+          <Text style={styles.appName}>SKAVO</Text>
           <Text style={styles.welcomeText}>WELCOME BACK !</Text>
         </View>
 
