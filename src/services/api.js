@@ -1397,6 +1397,15 @@ export const adminTasksAPI = {
   // PIN/UNPIN via your existing taskPinAPI
   pin: taskId => taskPinAPI.pin(taskId),
   unpin: taskId => taskPinAPI.unpin(taskId),
+
+  updateStatus: (taskId, statusId) =>
+    api
+      .patch(
+        `/api/projects/tasks/${encodeURIComponent(
+          taskId,
+        )}/status?statusId=${encodeURIComponent(statusId)}`,
+      )
+      .then(r => r.data),
 };
 
 // Task Files

@@ -34,6 +34,7 @@ export default function TaskRow({
   onDelete,
   onTogglePin,
 }) {
+  console.log('item', item);
   return (
     <View
       style={{
@@ -70,10 +71,10 @@ export default function TaskRow({
         </Text>
       </Col>
       <Col>
-        <Text>---</Text>
+        <Text>{item.completedOn ? `${fmtDate(item.completedOn)}` : '--'}</Text>
       </Col>
       <Col>
-        <Text>0s</Text>
+        <Text>{item.hoursLogged ? `${item.hoursLogged}` : '--'}</Text>
       </Col>
 
       <Col

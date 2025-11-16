@@ -9,6 +9,13 @@ react {
 def enableProguardInReleaseBuilds = false
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+// ----------------------
+// 🔥 Version Settings
+// ----------------------
+def versionMajor = 1
+def versionMinor = 0
+def versionPatch = 1  // <-- Change only this when you update
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -20,8 +27,10 @@ android {
         applicationId "com.devesh.erp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+
+        // Auto Versioning
+        versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
+        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
     }
 
     signingConfigs {
@@ -45,8 +54,11 @@ android {
         }
         release {
             signingConfig signingConfigs.release
-            minifyEnabled false
+            
+            // recommended but you can keep false if you want
+            minifyEnabled false    
             shrinkResources false
+
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }

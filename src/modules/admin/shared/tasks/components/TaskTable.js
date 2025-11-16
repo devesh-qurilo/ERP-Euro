@@ -76,16 +76,6 @@ export default function TaskTable({
             )}
           </View>
         </ScrollView>
-
-        {/* <View
-          style={{
-            paddingVertical: 8,
-            alignItems: 'center',
-            backgroundColor: '#fff',
-          }}
-        >
-          <Text>Prev | 1 | 2 | 3 | 4 | ….. Next</Text>
-        </View> */}
       </View>
 
       <View style={{ paddingTop: 10, alignItems: 'center' }}>
