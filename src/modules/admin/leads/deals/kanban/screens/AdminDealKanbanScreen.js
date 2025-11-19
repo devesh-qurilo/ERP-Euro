@@ -130,12 +130,14 @@ export default function AdminDealKanbanScreen() {
 /* ---------------- Kanban Card (fancy) ---------------- */
 function KanbanCard({ item, stage, stages, dispatch, navigation }) {
   const [openMenu, setOpenMenu] = useState(false);
+  console.log('chandu', item);
 
   // minimal required fields
   const leadName =
     item.leadName || item.assignedEmployeesMeta?.[0]?.name || '--';
   const leadMobile = item.leadMobile || '--';
   const tags = Array.isArray(item.tags) ? item.tags : [];
+  const calend = item.followups[0]?.nextDate || '--';
 
   // avatars from assignedEmployeesMeta (max 3)
   const avatars = (item.assignedEmployeesMeta || []).slice(0, 3);
@@ -150,6 +152,9 @@ function KanbanCard({ item, stage, stages, dispatch, navigation }) {
         <Text style={styles.cardTitle} numberOfLines={1}>
           {item.title}
         </Text>
+        {/* <Text style={styles.cardTitle} numberOfLines={1}>
+          {calend}
+        </Text> */}
 
         <View style={{ alignItems: 'flex-end' }}>
           <TouchableOpacity
@@ -174,7 +179,7 @@ function KanbanCard({ item, stage, stages, dispatch, navigation }) {
         <View style={{ flex: 1 }}>
           <Text style={styles.leadName}>{leadName}</Text>
           <Text style={styles.leadMobile}>{leadMobile}</Text>
-
+          <Text style={styles.leadCalender}>{calend}</Text>
           <View style={styles.tagsRow}>
             {visibleTags.length === 0 && (
               <Text style={styles.noTagsText}>No tags</Text>
@@ -361,6 +366,15 @@ const styles = StyleSheet.create({
   cardBody: { flexDirection: 'row', alignItems: 'center', marginTop: 6 },
   leadName: { fontSize: 14, fontWeight: '700', color: '#222' },
   leadMobile: { color: '#666', marginTop: 4 },
+  leadCalender: {
+    color: '#843838ff',
+    marginTop: 4,
+    backgroundColor: '#b4d2deff',
+    padding: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 20,
+  },
 
   tagsRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 10, gap: 6 },
   noTagsText: { color: '#999', fontSize: 12 },

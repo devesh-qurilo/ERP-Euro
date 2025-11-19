@@ -53,6 +53,7 @@ import AdminTimesheetsScreen from '../modules/admin/work/timesheets/screens/Admi
 import AdminAppreciationsScreen from '../modules/admin/hr/appreciations/screens/AdminAppreciationsScreen';
 import AdminLeadViewScreen from '../modules/admin/leads/screens/AdminLeadViewScreen';
 import AdminDealKanbanScreen from '../modules/admin/leads/deals/kanban/screens/AdminDealKanbanScreen';
+import AdminDashboardScreen from '../modules/admin/dashboard/screens/AdminDashboardScreen';
 // ---------------------------------------------------------------------------
 // PLACEHOLDERS (swap with real screens later)
 // ---------------------------------------------------------------------------
@@ -63,7 +64,7 @@ const P = ({ title }) => (
   </View>
 );
 
-const AdminDashboardScreen = () => <P title="Admin • Dashboard" />;
+// const AdminDashboardScreen = () => <P title="Admin • Dashboard" />;
 // const AdminClientsScreen = () => <P title="Admin • Clients" />;
 const AdminMessagesScreen = () => <P title="Admin • Messages" />;
 

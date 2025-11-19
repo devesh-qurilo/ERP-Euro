@@ -65,6 +65,7 @@ import AdminprojectActivityRoot from '../modules/admin/work/projects/view/activi
 import projectNotesRoot from '../modules/admin/work/projects/view/notes/store/saga';
 import { leadNotesWatcher } from '../modules/admin/leads/notes/store/sagas';
 import dealsKanbanWatcher from '../modules/admin/leads/deals/kanban/store/sagas';
+import { adminDashboardWatcher } from '../modules/admin/dashboard/store/sagas';
 
 // Root saga that combines all sagas
 export default function* rootSaga() {
@@ -124,6 +125,7 @@ export default function* rootSaga() {
     projectNotesRoot(),
     fork(leadNotesWatcher),
     fork(dealsKanbanWatcher),
+    fork(adminDashboardWatcher),
   ]);
 }
 // adminFinanceInvoiceWatcher
