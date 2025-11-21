@@ -14,7 +14,7 @@ def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 // ----------------------
 def versionMajor = 1
 def versionMinor = 0
-def versionPatch = 1  // <-- Change only this when you update
+def versionPatch = 2  // <-- Change only this when you update
 
 android {
     ndkVersion rootProject.ext.ndkVersion
