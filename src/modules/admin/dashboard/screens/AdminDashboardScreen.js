@@ -17,6 +17,7 @@ import { setTimelogSelectedDate } from '../../timelog/store/actions';
 import { selectTimelogSelectedDate } from '../../timelog/store/selectors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TaskTablePreview from '../components/TaskTablePreview';
+import BirthdayWidget from '../../birthdays/components/BirthdayWidget';
 
 // helper: Date -> YYYY-MM-DD
 const toISODate = d => {
@@ -123,6 +124,10 @@ export default function AdminDashboardScreen({ navigation }) {
         </View>
 
         {/* You can add more dashboard components here (charts, lists, etc.) */}
+        <BirthdayWidget />
+        <View style={{ marginTop: 12 }}>
+          <BirthdayWidget />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

@@ -67,6 +67,7 @@ import { leadNotesWatcher } from '../modules/admin/leads/notes/store/sagas';
 import dealsKanbanWatcher from '../modules/admin/leads/deals/kanban/store/sagas';
 import { adminDashboardWatcher } from '../modules/admin/dashboard/store/sagas';
 import { timelogWatcher } from '../modules/admin/timelog/store/sagas';
+import { birthdaysWatcher } from '../modules/admin/birthdays/store/sagas';
 
 // Root saga that combines all sagas
 export default function* rootSaga() {
@@ -128,6 +129,7 @@ export default function* rootSaga() {
     fork(dealsKanbanWatcher),
     fork(adminDashboardWatcher),
     fork(timelogWatcher),
+    fork(birthdaysWatcher),
   ]);
 }
 // adminFinanceInvoiceWatcher

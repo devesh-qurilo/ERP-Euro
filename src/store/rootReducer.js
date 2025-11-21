@@ -61,6 +61,7 @@ import leadNotesReducer from '../modules/admin/leads/notes/store/reducer';
 import dealsKanbanReducer from '../modules/admin/leads/deals/kanban/store/reducer';
 import adminDashboardReducer from '../modules/admin/dashboard/store/reducers';
 import timelogReducer from '../modules/admin/timelog/store/reducer';
+import birthdaysReducer from '../modules/admin/birthdays/store/reducer';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -131,6 +132,7 @@ const rootReducer = combineReducers({
     dealsKanban: dealsKanbanReducer,
     dashboard: adminDashboardReducer,
     timelog: timelogReducer,
+    birthdays: birthdaysReducer,
   }),
 });
 
