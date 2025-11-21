@@ -16,6 +16,7 @@ import TimeLogMini from '../../timelog/components/TimeLogMini';
 import { setTimelogSelectedDate } from '../../timelog/store/actions';
 import { selectTimelogSelectedDate } from '../../timelog/store/selectors';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import TaskTablePreview from '../components/TaskTablePreview';
 
 // helper: Date -> YYYY-MM-DD
 const toISODate = d => {
@@ -115,6 +116,10 @@ export default function AdminDashboardScreen({ navigation }) {
         {/* Compact timelog preview — it reads selectedDate from store and auto-fetches */}
         <View style={styles.section}>
           <TimeLogMini initialDate={localDate} />
+        </View>
+
+        <View style={{ marginTop: 12 }}>
+          <TaskTablePreview initialSource={{ kind: 'assigned' }} />
         </View>
 
         {/* You can add more dashboard components here (charts, lists, etc.) */}
