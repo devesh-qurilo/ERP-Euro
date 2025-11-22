@@ -15,34 +15,40 @@ import {
   AWARDS_UPDATE,
   AWARDS_TOGGLE,
   AWARD_CLOSE_MODAL,
-} from './types'; // <-- where you export those constants
+} from './types';
 
-// use your central api barrel (adjust path if needed)
 import {
   adminAppreciationsAPI,
   adminAwardsAPI,
 } from '../../../../../services/api';
 
-// const msg = e =>
-//   e?.response?.data?.message || e?.message || 'Something went wrong';
+// small helper to format error messages safely
+const msg = e =>
+  e?.response?.data?.message ||
+  e?.message ||
+  String(e) ||
+  'Something went wrong';
 
 /* -------------------- Appreciations -------------------- */
 function* fetchAppreciations() {
   try {
     const list = yield call(adminAppreciationsAPI.list);
-    console.log('lisiiii', list);
-    // yield put({ type: APPREC_SET, payload: list });
+    // list is expected as array from service (your service returns r.data already)
+    // reducer expects action.items — keep that consistent
+    yield put({ type: APPREC_SET, items: list });
   } catch (e) {
-    yield put({ type: APPREC_ERROR, error: e.message });
+    yield put({ type: APPREC_ERROR, error: msg(e) });
   }
 }
 
-function* createApprec({ payload }) {
+function* createApprec(action) {
+  const payload = action?.payload;
   try {
     yield put({ type: APPREC_BUSY, payload: true });
     yield call(adminAppreciationsAPI.create, payload);
     yield put({ type: APPREC_CLOSE_MODAL });
-    yield call(fetchAppreciations); // refresh
+    // refresh
+    yield call(fetchAppreciations);
   } catch (e) {
     yield put({ type: APPREC_ERROR, error: msg(e) });
   } finally {
@@ -50,11 +56,12 @@ function* createApprec({ payload }) {
   }
 }
 
-function* updateApprec({ payload }) {
-  const { id, data } = payload || {};
+function* updateApprec(action) {
+  // action shape: { type, id, payload }
+  const { id, payload } = action || {};
   try {
     yield put({ type: APPREC_BUSY, payload: true });
-    yield call(adminAppreciationsAPI.update, id, data);
+    yield call(adminAppreciationsAPI.update, id, payload);
     yield put({ type: APPREC_CLOSE_MODAL });
     yield call(fetchAppreciations);
   } catch (e) {
@@ -64,11 +71,12 @@ function* updateApprec({ payload }) {
   }
 }
 
-function* deleteApprec({ payload }) {
-  // payload = id
+function* deleteApprec(action) {
+  // action shape: { type, id }
+  const id = action?.id ?? action?.payload;
   try {
     yield put({ type: APPREC_BUSY, payload: true });
-    yield call(adminAppreciationsAPI.remove, payload);
+    yield call(adminAppreciationsAPI.remove, id);
     yield call(fetchAppreciations);
   } catch (e) {
     yield put({ type: APPREC_ERROR, error: msg(e) });
@@ -81,14 +89,15 @@ function* deleteApprec({ payload }) {
 function* fetchAwards() {
   try {
     const list = yield call(adminAwardsAPI.list);
-    yield put({ type: AWARDS_SET, payload: list });
+    // reducer expects action.items
+    yield put({ type: AWARDS_SET, items: list });
   } catch (e) {
-    // reuse APPREC_ERROR so a single error banner can show (or add AWARDS_ERROR if you have it)
     yield put({ type: APPREC_ERROR, error: msg(e) });
   }
 }
 
-function* createAward({ payload }) {
+function* createAward(action) {
+  const payload = action?.payload;
   try {
     yield call(adminAwardsAPI.create, payload);
     yield put({ type: AWARD_CLOSE_MODAL });
@@ -98,10 +107,10 @@ function* createAward({ payload }) {
   }
 }
 
-function* updateAward({ payload }) {
-  const { id, data } = payload || {};
+function* updateAward(action) {
+  const { id, payload } = action || {};
   try {
-    yield call(adminAwardsAPI.update, id, data);
+    yield call(adminAwardsAPI.update, id, payload);
     yield put({ type: AWARD_CLOSE_MODAL });
     yield call(fetchAwards);
   } catch (e) {
@@ -109,10 +118,11 @@ function* updateAward({ payload }) {
   }
 }
 
-function* toggleAward({ payload }) {
-  // payload = id
+function* toggleAward(action) {
+  // action shape: { type, id }
+  const id = action?.id ?? action?.payload;
   try {
-    yield call(adminAwardsAPI.toggleStatus, payload);
+    yield call(adminAwardsAPI.toggleStatus, id);
     yield call(fetchAwards);
   } catch (e) {
     yield put({ type: APPREC_ERROR, error: msg(e) });

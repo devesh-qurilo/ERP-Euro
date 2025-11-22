@@ -67,6 +67,7 @@ export default function AdminAppreciationsScreen() {
   const filters = useSelector(selectApprecsFilters);
   const busyIds = useSelector(selectApprecBusyIds);
   const mode = useSelector(selectApprecMode);
+  console.log('selector list aprr', list);
 
   useEffect(() => {
     dispatch(fetchAppreciations());

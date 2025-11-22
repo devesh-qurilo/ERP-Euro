@@ -1,3 +1,4 @@
+// src/modules/admin/hr/appreciations/store/reducer.js
 import {
   APPREC_SET,
   APPREC_ERROR,
@@ -30,11 +31,22 @@ const initial = {
 export default function appreciationsReducer(state = initial, action) {
   switch (action.type) {
     case APPREC_SET:
-      return { ...state, list: action.items, loading: false, error: null };
+      // saga now dispatches { type: APPREC_SET, items: list }
+      return {
+        ...state,
+        list: action.items ?? [],
+        loading: false,
+        error: null,
+      };
     case APPREC_ERROR:
       return { ...state, loading: false, error: action.error };
     case APPREC_BUSY:
-      return { ...state, busyIds: action.ids };
+      // saga dispatches { type: APPREC_BUSY, payload: boolean }
+      // keep both loading and busyIds compatibility. If caller passes ids, use them.
+      if (Array.isArray(action.ids)) {
+        return { ...state, busyIds: action.ids };
+      }
+      return { ...state, loading: !!action.payload };
     case APPREC_SET_FILTERS:
       return { ...state, filters: { ...state.filters, ...action.filters } };
     case APPREC_SET_MODE:
@@ -45,7 +57,7 @@ export default function appreciationsReducer(state = initial, action) {
       return { ...state, modalOpen: false, editing: null };
 
     case AWARDS_SET:
-      return { ...state, awards: action.items, awardsLoading: false };
+      return { ...state, awards: action.items ?? [], awardsLoading: false };
     case AWARD_OPEN_MODAL:
       return {
         ...state,

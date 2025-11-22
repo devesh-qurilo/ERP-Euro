@@ -18,9 +18,11 @@ import { selectTimelogSelectedDate } from '../../timelog/store/selectors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TaskTablePreview from '../components/TaskTablePreview';
 import BirthdayWidget from '../../birthdays/components/BirthdayWidget';
-import LeaveCalendarWidget from '../../leaves/components/LeaveCalendarWidget';
+import AppreciationsTableCompact from '../../appreciations/components/AppreciationsTableCompact';
+
 import LeaveCalendarWidgetFancy from '../../leaves/components/LeaveCalendarWidgetFancy';
 import WorkFromHomeWidgetFancy from '../../wfh/components/WorkFromHomeWidgetFancy';
+import ProfileCardDashboard from '../../profile/components/ProfileCardDashboard';
 
 // helper: Date -> YYYY-MM-DD
 const toISODate = d => {
@@ -79,76 +81,84 @@ export default function AdminDashboardScreen({ navigation }) {
   }, [globalSelectedDate]);
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <ScrollView contentContainerStyle={styles.container}>
-        {/* Fancy stat cards */}
-        <DashboardStatCardsFancy />
+    // <SafeAreaView style={styles.safe}>
+    <ScrollView contentContainerStyle={styles.container}>
+      <View style={{ marginTop: 1 }}>
+        <ProfileCardDashboard compact={false} />
+      </View>
+      {/* Fancy stat cards */}
+      <DashboardStatCardsFancy />
 
-        {/* Date control (global) */}
-        <View style={styles.dateRow}>
-          <TouchableOpacity style={styles.smallBtn} onPress={onPrev}>
-            <Text style={styles.smallBtnText}>‹ Prev</Text>
-          </TouchableOpacity>
+      {/* Date control (global) */}
+      <View style={styles.dateRow}>
+        <TouchableOpacity style={styles.smallBtn} onPress={onPrev}>
+          <Text style={styles.smallBtnText}>‹ Prev</Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.dateBtn}
-            onPress={() => setShowPicker(true)}
-          >
-            <Text style={styles.dateText}>{localDate}</Text>
-          </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.dateBtn}
+          onPress={() => setShowPicker(true)}
+        >
+          <Text style={styles.dateText}>{localDate}</Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity style={styles.smallBtn} onPress={onNext}>
-            <Text style={styles.smallBtnText}>Next ›</Text>
-          </TouchableOpacity>
+        <TouchableOpacity style={styles.smallBtn} onPress={onNext}>
+          <Text style={styles.smallBtnText}>Next ›</Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity style={styles.todayBtn} onPress={onToday}>
-            <Text style={styles.todayText}>Today</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity style={styles.todayBtn} onPress={onToday}>
+          <Text style={styles.todayText}>Today</Text>
+        </TouchableOpacity>
+      </View>
 
-        {showPicker && (
-          <DateTimePicker
-            value={new Date(localDate)}
-            mode="date"
-            display="default"
-            onChange={onPick}
-            maximumDate={new Date(2100, 0, 1)}
-            minimumDate={new Date(2000, 0, 1)}
-          />
-        )}
+      {showPicker && (
+        <DateTimePicker
+          value={new Date(localDate)}
+          mode="date"
+          display="default"
+          onChange={onPick}
+          maximumDate={new Date(2100, 0, 1)}
+          minimumDate={new Date(2000, 0, 1)}
+        />
+      )}
 
-        {/* Compact timelog preview — it reads selectedDate from store and auto-fetches */}
-        <View style={styles.section}>
-          <TimeLogMini initialDate={localDate} />
-        </View>
+      {/* Compact timelog preview — it reads selectedDate from store and auto-fetches */}
+      <View style={styles.section}>
+        <TimeLogMini initialDate={localDate} />
+      </View>
 
-        <View style={{ marginTop: 12 }}>
-          <TaskTablePreview initialSource={{ kind: 'assigned' }} />
-        </View>
+      <View style={{ marginTop: 12 }}>
+        <TaskTablePreview initialSource={{ kind: 'assigned' }} />
+      </View>
 
-        {/* You can add more dashboard components here (charts, lists, etc.) */}
-        {/* <BirthdayWidget /> */}
-        <View style={{ marginTop: 12 }}>
-          <BirthdayWidget />
-        </View>
-        <View style={{ marginTop: 12 }}>
-          <LeaveCalendarWidget />
-        </View>
+      {/* You can add more dashboard components here (charts, lists, etc.) */}
+      {/* <BirthdayWidget /> */}
+      <View style={{ marginTop: 12 }}>
+        <BirthdayWidget />
+      </View>
+      <View style={{ marginTop: 12 }}>
+        <AppreciationsTableCompact
+          maxRows={6}
+          onRowPress={row =>
+            navigation.navigate('AppreciationDetail', { id: row.id })
+          }
+        />
+      </View>
 
-        <View style={{ marginTop: 12 }}>
-          <LeaveCalendarWidgetFancy />
-        </View>
-        <View style={{ marginTop: 12 }}>
-          <WorkFromHomeWidgetFancy />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+      <View style={{ marginTop: 12 }}>
+        <LeaveCalendarWidgetFancy />
+      </View>
+      <View style={{ marginTop: 12 }}>
+        <WorkFromHomeWidgetFancy />
+      </View>
+    </ScrollView>
+    // </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#e6e6e6ff' },
-  container: { padding: 12 },
+  safe: { backgroundColor: '#e6e6e6ff' },
+  container: { paddingHorizontal: 10, marginBottom: 20 },
   dateRow: {
     flexDirection: 'row',
     alignItems: 'center',
