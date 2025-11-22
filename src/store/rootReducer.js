@@ -63,6 +63,7 @@ import adminDashboardReducer from '../modules/admin/dashboard/store/reducers';
 import timelogReducer from '../modules/admin/timelog/store/reducer';
 import birthdaysReducer from '../modules/admin/birthdays/store/reducer';
 import leavesReducer from '../modules/admin/leaves/store/reducer';
+import wfhReducer from '../modules/admin/wfh/store/reducer';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -135,6 +136,7 @@ const rootReducer = combineReducers({
     timelog: timelogReducer,
     birthdays: birthdaysReducer,
     leaves: leavesReducer,
+    wfh: wfhReducer,
   }),
 });
 

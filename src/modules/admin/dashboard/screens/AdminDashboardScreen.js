@@ -20,6 +20,7 @@ import TaskTablePreview from '../components/TaskTablePreview';
 import BirthdayWidget from '../../birthdays/components/BirthdayWidget';
 import LeaveCalendarWidget from '../../leaves/components/LeaveCalendarWidget';
 import LeaveCalendarWidgetFancy from '../../leaves/components/LeaveCalendarWidgetFancy';
+import WorkFromHomeWidgetFancy from '../../wfh/components/WorkFromHomeWidgetFancy';
 
 // helper: Date -> YYYY-MM-DD
 const toISODate = d => {
@@ -137,13 +138,16 @@ export default function AdminDashboardScreen({ navigation }) {
         <View style={{ marginTop: 12 }}>
           <LeaveCalendarWidgetFancy />
         </View>
+        <View style={{ marginTop: 12 }}>
+          <WorkFromHomeWidgetFancy />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#f8fafc' },
+  safe: { flex: 1, backgroundColor: '#e6e6e6ff' },
   container: { padding: 12 },
   dateRow: {
     flexDirection: 'row',
