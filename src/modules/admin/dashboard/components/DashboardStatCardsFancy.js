@@ -9,8 +9,8 @@ import {
   Animated,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import LinearGradient from 'react-native-linear-gradient'; // optional; if not installed, replace with View and backgroundColor
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // optional
+import LinearGradient from 'react-native-linear-gradient';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import SvgRing from './SvgRing';
 import { fetchAdminDashboardCountsRequest } from '../store/actions';
 import {
@@ -22,29 +22,25 @@ import {
 } from '../store/selectors';
 
 /**
- * Animated counter hook
+ * Animated counter hook with smooth interpolation
  */
 function useCountAnimation(value) {
   const anim = React.useRef(new Animated.Value(Number(value) || 0)).current;
 
   useEffect(() => {
-    Animated.timing(anim, {
+    Animated.spring(anim, {
       toValue: Number(value) || 0,
-      duration: 700,
+      friction: 7,
+      tension: 40,
       useNativeDriver: false,
     }).start();
   }, [value]);
-
-  const display = anim.interpolate({
-    inputRange: [0, 10000000],
-    outputRange: [0, 10000000],
-  });
 
   return anim;
 }
 
 /**
- * Single fancy card component
+ * Enhanced fancy card component with improved UI
  */
 function FancyCard({
   title,
@@ -56,65 +52,109 @@ function FancyCard({
   iconName,
   onPress,
   ringColor,
+  iconBg,
 }) {
   const animValue = useCountAnimation(main);
+  const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
-  // fallback: if LinearGradient is available, use it otherwise fallback to View
-  const Container = LinearGradient ? LinearGradient : View;
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.97,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 3,
+      tension: 40,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const Container = LinearGradient || View;
   const containerProps = LinearGradient
     ? {
         colors: [accentStart || '#4f46e5', accentEnd || '#6366f1'],
-        style: [styles.card, styles.cardGradient],
+        start: { x: 0, y: 0 },
+        end: { x: 1, y: 1 },
+        style: styles.card,
       }
     : { style: [styles.card, { backgroundColor: accentStart || '#4f46e5' }] };
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.9}
-      onPress={onPress}
-      style={{ flexBasis: '48%' }}
+    <Animated.View
+      style={[
+        styles.cardWrapper,
+        {
+          transform: [{ scale: scaleAnim }],
+        },
+      ]}
     >
-      <Container {...containerProps}>
-        <View style={styles.cardTop}>
-          <View style={styles.left}>
-            {/* {iconName ? (
-              <Icon name={iconName} size={22} color="rgba(255,255,255,0.95)" />
-            ) : null} */}
-            <Text style={styles.title}>{title}</Text>
+      <TouchableOpacity
+        activeOpacity={1}
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+      >
+        <Container {...containerProps}>
+          {/* Decorative background elements */}
+          <View style={styles.bgDecoration1} />
+          <View style={styles.bgDecoration2} />
+
+          <View style={styles.cardContent}>
+            {/* Header with icon and ring */}
+            <View style={styles.cardTop}>
+              <View style={styles.iconContainer}>
+                <View style={[styles.iconBg, { backgroundColor: iconBg }]}>
+                  <Icon
+                    name={iconName}
+                    size={24}
+                    color="rgba(255,255,255,0.95)"
+                  />
+                </View>
+                <Text style={styles.title}>{title}</Text>
+              </View>
+              <View style={styles.ringContainer}>
+                <SvgRing
+                  size={52}
+                  strokeWidth={5}
+                  progress={percent || 0}
+                  progressColor={ringColor || '#fff'}
+                  bgColor="rgba(255,255,255,0.2)"
+                />
+                <View style={styles.percentBadge}>
+                  <Text style={styles.percentText}>{percent}%</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Main count */}
+            <View style={styles.cardBody}>
+              <Animated.Text style={styles.mainCount}>
+                {Math.round(animValue._value || main)}
+              </Animated.Text>
+              {sub ? (
+                <View style={styles.subTextContainer}>
+                  <Text style={styles.subText}>{sub}</Text>
+                </View>
+              ) : null}
+            </View>
+
+            {/* Footer with arrow */}
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>View Details</Text>
+              <Icon
+                name="chevron-right"
+                size={16}
+                color="rgba(255,255,255,0.8)"
+              />
+            </View>
           </View>
-          <SvgRing
-            size={48}
-            strokeWidth={6}
-            progress={percent || 0}
-            progressColor={ringColor || '#fff'}
-            bgColor="rgba(255,255,255,0.15)"
-          />
-        </View>
-
-        <View style={styles.cardBody}>
-          <Animated.Text style={styles.mainCount}>
-            {animValue.interpolate
-              ? animValue.interpolate({
-                  inputRange: [0, 1000000],
-                  outputRange: [0, 1000000],
-                }).__getValue
-                ? String(
-                    Math.round(
-                      animValue.__getValue ? animValue.__getValue() : main,
-                    ),
-                  )
-                : String(main)
-              : String(main)}
-            {/* NOTE: Animated number display is simplified to show the target value when interpolation isn't easily extracted */}
-          </Animated.Text>
-          {sub ? <Text style={styles.subText}>{sub}</Text> : null}
-        </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Tap to view details</Text>
-        </View>
-      </Container>
-    </TouchableOpacity>
+        </Container>
+      </TouchableOpacity>
+    </Animated.View>
   );
 }
 
@@ -167,129 +207,205 @@ export default function DashboardStatCardsFancy({
   if (loading) {
     return (
       <View style={styles.loadingWrapper}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color="#6d28d9" />
+        <Text style={styles.loadingText}>Loading dashboard...</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.row}>
-      <FancyCard
-        title="Projects"
-        main={projects.pendingCount ?? 0}
-        sub={`Overdue ${projects.overdueCount ?? 0} • Total ${projectsTotal}`}
-        percent={projectsPercent}
-        accentStart="#6d28d9"
-        accentEnd="#544ec7ff"
-        iconName="folder-multiple-outline"
-        onPress={onPressProjects}
-        ringColor="#fc0000ff"
-      />
+    <View style={styles.container}>
+      <View style={styles.row}>
+        <FancyCard
+          title="Projects"
+          main={projects.pendingCount ?? 0}
+          sub={`${projects.overdueCount ?? 0} Overdue • ${projectsTotal} Total`}
+          percent={projectsPercent}
+          accentStart="#7c3aed"
+          accentEnd="#5b21b6"
+          iconName="folder-multiple"
+          iconBg="rgba(255,255,255,0.15)"
+          onPress={onPressProjects}
+          ringColor="#fbbf24"
+        />
 
-      <FancyCard
-        title="Tasks"
-        main={tasks.pendingCount ?? 0}
-        sub={`Overdue ${tasks.overdueCount ?? 0} • Total ${tasksTotal}`}
-        percent={tasksPercent}
-        accentStart="#059669"
-        accentEnd="#10b981"
-        iconName="format-list-checkbox"
-        onPress={onPressTasks}
-        ringColor="#fff"
-      />
+        <FancyCard
+          title="Tasks"
+          main={tasks.pendingCount ?? 0}
+          sub={`${tasks.overdueCount ?? 0} Overdue • ${tasksTotal} Total`}
+          percent={tasksPercent}
+          accentStart="#059669"
+          accentEnd="#047857"
+          iconName="checkbox-marked-circle"
+          iconBg="rgba(255,255,255,0.15)"
+          onPress={onPressTasks}
+          ringColor="#34d399"
+        />
 
-      <FancyCard
-        title="Deals"
-        main={deals.totalDeals ?? 0}
-        sub={`Converted ${deals.convertedDeals ?? 0} • Rate ${dealsPercent}%`}
-        percent={dealsPercent}
-        accentStart="#f97316"
-        accentEnd="#f59e0b"
-        iconName="handshake-outline"
-        onPress={onPressDeals}
-        ringColor="#fff"
-      />
+        <FancyCard
+          title="Deals"
+          main={deals.totalDeals ?? 0}
+          sub={`${deals.convertedDeals ?? 0} Converted • ${dealsPercent}% Rate`}
+          percent={dealsPercent}
+          accentStart="#ea580c"
+          accentEnd="#c2410c"
+          iconName="handshake"
+          iconBg="rgba(255,255,255,0.15)"
+          onPress={onPressDeals}
+          ringColor="#fdba74"
+        />
 
-      <FancyCard
-        title="Followups"
-        main={followups.pendingCount ?? 0}
-        sub={`Upcoming ${
-          followups.upcomingCount ?? 0
-        } • Total ${followupsTotal}`}
-        percent={followupsPercent}
-        accentStart="#ef4444"
-        accentEnd="#dc2626"
-        iconName="bell-outline"
-        onPress={onPressFollowups}
-        ringColor="#fff"
-      />
+        <FancyCard
+          title="Followups"
+          main={followups.pendingCount ?? 0}
+          sub={`${
+            followups.upcomingCount ?? 0
+          } Upcoming • ${followupsTotal} Total`}
+          percent={followupsPercent}
+          accentStart="#dc2626"
+          accentEnd="#b91c1c"
+          iconName="bell-ring"
+          iconBg="rgba(255,255,255,0.15)"
+          onPress={onPressFollowups}
+          ringColor="#fca5a5"
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 4,
+  },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     flexWrap: 'wrap',
-    gap: 2,
-    marginVertical: 2,
+    gap: 12,
+    marginVertical: 8,
+  },
+  cardWrapper: {
+    flexBasis: '48%',
+    marginBottom: 4,
   },
   card: {
-    minHeight: 150,
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 12,
+    minHeight: 170,
+    borderRadius: 20,
     overflow: 'hidden',
-    elevation: 4,
+    elevation: 8,
     shadowColor: '#000',
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
   },
-  cardGradient: {
-    // content sits on top of gradient
+  cardContent: {
+    flex: 1,
+    padding: 18,
+    position: 'relative',
+    zIndex: 1,
+  },
+  bgDecoration1: {
+    position: 'absolute',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    top: -40,
+    right: -40,
+  },
+  bgDecoration2: {
+    position: 'absolute',
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    bottom: -20,
+    left: -20,
   },
   cardTop: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
   },
-  left: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  iconContainer: {
+    flexDirection: 'column',
     gap: 8,
   },
-  title: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.95)',
-    marginLeft: 8,
-    fontWeight: '600',
-  },
-  cardBody: {
-    marginTop: 12,
-  },
-  mainCount: {
-    fontSize: 34,
-    fontWeight: '800',
-    color: '#fff',
-  },
-  subText: {
-    marginTop: 6,
-    color: 'rgba(255,255,255,0.9)',
-  },
-  footer: {
-    marginTop: 14,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.08)',
-    paddingTop: 8,
-  },
-  footerText: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.9)',
-  },
-  loadingWrapper: {
-    padding: 20,
+  iconBg: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 4,
+  },
+  title: {
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.95)',
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
+  ringContainer: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  percentBadge: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  percentText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  cardBody: {
+    marginBottom: 16,
+  },
+  mainCount: {
+    fontSize: 40,
+    fontWeight: '900',
+    color: '#fff',
+    letterSpacing: -1,
+    marginBottom: 6,
+  },
+  subTextContainer: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  subText: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.95)',
+    fontWeight: '600',
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.15)',
+  },
+  footerText: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.9)',
+    fontWeight: '600',
+  },
+  loadingWrapper: {
+    padding: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: '#6b7280',
+    fontWeight: '500',
   },
 });
