@@ -17,10 +17,11 @@ import {
   Platform,
   Animated,
   Easing,
+  Dimensions,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import DateTimePicker from '@react-native-community/datetimepicker'; // optional
-import LinearGradient from 'react-native-linear-gradient'; // optional for nicer card bg
+import DateTimePicker from '@react-native-community/datetimepicker';
+import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { fetchLeavesCalendarRequest } from '../store/actions';
 import {
@@ -29,6 +30,8 @@ import {
   selectLeavesEntries,
 } from '../store/selectors';
 import { useNavigation } from '@react-navigation/native';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 // helper: Date -> YYYY-MM-DD
 const toISODate = d => {
@@ -39,24 +42,45 @@ const toISODate = d => {
   return `${yyyy}-${mm}-${dd}`;
 };
 
-// map leave types to colors (tweak as needed)
+// Format date for display (e.g., "Mon, Jan 15")
+const formatDisplayDate = dateStr => {
+  const d = new Date(dateStr);
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`;
+};
+
+// map leave types to colors
 const leaveTypeColor = type => {
   switch ((type || '').toUpperCase()) {
     case 'CASUAL':
-      return '#06b6d4'; // cyan
+      return '#06b6d4';
     case 'SICK':
-      return '#f97316'; // orange
+      return '#f97316';
     case 'EARNED':
-      return '#10b981'; // green
+      return '#10b981';
     case 'MATERNITY':
-      return '#8b5cf6'; // purple
+      return '#8b5cf6';
     default:
-      return '#6b7280'; // gray
+      return '#6b7280';
   }
 };
 
-// Avatar component: image or initials with accent ring
-function Avatar({ name, uri, size = 44 }) {
+// Avatar component
+function Avatar({ name, uri, size = 40 }) {
   const initials = (name || '')
     .split(' ')
     .map(s => s[0])
@@ -79,94 +103,101 @@ function Avatar({ name, uri, size = 44 }) {
         { width: size, height: size, borderRadius: size / 2 },
       ]}
     >
-      <Text style={styles.avatarInitials}>{initials || 'NA'}</Text>
+      <Text style={[styles.avatarInitials, { fontSize: size * 0.35 }]}>
+        {initials || 'NA'}
+      </Text>
     </View>
   );
 }
 
-// single employee row with small animation
+// Employee row with animation
 function EmployeeRow({ item, index, onPress }) {
   const anim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // staggered fade-in
     Animated.timing(anim, {
       toValue: 1,
-      duration: 400,
-      delay: index * 60,
-      easing: Easing.out(Easing.cubic),
+      duration: 350,
+      delay: index * 50,
+      easing: Easing.out(Easing.ease),
       useNativeDriver: true,
     }).start();
   }, [anim, index]);
 
-  const scale = anim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.98, 1],
-  });
   const opacity = anim;
+  const translateY = anim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [10, 0],
+  });
 
   return (
     <Animated.View
-      style={[styles.empCard, { opacity, transform: [{ scale }] }]}
+      style={[styles.empCard, { opacity, transform: [{ translateY }] }]}
     >
       <TouchableOpacity
-        activeOpacity={0.85}
+        activeOpacity={0.7}
         onPress={() => onPress(item)}
         style={styles.empTouch}
       >
         <Avatar
           name={item.employeeName}
           uri={item.profilePictureUrl}
-          size={52}
+          size={40}
         />
-        <View style={{ flex: 1, marginLeft: 12 }}>
+        <View style={styles.empInfo}>
           <Text style={styles.empName} numberOfLines={1}>
             {item.employeeName}
           </Text>
-          <Text style={styles.empMeta}>{item.department ?? '—'}</Text>
+          <View style={styles.empMetaRow}>
+            {item.department && (
+              <>
+                <Icon name="briefcase-outline" size={12} color="#9ca3af" />
+                <Text style={styles.empDept} numberOfLines={1}>
+                  {item.department}
+                </Text>
+              </>
+            )}
+          </View>
         </View>
 
-        <View style={styles.rightCol}>
-          <View
+        <View
+          style={[
+            styles.badge,
+            {
+              backgroundColor: leaveTypeColor(item.leaveType) + '15',
+              borderColor: leaveTypeColor(item.leaveType) + '30',
+            },
+          ]}
+        >
+          <Text
             style={[
-              styles.badge,
-              {
-                backgroundColor: leaveTypeColor(item.leaveType) + '22',
-                borderColor: leaveTypeColor(item.leaveType),
-              },
+              styles.badgeText,
+              { color: leaveTypeColor(item.leaveType) },
             ]}
           >
-            <Text
-              style={[
-                styles.badgeText,
-                { color: leaveTypeColor(item.leaveType) },
-              ]}
-            >
-              {(item.leaveType || '').toUpperCase()}
-            </Text>
-          </View>
-          <Text style={styles.smallMuted}>{item.employeeId}</Text>
+            {(item.leaveType || 'Leave').toUpperCase()}
+          </Text>
         </View>
       </TouchableOpacity>
     </Animated.View>
   );
 }
 
-// skeleton row while loading
+// Skeleton row
 function SkeletonRow() {
-  const anim = useRef(new Animated.Value(0.2)).current;
+  const anim = useRef(new Animated.Value(0.3)).current;
   useEffect(() => {
     const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(anim, {
-          toValue: 0.6,
-          duration: 700,
-          useNativeDriver: false,
+          toValue: 0.7,
+          duration: 800,
+          useNativeDriver: true,
         }),
         Animated.timing(anim, {
-          toValue: 0.2,
-          duration: 700,
-          useNativeDriver: false,
+          toValue: 0.3,
+          duration: 800,
+          useNativeDriver: true,
         }),
       ]),
     );
@@ -177,24 +208,13 @@ function SkeletonRow() {
   return (
     <Animated.View style={[styles.empCard, { opacity: anim }]}>
       <View style={styles.empTouch}>
-        <View style={[styles.skelCircle]} />
-        <View style={{ marginLeft: 12, flex: 1 }}>
+        <View style={styles.skelCircle} />
+        <View style={styles.empInfo}>
           <View style={styles.skelLineShort} />
-          <View style={{ height: 8 }} />
-          <View style={styles.skelLineLong} />
-        </View>
-        <View style={{ width: 60, alignItems: 'flex-end' }}>
-          <View style={styles.skelBadge} />
           <View style={{ height: 6 }} />
-          <View
-            style={{
-              width: 40,
-              height: 10,
-              backgroundColor: '#eee',
-              borderRadius: 6,
-            }}
-          />
+          <View style={styles.skelLineTiny} />
         </View>
+        <View style={styles.skelBadge} />
       </View>
     </Animated.View>
   );
@@ -213,16 +233,6 @@ export default function LeaveCalendarWidgetFancy({ initialDate }) {
   );
   const [showPicker, setShowPicker] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-
-  // animated header accent
-  const headerAnim = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    Animated.timing(headerAnim, {
-      toValue: 1,
-      duration: 600,
-      useNativeDriver: true,
-    }).start();
-  }, []);
 
   const load = useCallback(
     date => dispatch(fetchLeavesCalendarRequest(date)),
@@ -271,43 +281,46 @@ export default function LeaveCalendarWidgetFancy({ initialDate }) {
   const onPressEmployee = emp =>
     navigation.navigate('EmployeeDetail', { employeeId: emp.employeeId });
 
-  const headerScale = headerAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.98, 1],
-  });
-
   return (
     <View style={styles.container}>
-      <Animated.View
-        style={[styles.header, { transform: [{ scale: headerScale }] }]}
-      >
-        <View style={styles.headerLeft}>
-          <Text style={styles.headerTitle}>Leaves</Text>
-          <Text style={styles.headerSub}>Date-wise team leaves</Text>
-        </View>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Team Leaves</Text>
+      </View>
 
-        <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.dateNav} onPress={onPrev}>
-            <Icon name="chevron-left" size={20} color="#374151" />
-          </TouchableOpacity>
-
+      {/* Date Selector Card */}
+      <View style={styles.dateCard}>
+        <View style={styles.dateHeader}>
+          <View style={styles.dateInfo}>
+            <Text style={styles.dateDisplay}>
+              {formatDisplayDate(selectedDate)}
+            </Text>
+            <Text style={styles.dateCount}>
+              {list.length} {list.length === 1 ? 'person' : 'people'} on leave
+            </Text>
+          </View>
           <TouchableOpacity
-            style={styles.dateChip}
+            style={styles.calendarBtn}
             onPress={() => setShowPicker(true)}
           >
-            <Icon name="calendar" size={16} color="#075985" />
-            <Text style={styles.dateChipText}>{selectedDate}</Text>
+            <Icon name="calendar-outline" size={20} color="#0369a1" />
           </TouchableOpacity>
+        </View>
 
-          <TouchableOpacity style={styles.dateNav} onPress={onNext}>
-            <Icon name="chevron-right" size={20} color="#374151" />
+        <View style={styles.dateControls}>
+          <TouchableOpacity style={styles.navBtn} onPress={onPrev}>
+            <Icon name="chevron-left" size={22} color="#374151" />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.todayBtn} onPress={onToday}>
             <Text style={styles.todayText}>Today</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity style={styles.navBtn} onPress={onNext}>
+            <Icon name="chevron-right" size={22} color="#374151" />
+          </TouchableOpacity>
         </View>
-      </Animated.View>
+      </View>
 
       {showPicker && (
         <DateTimePicker
@@ -320,220 +333,285 @@ export default function LeaveCalendarWidgetFancy({ initialDate }) {
         />
       )}
 
-      <LinearGradient colors={['#ffffff', '#f8fafc']} style={styles.card}>
-        <View style={styles.cardHeaderRow}>
-          <View>
-            <Text style={styles.cardTitle}>Employees on leave</Text>
-            <Text style={styles.cardSubtitle}>
-              {list.length} on leave • {selectedDate}
+      {/* Employee List */}
+      <View style={styles.listContainer}>
+        {loading ? (
+          <>
+            <SkeletonRow />
+            <SkeletonRow />
+            <SkeletonRow />
+          </>
+        ) : error ? (
+          <View style={styles.emptyWrap}>
+            <Icon name="alert-circle-outline" size={48} color="#ef4444" />
+            <Text style={styles.errorTitle}>Oops! Something went wrong</Text>
+            <Text style={styles.errorMsg}>{error}</Text>
+            <TouchableOpacity
+              onPress={() => load(selectedDate)}
+              style={styles.retryBtn}
+            >
+              <Text style={styles.retryText}>Try Again</Text>
+            </TouchableOpacity>
+          </View>
+        ) : list.length === 0 ? (
+          <View style={styles.emptyWrap}>
+            <Icon name="check-circle-outline" size={56} color="#10b981" />
+            <Text style={styles.emptyTitle}>Full attendance! 🎉</Text>
+            <Text style={styles.emptyText}>
+              Everyone is present on this date.
             </Text>
           </View>
-
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Leaves')}
-            style={styles.viewAllBtn}
-          >
-            <Text style={styles.viewAllText}>View all</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={{ marginTop: 8 }}>
-          {loading ? (
-            // show 3 skeleton rows
-            <>
-              <SkeletonRow />
-              <SkeletonRow />
-              <SkeletonRow />
-            </>
-          ) : error ? (
-            <View style={styles.emptyWrap}>
-              <Text style={styles.errorText}>Something went wrong</Text>
-              <Text style={styles.errorMsg}>{error}</Text>
-              <TouchableOpacity
-                onPress={() => load(selectedDate)}
-                style={styles.retryBtn}
-              >
-                <Text style={styles.retryText}>Retry</Text>
-              </TouchableOpacity>
-            </View>
-          ) : list.length === 0 ? (
-            <View style={styles.emptyWrap}>
-              <Text style={styles.emptyTitle}>No leaves on this date 🎉</Text>
-              <Text style={styles.emptyText}>
-                Looks like everyone is present. Try other dates.
-              </Text>
-            </View>
-          ) : (
-            <FlatList
-              data={list}
-              keyExtractor={i => i.employeeId || i.employeeName + Math.random()}
-              renderItem={({ item, index }) => (
-                <EmployeeRow
-                  item={item}
-                  index={index}
-                  onPress={onPressEmployee}
-                />
-              )}
-              ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-              refreshControl={<ActivityIndicator animating={refreshing} />}
-            />
-          )}
-        </View>
-      </LinearGradient>
+        ) : (
+          <FlatList
+            data={list}
+            keyExtractor={i => i.employeeId || i.employeeName + Math.random()}
+            renderItem={({ item, index }) => (
+              <EmployeeRow
+                item={item}
+                index={index}
+                onPress={onPressEmployee}
+              />
+            )}
+            ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 20 }}
+          />
+        )}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { marginTop: 12 },
+  container: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+
+  // Header
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 16,
   },
-  headerLeft: {},
-  headerTitle: { fontSize: 18, fontWeight: '800', color: '#0f172a' },
-  headerSub: { color: '#6b7280', marginTop: 2 },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
 
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  dateNav: {
+  // Date Card
+  dateCard: {
     backgroundColor: '#fff',
-    padding: 8,
-    borderRadius: 10,
-    elevation: 1,
-  },
-  dateChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    backgroundColor: '#ecfeff',
-    borderRadius: 12,
-    marginHorizontal: 6,
-  },
-  dateChipText: { marginLeft: 8, color: '#075985', fontWeight: '700' },
-  todayBtn: {
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    backgroundColor: '#0369a1',
-    borderRadius: 10,
-    marginLeft: 6,
-  },
-  todayText: { color: '#fff', fontWeight: '800' },
-
-  card: {
-    borderRadius: 14,
-    padding: 12,
-    minHeight: 140,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
     shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-
-  cardHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  cardTitle: { fontSize: 16, fontWeight: '800', color: '#0f172a' },
-  cardSubtitle: { color: '#6b7280', marginTop: 4 },
-
-  viewAllBtn: {
-    backgroundColor: '#e0f2fe',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 10,
-  },
-  viewAllText: { color: '#0369a1', fontWeight: '800' },
-
-  empCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 10,
-    // subtle border
-    borderWidth: 1,
-    borderColor: '#f3f4f6',
-    shadowColor: '#000',
-    shadowOpacity: 0.03,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
     elevation: 2,
   },
-  empTouch: { flexDirection: 'row', alignItems: 'center' },
-
-  avatarImg: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    borderWidth: 2,
-    borderColor: '#fff',
-    backgroundColor: '#eee',
+  dateHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
   },
-  avatarPlaceholder: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: '#c7d2fe',
+  dateInfo: {
+    flex: 1,
+  },
+  dateDisplay: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#0f172a',
+    marginBottom: 4,
+  },
+  dateCount: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  calendarBtn: {
+    width: 40,
+    height: 40,
+    backgroundColor: '#e0f2fe',
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarInitials: { color: '#3730a3', fontWeight: '800' },
-
-  empName: { fontWeight: '800', color: '#0f172a', fontSize: 15 },
-  empMeta: { color: '#6b7280', marginTop: 4 },
-
-  rightCol: { alignItems: 'flex-end' },
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    borderRadius: 999,
-    borderWidth: 1,
-    marginBottom: 6,
+  dateControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  badgeText: { fontWeight: '800', fontSize: 11 },
+  navBtn: {
+    width: 44,
+    height: 44,
+    backgroundColor: '#f1f5f9',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  todayBtn: {
+    flex: 1,
+    height: 44,
+    backgroundColor: '#0369a1',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 12,
+  },
+  todayText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 15,
+  },
 
-  smallMuted: { color: '#9ca3af', marginTop: 4 },
+  // List Container
+  listContainer: {
+    flex: 1,
+  },
 
-  emptyWrap: { paddingVertical: 20, alignItems: 'center' },
-  emptyTitle: { fontSize: 16, fontWeight: '800', color: '#065f46' },
-  emptyText: { color: '#6b7280', marginTop: 6 },
+  // Employee Card
+  empCard: {
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    padding: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  empTouch: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 
-  errorText: { color: '#b91c1c', fontWeight: '800' },
-  errorMsg: { color: '#7f1d1d', marginTop: 6 },
+  // Avatar
+  avatarImg: {
+    backgroundColor: '#f3f4f6',
+    borderWidth: 2,
+    borderColor: '#f8fafc',
+  },
+  avatarPlaceholder: {
+    backgroundColor: '#e0e7ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarInitials: {
+    color: '#4338ca',
+    fontWeight: '700',
+  },
 
+  // Employee Info
+  empInfo: {
+    flex: 1,
+    marginLeft: 12,
+    justifyContent: 'center',
+  },
+  empName: {
+    fontWeight: '600',
+    color: '#0f172a',
+    fontSize: 15,
+    marginBottom: 4,
+  },
+  empMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  empDept: {
+    color: '#6b7280',
+    fontSize: 13,
+    flex: 1,
+  },
+
+  // Badge
+  badge: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    marginLeft: 8,
+  },
+  badgeText: {
+    fontWeight: '600',
+    fontSize: 10,
+    letterSpacing: 0.5,
+  },
+
+  // Empty State
+  emptyWrap: {
+    paddingVertical: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#0f172a',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptyText: {
+    color: '#6b7280',
+    fontSize: 14,
+    textAlign: 'center',
+    paddingHorizontal: 32,
+  },
+
+  // Error State
+  errorTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#0f172a',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  errorMsg: {
+    color: '#6b7280',
+    fontSize: 14,
+    textAlign: 'center',
+    paddingHorizontal: 32,
+    marginBottom: 16,
+  },
   retryBtn: {
-    marginTop: 10,
-    backgroundColor: '#fee2e2',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    backgroundColor: '#0369a1',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
     borderRadius: 10,
   },
-  retryText: { color: '#7f1d1d', fontWeight: '800' },
+  retryText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 15,
+  },
 
-  // skeletons
+  // Skeletons
   skelCircle: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: '#f3f4f6',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f1f5f9',
   },
   skelLineShort: {
-    width: 120,
-    height: 12,
-    backgroundColor: '#f3f4f6',
-    borderRadius: 8,
+    width: 140,
+    height: 14,
+    backgroundColor: '#f1f5f9',
+    borderRadius: 7,
   },
-  skelLineLong: {
-    width: 180,
+  skelLineTiny: {
+    width: 100,
     height: 10,
-    backgroundColor: '#f3f4f6',
-    borderRadius: 8,
+    backgroundColor: '#f1f5f9',
+    borderRadius: 5,
   },
   skelBadge: {
     width: 60,
-    height: 18,
-    borderRadius: 10,
-    backgroundColor: '#f3f4f6',
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: '#f1f5f9',
   },
 });
