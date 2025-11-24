@@ -6,6 +6,16 @@ const initial = {
   deleting: false,
   error: null,
   filters: {},
+
+  /* category state */
+  categories: [],
+  categoriesLoading: false,
+  categorySaving: false,
+
+  /* subcategory state */
+  subCategories: [],
+  subCategoriesLoading: false,
+  subCategorySaving: false,
 };
 
 export default function reducer(state = initial, action) {
@@ -38,6 +48,59 @@ export default function reducer(state = initial, action) {
       return { ...state, deleting: false };
     case T.DELETE_FAILURE:
       return { ...state, deleting: false, error: action.payload };
+
+    /* category reducers */
+    case T.CATEGORY_LIST_REQUEST:
+      return { ...state, categoriesLoading: true };
+    case T.CATEGORY_LIST_SUCCESS:
+      return {
+        ...state,
+        categoriesLoading: false,
+        categories: action.payload || [],
+      };
+    case T.CATEGORY_LIST_FAILURE:
+      return { ...state, categoriesLoading: false };
+
+    case T.CATEGORY_CREATE_REQUEST:
+      return { ...state, categorySaving: true };
+    case T.CATEGORY_CREATE_SUCCESS:
+      return { ...state, categorySaving: false };
+    case T.CATEGORY_CREATE_FAILURE:
+      return { ...state, categorySaving: false };
+
+    case T.CATEGORY_DELETE_REQUEST:
+      return { ...state, categorySaving: true };
+    case T.CATEGORY_DELETE_SUCCESS:
+      return { ...state, categorySaving: false };
+    case T.CATEGORY_DELETE_FAILURE:
+      return { ...state, categorySaving: false };
+
+    /* subcategory reducers */
+    case T.SUBCATEGORY_LIST_REQUEST:
+      return { ...state, subCategoriesLoading: true };
+    case T.SUBCATEGORY_LIST_SUCCESS:
+      return {
+        ...state,
+        subCategoriesLoading: false,
+        subCategories: action.payload || [],
+      };
+    case T.SUBCATEGORY_LIST_FAILURE:
+      return { ...state, subCategoriesLoading: false };
+
+    case T.SUBCATEGORY_CREATE_REQUEST:
+      return { ...state, subCategorySaving: true };
+    case T.SUBCATEGORY_CREATE_SUCCESS:
+      return { ...state, subCategorySaving: false };
+    case T.SUBCATEGORY_CREATE_FAILURE:
+      return { ...state, subCategorySaving: false };
+
+    case T.SUBCATEGORY_DELETE_REQUEST:
+      return { ...state, subCategorySaving: true };
+    case T.SUBCATEGORY_DELETE_SUCCESS:
+      return { ...state, subCategorySaving: false };
+    case T.SUBCATEGORY_DELETE_FAILURE:
+      return { ...state, subCategorySaving: false };
+
     default:
       return state;
   }

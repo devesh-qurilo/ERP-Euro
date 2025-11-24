@@ -1084,6 +1084,20 @@ export const clientsAPI = {
   remove: id =>
     api.delete(`/clients/${encodeURIComponent(id)}`).then(r => r.data),
   get: id => api.get(`/clients/${encodeURIComponent(id)}`).then(r => r.data),
+
+  /* categories */
+  getCategories: () => api.get('/clients/category').then(r => r.data),
+  createCategory: payload =>
+    api.post('/clients/category', payload).then(r => r.data),
+  deleteCategory: id => api.delete(`/clients/category/${id}`).then(r => r.data),
+
+  /* subcategories */
+  getSubcategories: () =>
+    api.get('/clients/category/subcategory').then(r => r.data),
+  createSubcategory: payload =>
+    api.post('/clients/category/subcategory', payload).then(r => r.data),
+  deleteSubcategory: id =>
+    api.delete(`/clients/category/subcategory/${id}`).then(r => r.data),
 };
 
 // add near other project APIs

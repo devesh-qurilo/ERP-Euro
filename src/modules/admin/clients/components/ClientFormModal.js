@@ -1,4 +1,4 @@
-// src/modules/admin/clients/components/ClientFormModal.js
+// ClientFormModal.js
 import React, { useEffect, useState } from 'react';
 import {
   Modal,
@@ -7,7 +7,26 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import Icon from 'react-native-vector-icons/Feather';
+import { Picker } from '@react-native-picker/picker';
+import {
+  categoryList,
+  categoryCreate,
+  categoryDelete,
+  subCategoryList,
+  subCategoryCreate,
+  subCategoryDelete,
+} from '../store/actions';
+import {
+  selectCategories,
+  selectCategoriesBusy,
+  selectSubCategories,
+  selectSubCategoriesBusy,
+} from '../store/selectors'; // update path if selectors are elsewhere
+
 import { pickImageOrDoc } from './fileHelpers';
 
 export default function ClientFormModal({
@@ -16,6 +35,12 @@ export default function ClientFormModal({
   onSubmit,
   initial,
 }) {
+  const dispatch = useDispatch();
+  const categories = useSelector(selectCategories);
+  const categoriesLoading = useSelector(selectCategoriesBusy);
+  const subCategories = useSelector(selectSubCategories);
+  const subCategoriesLoading = useSelector(selectSubCategoriesBusy);
+
   const blank = {
     name: '',
     email: '',
@@ -47,8 +72,20 @@ export default function ClientFormModal({
   const [profilePicture, setProfile] = useState(null);
   const [companyLogo, setLogo] = useState(null);
 
+  // local modals for manage category/subcategory
+  const [manageCategoryOpen, setManageCategoryOpen] = useState(false);
+  const [manageSubCategoryOpen, setManageSubCategoryOpen] = useState(false);
+
+  // inputs for new category/subcategory
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newSubCategoryName, setNewSubCategoryName] = useState('');
+
   useEffect(() => {
     if (visible) {
+      // load categories & subcategories when modal opens
+      dispatch(categoryList());
+      dispatch(subCategoryList());
+
       if (initial)
         setClient({
           ...blank,
@@ -59,11 +96,57 @@ export default function ClientFormModal({
       setProfile(null);
       setLogo(null);
     }
-  }, [visible, initial]);
+  }, [visible, initial, dispatch]);
 
   const F = (k, v) => setClient(p => ({ ...p, [k]: v }));
   const FC = (k, v) =>
     setClient(p => ({ ...p, company: { ...(p.company || {}), [k]: v } }));
+
+  /* static lists for country/language/gender — you can extend these */
+  const countries = [
+    'India',
+    'United States',
+    'United Kingdom',
+    'UAE',
+    'Other',
+  ];
+  const languages = ['English', 'Hindi', 'Spanish', 'Other'];
+  const genders = ['Male', 'Female', 'Other', 'Prefer not to say'];
+
+  /* Category helpers */
+  async function handleAddCategory() {
+    if (!newCategoryName.trim()) return Alert.alert('Enter category name');
+    dispatch(categoryCreate({ categoryName: newCategoryName.trim() }));
+    setNewCategoryName('');
+  }
+  async function handleDeleteCategory(id) {
+    Alert.alert('Delete', 'Delete this category?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => dispatch(categoryDelete(id)),
+      },
+    ]);
+  }
+
+  /* Subcategory helpers */
+  async function handleAddSubCategory() {
+    if (!newSubCategoryName.trim())
+      return Alert.alert('Enter sub category name');
+    dispatch(subCategoryCreate({ subCategoryName: newSubCategoryName.trim() }));
+    setNewSubCategoryName('');
+  }
+  async function handleDeleteSubCategory(id) {
+    Alert.alert('Delete', 'Delete this sub category?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => dispatch(subCategoryDelete(id)),
+      },
+    ]);
+  }
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
@@ -71,7 +154,8 @@ export default function ClientFormModal({
         contentContainerStyle={{
           padding: 16,
           backgroundColor: '#fff',
-          marginTop: 50,
+          marginTop: 30,
+          paddingBottom: 40,
         }}
       >
         <View
@@ -89,15 +173,184 @@ export default function ClientFormModal({
           </TouchableOpacity>
         </View>
 
+        {/* core fields */}
         {[
-          ['name', 'Full Name'],
-          ['email', 'Email'],
-          ['mobile', 'Mobile'],
-          ['country', 'Country'],
-          ['gender', 'Gender'],
-          ['category', 'Category'],
-          ['subCategory', 'Sub Category'],
-          ['language', 'Language'],
+          ['name', 'Full Name', 'text'],
+          ['email', 'Email', 'text'],
+          ['mobile', 'Mobile', 'text'],
+        ].map(([k, label]) => (
+          <View key={k} style={{ marginBottom: 10 }}>
+            <Text style={{ marginBottom: 6 }}>{label}</Text>
+            <TextInput
+              value={String(client[k] ?? '')}
+              onChangeText={t => F(k, t)}
+              style={{
+                borderWidth: 1,
+                borderColor: '#e5e7eb',
+                borderRadius: 10,
+                padding: 10,
+              }}
+            />
+          </View>
+        ))}
+
+        {/* Compact row: Category + +button, SubCategory + +button */}
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <View style={{ flex: 1, marginBottom: 10 }}>
+            <Text style={{ marginBottom: 6 }}>Category</Text>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: '#e5e7eb',
+                borderRadius: 10,
+                overflow: 'hidden',
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}
+            >
+              <View style={{ flex: 1 }}>
+                <Picker
+                  selectedValue={client.category || ''}
+                  onValueChange={val => F('category', val)}
+                >
+                  <Picker.Item label="Select category" value="" />
+                  {(categories || []).map(cat => (
+                    <Picker.Item
+                      key={cat.id}
+                      label={cat.categoryName}
+                      value={cat.categoryName}
+                    />
+                  ))}
+                </Picker>
+              </View>
+
+              <TouchableOpacity
+                onPress={() => setManageCategoryOpen(true)}
+                style={{
+                  padding: 10,
+                  borderLeftWidth: 1,
+                  borderLeftColor: '#e5e7eb',
+                }}
+              >
+                <Icon name="plus" size={18} />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={{ flex: 1, marginBottom: 10 }}>
+            <Text style={{ marginBottom: 6 }}>Sub Category</Text>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: '#e5e7eb',
+                borderRadius: 10,
+                overflow: 'hidden',
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}
+            >
+              <View style={{ flex: 1 }}>
+                <Picker
+                  selectedValue={client.subCategory || ''}
+                  onValueChange={val => F('subCategory', val)}
+                >
+                  <Picker.Item label="Select sub category" value="" />
+                  {(subCategories || []).map(sc => (
+                    <Picker.Item
+                      key={sc.id}
+                      label={sc.subCategoryName}
+                      value={sc.subCategoryName}
+                    />
+                  ))}
+                </Picker>
+              </View>
+
+              <TouchableOpacity
+                onPress={() => setManageSubCategoryOpen(true)}
+                style={{
+                  padding: 10,
+                  borderLeftWidth: 1,
+                  borderLeftColor: '#e5e7eb',
+                }}
+              >
+                <Icon name="plus" size={18} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+
+        {/* other dropdowns: country, language, gender */}
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <View style={{ flex: 1, marginBottom: 10 }}>
+            <Text style={{ marginBottom: 6 }}>Country</Text>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: '#e5e7eb',
+                borderRadius: 10,
+                overflow: 'hidden',
+              }}
+            >
+              <Picker
+                selectedValue={client.country || ''}
+                onValueChange={v => F('country', v)}
+              >
+                <Picker.Item label="Select country" value="" />
+                {countries.map(c => (
+                  <Picker.Item key={c} label={c} value={c} />
+                ))}
+              </Picker>
+            </View>
+          </View>
+
+          <View style={{ flex: 1, marginBottom: 10 }}>
+            <Text style={{ marginBottom: 6 }}>Language</Text>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: '#e5e7eb',
+                borderRadius: 10,
+                overflow: 'hidden',
+              }}
+            >
+              <Picker
+                selectedValue={client.language || ''}
+                onValueChange={v => F('language', v)}
+              >
+                <Picker.Item label="Select language" value="" />
+                {languages.map(l => (
+                  <Picker.Item key={l} label={l} value={l} />
+                ))}
+              </Picker>
+            </View>
+          </View>
+
+          <View style={{ flex: 1, marginBottom: 10 }}>
+            <Text style={{ marginBottom: 6 }}>Gender</Text>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: '#e5e7eb',
+                borderRadius: 10,
+                overflow: 'hidden',
+              }}
+            >
+              <Picker
+                selectedValue={client.gender || ''}
+                onValueChange={v => F('gender', v)}
+              >
+                <Picker.Item label="Select gender" value="" />
+                {genders.map(g => (
+                  <Picker.Item key={g} label={g} value={g} />
+                ))}
+              </Picker>
+            </View>
+          </View>
+        </View>
+
+        {/* rest of simple text inputs */}
+        {[
+          ['language', 'Language (text)'],
           ['skype', 'Skype'],
           ['linkedIn', 'LinkedIn'],
           ['twitter', 'Twitter'],
@@ -187,7 +440,7 @@ export default function ClientFormModal({
         ) : null}
 
         <TouchableOpacity
-          onPress={() => onSubmit({ client, profilePicture, companyLogo })}
+          onPress={() => onSubmit({ ...client, profilePicture, companyLogo })}
           style={{
             backgroundColor: '#111827',
             padding: 14,
@@ -202,6 +455,178 @@ export default function ClientFormModal({
           </Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Manage Category Modal */}
+      <Modal
+        visible={manageCategoryOpen}
+        animationType="slide"
+        onRequestClose={() => setManageCategoryOpen(false)}
+      >
+        <View style={{ padding: 16, flex: 1, backgroundColor: '#fff' }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ fontSize: 18, fontWeight: '700' }}>
+              Manage Categories
+            </Text>
+            <TouchableOpacity onPress={() => setManageCategoryOpen(false)}>
+              <Text>Close</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={{ marginTop: 12 }}>
+            <Text style={{ marginBottom: 6 }}>Add new category</Text>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <TextInput
+                value={newCategoryName}
+                onChangeText={setNewCategoryName}
+                placeholder="Category name"
+                style={{
+                  flex: 1,
+                  borderWidth: 1,
+                  borderColor: '#e5e7eb',
+                  borderRadius: 8,
+                  padding: 8,
+                }}
+              />
+              <TouchableOpacity
+                onPress={handleAddCategory}
+                style={{
+                  padding: 10,
+                  backgroundColor: '#111827',
+                  borderRadius: 8,
+                }}
+              >
+                <Text style={{ color: '#fff' }}>Add</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={{ marginTop: 16, flex: 1 }}>
+            <Text style={{ fontWeight: '700', marginBottom: 8 }}>Existing</Text>
+            {(categoriesLoading ? [] : categories || []).map(cat => (
+              <View
+                key={cat.id}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingVertical: 8,
+                }}
+              >
+                <Text>{cat.categoryName}</Text>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setClient(prev => ({
+                        ...prev,
+                        category: cat.categoryName,
+                      }));
+                    }}
+                  >
+                    <Text style={{ color: '#2563eb' }}>Use</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => handleDeleteCategory(cat.id)}
+                  >
+                    <Text style={{ color: '#dc2626' }}>Delete</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
+      </Modal>
+
+      {/* Manage SubCategory Modal */}
+      <Modal
+        visible={manageSubCategoryOpen}
+        animationType="slide"
+        onRequestClose={() => setManageSubCategoryOpen(false)}
+      >
+        <View style={{ padding: 16, flex: 1, backgroundColor: '#fff' }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ fontSize: 18, fontWeight: '700' }}>
+              Manage Sub Categories
+            </Text>
+            <TouchableOpacity onPress={() => setManageSubCategoryOpen(false)}>
+              <Text>Close</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={{ marginTop: 12 }}>
+            <Text style={{ marginBottom: 6 }}>Add new sub category</Text>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <TextInput
+                value={newSubCategoryName}
+                onChangeText={setNewSubCategoryName}
+                placeholder="Sub category name"
+                style={{
+                  flex: 1,
+                  borderWidth: 1,
+                  borderColor: '#e5e7eb',
+                  borderRadius: 8,
+                  padding: 8,
+                }}
+              />
+              <TouchableOpacity
+                onPress={handleAddSubCategory}
+                style={{
+                  padding: 10,
+                  backgroundColor: '#111827',
+                  borderRadius: 8,
+                }}
+              >
+                <Text style={{ color: '#fff' }}>Add</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={{ marginTop: 16, flex: 1 }}>
+            <Text style={{ fontWeight: '700', marginBottom: 8 }}>Existing</Text>
+            {(subCategoriesLoading ? [] : subCategories || []).map(sc => (
+              <View
+                key={sc.id}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingVertical: 8,
+                }}
+              >
+                <Text>{sc.subCategoryName}</Text>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setClient(prev => ({
+                        ...prev,
+                        subCategory: sc.subCategoryName,
+                      }));
+                    }}
+                  >
+                    <Text style={{ color: '#2563eb' }}>Use</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => handleDeleteSubCategory(sc.id)}
+                  >
+                    <Text style={{ color: '#dc2626' }}>Delete</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
+      </Modal>
     </Modal>
   );
 }

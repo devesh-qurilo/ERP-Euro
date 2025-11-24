@@ -1,6 +1,13 @@
-// src/modules/admin/clients/components/ClientsTable.js
+// ClientsTable.js
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+} from 'react-native';
 
 const Row = ({ children, style }) => (
   <View style={[{ flexDirection: 'row', alignItems: 'center' }, style]}>
@@ -12,18 +19,38 @@ const Col = ({ children, w }) => (
     {children}
   </View>
 );
-const Cell = ({ children, bold, muted }) => (
+const Cell = ({ children, bold, muted, style }) => (
   <Text
-    style={{
-      fontWeight: bold ? '700' : '400',
-      color: muted ? '#6b7280' : '#111827',
-    }}
+    style={[
+      {
+        fontWeight: bold ? '700' : '400',
+        color: muted ? '#6b7280' : '#111827',
+      },
+      style,
+    ]}
   >
     {children}
   </Text>
 );
 
 export default function ClientsTable({ items = [], loading, onMenu }) {
+  if (loading) {
+    return (
+      <View
+        style={{
+          borderWidth: 1,
+          borderColor: '#e5e7eb',
+          borderRadius: 10,
+          padding: 24,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
   return (
     <View style={{ borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 10 }}>
       <ScrollView horizontal bounces={false} showsHorizontalScrollIndicator>
@@ -60,14 +87,14 @@ export default function ClientsTable({ items = [], loading, onMenu }) {
           </Row>
 
           {/* rows */}
-          {(loading ? [] : items).map((c, i) => (
+          {(items || []).map((c, i) => (
             <Row
               key={c.id || i}
               style={{ borderBottomWidth: 1, borderColor: '#e5e7eb' }}
             >
               <Col w={120}>
                 <Cell>
-                  {c.clientId || `C-${String(c.id).padStart(3, '0')}`}
+                  {c.clientId || `C-${String(c.id || i).padStart(3, '0')}`}
                 </Cell>
               </Col>
               <Col w={260}>
@@ -76,31 +103,75 @@ export default function ClientsTable({ items = [], loading, onMenu }) {
                     <Image
                       source={{ uri: c.profilePictureUrl }}
                       style={{
-                        width: 28,
-                        height: 28,
-                        borderRadius: 14,
-                        marginRight: 8,
+                        width: 36,
+                        height: 36,
+                        borderRadius: 18,
+                        marginRight: 10,
+                        backgroundColor: '#f3f4f6',
                       }}
                     />
-                  ) : null}
+                  ) : (
+                    <View
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: 18,
+                        marginRight: 10,
+                        backgroundColor: '#e6eefc',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Text style={{ fontWeight: '700', color: '#0f172a' }}>
+                        {String((c.name || '—').charAt(0) || '—').toUpperCase()}
+                      </Text>
+                    </View>
+                  )}
                   <View>
-                    <Cell>{c.name}</Cell>
-                    <Cell muted>{c.company?.companyName || '—'}</Cell>
+                    <Cell bold>{c.name || '—'}</Cell>
+                    <Cell muted style={{ marginTop: 4 }}>
+                      {c.company?.companyName || '—'}
+                    </Cell>
                   </View>
                 </View>
               </Col>
               <Col w={280}>
                 <Cell>{c.email || '—'}</Cell>
-                <Cell muted>{c.mobile || '—'}</Cell>
+                <Cell muted style={{ marginTop: 6 }}>
+                  {c.mobile || '—'}
+                </Cell>
               </Col>
               <Col w={160}>
                 <Cell>{c.category || '—'}</Cell>
+                {c.subCategory ? (
+                  <Cell muted style={{ marginTop: 6 }}>
+                    {c.subCategory}
+                  </Cell>
+                ) : null}
               </Col>
               <Col w={160}>
-                <Cell>● Active</Cell>
+                <View
+                  style={{
+                    backgroundColor:
+                      c.status === 'ACTIVE' ? '#ecfdf5' : '#fff7ed',
+                    paddingVertical: 6,
+                    paddingHorizontal: 10,
+                    borderRadius: 999,
+                    alignSelf: 'flex-start',
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: c.status === 'ACTIVE' ? '#065f46' : '#92400e',
+                      fontWeight: '700',
+                    }}
+                  >
+                    {c.status || '—'}
+                  </Text>
+                </View>
               </Col>
               <Col w={180}>
-                <Cell>{String(c.createdAt).slice(0, 10)}</Cell>
+                <Cell>{(c.createdAt || '').slice(0, 10) || '—'}</Cell>
               </Col>
               <Col w={120}>
                 <TouchableOpacity
@@ -112,6 +183,7 @@ export default function ClientsTable({ items = [], loading, onMenu }) {
                     borderRadius: 10,
                     borderWidth: 1,
                     borderColor: '#d1d5db',
+                    backgroundColor: '#fff',
                   }}
                 >
                   <Text style={{ fontSize: 18 }}>⋮</Text>
