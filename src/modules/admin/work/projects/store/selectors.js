@@ -12,3 +12,6 @@ export const selectAWPEditing = s => root(s).editing;
 
 export const selectAWPMetrics = (s, projectId) =>
   (root(s).metricsById && root(s).metricsById[projectId]) || null;
+
+export const selectAWPCategories = s => root(s).categories || [];
+export const selectAWPCategoriesLoading = s => !!root(s).categoriesLoading;

@@ -27,3 +27,16 @@ export const AWP_PATCH_PROGRESS = 'AWP/PATCH_PROGRESS';
 // metrics
 export const AWP_FETCH_METRICS = 'AWP/FETCH_METRICS';
 export const AWP_SET_METRICS = 'AWP/SET_METRICS';
+
+// AWP module types — append near other AWP_* constants
+export const AWP_CAT_LIST = 'AWP/CAT_LIST';
+export const AWP_CAT_SET = 'AWP/CAT_SET';
+export const AWP_CAT_ERROR = 'AWP/CAT_ERROR';
+
+export const AWP_CAT_CREATE = 'AWP/CAT_CREATE';
+export const AWP_CAT_CREATE_SUCCESS = 'AWP/CAT_CREATE_SUCCESS';
+export const AWP_CAT_CREATE_FAILURE = 'AWP/CAT_CREATE_FAILURE';
+
+export const AWP_CAT_DELETE = 'AWP/CAT_DELETE';
+export const AWP_CAT_DELETE_SUCCESS = 'AWP/CAT_DELETE_SUCCESS';
+export const AWP_CAT_DELETE_FAILURE = 'AWP/CAT_DELETE_FAILURE';

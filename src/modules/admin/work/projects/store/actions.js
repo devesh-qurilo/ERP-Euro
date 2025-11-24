@@ -42,3 +42,11 @@ export const setMetrics = (projectId, metrics) => ({
   projectId,
   metrics,
 });
+
+// AWP category actions (append)
+export const fetchProjectCategories = () => ({ type: T.AWP_CAT_LIST });
+export const createProjectCategory = payload => ({
+  type: T.AWP_CAT_CREATE,
+  payload,
+});
+export const deleteProjectCategory = id => ({ type: T.AWP_CAT_DELETE, id });

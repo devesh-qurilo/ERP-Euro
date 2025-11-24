@@ -7,6 +7,7 @@ const emsg = e => e?.response?.data?.message || e?.message || 'Request failed';
 function* fetchAll() {
   try {
     const list = yield call(adminWorkProjectsAPI.list);
+    console.log('list', list);
     yield put({ type: T.AWP_SET_ALL, list });
   } catch (e) {
     yield put({ type: T.AWP_ERROR, error: emsg(e) });
@@ -134,6 +135,37 @@ export const setMetrics = (projectId, metrics) => ({
   metrics,
 });
 
+function* catListSaga() {
+  try {
+    const cats = yield call(adminWorkProjectsAPI.getProjectCategories);
+    yield put({ type: T.AWP_CAT_SET, categories: cats });
+  } catch (e) {
+    yield put({ type: T.AWP_CAT_ERROR, error: emsg(e) });
+  }
+}
+
+function* catCreateSaga({ payload }) {
+  try {
+    yield call(adminWorkProjectsAPI.createProjectCategory, payload);
+    yield put({ type: T.AWP_CAT_CREATE_SUCCESS });
+    // refresh
+    yield put({ type: T.AWP_CAT_LIST });
+  } catch (e) {
+    yield put({ type: T.AWP_CAT_CREATE_FAILURE, error: emsg(e) });
+  }
+}
+
+function* catDeleteSaga({ id }) {
+  try {
+    yield call(adminWorkProjectsAPI.deleteProjectCategory, id);
+    yield put({ type: T.AWP_CAT_DELETE_SUCCESS });
+    // refresh
+    yield put({ type: T.AWP_CAT_LIST });
+  } catch (e) {
+    yield put({ type: T.AWP_CAT_DELETE_FAILURE, error: emsg(e) });
+  }
+}
+
 export default function* adminWorkProjectsWatcher() {
   yield all([
     takeLatest(T.AWP_FETCH_ALL, fetchAll),
@@ -147,5 +179,8 @@ export default function* adminWorkProjectsWatcher() {
     takeLatest(T.AWP_UNARCHIVE, unarchive),
     takeLatest(T.AWP_PATCH_PROGRESS, patchProgress),
     takeLatest(T.AWP_FETCH_METRICS, fetchMetrics),
+    takeLatest(T.AWP_CAT_LIST, catListSaga),
+    takeLatest(T.AWP_CAT_CREATE, catCreateSaga),
+    takeLatest(T.AWP_CAT_DELETE, catDeleteSaga),
   ]);
 }
