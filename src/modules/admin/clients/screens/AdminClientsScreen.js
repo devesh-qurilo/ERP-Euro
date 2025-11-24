@@ -19,13 +19,14 @@ import {
   selectClients,
   selectClientsBusy,
   selectClientsSave,
+  selectCategories,
 } from '../store/selectors';
 
 import ClientFormModal from '../components/ClientFormModal';
 import ClientsActionSheet from '../components/ClientsActionSheet';
 import ClientsTable from '../components/ClientsTable';
 
-const defaultFilters = { q: '', category: '', status: '' };
+const defaultFilters = { q: '', category: '' };
 
 export default function AdminClientsScreen() {
   const dispatch = useDispatch();
@@ -34,23 +35,16 @@ export default function AdminClientsScreen() {
   const items = useSelector(selectClients) || [];
   const loading = useSelector(selectClientsBusy);
   const saving = useSelector(selectClientsSave);
-  console.log('kashish', items);
+  const categories = useSelector(selectCategories) || [];
 
-  // Local filter state
+  // Local filter state (keeps UI snappy)
   const [filters, setFilters] = useState(defaultFilters);
   const [localSearch, setLocalSearch] = useState('');
+  const [sheet, setSheet] = useState({ open: false, row: null });
   const [addOpen, setAddOpen] = useState(false);
   const [editRow, setEditRow] = useState(null);
-  const [sheet, setSheet] = useState({ open: false, row: null });
 
-  // compact mode: keep pickers short by using small width
-  const categories = useMemo(() => ['All', 'Premium', 'Standard', 'Basic'], []);
-  const statuses = useMemo(
-    () => ['All', 'ACTIVE', 'INACTIVE', 'SUSPENDED'],
-    [],
-  );
-
-  // debounce for search (300ms)
+  // small debounce for search
   useEffect(() => {
     const t = setTimeout(() => {
       setFilters(f => ({ ...f, q: localSearch }));
@@ -58,14 +52,17 @@ export default function AdminClientsScreen() {
     return () => clearTimeout(t);
   }, [localSearch]);
 
-  // load on focus and when filters change
+  // Load clients + categories on focus and when filters change
   useFocusEffect(
     useCallback(() => {
+      // refresh categories when screen focuses so dropdown stays up-to-date
+      dispatch(A.categoryList());
+      // fetch clients list with current filters
       dispatch(A.list(filters));
     }, [dispatch, filters]),
   );
 
-  // --- Handlers ---
+  // Handlers
   function openMenu(row) {
     setSheet({ open: true, row });
   }
@@ -81,10 +78,9 @@ export default function AdminClientsScreen() {
     });
   }
 
-  function applyFilters() {
-    Keyboard.dismiss();
-    // ensure q from localSearch is applied immediately
-    const merged = { ...filters, q: localSearch };
+  // Apply the filters (dispatch list)
+  function applyFilters(newFilters = {}) {
+    const merged = { ...filters, ...newFilters };
     setFilters(merged);
     dispatch(A.list(merged));
   }
@@ -95,117 +91,166 @@ export default function AdminClientsScreen() {
     dispatch(A.list(defaultFilters));
   }
 
+  // Category change handler (value is categoryName string per earlier implementation)
+  function onCategoryChange(value) {
+    const next = value === 'All' ? '' : value;
+    applyFilters({ category: next });
+  }
+
   return (
-    <View style={styles.container}>
-      {/* COMPACT HORIZONTAL FILTER ROW */}
-      <View style={styles.compactFilterCard}>
+    <View style={{ flex: 1, backgroundColor: '#f3f4f6', padding: 12 }}>
+      {/* Section 1: horizontal filter row */}
+      <View
+        style={{
+          backgroundColor: '#fff',
+          borderRadius: 10,
+          paddingVertical: 8,
+          paddingHorizontal: 8,
+          borderWidth: 1,
+          borderColor: '#e6e9ee',
+        }}
+      >
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.compactFilterRow}
+          contentContainerStyle={{ alignItems: 'center', paddingRight: 8 }}
         >
-          {/* Search */}
-          {/* <Text style={styles.compactPickerLabel}>Search</Text> */}
-          <View style={styles.compactSearch}>
-            <Icon name="search" size={16} style={{ marginLeft: 8 }} />
-
+          {/* Search box */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: '#f9fafb',
+              borderRadius: 8,
+              borderWidth: 1,
+              borderColor: '#e6e9ee',
+              paddingHorizontal: 8,
+              marginRight: 8,
+              height: 40,
+              minWidth: 220,
+            }}
+          >
+            <Icon name="search" size={16} style={{ marginRight: 6 }} />
             <TextInput
               placeholder="Search name / email / clientId"
               value={localSearch}
               onChangeText={setLocalSearch}
               returnKeyType="search"
-              onSubmitEditing={() => applyFilters()}
-              style={styles.compactSearchInput}
+              onSubmitEditing={() => applyFilters({ q: localSearch })}
+              style={{ flex: 1, height: 40 }}
             />
             {localSearch ? (
               <TouchableOpacity
                 onPress={() => setLocalSearch('')}
-                style={styles.compactClear}
+                style={{ padding: 6 }}
               >
                 <Icon name="x" size={14} />
               </TouchableOpacity>
             ) : null}
           </View>
 
-          {/* Category (compact) */}
-          <View style={styles.compactPickerWrap}>
-            <Text style={styles.compactPickerLabel}>Category</Text>
-            <View style={styles.compactPickerBox}>
+          {/* Compact Category dropdown */}
+          <View
+            style={{
+              minWidth: 200,
+              marginRight: 8,
+            }}
+          >
+            <Text style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>
+              Category
+            </Text>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: '#e6e9ee',
+                borderRadius: 8,
+                overflow: 'hidden',
+                backgroundColor: '#fff',
+                height: 40,
+                justifyContent: 'center',
+              }}
+            >
               <Picker
                 selectedValue={filters.category || 'All'}
-                onValueChange={val =>
-                  setFilters(f => ({
-                    ...f,
-                    category: val === 'All' ? '' : val,
-                  }))
-                }
+                onValueChange={onCategoryChange}
                 mode="dropdown"
-                style={{ height: Platform.OS === 'ios' ? 32 : undefined }}
+                style={{ height: Platform.OS === 'ios' ? 36 : undefined }}
               >
-                {categories.map(cat => (
-                  <Picker.Item key={cat} label={cat} value={cat} />
+                <Picker.Item label="All" value="All" />
+                {(categories || []).map(cat => (
+                  <Picker.Item
+                    key={cat.id}
+                    label={cat.categoryName}
+                    value={cat.categoryName}
+                  />
                 ))}
               </Picker>
             </View>
           </View>
 
-          {/* Status (compact) */}
-          <View style={styles.compactPickerWrap}>
-            <Text style={styles.compactPickerLabel}>Status</Text>
-            <View style={styles.compactPickerBox}>
-              <Picker
-                selectedValue={filters.status || 'All'}
-                onValueChange={val =>
-                  setFilters(f => ({ ...f, status: val === 'All' ? '' : val }))
-                }
-                mode="dropdown"
-                style={{ height: Platform.OS === 'ios' ? 32 : undefined }}
-              >
-                {statuses.map(s => (
-                  <Picker.Item key={s} label={s} value={s} />
-                ))}
-              </Picker>
-            </View>
-          </View>
-
-          {/* Small Apply button */}
+          {/* Apply / Clear quick controls */}
           <TouchableOpacity
-            onPress={applyFilters}
-            style={styles.compactApplyBtn}
+            onPress={() => applyFilters({ q: localSearch })}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: '#111827',
+              paddingVertical: 8,
+              paddingHorizontal: 12,
+              borderRadius: 8,
+              marginLeft: 6,
+            }}
           >
-            <Icon name="filter" size={14} color="#fff" />
-            <Text style={styles.compactApplyText}> Apply</Text>
+            <Icon name="refresh-ccw" size={14} color="#fff" />
+            <Text style={{ color: '#fff', fontWeight: '700', marginLeft: 6 }}>
+              Apply
+            </Text>
           </TouchableOpacity>
 
-          {/* Clear */}
           <TouchableOpacity
             onPress={clearFilters}
-            style={styles.compactClearBtn}
+            style={{
+              paddingVertical: 8,
+              paddingHorizontal: 12,
+              borderRadius: 8,
+              borderWidth: 1,
+              borderColor: '#e5e7eb',
+              backgroundColor: '#fff',
+              marginLeft: 8,
+            }}
           >
-            <Text style={styles.compactClearText}>Clear</Text>
-          </TouchableOpacity>
-
-          {/* Spacer */}
-          <View style={{ width: 8 }} />
-
-          {/* Add Client (compact) */}
-          <TouchableOpacity
-            onPress={() => setAddOpen(true)}
-            style={styles.compactAddBtn}
-            disabled={saving}
-          >
-            <Icon name="user-plus" size={14} color="#111827" />
-            <Text style={styles.compactAddText}> Add Client</Text>
+            <Text style={{ color: '#6b7280', fontWeight: '600' }}>Clear</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
 
-      {/* TABLE */}
+      {/* Section 2: Add button / actions (separate row so filters stay compact) */}
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'flex-end',
+          marginTop: 12,
+        }}
+      >
+        <TouchableOpacity
+          onPress={() => setAddOpen(true)}
+          style={{
+            backgroundColor: '#111827',
+            paddingVertical: 12,
+            paddingHorizontal: 16,
+            borderRadius: 10,
+          }}
+        >
+          <Text style={{ color: '#fff', fontWeight: '700' }}>Add Client</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Section 3: Table */}
       <View style={{ flex: 1, marginTop: 12 }}>
         <ClientsTable items={items} loading={loading} onMenu={openMenu} />
       </View>
 
-      {/* ACTION SHEET */}
+      {/* Action sheet */}
       <ClientsActionSheet
         visible={sheet.open}
         onClose={() => setSheet({ open: false, row: null })}
@@ -222,7 +267,7 @@ export default function AdminClientsScreen() {
         onMoveToDeal={toDeal}
       />
 
-      {/* ADD */}
+      {/* Add modal */}
       <ClientFormModal
         visible={addOpen}
         onClose={() => setAddOpen(false)}
@@ -232,7 +277,7 @@ export default function AdminClientsScreen() {
         }}
       />
 
-      {/* EDIT */}
+      {/* Edit modal */}
       <ClientFormModal
         visible={!!editRow}
         initial={editRow}
@@ -245,82 +290,3 @@ export default function AdminClientsScreen() {
     </View>
   );
 }
-
-/* Styles */
-const styles = {
-  container: { flex: 1, backgroundColor: '#f3f4f6', padding: 12 },
-  compactFilterCard: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: '#e6e9ee',
-  },
-  compactFilterRow: {
-    alignItems: 'center',
-    paddingHorizontal: 8,
-  },
-  compactSearch: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f9fafb',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e6e9ee',
-    paddingHorizontal: 6,
-    height: 40,
-    marginRight: 8,
-    minWidth: 240,
-  },
-  compactSearchInput: { flex: 1, paddingHorizontal: 8, height: 40 },
-  compactClear: { paddingHorizontal: 6 },
-
-  compactPickerWrap: {
-    marginRight: 8,
-    minWidth: 120,
-  },
-  compactPickerLabel: { fontSize: 10, color: '#6b7280', marginBottom: 4 },
-  compactPickerBox: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e6e9ee',
-    overflow: 'hidden',
-    height: 40,
-    justifyContent: 'center',
-  },
-
-  compactApplyBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#111827',
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    marginRight: 8,
-  },
-  compactApplyText: { color: '#fff', fontWeight: '700' },
-
-  compactClearBtn: {
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e6e9ee',
-    backgroundColor: '#fff',
-    marginRight: 8,
-  },
-  compactClearText: { color: '#6b7280', fontWeight: '600' },
-
-  compactAddBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-  },
-  compactAddText: { color: '#111827', fontWeight: '700' },
-};
