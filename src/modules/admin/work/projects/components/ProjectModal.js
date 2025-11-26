@@ -1,5 +1,5 @@
-// ProjectModal.js (defensive & fixed)
-import React, { useEffect, useMemo, useState } from 'react';
+// src/modules/admin/work/projects/components/ProjectModal.js
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/Feather';
 import { Picker } from '@react-native-picker/picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 import {
   fetchProjectCategories,
@@ -31,7 +32,6 @@ import {
   selectAWPCategoriesLoading,
 } from '../store/selectors';
 
-// selectors and actions for departments/clients/employees
 import { selectDepartments } from '../../../hr/departments/store/selectors';
 import { selectClients } from '../../../clients/store/selectors';
 import { selectEmpList } from '../../../hr/employees/store/selectors';
@@ -40,6 +40,21 @@ import * as ClientsActions from '../../../clients/store/actions';
 import { fetchEmployees } from '../../../hr/employees/store/actions';
 import { FETCH_DEPT_REQ } from '../../../hr/departments/store/types';
 
+/**
+ * Helper: stable employee key used across UI and payload
+ * Priority:
+ *  - employee.employeeId (e.g. "EMP-015")
+ *  - employee.employee_id
+ *  - employee.employeeID
+ *  - String(employee.id)
+ */
+function empKeyOf(emp) {
+  if (!emp) return '';
+  return (
+    emp.employeeId ?? emp.employee_id ?? emp.employeeID ?? String(emp.id ?? '')
+  );
+}
+
 export default function ProjectModal({
   visible,
   editing,
@@ -47,99 +62,81 @@ export default function ProjectModal({
   onSave,
   busy = false,
 }) {
-  // defensive: early return if not visible
-  if (!visible) return null;
-
   const dispatch = useDispatch();
 
   const categories = useSelector(selectAWPCategories) || [];
   const categoriesLoading = useSelector(selectAWPCategoriesLoading);
-
   const departments = useSelector(selectDepartments) || [];
   const clients = useSelector(selectClients) || [];
   const employees = useSelector(selectEmpList) || [];
 
-  const [v, setV] = useState(() =>
-    editing
-      ? {
-          shortCode: editing.shortCode || '',
-          projectName: editing.name || '',
-          startDate: editing.startDate || '',
-          deadline: editing.deadline || '',
-          noDeadline: !!editing.noDeadline,
-          projectCategory: editing.category || '',
-          departmentId: String(editing.departmentId ?? ''),
-          clientId: editing.clientId ? String(editing.clientId) : '',
-          projectSummary: editing.summary || '',
-          tasksNeedAdminApproval: !!editing.tasksNeedAdminApproval,
-          currency: editing.currency || 'USD',
-          projectBudget: editing.budget?.toString() ?? '',
-          hoursEstimate: editing.hoursEstimate?.toString() ?? '',
-          allowManualTimeLogs: !!editing.allowManualTimeLogs,
-          assignedEmployeeIds: (editing.assignedEmployeeIds || []).map(String),
-          companyFile: null,
-        }
-      : {
-          shortCode: '',
-          projectName: '',
-          startDate: '',
-          deadline: '',
-          noDeadline: false,
-          projectCategory: '',
-          departmentId: '',
-          clientId: '',
-          projectSummary: '',
-          tasksNeedAdminApproval: true,
-          currency: 'USD',
-          projectBudget: '',
-          hoursEstimate: '',
-          allowManualTimeLogs: true,
-          assignedEmployeeIds: [],
-          companyFile: null,
-        },
-  );
+  const fetchedOnceRef = useRef(false);
+  const [companyFile, setCompanyFile] = useState(null);
+  const [manageCatOpen, setManageCatOpen] = useState(false);
+  const [newCatName, setNewCatName] = useState('');
+  const [membersModalOpen, setMembersModalOpen] = useState(false);
 
-  // fetch only when modal opens AND lists are empty
-  useEffect(() => {
-    // always fetch categories
-    dispatch(fetchProjectCategories());
+  // Build initial state from editing (map assignedEmployeeIds to string keys)
+  const initialState = useMemo(() => {
+    const assigned =
+      (editing &&
+        Array.isArray(editing.assignedEmployeeIds) &&
+        editing.assignedEmployeeIds.map(String)) ||
+      [];
 
-    if (!clients || clients.length === 0) {
-      dispatch(ClientsActions.list({}));
-    }
-    if (!employees || employees.length === 0) {
-      dispatch(fetchEmployees({}));
-    }
-    if (!departments || departments.length === 0) {
-      // if departments action creator exists in your project replace with that
-      dispatch({ type: FETCH_DEPT_REQ });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (editing) {
-      setV(prev => ({
-        ...prev,
-        shortCode: editing.shortCode || prev.shortCode,
-        projectName: editing.name || prev.projectName,
-        startDate: editing.startDate || prev.startDate,
-        deadline: editing.deadline || prev.deadline,
-        noDeadline: !!editing.noDeadline,
-        projectCategory: editing.category || prev.projectCategory,
-        departmentId: String(editing.departmentId ?? prev.departmentId),
-        clientId: editing.clientId ? String(editing.clientId) : prev.clientId,
-        projectSummary: editing.summary || prev.projectSummary,
-        tasksNeedAdminApproval: !!editing.tasksNeedAdminApproval,
-        currency: editing.currency || prev.currency,
-        projectBudget: editing.budget?.toString() ?? prev.projectBudget,
-        hoursEstimate: editing.hoursEstimate?.toString() ?? prev.hoursEstimate,
-        allowManualTimeLogs: !!editing.allowManualTimeLogs,
-        assignedEmployeeIds: (editing.assignedEmployeeIds || []).map(String),
-      }));
-    }
+    return {
+      shortCode: editing?.shortCode ?? '',
+      projectName: editing?.name ?? '',
+      startDate: editing?.startDate ?? '',
+      deadline: editing?.deadline ?? '',
+      noDeadline: !!editing?.noDeadline,
+      projectCategory: editing?.category ?? '',
+      departmentId: editing?.departmentId ? String(editing.departmentId) : '',
+      department: editing?.department ?? '',
+      clientId: editing?.clientId ? String(editing.clientId) : '',
+      projectSummary: editing?.summary ?? '',
+      tasksNeedAdminApproval: !!editing?.tasksNeedAdminApproval,
+      currency: editing?.currency ?? 'USD',
+      projectBudget: editing?.budget?.toString?.() ?? '',
+      hoursEstimate: editing?.hoursEstimate?.toString?.() ?? '',
+      allowManualTimeLogs: !!editing?.allowManualTimeLogs,
+      assignedEmployeeIds: assigned, // array of strings already
+    };
   }, [editing]);
 
+  const [v, setV] = useState(initialState);
+
+  useEffect(() => {
+    if (!visible) return;
+    // run fetches once per open
+    if (!fetchedOnceRef.current) {
+      fetchedOnceRef.current = true;
+      dispatch(fetchProjectCategories());
+      if (!clients || clients.length === 0) dispatch(ClientsActions.list({}));
+      if (!employees || employees.length === 0) dispatch(fetchEmployees({}));
+      if (!departments || departments.length === 0)
+        dispatch({ type: FETCH_DEPT_REQ });
+    } else {
+      // still refresh categories each open
+      dispatch(fetchProjectCategories());
+    }
+
+    // initialize form values
+    setV(initialState);
+    setCompanyFile(null);
+
+    return () => {
+      fetchedOnceRef.current = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible]);
+
+  // keep form updated when editing changes while open
+  useEffect(() => {
+    if (visible && editing) setV(initialState);
+  }, [editing, visible, initialState]);
+
+  // helpers
   const patch = (k, val) => setV(s => ({ ...s, [k]: val }));
 
   const disabled = useMemo(() => {
@@ -151,35 +148,30 @@ export default function ProjectModal({
     );
   }, [v]);
 
+  // Date pickers
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showDeadlinePicker, setShowDeadlinePicker] = useState(false);
 
   function onStartDateChange(event, selectedDate) {
     if (Platform.OS !== 'ios') setShowStartPicker(false);
-    if (selectedDate) {
-      const iso = selectedDate.toISOString().slice(0, 10);
-      patch('startDate', iso);
-    }
+    if (selectedDate)
+      patch('startDate', selectedDate.toISOString().slice(0, 10));
   }
   function onDeadlineChange(event, selectedDate) {
     if (Platform.OS !== 'ios') setShowDeadlinePicker(false);
-    if (selectedDate) {
-      const iso = selectedDate.toISOString().slice(0, 10);
-      patch('deadline', iso);
-    }
+    if (selectedDate)
+      patch('deadline', selectedDate.toISOString().slice(0, 10));
   }
 
-  // categories mgmt
-  const [manageCatOpen, setManageCatOpen] = useState(false);
-  const [newCatName, setNewCatName] = useState('');
-
+  // Category manager
   function handleAddCategory() {
-    if (!newCatName.trim()) return Alert.alert('Enter category name');
-    dispatch(createProjectCategory({ name: newCatName.trim() }));
+    const name = (newCatName || '').trim();
+    if (!name) return Alert.alert('Enter category name');
+    dispatch(createProjectCategory({ name }));
     setNewCatName('');
   }
   function handleDeleteCategory(id) {
-    Alert.alert('Delete', 'Delete this category?', [
+    Alert.alert('Delete category', 'Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
@@ -189,35 +181,100 @@ export default function ProjectModal({
     ]);
   }
 
-  // members modal
-  const [membersModalOpen, setMembersModalOpen] = useState(false);
-  function toggleMember(id) {
+  // Members toggle - uses stable empKey
+  function toggleMemberByKey(key) {
     setV(prev => {
-      const ids = new Set(prev.assignedEmployeeIds.map(String));
-      if (ids.has(String(id))) ids.delete(String(id));
-      else ids.add(String(id));
-      return { ...prev, assignedEmployeeIds: Array.from(ids) };
+      const setIds = new Set(prev.assignedEmployeeIds.map(String));
+      if (setIds.has(String(key))) setIds.delete(String(key));
+      else setIds.add(String(key));
+      return { ...prev, assignedEmployeeIds: Array.from(setIds) };
     });
   }
 
+  // wrapper used by UI when passing the employee object
+  function toggleMember(emp) {
+    const key = empKeyOf(emp);
+    if (!key) return;
+    toggleMemberByKey(key);
+  }
+
+  // check if employee selected
+  function isMemberSelected(emp) {
+    const key = empKeyOf(emp);
+    if (!key) return false;
+    return v.assignedEmployeeIds.map(String).includes(String(key));
+  }
+
+  // File picker (image-picker) - same as before
+  async function pickCompanyFile() {
+    try {
+      const res = await launchImageLibrary({
+        mediaType: 'mixed',
+        includeBase64: false,
+      });
+      if (res && res.assets && res.assets.length > 0) {
+        const file = res.assets[0];
+        const payload = {
+          uri:
+            Platform.OS === 'ios' && file.uri?.startsWith('file://')
+              ? file.uri
+              : file.uri,
+          name: file.fileName || `file-${Date.now()}`,
+          type: file.type || 'application/octet-stream',
+        };
+        setCompanyFile(payload);
+      }
+    } catch (err) {
+      console.log('pickCompanyFile error', err);
+      Alert.alert('File pick failed');
+    }
+  }
+
   function handleSave() {
+    // normalize assigned employees -> array of employee keys (EMP-xxx)
+    const assigned = Array.isArray(v.assignedEmployeeIds)
+      ? v.assignedEmployeeIds.map(String)
+      : String(v.assignedEmployeeIds || '')
+          .split(',')
+          .map(s => s.trim())
+          .filter(Boolean);
+
+    // inside handleSave(), change payload to this:
+    // find department name from departments list (close to top of file departments is available)
+    const deptName =
+      (v.departmentId &&
+        departments &&
+        departments.length &&
+        (departments.find(d => String(d.id) === String(v.departmentId))?.name ||
+          departments.find(d => String(d.id) === String(v.departmentId))
+            ?.departmentName)) ||
+      v.department ||
+      '';
+
+    // then include department in payload:
     const payload = {
       shortCode: v.shortCode,
-      name: v.projectName,
+      projectName: v.projectName,
       startDate: v.startDate,
       deadline: v.noDeadline ? null : v.deadline,
       noDeadline: !!v.noDeadline,
-      category: v.projectCategory,
-      departmentId: v.departmentId ? Number(v.departmentId) : null,
-      clientId: v.clientId ? Number(v.clientId) : null,
-      summary: v.projectSummary,
+      projectCategory: v.projectCategory,
+      // IMPORTANT: backend expects `department` (string)
+      department: deptName || undefined,
+      clientId: v.clientId ? String(v.clientId) : undefined,
+      projectSummary: v.projectSummary,
       tasksNeedAdminApproval: !!v.tasksNeedAdminApproval,
       currency: v.currency,
-      budget: v.projectBudget === '' ? null : Number(v.projectBudget),
+      projectBudget: v.projectBudget === '' ? null : Number(v.projectBudget),
       hoursEstimate: v.hoursEstimate === '' ? null : Number(v.hoursEstimate),
       allowManualTimeLogs: !!v.allowManualTimeLogs,
-      assignedEmployeeIds: (v.assignedEmployeeIds || []).map(id => Number(id)),
+      assignedEmployeeIds: assigned,
+      companyFile: companyFile || null,
     };
+
+    // Optional: debug console to inspect exact payload before dispatch
+    console.log('create huu payload ->', payload);
+
     onSave?.(payload);
   }
 
@@ -225,7 +282,7 @@ export default function ProjectModal({
 
   return (
     <Modal
-      visible={true}
+      visible={!!visible}
       transparent
       animationType="slide"
       onRequestClose={onClose}
@@ -334,13 +391,13 @@ export default function ProjectModal({
                       <View style={{ padding: 12, alignItems: 'center' }}>
                         <ActivityIndicator />
                       </View>
-                    ) : (
+                    ) : categories && categories.length > 0 ? (
                       <Picker
                         selectedValue={v.projectCategory || ''}
                         onValueChange={val => patch('projectCategory', val)}
                       >
                         <Picker.Item label="Select category" value="" />
-                        {(categories || []).map(c => (
+                        {categories.map(c => (
                           <Picker.Item
                             key={c.id}
                             label={c.name || c.categoryName}
@@ -348,6 +405,18 @@ export default function ProjectModal({
                           />
                         ))}
                       </Picker>
+                    ) : (
+                      <View style={{ padding: 8 }}>
+                        <Text style={{ color: '#6b7280', marginBottom: 6 }}>
+                          No categories
+                        </Text>
+                        <TouchableOpacity
+                          onPress={() => dispatch(fetchProjectCategories())}
+                          style={styles.smallBtn}
+                        >
+                          <Text>Retry</Text>
+                        </TouchableOpacity>
+                      </View>
                     )}
                   </View>
                   <TouchableOpacity
@@ -376,19 +445,33 @@ export default function ProjectModal({
                     overflow: 'hidden',
                   }}
                 >
-                  <Picker
-                    selectedValue={v.departmentId || ''}
-                    onValueChange={val => patch('departmentId', val)}
-                  >
-                    <Picker.Item label="Select department" value="" />
-                    {(departments || []).map(d => (
-                      <Picker.Item
-                        key={d.id}
-                        label={d.name || d.departmentName}
-                        value={String(d.id)}
-                      />
-                    ))}
-                  </Picker>
+                  {departments && departments.length > 0 ? (
+                    <Picker
+                      selectedValue={v.departmentId || ''}
+                      onValueChange={val => patch('departmentId', val)}
+                    >
+                      <Picker.Item label="Select department" value="" />
+                      {departments.map(d => (
+                        <Picker.Item
+                          key={d.id}
+                          label={d.name || d.departmentName}
+                          value={String(d.id)}
+                        />
+                      ))}
+                    </Picker>
+                  ) : (
+                    <View style={{ padding: 8 }}>
+                      <Text style={{ color: '#6b7280', marginBottom: 6 }}>
+                        No departments
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() => dispatch({ type: FETCH_DEPT_REQ })}
+                        style={styles.smallBtn}
+                      >
+                        <Text>Retry</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
                 </View>
               </View>
 
@@ -403,23 +486,37 @@ export default function ProjectModal({
                     overflow: 'hidden',
                   }}
                 >
-                  <Picker
-                    selectedValue={v.clientId || ''}
-                    onValueChange={val => patch('clientId', val)}
-                  >
-                    <Picker.Item label="Select client" value="" />
-                    {(clients || []).map(c => (
-                      <Picker.Item
-                        key={c.id}
-                        label={c.name || c.company?.companyName}
-                        value={String(c.id)}
-                      />
-                    ))}
-                  </Picker>
+                  {clients && clients.length > 0 ? (
+                    <Picker
+                      selectedValue={v.clientId || ''}
+                      onValueChange={val => patch('clientId', val)}
+                    >
+                      <Picker.Item label="Select client" value="" />
+                      {clients.map(c => (
+                        <Picker.Item
+                          key={c.id}
+                          label={c.name || c.company?.companyName}
+                          value={c.clientId ? String(c.clientId) : String(c.id)}
+                        />
+                      ))}
+                    </Picker>
+                  ) : (
+                    <View style={{ padding: 8 }}>
+                      <Text style={{ color: '#6b7280', marginBottom: 6 }}>
+                        No clients
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() => dispatch(ClientsActions.list({}))}
+                        style={styles.smallBtn}
+                      >
+                        <Text>Retry</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
                 </View>
               </View>
 
-              {/* Members */}
+              {/* Members (opens modal) */}
               <View style={styles.field}>
                 <Text style={styles.label}>Members</Text>
                 <TouchableOpacity
@@ -486,10 +583,35 @@ export default function ProjectModal({
                 value={v.tasksNeedAdminApproval}
                 onChange={val => patch('tasksNeedAdminApproval', val)}
               />
+
+              {/* file */}
+              <View style={{ flexBasis: '100%' }}>
+                <TouchableOpacity
+                  onPress={pickCompanyFile}
+                  style={styles.fileBtn}
+                >
+                  <Icon
+                    name="paperclip"
+                    size={16}
+                    color="#fff"
+                    style={{ marginRight: 8 }}
+                  />
+                  <Text style={{ color: '#fff', fontWeight: '700' }}>
+                    {companyFile
+                      ? 'Change Project File'
+                      : 'Attach Project File (optional)'}
+                  </Text>
+                </TouchableOpacity>
+                {companyFile ? (
+                  <Text style={{ marginTop: 6 }}>
+                    {companyFile.name || companyFile.uri}
+                  </Text>
+                ) : null}
+              </View>
             </View>
           </ScrollView>
 
-          {/* Actions */}
+          {/* actions */}
           <View style={styles.actions}>
             <Pressable onPress={onClose} style={[styles.btn, styles.outline]}>
               <Text style={styles.btnTxt}>Cancel</Text>
@@ -514,7 +636,7 @@ export default function ProjectModal({
         </View>
       </KeyboardAvoidingView>
 
-      {/* Manage Category Modal */}
+      {/* manage categories */}
       <Modal
         visible={manageCatOpen}
         animationType="slide"
@@ -587,12 +709,13 @@ export default function ProjectModal({
                       style={{ flexDirection: 'row', alignItems: 'center' }}
                     >
                       <TouchableOpacity
-                        onPress={() =>
-                          setV(prev => ({
-                            ...prev,
-                            projectCategory: item.name || item.categoryName,
-                          }))
-                        }
+                        onPress={() => {
+                          patch(
+                            'projectCategory',
+                            item.name || item.categoryName,
+                          );
+                          setManageCatOpen(false);
+                        }}
                       >
                         <Text style={{ color: '#2563eb', marginRight: 12 }}>
                           Use
@@ -612,7 +735,7 @@ export default function ProjectModal({
         </View>
       </Modal>
 
-      {/* Members modal */}
+      {/* members modal */}
       <Modal
         visible={membersModalOpen}
         animationType="slide"
@@ -634,47 +757,65 @@ export default function ProjectModal({
             </TouchableOpacity>
           </View>
 
-          <FlatList
-            data={employees}
-            keyExtractor={item => String(item.id)}
-            renderItem={({ item }) => {
-              const checked = v.assignedEmployeeIds.includes(String(item.id));
-              return (
-                <TouchableOpacity
-                  onPress={() => toggleMember(item.id)}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    paddingVertical: 10,
-                  }}
-                >
-                  <View>
-                    <Text style={{ fontWeight: '700' }}>
-                      {item.name ||
-                        `${item.firstName || ''} ${item.lastName || ''}`}
-                    </Text>
-                    <Text style={{ color: '#6b7280' }}>
-                      {item.designation || item.email || ''}
-                    </Text>
-                  </View>
-                  <View
+          {employees && employees.length > 0 ? (
+            <FlatList
+              data={employees}
+              keyExtractor={item => empKeyOf(item) || String(item.id)}
+              renderItem={({ item }) => {
+                const key = empKeyOf(item);
+                const checked = isMemberSelected(item);
+                return (
+                  <TouchableOpacity
+                    onPress={() => toggleMember(item)}
                     style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 6,
-                      borderWidth: 1,
-                      borderColor: '#e5e7eb',
+                      flexDirection: 'row',
                       alignItems: 'center',
-                      justifyContent: 'center',
+                      justifyContent: 'space-between',
+                      paddingVertical: 10,
                     }}
                   >
-                    {checked ? <Icon name="check" size={16} /> : null}
-                  </View>
-                </TouchableOpacity>
-              );
-            }}
-          />
+                    <View>
+                      <Text style={{ fontWeight: '700' }}>
+                        {item.name ||
+                          `${item.firstName || ''} ${item.lastName || ''}`}
+                      </Text>
+                      <Text style={{ color: '#6b7280' }}>
+                        {item.designation || item.email || ''}
+                      </Text>
+                      <Text style={{ color: '#6b7280', fontSize: 12 }}>
+                        {key}
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: 6,
+                        borderWidth: 1,
+                        borderColor: '#e5e7eb',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {checked ? <Icon name="check" size={16} /> : null}
+                    </View>
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          ) : (
+            <View style={{ padding: 12 }}>
+              <Text style={{ color: '#6b7280', marginBottom: 8 }}>
+                No employees loaded
+              </Text>
+              <TouchableOpacity
+                onPress={() => dispatch(fetchEmployees({}))}
+                style={styles.smallBtn}
+              >
+                <Text>Retry Employees</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
           <View
             style={{
@@ -701,7 +842,7 @@ export default function ProjectModal({
   );
 }
 
-/* helper components Field & Toggle (unchanged) */
+/* helper components Field & Toggle */
 function Field({
   label,
   value,
@@ -784,4 +925,21 @@ const styles = StyleSheet.create({
   primary: { backgroundColor: '#1d4ed8', borderColor: '#1d4ed8' },
   btnDisabled: { backgroundColor: '#93c5fd', borderColor: '#93c5fd' },
   btnTxt: { fontWeight: '800', color: '#111827' },
+
+  smallBtn: {
+    padding: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    alignSelf: 'flex-start',
+  },
+  fileBtn: {
+    backgroundColor: '#111827',
+    padding: 12,
+    borderRadius: 10,
+    marginTop: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

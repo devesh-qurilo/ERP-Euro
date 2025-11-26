@@ -1,3 +1,4 @@
+// AdminWorkProjectsScreen.js
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
@@ -8,6 +9,9 @@ import {
   Pressable,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import Icon from 'react-native-vector-icons/Feather';
+import Entypo from 'react-native-vector-icons/Entypo';
+
 import {
   selectAWPList,
   selectAWPLoading,
@@ -40,11 +44,12 @@ import { useNavigation } from '@react-navigation/native';
 export default function AdminWorkProjectsScreen() {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const list = useSelector(selectAWPList);
+
+  const list = useSelector(selectAWPList) || [];
   const loading = useSelector(selectAWPLoading);
-  const busyIds = useSelector(selectAWPBusyIds);
+  const busyIds = useSelector(selectAWPBusyIds) || [];
   const mode = useSelector(selectAWPMode);
-  const filters = useSelector(selectAWPFilters);
+  const filters = useSelector(selectAWPFilters) || { q: '', status: 'All' };
   const modalOpen = useSelector(selectAWPModalOpen);
   const editing = useSelector(selectAWPEditing);
   const [createBusy, setCreateBusy] = useState(false);
@@ -55,7 +60,7 @@ export default function AdminWorkProjectsScreen() {
 
   const filtered = useMemo(() => {
     const q = (filters.q || '').toLowerCase().trim();
-    let arr = [...list];
+    let arr = [...(list || [])];
     if (mode === 'pinned') arr = arr.filter(p => p.pinned === true);
     if (mode === 'archived') arr = arr.filter(p => p.archived === true);
     if (q) {
@@ -65,7 +70,7 @@ export default function AdminWorkProjectsScreen() {
           .includes(q),
       );
     }
-    if (filters.status !== 'All') {
+    if (filters.status && filters.status !== 'All') {
       arr = arr.filter(p => (p.projectStatus || '—') === filters.status);
     }
     return arr;
@@ -75,7 +80,7 @@ export default function AdminWorkProjectsScreen() {
     setCreateBusy(true);
     if (editing) dispatch(updateProject(editing.id, payload));
     else dispatch(createProject(payload));
-    // createBusy reset is handled by redux fetch; but keep a guard:
+    // guard reset
     setTimeout(() => setCreateBusy(false), 1200);
   };
 
@@ -99,6 +104,7 @@ export default function AdminWorkProjectsScreen() {
               style={styles.input}
             />
           </View>
+
           <Dropdown
             label="Status"
             value={filters.status}
@@ -115,41 +121,78 @@ export default function AdminWorkProjectsScreen() {
         </View>
       </View>
 
-      {/* Buttons */}
+      {/* Buttons - icons */}
       <View style={styles.headerRow}>
-        {/* <Text style={styles.sectionTitle}>Client projects</Text> */}
-        <View style={{ gap: 2, flexDirection: 'row' }}>
+        <View style={{ gap: 8, flexDirection: 'row', alignItems: 'center' }}>
           <Pressable
-            style={[styles.btn, styles.primary]}
+            style={[styles.btn, styles.primary, styles.addBtn]}
             onPress={() => dispatch(openModal(null))}
+            accessibilityLabel="Add project"
           >
-            <Text style={[styles.btnTxt, { color: '#fff' }]}>
-              + Add Project
-            </Text>
+            <Icon
+              name="plus"
+              size={16}
+              color="#fff"
+              style={{ marginRight: 8 }}
+            />
+            <Text style={[styles.btnTxt, { color: '#fff' }]}>Add Project</Text>
           </Pressable>
+
           <Pressable
-            style={styles.btn}
             onPress={() => dispatch(setMode('list'))}
+            style={[styles.iconBtn, mode === 'list' ? styles.iconActive : null]}
+            accessibilityLabel="List view"
           >
-            <Text style={styles.btnTxt}>Li</Text>
+            <Icon
+              name="list"
+              size={18}
+              color={mode === 'list' ? '#fff' : '#1f2937'}
+            />
           </Pressable>
+
           <Pressable
-            style={styles.btn}
             onPress={() => dispatch(setMode('calendar'))}
+            style={[
+              styles.iconBtn,
+              mode === 'calendar' ? styles.iconActive : null,
+            ]}
+            accessibilityLabel="Calendar view"
           >
-            <Text style={styles.btnTxt}>Cal</Text>
+            <Icon
+              name="calendar"
+              size={18}
+              color={mode === 'calendar' ? '#fff' : '#1f2937'}
+            />
           </Pressable>
+
           <Pressable
-            style={styles.btn}
             onPress={() => dispatch(setMode('archived'))}
+            style={[
+              styles.iconBtn,
+              mode === 'archived' ? styles.iconActive : null,
+            ]}
+            accessibilityLabel="Archived projects"
           >
-            <Text style={styles.btnTxt}>Arc</Text>
+            <Icon
+              name="archive"
+              size={18}
+              color={mode === 'archived' ? '#fff' : '#1f2937'}
+            />
           </Pressable>
+
           <Pressable
-            style={styles.btn}
             onPress={() => dispatch(setMode('pinned'))}
+            style={[
+              styles.iconBtn,
+              mode === 'pinned' ? styles.iconActive : null,
+            ]}
+            accessibilityLabel="Pinned projects"
           >
-            <Text style={styles.btnTxt}>Pin</Text>
+            <Entypo
+              name="pin"
+              size={18}
+              color={mode === 'pinned' ? '#fff' : '#1f2937'}
+            />
           </Pressable>
         </View>
       </View>
@@ -190,14 +233,15 @@ export default function AdminWorkProjectsScreen() {
   );
 }
 
-function Dropdown({ label, value, options, onChange }) {
+/* Small Dropdown component (unchanged behavior) */
+function Dropdown({ label, value = 'All', options = [], onChange }) {
   const [open, setOpen] = React.useState(false);
   return (
     <View style={{ minWidth: 150, marginRight: 8 }}>
       <Text style={styles.label}>{label}</Text>
       <Pressable style={styles.selectBtn} onPress={() => setOpen(o => !o)}>
         <Text style={styles.value} numberOfLines={1}>
-          {value}
+          {String(value)}
         </Text>
         <Text style={styles.caret}>{open ? '▴' : '▾'}</Text>
       </Pressable>
@@ -258,9 +302,34 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     backgroundColor: '#fff',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
+  addBtn: { paddingHorizontal: 12 },
   primary: { backgroundColor: '#1d4ed8' },
   btnTxt: { fontWeight: '400', color: '#111827', textAlign: 'center' },
+
+  // icon buttons
+  iconBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    marginLeft: 4,
+  },
+  iconActive: {
+    backgroundColor: '#1d4ed8',
+    borderColor: '#1d4ed8',
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+  },
+
   selectBtn: {
     flexDirection: 'row',
     alignItems: 'center',

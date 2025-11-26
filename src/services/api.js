@@ -501,7 +501,11 @@ export const projectsApi = {
     fd.append('deadline', payload.deadline);
     fd.append('noDeadline', String(!!payload.noDeadline));
     fd.append('projectCategory', payload.projectCategory);
-    fd.append('departmentId', String(payload.departmentId));
+    // fd.append('departmentId', String(payload.departmentId));
+
+    if (payload.department != null && payload.department !== '') {
+      fd.append('department', String(payload.department));
+    }
     if (payload.clientId) fd.append('clientId', payload.clientId);
     if (payload.projectSummary)
       fd.append('projectSummary', payload.projectSummary);

@@ -34,6 +34,7 @@ function* createProject({ payload }) {
     yield put({ type: T.AWP_CLOSE_MODAL });
     yield put({ type: T.AWP_FETCH_ALL });
   } catch (e) {
+    console.error('AWP create failed:', e.response?.data || e.message);
     yield put({ type: T.AWP_ERROR, error: emsg(e) });
   } finally {
     yield put({ type: T.AWP_BUSY, id: 'create', on: false });
@@ -44,6 +45,7 @@ function* updateProject({ id, payload }) {
   try {
     yield put({ type: T.AWP_BUSY, id, on: true });
     yield call(adminWorkProjectsAPI.update, id, payload);
+    console.log('update project', payload);
     yield put({ type: T.AWP_CLOSE_MODAL });
     yield put({ type: T.AWP_FETCH_ALL });
   } catch (e) {
