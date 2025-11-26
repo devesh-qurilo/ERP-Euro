@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+// screens/AdminFinanceInvoice.js
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import * as A from '../store/actions';
@@ -21,18 +22,38 @@ import ReceiptFormModal from '../components/ReceiptFormModal';
 import PaymentFormModal from '../components/PaymentFormModal';
 import CreditNoteFormModal from '../components/CreditNoteFormModal';
 
-// If using react-navigation, inject `navigation` prop
+// helper: parse date string safely (yyyy-mm-dd or ISO)
+const parseDate = d => {
+  if (!d) return null;
+  const dt = new Date(d);
+  return Number.isNaN(dt.getTime()) ? null : dt;
+};
+
+const matchStatus = (rowStatus = '', filterStatus = '') => {
+  if (!filterStatus || filterStatus === 'All') return true;
+  if (!rowStatus) return false;
+  return String(rowStatus)
+    .toUpperCase()
+    .includes(String(filterStatus).toUpperCase());
+};
+
+const shallowEqualFilters = (a = {}, b = {}) =>
+  (a.fromDate || '') === (b.fromDate || '') &&
+  (a.toDate || '') === (b.toDate || '') &&
+  (a.status || '') === (b.status || '') &&
+  (a.project || '') === (b.project || '');
+
 export default function AdminFinanceInvoice({ navigation }) {
   const dispatch = useDispatch();
   const items = useSelector(selectInvoiceList);
   const loading = useSelector(selectInvoiceListBusy);
-  const filters = useSelector(selectInvoiceFilters);
+  const filters = useSelector(selectInvoiceFilters) || {};
   const current = useSelector(selectCurrentInvoice);
   const currentBusy = useSelector(selectCurrentBusy);
 
+  // UI state
   const [creditNoteOpen, setCreditNoteOpen] = useState(false);
   const [creditFor, setCreditFor] = useState(null);
-
   const [actionState, setActionState] = useState({ open: false, row: null });
   const [addOpen, setAddOpen] = useState(false);
   const [editRow, setEditRow] = useState(null);
@@ -41,17 +62,70 @@ export default function AdminFinanceInvoice({ navigation }) {
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
 
+  // initial load once using existing store filters
   useEffect(() => {
-    dispatch(A.list());
-  }, [dispatch]);
+    dispatch(A.list(filters));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // filters apply
-  const onFilterChange = next => {
-    dispatch(A.setFilters(next));
-    dispatch(A.list(next));
-  };
+  // When filters change (auto-apply from InvoiceFilters), update store.
+  // We do client-side filtering (no dispatch(A.list)) by default to avoid unnecessary network calls.
+  const onFilterChange = useCallback(
+    next => {
+      const normalized = {
+        fromDate: next.fromDate || '',
+        toDate: next.toDate || '',
+        status: next.status || '',
+        project: next.project || '',
+      };
 
-  // add / edit
+      if (shallowEqualFilters(normalized, filters)) return;
+
+      dispatch(A.setFilters(normalized));
+
+      // If you prefer server-side filtering, uncomment this line:
+      // dispatch(A.list(normalized));
+    },
+    [dispatch, filters],
+  );
+
+  // Client-side filtered items (date range, status, project)
+  const filteredItems = useMemo(() => {
+    if (!items || !items.length) return [];
+
+    const from = parseDate(filters?.fromDate);
+    const to = parseDate(filters?.toDate);
+    const toEnd = to
+      ? new Date(to.getFullYear(), to.getMonth(), to.getDate(), 23, 59, 59, 999)
+      : null;
+    const statusFilter = filters?.status || '';
+    const projectFilter = (filters?.project || '').trim().toLowerCase();
+
+    return items.filter(inv => {
+      // date
+      if (from || toEnd) {
+        const invDate = parseDate(inv.invoiceDate || inv.createdAt);
+        if (!invDate) return false;
+        if (from && invDate < from) return false;
+        if (toEnd && invDate > toEnd) return false;
+      }
+
+      // status
+      if (!matchStatus(inv.status, statusFilter)) return false;
+
+      // project (match name or code)
+      if (projectFilter) {
+        const pName = (inv.project?.projectName || '').toLowerCase();
+        const pCode = (inv.project?.projectCode || '').toLowerCase();
+        if (!pName.includes(projectFilter) && !pCode.includes(projectFilter))
+          return false;
+      }
+
+      return true;
+    });
+  }, [items, filters]);
+
+  // create/update handlers
   const onCreate = payload => {
     dispatch(A.create(payload));
     setAddOpen(false);
@@ -64,19 +138,10 @@ export default function AdminFinanceInvoice({ navigation }) {
   // action selection
   const handleAction = (action, row) => {
     const invNo = row.invoiceNumber;
-    const invId = row.id;
-
     switch (action) {
       case 'Delete':
-        // optional confirm
-        // if (Platform.OS==='web' ? window.confirm('Delete this invoice?') : true)
         dispatch(A.deleteInvoice(invNo));
         break;
-
-      //   case 'Mark as paid':
-      //     dispatch(A.markPaid(invId)); // backend expects invoiceId – keep invId
-      //     break;
-
       case 'Add credit notes':
         setCreditFor(row);
         setCreditNoteOpen(true);
@@ -86,9 +151,8 @@ export default function AdminFinanceInvoice({ navigation }) {
           navigation.navigate('CreditNotesScreen', { invoiceNumber: invNo });
         else dispatch(A.listCreditNotes(invNo));
         break;
-
       case 'Add payment':
-        setPaymentOpen(true); // modal opens
+        setPaymentOpen(true);
         break;
       case 'View':
         dispatch(A.getOne(invNo));
@@ -100,9 +164,6 @@ export default function AdminFinanceInvoice({ navigation }) {
       case 'Upload file':
         setUploadFor(row);
         break;
-      case 'Delete':
-        // TODO: if backend provides delete invoice endpoint
-        break;
       case 'Add receipt':
         setReceiptOpen(true);
         break;
@@ -110,9 +171,6 @@ export default function AdminFinanceInvoice({ navigation }) {
         if (navigation)
           navigation.navigate('InvoiceReceiptsScreen', { invoiceId: invNo });
         else dispatch(A.listReceipts(invNo));
-        break;
-      case 'Add payment':
-        setPaymentOpen(true);
         break;
       case 'View payment':
         if (navigation)
@@ -138,10 +196,11 @@ export default function AdminFinanceInvoice({ navigation }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#fff', padding: 12 }}>
-      <InvoiceFilters onChange={onFilterChange} />
+      <InvoiceFilters onChange={onFilterChange} initialFilters={filters} />
       <InvoiceToolbar onAdd={() => setAddOpen(true)} />
+
       <InvoiceTable
-        items={items}
+        items={filteredItems}
         loading={loading}
         onOpenActions={row => setActionState({ open: true, row })}
       />
@@ -153,14 +212,12 @@ export default function AdminFinanceInvoice({ navigation }) {
         onClose={() => setActionState({ open: false, row: null })}
       />
 
-      {/* Add */}
       <InvoiceFormModal
         visible={addOpen}
         onClose={() => setAddOpen(false)}
         onSubmit={onCreate}
       />
 
-      {/* Edit */}
       <InvoiceFormModal
         visible={!!editRow}
         onClose={() => setEditRow(null)}
@@ -181,7 +238,6 @@ export default function AdminFinanceInvoice({ navigation }) {
         onSubmit={onUpdate}
       />
 
-      {/* View */}
       <InvoiceViewModal
         visible={viewOpen}
         onClose={() => setViewOpen(false)}
@@ -189,7 +245,6 @@ export default function AdminFinanceInvoice({ navigation }) {
         busy={currentBusy}
       />
 
-      {/* Upload File */}
       <UploadFileModal
         visible={!!uploadFor}
         onClose={() => setUploadFor(null)}
@@ -198,7 +253,6 @@ export default function AdminFinanceInvoice({ navigation }) {
         }
       />
 
-      {/* Add Receipt */}
       <ReceiptFormModal
         visible={receiptOpen}
         onClose={() => setReceiptOpen(false)}
@@ -208,15 +262,15 @@ export default function AdminFinanceInvoice({ navigation }) {
         }}
       />
 
-      {/* Add Payment */}
       <PaymentFormModal
         visible={paymentOpen}
         onClose={() => setPaymentOpen(false)}
         onSubmit={({ payment, file }) => {
-          dispatch(A.addPayment({ payment, file })); // ✅ triggers saga now
+          dispatch(A.addPayment({ payment, file }));
           setPaymentOpen(false);
         }}
       />
+
       <CreditNoteFormModal
         visible={creditNoteOpen}
         onClose={() => {

@@ -897,10 +897,28 @@ export const adminProjectTasksAPI = {
       .then(r => r.data),
 };
 
+export const adminPaymentGatewaysAPI = {
+  list: () => api.get('/api/payment-gateways').then(r => r.data),
+  create: payload =>
+    api.post('/api/payment-gateways', payload).then(r => r.data),
+  remove: id =>
+    api
+      .delete(`/api/payment-gateways/${encodeURIComponent(id)}`)
+      .then(r => r.data),
+};
+
 // --- ADMIN FINANCE: INVOICES / PAYMENTS / RECEIPTS ---
 export const adminFinanceInvoicesAPI = {
   // LIST with optional paging & filters
-  list: ({ page = 0, size = 20, q, clientId, status, dateFrom, dateTo } = {}) =>
+  list: ({
+    page = 0,
+    size = 2000000,
+    q,
+    clientId,
+    status,
+    dateFrom,
+    dateTo,
+  } = {}) =>
     api
       .get('/api/invoices', {
         params: { page, size, q, clientId, status, dateFrom, dateTo },

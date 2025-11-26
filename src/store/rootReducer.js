@@ -64,6 +64,7 @@ import timelogReducer from '../modules/admin/timelog/store/reducer';
 import birthdaysReducer from '../modules/admin/birthdays/store/reducer';
 import leavesReducer from '../modules/admin/leaves/store/reducer';
 import wfhReducer from '../modules/admin/wfh/store/reducer';
+import paymentGateways from '../modules/admin/finance/paymentGateways/reducer';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -137,6 +138,7 @@ const rootReducer = combineReducers({
     birthdays: birthdaysReducer,
     leaves: leavesReducer,
     wfh: wfhReducer,
+    paymentGateways: paymentGateways,
   }),
 });
 

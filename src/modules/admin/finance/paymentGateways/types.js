@@ -1,0 +1,13 @@
+export const NS = 'ADMIN/FINANCE/PAYMENT_GATEWAYS';
+
+export const LIST_REQUEST = `${NS}/LIST_REQUEST`;
+export const LIST_SUCCESS = `${NS}/LIST_SUCCESS`;
+export const LIST_FAILURE = `${NS}/LIST_FAILURE`;
+
+export const CREATE_REQUEST = `${NS}/CREATE_REQUEST`;
+export const CREATE_SUCCESS = `${NS}/CREATE_SUCCESS`;
+export const CREATE_FAILURE = `${NS}/CREATE_FAILURE`;
+
+export const DELETE_REQUEST = `${NS}/DELETE_REQUEST`;
+export const DELETE_SUCCESS = `${NS}/DELETE_SUCCESS`;
+export const DELETE_FAILURE = `${NS}/DELETE_FAILURE`;

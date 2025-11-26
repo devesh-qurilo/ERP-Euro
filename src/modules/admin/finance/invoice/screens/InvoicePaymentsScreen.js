@@ -1,3 +1,4 @@
+// src/modules/admin/work/payments/InvoicePaymentsScreen.js
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -242,125 +243,137 @@ export default function InvoicePaymentsScreen({ route }) {
       <View
         style={{ borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 10 }}
       >
-        {/* header */}
-        <Row
-          style={{
-            backgroundColor: '#f9fafb',
-            borderBottomWidth: 1,
-            borderColor: '#e5e7eb',
-          }}
+        {/* Put header + rows inside same horizontal ScrollView so they scroll together */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator
+          contentContainerStyle={{ paddingRight: 8 }}
         >
-          <Col w={120}>
-            <CellText bold>Code</CellText>
-          </Col>
-          <Col w={180}>
-            <CellText bold>Project</CellText>
-          </Col>
-          <Col w={140}>
-            <CellText bold>Invoice</CellText>
-          </Col>
-          <Col w={220}>
-            <CellText bold>Client</CellText>
-          </Col>
-          <Col w={120}>
-            <CellText bold>Order#</CellText>
-          </Col>
-          <Col w={160}>
-            <CellText bold>•Amount</CellText>
-          </Col>
-          <Col w={160}>
-            <CellText bold>Paid On</CellText>
-          </Col>
-          <Col w={160}>
-            <CellText bold>Payment Gateway</CellText>
-          </Col>
-          <Col w={140}>
-            <CellText bold>Status</CellText>
-          </Col>
-          <Col w={120}>
-            <CellText bold>Action</CellText>
-          </Col>
-        </Row>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator>
           <View style={{ minWidth: 1460 }}>
-            {(loading ? [] : items).map((p, i) => (
-              <Row
-                key={p.id || i}
-                style={{ borderBottomWidth: 1, borderColor: '#e5e7eb' }}
-              >
-                <Col w={120}>
-                  <CellText>{p.project?.projectCode || '—'}</CellText>
-                </Col>
-                <Col w={180}>
-                  <CellText>{p.project?.projectName || '—'}</CellText>
-                </Col>
-                <Col w={140}>
-                  <CellText>{p.invoice?.invoiceNumber || '—'}</CellText>
-                </Col>
-                <Col w={220}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    {p.client?.profilePictureUrl ? (
-                      <Image
-                        source={{ uri: p.client.profilePictureUrl }}
-                        style={{
-                          width: 24,
-                          height: 24,
-                          borderRadius: 12,
-                          marginRight: 8,
-                        }}
-                      />
-                    ) : null}
-                    <View>
-                      <CellText>{p.client?.name || '—'}</CellText>
-                      <CellText muted>Project</CellText>
+            {/* header */}
+            <Row
+              style={{
+                backgroundColor: '#f9fafb',
+                borderBottomWidth: 1,
+                borderColor: '#e5e7eb',
+              }}
+            >
+              <Col w={120}>
+                <CellText bold>Code</CellText>
+              </Col>
+              <Col w={180}>
+                <CellText bold>Project</CellText>
+              </Col>
+              <Col w={140}>
+                <CellText bold>Invoice</CellText>
+              </Col>
+              <Col w={220}>
+                <CellText bold>Client</CellText>
+              </Col>
+              <Col w={120}>
+                <CellText bold>Transaction Id</CellText>
+              </Col>
+              <Col w={160}>
+                <CellText bold>Amount</CellText>
+              </Col>
+              <Col w={160}>
+                <CellText bold>Paid On</CellText>
+              </Col>
+              <Col w={160}>
+                <CellText bold>Payment Gateway</CellText>
+              </Col>
+              <Col w={140}>
+                <CellText bold>Status</CellText>
+              </Col>
+              <Col w={120}>
+                <CellText bold>Action</CellText>
+              </Col>
+            </Row>
+
+            {/* rows */}
+            <View>
+              {(loading ? [] : items).map((p, i) => (
+                <Row
+                  key={p.id || i}
+                  style={{ borderBottomWidth: 1, borderColor: '#e5e7eb' }}
+                >
+                  <Col w={120}>
+                    <CellText>{p?.id || '—'}</CellText>
+                  </Col>
+                  <Col w={180}>
+                    <CellText>{p?.projectId || '—'}</CellText>
+                  </Col>
+                  <Col w={140}>
+                    <CellText>{p.invoice?.invoiceNumber || '—'}</CellText>
+                  </Col>
+                  <Col w={220}>
+                    <View
+                      style={{ flexDirection: 'row', alignItems: 'center' }}
+                    >
+                      {p.client?.profilePictureUrl ? (
+                        <Image
+                          source={{ uri: p.client.profilePictureUrl }}
+                          style={{
+                            width: 24,
+                            height: 24,
+                            borderRadius: 12,
+                            marginRight: 8,
+                          }}
+                        />
+                      ) : null}
+                      <View>
+                        <CellText>{p.client?.name || '—'}</CellText>
+                        <CellText muted>Project</CellText>
+                      </View>
                     </View>
-                  </View>
-                </Col>
-                <Col w={120}>
-                  <CellText>--</CellText>
-                </Col>
-                <Col w={160}>
-                  <CellText>{`${p.currency} ${Number(
-                    p.amount || 0,
-                  ).toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                  })}`}</CellText>
-                </Col>
-                <Col w={160}>
-                  <CellText>{String(p.paymentDate).slice(0, 10)}</CellText>
-                </Col>
-                <Col w={160}>
-                  <CellText>{p.paymentGateway?.name || '--'}</CellText>
-                </Col>
-                <Col w={140}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Dot
-                      color={p.status === 'COMPLETED' ? '#22c55e' : '#f59e0b'}
-                    />
-                    <CellText>
-                      {' '}
-                      {p.status === 'COMPLETED' ? 'Complete' : p.status}
-                    </CellText>
-                  </View>
-                </Col>
-                <Col w={120}>
-                  <TouchableOpacity
-                    onPress={() => setSheet({ open: true, row: p })}
-                    style={{
-                      alignSelf: 'flex-start',
-                      paddingHorizontal: 12,
-                      paddingVertical: 8,
-                      borderRadius: 10,
-                      borderWidth: 1,
-                      borderColor: '#d1d5db',
-                    }}
-                  >
-                    <Text style={{ fontSize: 18 }}>⋮</Text>
-                  </TouchableOpacity>
-                </Col>
-              </Row>
-            ))}
+                  </Col>
+                  <Col w={120}>
+                    <CellText>{p?.transactionId || '-'}</CellText>
+                  </Col>
+                  <Col w={160}>
+                    <CellText>{`${p.currency} ${Number(
+                      p.amount || 0,
+                    ).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                    })}`}</CellText>
+                  </Col>
+                  <Col w={160}>
+                    <CellText>{String(p.paymentDate).slice(0, 10)}</CellText>
+                  </Col>
+                  <Col w={160}>
+                    <CellText>{p.paymentGateway?.name || '--'}</CellText>
+                  </Col>
+                  <Col w={140}>
+                    <View
+                      style={{ flexDirection: 'row', alignItems: 'center' }}
+                    >
+                      <Dot
+                        color={p.status === 'COMPLETED' ? '#22c55e' : '#f59e0b'}
+                      />
+                      <CellText>
+                        {' '}
+                        {p.status === 'COMPLETED' ? 'Complete' : p.status}
+                      </CellText>
+                    </View>
+                  </Col>
+                  <Col w={120}>
+                    <TouchableOpacity
+                      onPress={() => setSheet({ open: true, row: p })}
+                      style={{
+                        alignSelf: 'flex-start',
+                        paddingHorizontal: 12,
+                        paddingVertical: 8,
+                        borderRadius: 10,
+                        borderWidth: 1,
+                        borderColor: '#d1d5db',
+                      }}
+                    >
+                      <Text style={{ fontSize: 18 }}>⋮</Text>
+                    </TouchableOpacity>
+                  </Col>
+                </Row>
+              ))}
+            </View>
           </View>
         </ScrollView>
       </View>
