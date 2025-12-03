@@ -107,9 +107,9 @@ export default function AdminProfileSettingsScreen() {
         <Field label="Gender" k="gender" placeholder="male/female/other" />
         <Field label="Birthday" k="birthday" placeholder="YYYY-MM-DD" />
         <Field label="Blood Group" k="bloodGroup" placeholder="O+" />
-        <Field label="Language" k="language" placeholder="Hindi" />
-        <Field label="Country" k="country" placeholder="India" />
-        <Field label="Mobile" k="mobile" placeholder="+91-9540540010" />
+        <Field label="Language" k="language" placeholder="French" />
+        <Field label="Country" k="country" placeholder="country" />
+        <Field label="Mobile" k="mobile" placeholder="+370-9540540010" />
         <Field
           label="Address"
           k="address"

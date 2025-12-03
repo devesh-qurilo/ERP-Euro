@@ -104,13 +104,13 @@ export default function ClientFormModal({
 
   /* static lists for country/language/gender — you can extend these */
   const countries = [
-    'India',
+    'country',
     'United States',
     'United Kingdom',
     'UAE',
     'Other',
   ];
-  const languages = ['English', 'Hindi', 'Spanish', 'Other'];
+  const languages = ['English', 'French', 'Spanish', 'Other'];
   const genders = ['Male', 'Female', 'Other', 'Prefer not to say'];
 
   /* Category helpers */

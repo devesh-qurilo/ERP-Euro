@@ -202,7 +202,7 @@ export default function ProfileDetailsForm({
           style={styles.input}
           value={form.country}
           onChangeText={v => setForm({ ...form, country: v })}
-          placeholder="India"
+          placeholder="country"
         />
       </Field>
 
@@ -213,7 +213,7 @@ export default function ProfileDetailsForm({
             value={form.mobile}
             onChangeText={v => setForm({ ...form, mobile: v })}
             keyboardType="phone-pad"
-            placeholder="+91 ..."
+            placeholder="+370 ..."
           />
         </Field>
         <Field label="Slack Member Id *" style={{ flex: 1 }}>

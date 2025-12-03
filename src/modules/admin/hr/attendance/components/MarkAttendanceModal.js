@@ -105,7 +105,7 @@ export default function MarkAttendanceModal({ visible, onClose, onSave }) {
         halfDay,
       },
       overwrite,
-      markedBy: empIds[0] || 'EMP-015', // fallback to current admin if you store it
+      markedBy: empIds[0], // fallback to current admin if you store it
     };
 
     if (mode === 'date') {

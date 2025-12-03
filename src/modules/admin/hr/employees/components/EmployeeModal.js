@@ -98,7 +98,7 @@ export default function EmployeeModal({
     bloodGroup: 'O+',
     joiningDate: '2023-01-01',
     language: 'English',
-    country: 'India',
+    country: 'country',
     mobile: '',
     address: '',
     about: '',
@@ -134,7 +134,7 @@ export default function EmployeeModal({
         bloodGroup: editing.bloodGroup || 'O+',
         joiningDate: editing.joiningDate || '2023-01-01',
         language: editing.language || 'English',
-        country: editing.country || 'India',
+        country: editing.country || 'country',
         mobile: editing.mobile || '',
         address: editing.address || '',
         about: editing.about || '',
@@ -305,7 +305,7 @@ export default function EmployeeModal({
               style={styles.input}
               value={f.mobile}
               onChangeText={v => setF({ ...f, mobile: v })}
-              placeholder="+91-XXXXXXXXXX"
+              placeholder="+370-XXXXXXXXXX"
               placeholderTextColor="#9ca3af"
             />
 

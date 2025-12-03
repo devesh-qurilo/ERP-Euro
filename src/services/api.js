@@ -1,15 +1,17 @@
+// src/services/api.js
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = 'https://chat.swiftandgo.in'; // Replace with your actual gateway URL
-// const API_BASE_URL = 'https://6jnqmj85-80.inc1.devtunnels.ms';
+// Use your API base
+// const API_BASE_URL = 'https://chat.swiftandgo.in';
+const API_BASE_URL = 'https://6jnqmj85-80.inc1.devtunnels.ms';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000, // Increased timeout for API calls
+  timeout: 30000,
 });
 
-// Request interceptor to add auth token
+// Attach token to every request if exists
 api.interceptors.request.use(
   async config => {
     try {
@@ -18,27 +20,43 @@ api.interceptors.request.use(
         config.headers.Authorization = `Bearer ${token}`;
       }
     } catch (error) {
-      console.error('Error getting auth token:', error);
+      console.error('Error getting auth token in interceptor:', error);
     }
     return config;
   },
   error => Promise.reject(error),
 );
 
-// Response interceptor for error handling
+// On 401: clear stored tokens so the app is forced to re-auth
 api.interceptors.response.use(
   response => response,
-  error => {
-    if (error.response?.status === 401) {
-      // Handle unauthorized access - token expired or invalid
-      console.log('Unauthorized access - redirect to login');
-      // You might want to dispatch a logout action here
+  async error => {
+    try {
+      const status = error?.response?.status;
+      if (status === 401) {
+        console.log('API 401 - clearing auth tokens from storage');
+
+        try {
+          await Promise.all([
+            AsyncStorage.removeItem('authToken'),
+            AsyncStorage.removeItem('refreshToken'),
+            AsyncStorage.removeItem('userData'),
+          ]);
+        } catch (e) {
+          console.warn('Error clearing storage on 401', e);
+        }
+
+        // mark error for callers so they can decide (optional)
+        error.isUnauthorized = true;
+      }
+    } catch (e) {
+      console.warn('Error in response interceptor', e);
     }
     return Promise.reject(error);
   },
 );
 
-// Auth API
+// Auth API helpers - exported for saga/thunk use
 export const authAPI = {
   login: credentials =>
     api
@@ -48,9 +66,7 @@ export const authAPI = {
         console.error('Login API error:', error);
         throw error;
       }),
-
   logout: () => api.post('/auth/logout'),
-
   refreshToken: refreshToken =>
     api.post('/auth/refresh', { refreshToken }).then(response => response.data),
 };

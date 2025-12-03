@@ -1,5 +1,5 @@
 // src/navigation/AdminNavigator.js
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,15 +11,20 @@ import {
   Image,
   ImageBackground,
   Dimensions,
+  Alert,
+  AccessibilityInfo,
 } from 'react-native';
+import { useDispatch } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
 } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LinearGradient from 'react-native-linear-gradient';
+import Icon from 'react-native-vector-icons/Feather'; // Feather is crisp and minimal
 
-// REAL SCREENS YOU HAVE
+// --- REAL SCREENS (adjust paths if needed) ---
 import AdminLeadContactsScreen from '../modules/admin/leads/screens/AdminLeadContactsScreen';
 import AdminProfileSettingsScreen from '../modules/admin/settings/screens/AdminProfileSettingsScreen';
 import AdminCompanySettingsScreen from '../modules/admin/settings/screens/AdminCompanySettingsScreen';
@@ -30,21 +35,15 @@ import AdminEmployeeViewScreen from '../modules/admin/hr/employees/screens/Admin
 import AdminLeavesScreen from '../modules/admin/hr/leaves/screens/AdminLeavesScreen';
 import AdminHolidaysScreen from '../modules/admin/hr/holidays/screens/AdminHolidaysScreen';
 import AdminAttendanceScreen from '../modules/admin/hr/attendance/screens/AdminAttendanceScreen';
-
 import AdminWorkProjectsScreen from '../modules/admin/work/projects/screens/AdminWorkProjectsScreen';
-
 import AdminProjectViewScreen from '../modules/admin/work/projects/screens/AdminProjectViewScreen';
 import AdminFinanceInvoice from '../modules/admin/finance/invoice/screens/AdminFinanceInvoice';
 import InvoiceReceiptsScreen from '../modules/admin/finance/invoice/screens/InvoiceReceiptsScreen';
 import InvoicePaymentsScreen from '../modules/admin/finance/invoice/screens/InvoicePaymentsScreen';
-
 import CreditNotesScreen from '../modules/admin/finance/invoice/screens/CreditNotesScreen';
 import AdminFinanceCreditNotes from '../modules/admin/finance/credit-notes/screens/AdminFinanceCreditNotes';
-
-// import AdminClientScreen from '../modules/admin/client/screens/AdminClientScreen';
 import AdminClientsScreen from '../modules/admin/clients/screens/AdminClientsScreen';
 import AdminClientViewScreen from '../modules/admin/clients/view/screens/AdminClientViewScreen';
-
 import AdminDealScreen from '../modules/admin/leads/deals/screens/AdminDealScreen';
 import AdminDealViewScreen from '../modules/admin/leads/deals/screens/AdminDealViewScreen';
 import AdminWorkTaskScreen from '../modules/admin/work/Task/screens/AdminWorkTaskScreen';
@@ -54,59 +53,16 @@ import AdminAppreciationsScreen from '../modules/admin/hr/appreciations/screens/
 import AdminLeadViewScreen from '../modules/admin/leads/screens/AdminLeadViewScreen';
 import AdminDealKanbanScreen from '../modules/admin/leads/deals/kanban/screens/AdminDealKanbanScreen';
 import AdminDashboardScreen from '../modules/admin/dashboard/screens/AdminDashboardScreen';
-// ---------------------------------------------------------------------------
-// PLACEHOLDERS (swap with real screens later)
-// ---------------------------------------------------------------------------
-const P = ({ title }) => (
-  <View style={styles.screenWrap}>
-    <Text style={styles.screenTitle}>{title}</Text>
-    <Text style={styles.dim}>Plug your real component here.</Text>
-  </View>
-);
 
-// const AdminDashboardScreen = () => <P title="Admin • Dashboard" />;
-// const AdminClientsScreen = () => <P title="Admin • Clients" />;
-const AdminMessagesScreen = () => <P title="Admin • Messages" />;
+// Redux action
+import { logout as logoutAction } from '../store/actions';
 
-// const AdminLeadsDealsScreen = () => <P title="Leads • Deals" />;
-
-const AdminHREmployeesScreen = () => <P title="HR • Employees" />;
-const AdminHRLeavesScreen = () => <P title="HR • Leaves" />;
-const AdminHRHolidaysScreen = () => <P title="HR • Holidays" />;
-const AdminHRAttendanceScreen = () => <P title="HR • Attendance" />;
-const AdminHRDesignationsScreen = () => <P title="HR • Designations" />;
-const AdminHRDepartmentsScreen = () => <P title="HR • Departments" />;
-const AdminHRAppreciationsScreen = () => <P title="HR • Appreciations" />;
-
-// const AdminWorkProjectsScreen = () => <P title="Work • Projects" />;
-const AdminWorkTasksScreen = () => <P title="Work • Tasks" />;
-const AdminWorkTimesheetsScreen = () => <P title="Work • Timesheets" />;
-const AdminWorkRoadmapScreen = () => <P title="Work • Project Roadmap" />;
-
-const AdminFinanceInvoicesScreen = () => <P title="Finance • Invoices" />;
-const AdminFinanceDealsScreen = () => <P title="Finance • Deals" />;
-
-// ---------------------------------------------------------------------------
+// Constants
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
 const { width } = Dimensions.get('window');
 
-// ---------------------------------------------------------------------------
-// ICONS
-// ---------------------------------------------------------------------------
-const icons = {
-  dashboard: require('../assets/icons/dashboard.png'),
-  clients: require('../assets/icons/dashicons_awards.png'),
-  leads: require('../assets/icons/dashicons_awards.png'),
-  hr: require('../assets/icons/HRMS.png'),
-  work: require('../assets/icons/HRMS.png'),
-  finance: require('../assets/icons/dashicons_awards.png'),
-  messages: require('../assets/icons/Messages.png'),
-  settings: require('../assets/icons/dashicons_awards.png'),
-  chevronDown: require('../assets/icons/dashicons_awards.png'),
-  chevronRight: require('../assets/icons/dashicons_awards.png'),
-};
-
+// Enable LayoutAnimation for Android
 if (
   Platform.OS === 'android' &&
   UIManager.setLayoutAnimationEnabledExperimental
@@ -114,9 +70,29 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-// ---------------------------------------------------------------------------
-// SUB-NAVIGATORS (Stacks) per module group
-// ---------------------------------------------------------------------------
+/* -------------------------- ICON SET (Feather) -------------------------- 
+   Map logical icons to Feather icon names. Adjust icons easily here.
+   Feather reference: https://oblador.github.io/react-native-vector-icons/
+*/
+const ICONS = {
+  dashboard: 'home',
+  clients: 'users',
+  leads: 'file-text',
+  hr: 'users',
+  work: 'briefcase',
+  finance: 'dollar-sign',
+  messages: 'message-circle',
+  settings: 'settings',
+  logout: 'log-out',
+  chevronRight: 'chevron-right',
+  chevronDown: 'chevron-down',
+};
+
+/* ---------------------------- SMALL HELPERS ---------------------------- */
+const safeAnimate = () =>
+  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
+/* ---------------------------- SUB-NAV STACKS ---------------------------- */
 function LeadsStack() {
   return (
     <Stack.Navigator
@@ -131,7 +107,6 @@ function LeadsStack() {
         name="AdminLeadViewScreen"
         component={AdminLeadViewScreen}
       />
-      {/* <Stack.Screen name="LeadsDeals" component={AdminLeadsDealsScreen} /> */}
     </Stack.Navigator>
   );
 }
@@ -188,7 +163,6 @@ function WorkStack() {
         options={{ headerShown: false }}
       />
       <Stack.Screen name="WorkTimesheets" component={AdminTimesheetsScreen} />
-      <Stack.Screen name="WorkRoadmap" component={AdminWorkRoadmapScreen} />
     </Stack.Navigator>
   );
 }
@@ -202,7 +176,6 @@ function FinanceStack() {
       <Stack.Screen name="FinanceInvoices" component={AdminFinanceInvoice} />
       <Stack.Screen name="FinanceDeals" component={AdminFinanceCreditNotes} />
       <Stack.Screen name="CreditNotesScreen" component={CreditNotesScreen} />
-      {/* <Stack.Screen name="AdminFinanceCreditNotes" component={AdminFinanceCreditNotes} /> */}
       <Stack.Screen
         name="InvoiceReceiptsScreen"
         component={InvoiceReceiptsScreen}
@@ -233,32 +206,39 @@ function SettingsStack() {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Drawer Item (glass style)
-// ---------------------------------------------------------------------------
-function GlassDrawerItem({
+/* -------------------------- GLASS DRAWER ITEM -------------------------- 
+   Memoized for performance. Uses vector Icon instead of image.
+*/
+const GlassDrawerItem = React.memo(function GlassDrawerItem({
   label,
-  icon,
+  iconName,
   onPress,
   isActive = false,
   isSubItem = false,
+  accessibilityLabel,
 }) {
+  const iconSize = isSubItem ? 18 : 20;
+  const iconColor = isActive ? '#ffffff' : '#1E293B';
+  const gradientColors = isActive
+    ? ['rgba(37, 99, 235, 0.95)', 'rgba(29, 78, 216, 0.95)']
+    : ['rgba(255,255,255,0.95)', 'rgba(248,250,252,0.9)'];
+
   return (
     <Pressable
       onPress={onPress}
+      android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
       style={({ pressed }) => [
         styles.glassItem,
         isSubItem && styles.glassSubItem,
         isActive && styles.glassItemActive,
         pressed && styles.glassItemPressed,
       ]}
+      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? label}
     >
       <LinearGradient
-        colors={
-          isActive
-            ? ['rgba(37, 99, 235, 0.95)', 'rgba(29, 78, 216, 0.85)']
-            : ['rgba(255, 255, 255, 0.95)', 'rgba(248, 250, 252, 0.9)']
-        }
+        colors={gradientColors}
         style={[
           styles.glassItemGradient,
           isSubItem && styles.glassSubItemGradient,
@@ -268,10 +248,7 @@ function GlassDrawerItem({
       >
         <View style={styles.glassItemContent}>
           <View style={styles.iconContainer}>
-            <Image
-              source={icon}
-              style={[styles.itemIcon, isSubItem && styles.subItemIcon]}
-            />
+            <Icon name={iconName} size={iconSize} color={iconColor} />
           </View>
           <Text
             style={[
@@ -285,16 +262,13 @@ function GlassDrawerItem({
       </LinearGradient>
     </Pressable>
   );
-}
+});
 
-// ---------------------------------------------------------------------------
-// Helper: find active nested child for highlighting
-// ---------------------------------------------------------------------------
+/* ------------------------ Active-route helper hook ----------------------- */
 function useActiveHelpers(drawerState) {
   const activeTop = drawerState.routeNames[drawerState.index];
   const routes = drawerState.routes;
 
-  // returns childRouteName if current top route is a stack and has nested state
   const getActiveChild = stackName => {
     const route = routes.find(r => r.name === stackName);
     const nested = route?.state;
@@ -303,8 +277,7 @@ function useActiveHelpers(drawerState) {
         nested.routeNames?.[nested.index] || nested.routes?.[nested.index]?.name
       );
     }
-    // React Navigation v6 stores in nested.routes
-    const nr = route?.state?.routes?.[route.state.index];
+    const nr = route?.state?.routes?.[route.state?.index];
     return nr?.name;
   };
 
@@ -317,11 +290,10 @@ function useActiveHelpers(drawerState) {
   return { activeTop, isActiveStack };
 }
 
-// ---------------------------------------------------------------------------
-// Custom Drawer Content (collapsible groups + proper nested navigation)
-// ---------------------------------------------------------------------------
+/* --------------------------- CUSTOM DRAWER --------------------------- */
 function AdminDrawerContent(props) {
   const { navigation, state } = props;
+  const dispatch = useDispatch();
   const { activeTop, isActiveStack } = useActiveHelpers(state);
 
   const [leadsOpen, setLeadsOpen] = React.useState(false);
@@ -330,40 +302,118 @@ function AdminDrawerContent(props) {
   const [financeOpen, setFinanceOpen] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
 
-  const animate = () =>
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+  const animateToggle = useCallback(() => safeAnimate(), []);
 
-  // Navigate into a stack's specific child
-  const navigateTo = (stackName, childName) => {
-    animate();
-    navigation.navigate(stackName, { screen: childName });
-  };
+  const navigateTo = useCallback(
+    (stackName, childName) => {
+      animateToggle();
+      navigation.navigate(stackName, { screen: childName });
+    },
+    [navigation, animateToggle],
+  );
 
-  const GroupHeader = ({ label, icon, open, onToggle }) => (
-    <Pressable
-      onPress={() => {
-        animate();
-        onToggle();
-      }}
-    >
-      <LinearGradient
-        colors={['rgba(241,245,249,0.95)', 'rgba(248,250,252,0.9)']}
-        style={styles.hrHeaderGradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+  const GroupHeader = useCallback(({ label, iconName, open, onToggle }) => {
+    return (
+      <Pressable
+        onPress={() => {
+          safeAnimate();
+          onToggle(v => !v);
+        }}
+        style={{ marginVertical: 6 }}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        accessibilityRole="button"
+        accessibilityLabel={`${label} group`}
       >
-        <View style={styles.hrHeaderContent}>
-          <View style={styles.hrTitleContainer}>
-            <Image source={icon} style={styles.hrIcon} />
-            <Text style={styles.hrTitle}>{label}</Text>
+        <LinearGradient
+          colors={['rgba(241,245,249,0.95)', 'rgba(248,250,252,0.9)']}
+          style={styles.hrHeaderGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <View style={styles.hrHeaderContent}>
+            <View style={styles.hrTitleContainer}>
+              <Icon
+                name={iconName}
+                size={18}
+                color="#1E293B"
+                style={{ marginRight: 12 }}
+              />
+              <Text style={styles.hrTitle}>{label}</Text>
+            </View>
+            <Icon
+              name={open ? ICONS.chevronDown : ICONS.chevronRight}
+              size={16}
+              color="#006afeff"
+              style={open && styles.chevIconRotated}
+            />
           </View>
-          <Image
-            source={open ? icons.chevronDown : icons.chevronRight}
-            style={[styles.chevIcon, open && styles.chevIconRotated]}
-          />
-        </View>
-      </LinearGradient>
-    </Pressable>
+        </LinearGradient>
+      </Pressable>
+    );
+  }, []);
+
+  // Logout handler - production hardened
+  const handleLogout = useCallback(() => {
+    Alert.alert('Logout', 'Are you sure you want to logout?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Logout',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            // Clear stored auth keys
+            await Promise.all([
+              AsyncStorage.removeItem('authToken'),
+              AsyncStorage.removeItem('refreshToken'),
+              AsyncStorage.removeItem('userData'),
+            ]);
+          } catch (err) {
+            console.warn('Error clearing storage during logout', err);
+          }
+
+          // dispatch redux logout to reset in-memory state
+          try {
+            dispatch(logoutAction());
+          } catch (e) {
+            console.warn('Dispatch logout failed', e);
+          }
+
+          // move to Login route - reset navigation stack
+          navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+
+          // For accessibility, announce navigation change
+          try {
+            AccessibilityInfo.announceForAccessibility(
+              'Logged out. Redirecting to login.',
+            );
+          } catch (_) {}
+        },
+      },
+    ]);
+  }, [dispatch, navigation]);
+
+  const HeaderSection = useMemo(
+    () => (
+      <View style={styles.headerSection}>
+        <LinearGradient
+          colors={['rgba(37,99,235,0.15)', 'rgba(59,130,246,0.1)']}
+          style={styles.headerGlass}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <View style={styles.headerContent}>
+            <View style={styles.avatarContainer}>
+              <Image
+                source={require('../assets/icons/192x192.png')}
+                style={styles.avatar}
+              />
+            </View>
+            <Text style={styles.welcomeText}>Skova</Text>
+          </View>
+        </LinearGradient>
+      </View>
+    ),
+    [],
   );
 
   return (
@@ -380,54 +430,34 @@ function AdminDrawerContent(props) {
           {...props}
           contentContainerStyle={styles.scrollContent}
         >
-          {/* Header */}
-          <View style={styles.headerSection}>
-            <LinearGradient
-              colors={['rgba(37,99,235,0.15)', 'rgba(59,130,246,0.1)']}
-              style={styles.headerGlass}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-            >
-              <View style={styles.headerContent}>
-                <View style={styles.avatarContainer}>
-                  <Image
-                    source={require('../assets/icons/192x192.png')}
-                    style={styles.avatar}
-                  />
-                </View>
-                <Text style={styles.welcomeText}>Skova</Text>
-              </View>
-            </LinearGradient>
-          </View>
+          {HeaderSection}
 
           <View style={styles.navigationSection}>
-            {/* Dashboard */}
             <GlassDrawerItem
               label="Dashboard"
-              icon={icons.dashboard}
+              iconName={ICONS.dashboard}
               onPress={() => navigation.navigate('AdminDashboard')}
               isActive={activeTop === 'AdminDashboard'}
             />
 
-            {/* Leads group */}
             <GroupHeader
               label="Leads"
-              icon={icons.leads}
+              iconName={ICONS.leads}
               open={leadsOpen}
-              onToggle={() => setLeadsOpen(v => !v)}
+              onToggle={setLeadsOpen}
             />
             {leadsOpen && (
               <View style={styles.hrList}>
                 <GlassDrawerItem
                   label="Lead Contacts"
-                  icon={icons.leads}
+                  iconName={ICONS.leads}
                   onPress={() => navigateTo('Leads', 'LeadsContacts')}
                   isActive={isActiveStack('Leads', 'LeadsContacts')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Deals"
-                  icon={icons.leads}
+                  iconName={ICONS.leads}
                   onPress={() => navigateTo('Leads', 'AdminDeal')}
                   isActive={isActiveStack('Leads', 'AdminDeal')}
                   isSubItem
@@ -435,68 +465,66 @@ function AdminDrawerContent(props) {
               </View>
             )}
 
-            {/* Clients (single) */}
             <GlassDrawerItem
               label="Clients"
-              icon={icons.clients}
+              iconName={ICONS.clients}
               onPress={() => navigation.navigate('Clients')}
               isActive={activeTop === 'Clients'}
             />
 
-            {/* HR group */}
             <GroupHeader
               label="HR"
-              icon={icons.hr}
+              iconName={ICONS.hr}
               open={hrOpen}
-              onToggle={() => setHrOpen(v => !v)}
+              onToggle={setHrOpen}
             />
             {hrOpen && (
               <View style={styles.hrList}>
                 <GlassDrawerItem
                   label="Employees"
-                  icon={icons.hr}
+                  iconName={ICONS.hr}
                   onPress={() => navigateTo('HR', 'HREmployees')}
                   isActive={isActiveStack('HR', 'HREmployees')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Leaves"
-                  icon={icons.hr}
+                  iconName={ICONS.hr}
                   onPress={() => navigateTo('HR', 'HRLeaves')}
                   isActive={isActiveStack('HR', 'HRLeaves')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Holidays"
-                  icon={icons.hr}
+                  iconName={ICONS.hr}
                   onPress={() => navigateTo('HR', 'HRHolidays')}
                   isActive={isActiveStack('HR', 'HRHolidays')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Attendance"
-                  icon={icons.hr}
+                  iconName={ICONS.hr}
                   onPress={() => navigateTo('HR', 'HRAttendance')}
                   isActive={isActiveStack('HR', 'HRAttendance')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Designations"
-                  icon={icons.hr}
+                  iconName={ICONS.hr}
                   onPress={() => navigateTo('HR', 'HRDesignations')}
                   isActive={isActiveStack('HR', 'HRDesignations')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Departments"
-                  icon={icons.hr}
+                  iconName={ICONS.hr}
                   onPress={() => navigateTo('HR', 'HRDepartments')}
                   isActive={isActiveStack('HR', 'HRDepartments')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Appreciations"
-                  icon={icons.hr}
+                  iconName={ICONS.hr}
                   onPress={() => navigateTo('HR', 'HRAppreciations')}
                   isActive={isActiveStack('HR', 'HRAppreciations')}
                   isSubItem
@@ -504,39 +532,38 @@ function AdminDrawerContent(props) {
               </View>
             )}
 
-            {/* Work group */}
             <GroupHeader
               label="Work"
-              icon={icons.work}
+              iconName={ICONS.work}
               open={workOpen}
-              onToggle={() => setWorkOpen(v => !v)}
+              onToggle={setWorkOpen}
             />
             {workOpen && (
               <View style={styles.hrList}>
                 <GlassDrawerItem
                   label="Projects"
-                  icon={icons.work}
+                  iconName={ICONS.work}
                   onPress={() => navigateTo('Work', 'WorkProjects')}
                   isActive={isActiveStack('Work', 'WorkProjects')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Tasks"
-                  icon={icons.work}
+                  iconName={ICONS.work}
                   onPress={() => navigateTo('Work', 'WorkTasks')}
                   isActive={isActiveStack('Work', 'WorkTasks')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Timesheets"
-                  icon={icons.work}
+                  iconName={ICONS.work}
                   onPress={() => navigateTo('Work', 'WorkTimesheets')}
                   isActive={isActiveStack('Work', 'WorkTimesheets')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Project Roadmap"
-                  icon={icons.work}
+                  iconName={ICONS.work}
                   onPress={() => navigateTo('Work', 'WorkRoadmap')}
                   isActive={isActiveStack('Work', 'WorkRoadmap')}
                   isSubItem
@@ -544,25 +571,24 @@ function AdminDrawerContent(props) {
               </View>
             )}
 
-            {/* Finance group */}
             <GroupHeader
               label="Finance"
-              icon={icons.finance}
+              iconName={ICONS.finance}
               open={financeOpen}
-              onToggle={() => setFinanceOpen(v => !v)}
+              onToggle={setFinanceOpen}
             />
             {financeOpen && (
               <View style={styles.hrList}>
                 <GlassDrawerItem
                   label="Invoices"
-                  icon={icons.finance}
+                  iconName={ICONS.finance}
                   onPress={() => navigateTo('Finance', 'FinanceInvoices')}
                   isActive={isActiveStack('Finance', 'FinanceInvoices')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Credit Notes"
-                  icon={icons.finance}
+                  iconName={ICONS.finance}
                   onPress={() => navigateTo('Finance', 'FinanceDeals')}
                   isActive={isActiveStack('Finance', 'FinanceDeals')}
                   isSubItem
@@ -570,33 +596,31 @@ function AdminDrawerContent(props) {
               </View>
             )}
 
-            {/* Messages (single) */}
             <GlassDrawerItem
               label="Messages"
-              icon={icons.messages}
+              iconName={ICONS.messages}
               onPress={() => navigation.navigate('Messages')}
               isActive={activeTop === 'Messages'}
             />
 
-            {/* Settings group */}
             <GroupHeader
               label="Settings"
-              icon={icons.settings}
+              iconName={ICONS.settings}
               open={settingsOpen}
-              onToggle={() => setSettingsOpen(v => !v)}
+              onToggle={setSettingsOpen}
             />
             {settingsOpen && (
               <View style={styles.hrList}>
                 <GlassDrawerItem
                   label="Company Settings"
-                  icon={icons.settings}
+                  iconName={ICONS.settings}
                   onPress={() => navigateTo('Settings', 'CompanySettings')}
                   isActive={isActiveStack('Settings', 'CompanySettings')}
                   isSubItem
                 />
                 <GlassDrawerItem
                   label="Profile Settings"
-                  icon={icons.settings}
+                  iconName={ICONS.settings}
                   onPress={() => navigateTo('Settings', 'ProfileSettings')}
                   isActive={isActiveStack('Settings', 'ProfileSettings')}
                   isSubItem
@@ -604,15 +628,23 @@ function AdminDrawerContent(props) {
               </View>
             )}
           </View>
+
+          {/* Logout - separated visually */}
+          <View style={{ marginTop: 16 }} />
+          <GlassDrawerItem
+            label="Logout"
+            iconName={ICONS.logout}
+            onPress={handleLogout}
+            isActive={false}
+            accessibilityLabel="Logout button"
+          />
         </DrawerContentScrollView>
       </LinearGradient>
     </ImageBackground>
   );
 }
 
-// ---------------------------------------------------------------------------
-// Drawer Navigator wiring all stacks/screens
-// ---------------------------------------------------------------------------
+/* ------------------------- DRAWER NAVIGATOR (export) ------------------------- */
 export default function AdminNavigator() {
   return (
     <Drawer.Navigator
@@ -633,10 +665,10 @@ export default function AdminNavigator() {
         headerTintColor: '#fff',
         headerTitleStyle: { fontWeight: '700', fontSize: 18 },
         drawerStyle: { width: width * 0.8, backgroundColor: 'transparent' },
+        sceneContainerStyle: { backgroundColor: '#F8FAFC' },
       }}
       drawerContent={props => <AdminDrawerContent {...props} />}
     >
-      {/* Singles */}
       <Drawer.Screen
         name="AdminDashboard"
         component={AdminDashboardScreen}
@@ -649,11 +681,15 @@ export default function AdminNavigator() {
       />
       <Drawer.Screen
         name="Messages"
-        component={AdminMessagesScreen}
+        component={() => (
+          <View
+            style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+          >
+            <Text>Messages</Text>
+          </View>
+        )}
         options={{ title: 'Messages', drawerItemStyle: { height: 0 } }}
       />
-
-      {/* Groups (hidden in drawer; enter via nested nav) */}
       <Drawer.Screen
         name="Leads"
         component={LeadsStack}
@@ -683,14 +719,11 @@ export default function AdminNavigator() {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Styles
-// ---------------------------------------------------------------------------
+/* -------------------------------- STYLES -------------------------------- */
 const styles = StyleSheet.create({
   drawerBackground: { flex: 1 },
   drawerGradient: { flex: 1 },
   scrollContent: { paddingTop: 0, flexGrow: 1 },
-
   headerSection: { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 20 },
   headerGlass: {
     borderRadius: 20,
@@ -720,19 +753,17 @@ const styles = StyleSheet.create({
   },
   avatar: { width: '100%', height: '100%', borderRadius: 32 },
   welcomeText: { fontSize: 14, color: '#64748B', fontWeight: '500' },
-
   navigationSection: { flex: 1, paddingHorizontal: 16 },
-
   glassItem: { marginVertical: 4, borderRadius: 16, overflow: 'hidden' },
   glassSubItem: { marginLeft: 20, marginVertical: 2, borderRadius: 12 },
   glassItemGradient: {
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.08)',
+    borderColor: 'rgba(0,0,0,0.06)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 5,
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
     elevation: 3,
   },
   glassSubItemGradient: { borderRadius: 12 },
@@ -743,26 +774,24 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   iconContainer: {
-    width: 24,
-    height: 24,
-    marginRight: 12,
+    width: 28,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 12,
   },
   itemIcon: { width: 24, height: 24, tintColor: '#1E293B' },
   subItemIcon: { width: 20, height: 20, tintColor: '#1E293B' },
   glassItemLabel: { fontSize: 16, fontWeight: '600', color: '#1E293B' },
   glassSubItemLabel: { fontSize: 14, fontWeight: '500', color: '#1E293B' },
   glassItemActive: { transform: [{ scale: 0.98 }] },
-  glassItemPressed: { transform: [{ scale: 0.96 }], opacity: 0.8 },
-
+  glassItemPressed: { transform: [{ scale: 0.96 }], opacity: 0.9 },
   hrHeaderGradient: {
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
+    borderColor: 'rgba(255,255,255,0.12)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.16,
     shadowRadius: 5,
     elevation: 3,
     marginVertical: 4,
@@ -777,18 +806,13 @@ const styles = StyleSheet.create({
   hrTitleContainer: { flexDirection: 'row', alignItems: 'center' },
   hrIcon: { width: 24, height: 24, tintColor: '#1E293B', marginRight: 12 },
   hrTitle: { fontSize: 16, fontWeight: '700', color: '#1E293B' },
-  chevIcon: { width: 16, height: 16, tintColor: '#006afeff' },
   chevIconRotated: { transform: [{ rotate: '90deg' }] },
   hrList: {
     marginTop: 8,
     paddingLeft: 8,
     borderLeftWidth: 2,
-    borderLeftColor: 'rgba(59,130,246,0.3)',
+    borderLeftColor: 'rgba(59,130,246,0.18)',
     marginLeft: 16,
     marginBottom: 4,
   },
-
-  screenWrap: { flex: 1, padding: 16, backgroundColor: '#F8FAFC' },
-  screenTitle: { fontSize: 22, fontWeight: '900', color: '#0b0b0c' },
-  dim: { color: '#64748b', marginTop: 8 },
 });

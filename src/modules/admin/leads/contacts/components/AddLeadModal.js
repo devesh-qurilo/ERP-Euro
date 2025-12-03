@@ -219,7 +219,7 @@ export default function AddLeadModal({
                     value={form.mobileNumber}
                     onChangeText={v => set('mobileNumber', v)}
                     keyboardType="phone-pad"
-                    placeholder="+91 98xxxxxx"
+                    placeholder="+370 98xxxxxx"
                   />
                 </Field>
               </View>
