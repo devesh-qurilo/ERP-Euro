@@ -22,9 +22,9 @@ import {
 } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LinearGradient from 'react-native-linear-gradient';
-import Icon from 'react-native-vector-icons/Feather'; // Feather is crisp and minimal
+import Icon from 'react-native-vector-icons/Feather';
 
-// --- REAL SCREENS (adjust paths if needed) ---
+// Screens (keep your existing imports)
 import AdminLeadContactsScreen from '../modules/admin/leads/screens/AdminLeadContactsScreen';
 import AdminProfileSettingsScreen from '../modules/admin/settings/screens/AdminProfileSettingsScreen';
 import AdminCompanySettingsScreen from '../modules/admin/settings/screens/AdminCompanySettingsScreen';
@@ -53,16 +53,20 @@ import AdminAppreciationsScreen from '../modules/admin/hr/appreciations/screens/
 import AdminLeadViewScreen from '../modules/admin/leads/screens/AdminLeadViewScreen';
 import AdminDealKanbanScreen from '../modules/admin/leads/deals/kanban/screens/AdminDealKanbanScreen';
 import AdminDashboardScreen from '../modules/admin/dashboard/screens/AdminDashboardScreen';
+// import AdminMessageViewScreen, {
+//   AdminMessageRoomScreen,
+// } from '../modules/admin/messages/Screens/AdminEmployeeViewScreen';
+import AdminMessageViewScreen from '../modules/admin/messages/screens/AdminEmployeeViewScreen';
+import AdminMessageRoomScreen from '../modules/admin/messages/screens/AdminMessageRoomScreen';
 
 // Redux action
 import { logout as logoutAction } from '../store/actions';
 
-// Constants
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
 const { width } = Dimensions.get('window');
 
-// Enable LayoutAnimation for Android
+// Enable LayoutAnimation (Android)
 if (
   Platform.OS === 'android' &&
   UIManager.setLayoutAnimationEnabledExperimental
@@ -70,10 +74,7 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-/* -------------------------- ICON SET (Feather) -------------------------- 
-   Map logical icons to Feather icon names. Adjust icons easily here.
-   Feather reference: https://oblador.github.io/react-native-vector-icons/
-*/
+/* Icons */
 const ICONS = {
   dashboard: 'home',
   clients: 'users',
@@ -88,11 +89,12 @@ const ICONS = {
   chevronDown: 'chevron-down',
 };
 
-/* ---------------------------- SMALL HELPERS ---------------------------- */
+/* small helpers */
 const safeAnimate = () =>
   LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+const ACTIVE_GRADIENT = ['rgba(37,99,235,0.95)', 'rgba(29,78,216,0.95)'];
 
-/* ---------------------------- SUB-NAV STACKS ---------------------------- */
+/* ----------------------- Sub stacks (unchanged) ----------------------- */
 function LeadsStack() {
   return (
     <Stack.Navigator
@@ -132,7 +134,7 @@ function HRStack() {
       <Stack.Screen name="HREmployees" component={AdminEmployeesScreen} />
       <Stack.Screen
         name="AdminEmployeeView"
-        component={AdminEmployeeViewScreen}
+        component={AdminMessageViewScreen}
         options={{ title: 'Employee' }}
       />
       <Stack.Screen name="HRLeaves" component={AdminLeavesScreen} />
@@ -188,6 +190,42 @@ function FinanceStack() {
   );
 }
 
+function MessagesStack() {
+  return (
+    <Stack.Navigator
+      screenOptions={{ headerShown: false }}
+      initialRouteName="AdminMessageView"
+    >
+      <Stack.Screen
+        name="AdminMessageView"
+        component={AdminMessageViewScreen}
+      />
+      <Stack.Screen
+        name="AdminMessageRoom"
+        component={AdminMessageRoomScreen}
+        options={{
+          headerShown: true,
+          headerTitle: 'Chat',
+          headerStyle: {
+            backgroundColor: 'transparent',
+            elevation: 0,
+            shadowOpacity: 0,
+          },
+          headerTintColor: '#fff',
+          headerBackground: () => (
+            <LinearGradient
+              colors={['rgba(37,99,235,0.95)', 'rgba(29,78,216,0.95)']}
+              style={{ flex: 1 }}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            />
+          ),
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
 function SettingsStack() {
   return (
     <Stack.Navigator
@@ -206,51 +244,71 @@ function SettingsStack() {
   );
 }
 
-/* -------------------------- GLASS DRAWER ITEM -------------------------- 
-   Memoized for performance. Uses vector Icon instead of image.
-*/
-const GlassDrawerItem = React.memo(function GlassDrawerItem({
-  label,
-  iconName,
-  onPress,
-  isActive = false,
-  isSubItem = false,
-  accessibilityLabel,
-}) {
-  const iconSize = isSubItem ? 18 : 20;
-  const iconColor = isActive ? '#ffffff' : '#1E293B';
-  const gradientColors = isActive
-    ? ['rgba(37, 99, 235, 0.95)', 'rgba(29, 78, 216, 0.95)']
-    : ['rgba(255,255,255,0.95)', 'rgba(248,250,252,0.9)'];
+/* ----------------------- Drawer item with borders ----------------------- */
+const ITEM_HEIGHT = 52;
+const SUB_ITEM_HEIGHT = 44;
 
-  return (
-    <Pressable
-      onPress={onPress}
-      android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
-      style={({ pressed }) => [
-        styles.glassItem,
-        isSubItem && styles.glassSubItem,
-        isActive && styles.glassItemActive,
-        pressed && styles.glassItemPressed,
-      ]}
-      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? label}
-    >
+const GlassDrawerItem = React.memo(
+  function GlassDrawerItem({
+    label,
+    iconName,
+    onPress,
+    isActive = false,
+    isSubItem = false,
+    accessibilityLabel,
+  }) {
+    const iconSize = isSubItem ? 18 : 20;
+    const containerStyle = [
+      styles.glassItem,
+      isSubItem && styles.glassSubItem,
+      { height: isSubItem ? SUB_ITEM_HEIGHT : ITEM_HEIGHT },
+      isActive && styles.glassItemActive,
+    ];
+
+    // Left active border for top-level items, sub-active border for subitems
+    const leftBorder = isActive
+      ? isSubItem
+        ? styles.subActiveLeftBorder
+        : styles.activeLeftBorder
+      : null;
+
+    const content = isActive ? (
       <LinearGradient
-        colors={gradientColors}
+        colors={ACTIVE_GRADIENT}
         style={[
-          styles.glassItemGradient,
-          isSubItem && styles.glassSubItemGradient,
+          styles.glassItemGradientActive,
+          { height: isSubItem ? SUB_ITEM_HEIGHT : ITEM_HEIGHT },
         ]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
       >
-        <View style={styles.glassItemContent}>
+        <View style={[styles.glassItemContent, leftBorder]}>
           <View style={styles.iconContainer}>
-            <Icon name={iconName} size={iconSize} color={iconColor} />
+            <Icon name={iconName} size={iconSize} color="#fff" />
           </View>
           <Text
+            numberOfLines={1}
+            style={[
+              styles.glassItemLabel,
+              isSubItem && styles.glassSubItemLabel,
+              styles.glassItemLabelActive,
+            ]}
+          >
+            {label}
+          </Text>
+        </View>
+      </LinearGradient>
+    ) : (
+      <View
+        style={[
+          styles.glassItemGradientFallback,
+          { height: isSubItem ? SUB_ITEM_HEIGHT : ITEM_HEIGHT },
+        ]}
+      >
+        <View style={[styles.glassItemContent, leftBorder]}>
+          <View style={styles.iconContainer}>
+            <Icon name={iconName} size={iconSize} color="#1E293B" />
+          </View>
+          <Text
+            numberOfLines={1}
             style={[
               styles.glassItemLabel,
               isSubItem && styles.glassSubItemLabel,
@@ -259,12 +317,33 @@ const GlassDrawerItem = React.memo(function GlassDrawerItem({
             {label}
           </Text>
         </View>
-      </LinearGradient>
-    </Pressable>
-  );
-});
+      </View>
+    );
 
-/* ------------------------ Active-route helper hook ----------------------- */
+    return (
+      <Pressable
+        onPress={onPress}
+        android_ripple={{ color: 'rgba(0,0,0,0.06)' }}
+        style={({ pressed }) => [
+          containerStyle,
+          pressed && styles.glassItemPressed,
+        ]}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel ?? label}
+      >
+        {content}
+      </Pressable>
+    );
+  },
+  (p, n) =>
+    p.label === n.label &&
+    p.isActive === n.isActive &&
+    p.isSubItem === n.isSubItem &&
+    p.onPress === n.onPress,
+);
+
+/* --------------------------- active-route helper --------------------------- */
 function useActiveHelpers(drawerState) {
   const activeTop = drawerState.routeNames[drawerState.index];
   const routes = drawerState.routes;
@@ -290,7 +369,7 @@ function useActiveHelpers(drawerState) {
   return { activeTop, isActiveStack };
 }
 
-/* --------------------------- CUSTOM DRAWER --------------------------- */
+/* --------------------------- Drawer content --------------------------- */
 function AdminDrawerContent(props) {
   const { navigation, state } = props;
   const dispatch = useDispatch();
@@ -302,8 +381,10 @@ function AdminDrawerContent(props) {
   const [financeOpen, setFinanceOpen] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
 
-  const animateToggle = useCallback(() => safeAnimate(), []);
-
+  const animateToggle = useCallback(
+    () => requestAnimationFrame(() => safeAnimate()),
+    [],
+  );
   const navigateTo = useCallback(
     (stackName, childName) => {
       animateToggle();
@@ -312,47 +393,99 @@ function AdminDrawerContent(props) {
     [navigation, animateToggle],
   );
 
-  const GroupHeader = useCallback(({ label, iconName, open, onToggle }) => {
-    return (
-      <Pressable
-        onPress={() => {
-          safeAnimate();
-          onToggle(v => !v);
-        }}
-        style={{ marginVertical: 6 }}
-        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        accessibilityRole="button"
-        accessibilityLabel={`${label} group`}
-      >
-        <LinearGradient
-          colors={['rgba(241,245,249,0.95)', 'rgba(248,250,252,0.9)']}
-          style={styles.hrHeaderGradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
-          <View style={styles.hrHeaderContent}>
-            <View style={styles.hrTitleContainer}>
-              <Icon
-                name={iconName}
-                size={18}
-                color="#1E293B"
-                style={{ marginRight: 12 }}
-              />
-              <Text style={styles.hrTitle}>{label}</Text>
-            </View>
-            <Icon
-              name={open ? ICONS.chevronDown : ICONS.chevronRight}
-              size={16}
-              color="#006afeff"
-              style={open && styles.chevIconRotated}
-            />
-          </View>
-        </LinearGradient>
-      </Pressable>
-    );
-  }, []);
+  // memoized children lists
+  const leadChildren = useMemo(
+    () => [
+      { label: 'Lead Contacts', icon: ICONS.leads, child: 'LeadsContacts' },
+      { label: 'Deals', icon: ICONS.leads, child: 'AdminDeal' },
+    ],
+    [],
+  );
 
-  // Logout handler - production hardened
+  const hrChildren = useMemo(
+    () => [
+      { label: 'Employees', icon: ICONS.hr, child: 'HREmployees' },
+      { label: 'Leaves', icon: ICONS.hr, child: 'HRLeaves' },
+      { label: 'Holidays', icon: ICONS.hr, child: 'HRHolidays' },
+      { label: 'Attendance', icon: ICONS.hr, child: 'HRAttendance' },
+      { label: 'Designations', icon: ICONS.hr, child: 'HRDesignations' },
+      { label: 'Departments', icon: ICONS.hr, child: 'HRDepartments' },
+      { label: 'Appreciations', icon: ICONS.hr, child: 'HRAppreciations' },
+    ],
+    [],
+  );
+
+  const workChildren = useMemo(
+    () => [
+      { label: 'Projects', icon: ICONS.work, child: 'WorkProjects' },
+      { label: 'Tasks', icon: ICONS.work, child: 'WorkTasks' },
+      { label: 'Timesheets', icon: ICONS.work, child: 'WorkTimesheets' },
+      { label: 'Project Roadmap', icon: ICONS.work, child: 'WorkRoadmap' },
+    ],
+    [],
+  );
+
+  const financeChildren = useMemo(
+    () => [
+      { label: 'Invoices', icon: ICONS.finance, child: 'FinanceInvoices' },
+      { label: 'Credit Notes', icon: ICONS.finance, child: 'FinanceDeals' },
+    ],
+    [],
+  );
+
+  const settingsChildren = useMemo(
+    () => [
+      {
+        label: 'Company Settings',
+        icon: ICONS.settings,
+        child: 'CompanySettings',
+      },
+      {
+        label: 'Profile Settings',
+        icon: ICONS.settings,
+        child: 'ProfileSettings',
+      },
+    ],
+    [],
+  );
+
+  const GroupHeader = useCallback(
+    ({ label, iconName, open, onToggle }) => {
+      return (
+        <Pressable
+          onPress={() => {
+            animateToggle();
+            onToggle(v => !v);
+          }}
+          style={styles.groupHeaderPressable}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          accessibilityRole="button"
+          accessibilityLabel={`${label} group`}
+        >
+          <View style={styles.hrHeaderBox}>
+            <View style={styles.hrHeaderContent}>
+              <View style={styles.hrTitleContainer}>
+                <Icon
+                  name={iconName}
+                  size={18}
+                  color="#1E293B"
+                  style={{ marginRight: 12 }}
+                />
+                <Text style={styles.hrTitle}>{label}</Text>
+              </View>
+              <Icon
+                name={open ? ICONS.chevronDown : ICONS.chevronRight}
+                size={16}
+                color="#006afeff"
+              />
+            </View>
+          </View>
+        </Pressable>
+      );
+    },
+    [animateToggle],
+  );
+
   const handleLogout = useCallback(() => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
       { text: 'Cancel', style: 'cancel' },
@@ -361,7 +494,6 @@ function AdminDrawerContent(props) {
         style: 'destructive',
         onPress: async () => {
           try {
-            // Clear stored auth keys
             await Promise.all([
               AsyncStorage.removeItem('authToken'),
               AsyncStorage.removeItem('refreshToken'),
@@ -371,17 +503,14 @@ function AdminDrawerContent(props) {
             console.warn('Error clearing storage during logout', err);
           }
 
-          // dispatch redux logout to reset in-memory state
           try {
             dispatch(logoutAction());
           } catch (e) {
             console.warn('Dispatch logout failed', e);
           }
 
-          // move to Login route - reset navigation stack
           navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
 
-          // For accessibility, announce navigation change
           try {
             AccessibilityInfo.announceForAccessibility(
               'Logged out. Redirecting to login.',
@@ -396,7 +525,7 @@ function AdminDrawerContent(props) {
     () => (
       <View style={styles.headerSection}>
         <LinearGradient
-          colors={['rgba(37,99,235,0.15)', 'rgba(59,130,246,0.1)']}
+          colors={['rgba(37,99,235,0.12)', 'rgba(59,130,246,0.06)']}
           style={styles.headerGlass}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -406,6 +535,7 @@ function AdminDrawerContent(props) {
               <Image
                 source={require('../assets/icons/192x192.png')}
                 style={styles.avatar}
+                resizeMode="cover"
               />
             </View>
             <Text style={styles.welcomeText}>Skova</Text>
@@ -420,7 +550,7 @@ function AdminDrawerContent(props) {
     <ImageBackground
       source={require('../assets/icons/dashicons_awards.png')}
       style={styles.drawerBackground}
-      blurRadius={10}
+      blurRadius={Platform.OS === 'ios' ? 10 : 0}
     >
       <LinearGradient
         colors={['#FFFFFF', '#F8FAFC', '#F1F5F9']}
@@ -448,20 +578,21 @@ function AdminDrawerContent(props) {
             />
             {leadsOpen && (
               <View style={styles.hrList}>
-                <GlassDrawerItem
-                  label="Lead Contacts"
-                  iconName={ICONS.leads}
-                  onPress={() => navigateTo('Leads', 'LeadsContacts')}
-                  isActive={isActiveStack('Leads', 'LeadsContacts')}
-                  isSubItem
-                />
-                <GlassDrawerItem
-                  label="Deals"
-                  iconName={ICONS.leads}
-                  onPress={() => navigateTo('Leads', 'AdminDeal')}
-                  isActive={isActiveStack('Leads', 'AdminDeal')}
-                  isSubItem
-                />
+                {leadChildren.map((item, idx) => (
+                  <View key={item.label}>
+                    <GlassDrawerItem
+                      label={item.label}
+                      iconName={item.icon}
+                      onPress={() => navigateTo('Leads', item.child)}
+                      isActive={isActiveStack('Leads', item.child)}
+                      isSubItem
+                    />
+                    {/* sub-item separator */}
+                    {idx < leadChildren.length - 1 && (
+                      <View style={styles.subItemSeparator} />
+                    )}
+                  </View>
+                ))}
               </View>
             )}
 
@@ -480,55 +611,20 @@ function AdminDrawerContent(props) {
             />
             {hrOpen && (
               <View style={styles.hrList}>
-                <GlassDrawerItem
-                  label="Employees"
-                  iconName={ICONS.hr}
-                  onPress={() => navigateTo('HR', 'HREmployees')}
-                  isActive={isActiveStack('HR', 'HREmployees')}
-                  isSubItem
-                />
-                <GlassDrawerItem
-                  label="Leaves"
-                  iconName={ICONS.hr}
-                  onPress={() => navigateTo('HR', 'HRLeaves')}
-                  isActive={isActiveStack('HR', 'HRLeaves')}
-                  isSubItem
-                />
-                <GlassDrawerItem
-                  label="Holidays"
-                  iconName={ICONS.hr}
-                  onPress={() => navigateTo('HR', 'HRHolidays')}
-                  isActive={isActiveStack('HR', 'HRHolidays')}
-                  isSubItem
-                />
-                <GlassDrawerItem
-                  label="Attendance"
-                  iconName={ICONS.hr}
-                  onPress={() => navigateTo('HR', 'HRAttendance')}
-                  isActive={isActiveStack('HR', 'HRAttendance')}
-                  isSubItem
-                />
-                <GlassDrawerItem
-                  label="Designations"
-                  iconName={ICONS.hr}
-                  onPress={() => navigateTo('HR', 'HRDesignations')}
-                  isActive={isActiveStack('HR', 'HRDesignations')}
-                  isSubItem
-                />
-                <GlassDrawerItem
-                  label="Departments"
-                  iconName={ICONS.hr}
-                  onPress={() => navigateTo('HR', 'HRDepartments')}
-                  isActive={isActiveStack('HR', 'HRDepartments')}
-                  isSubItem
-                />
-                <GlassDrawerItem
-                  label="Appreciations"
-                  iconName={ICONS.hr}
-                  onPress={() => navigateTo('HR', 'HRAppreciations')}
-                  isActive={isActiveStack('HR', 'HRAppreciations')}
-                  isSubItem
-                />
+                {hrChildren.map((item, idx) => (
+                  <View key={item.label}>
+                    <GlassDrawerItem
+                      label={item.label}
+                      iconName={item.icon}
+                      onPress={() => navigateTo('HR', item.child)}
+                      isActive={isActiveStack('HR', item.child)}
+                      isSubItem
+                    />
+                    {idx < hrChildren.length - 1 && (
+                      <View style={styles.subItemSeparator} />
+                    )}
+                  </View>
+                ))}
               </View>
             )}
 
@@ -540,34 +636,20 @@ function AdminDrawerContent(props) {
             />
             {workOpen && (
               <View style={styles.hrList}>
-                <GlassDrawerItem
-                  label="Projects"
-                  iconName={ICONS.work}
-                  onPress={() => navigateTo('Work', 'WorkProjects')}
-                  isActive={isActiveStack('Work', 'WorkProjects')}
-                  isSubItem
-                />
-                <GlassDrawerItem
-                  label="Tasks"
-                  iconName={ICONS.work}
-                  onPress={() => navigateTo('Work', 'WorkTasks')}
-                  isActive={isActiveStack('Work', 'WorkTasks')}
-                  isSubItem
-                />
-                <GlassDrawerItem
-                  label="Timesheets"
-                  iconName={ICONS.work}
-                  onPress={() => navigateTo('Work', 'WorkTimesheets')}
-                  isActive={isActiveStack('Work', 'WorkTimesheets')}
-                  isSubItem
-                />
-                <GlassDrawerItem
-                  label="Project Roadmap"
-                  iconName={ICONS.work}
-                  onPress={() => navigateTo('Work', 'WorkRoadmap')}
-                  isActive={isActiveStack('Work', 'WorkRoadmap')}
-                  isSubItem
-                />
+                {workChildren.map((item, idx) => (
+                  <View key={item.label}>
+                    <GlassDrawerItem
+                      label={item.label}
+                      iconName={item.icon}
+                      onPress={() => navigateTo('Work', item.child)}
+                      isActive={isActiveStack('Work', item.child)}
+                      isSubItem
+                    />
+                    {idx < workChildren.length - 1 && (
+                      <View style={styles.subItemSeparator} />
+                    )}
+                  </View>
+                ))}
               </View>
             )}
 
@@ -579,20 +661,20 @@ function AdminDrawerContent(props) {
             />
             {financeOpen && (
               <View style={styles.hrList}>
-                <GlassDrawerItem
-                  label="Invoices"
-                  iconName={ICONS.finance}
-                  onPress={() => navigateTo('Finance', 'FinanceInvoices')}
-                  isActive={isActiveStack('Finance', 'FinanceInvoices')}
-                  isSubItem
-                />
-                <GlassDrawerItem
-                  label="Credit Notes"
-                  iconName={ICONS.finance}
-                  onPress={() => navigateTo('Finance', 'FinanceDeals')}
-                  isActive={isActiveStack('Finance', 'FinanceDeals')}
-                  isSubItem
-                />
+                {financeChildren.map((item, idx) => (
+                  <View key={item.label}>
+                    <GlassDrawerItem
+                      label={item.label}
+                      iconName={item.icon}
+                      onPress={() => navigateTo('Finance', item.child)}
+                      isActive={isActiveStack('Finance', item.child)}
+                      isSubItem
+                    />
+                    {idx < financeChildren.length - 1 && (
+                      <View style={styles.subItemSeparator} />
+                    )}
+                  </View>
+                ))}
               </View>
             )}
 
@@ -611,25 +693,24 @@ function AdminDrawerContent(props) {
             />
             {settingsOpen && (
               <View style={styles.hrList}>
-                <GlassDrawerItem
-                  label="Company Settings"
-                  iconName={ICONS.settings}
-                  onPress={() => navigateTo('Settings', 'CompanySettings')}
-                  isActive={isActiveStack('Settings', 'CompanySettings')}
-                  isSubItem
-                />
-                <GlassDrawerItem
-                  label="Profile Settings"
-                  iconName={ICONS.settings}
-                  onPress={() => navigateTo('Settings', 'ProfileSettings')}
-                  isActive={isActiveStack('Settings', 'ProfileSettings')}
-                  isSubItem
-                />
+                {settingsChildren.map((item, idx) => (
+                  <View key={item.label}>
+                    <GlassDrawerItem
+                      label={item.label}
+                      iconName={item.icon}
+                      onPress={() => navigateTo('Settings', item.child)}
+                      isActive={isActiveStack('Settings', item.child)}
+                      isSubItem
+                    />
+                    {idx < settingsChildren.length - 1 && (
+                      <View style={styles.subItemSeparator} />
+                    )}
+                  </View>
+                ))}
               </View>
             )}
           </View>
 
-          {/* Logout - separated visually */}
           <View style={{ marginTop: 16 }} />
           <GlassDrawerItem
             label="Logout"
@@ -644,7 +725,7 @@ function AdminDrawerContent(props) {
   );
 }
 
-/* ------------------------- DRAWER NAVIGATOR (export) ------------------------- */
+/* --------------------- Drawer navigator (export) --------------------- */
 export default function AdminNavigator() {
   return (
     <Drawer.Navigator
@@ -681,13 +762,7 @@ export default function AdminNavigator() {
       />
       <Drawer.Screen
         name="Messages"
-        component={() => (
-          <View
-            style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-          >
-            <Text>Messages</Text>
-          </View>
-        )}
+        component={MessagesStack}
         options={{ title: 'Messages', drawerItemStyle: { height: 0 } }}
       />
       <Drawer.Screen
@@ -719,100 +794,172 @@ export default function AdminNavigator() {
   );
 }
 
-/* -------------------------------- STYLES -------------------------------- */
+/* -------------------------------- Styles -------------------------------- */
 const styles = StyleSheet.create({
   drawerBackground: { flex: 1 },
   drawerGradient: { flex: 1 },
   scrollContent: { paddingTop: 0, flexGrow: 1 },
+
   headerSection: { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 20 },
   headerGlass: {
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 18,
+    paddingVertical: 18,
+    paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: 'rgba(59,130,246,0.3)',
-    backgroundColor: 'rgba(255,255,255,0.7)',
+    borderColor: 'rgba(59,130,246,0.12)',
+    backgroundColor: 'rgba(255,255,255,0.95)',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: Platform.OS === 'ios' ? 0.12 : 0,
+    shadowRadius: 4,
+    elevation: Platform.OS === 'android' ? 2 : 3,
+    alignItems: 'center',
   },
   headerContent: { alignItems: 'center' },
   avatarContainer: {
-    width: 90,
-    height: 70,
-    borderRadius: 35,
-    borderWidth: 3,
+    width: 74,
+    height: 74,
+    borderRadius: 74 / 2,
+    borderWidth: 2,
     borderColor: '#3B82F6',
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
+    overflow: 'hidden',
+    backgroundColor: '#fff',
+    elevation: Platform.OS === 'android' ? 1 : 0,
   },
-  avatar: { width: '100%', height: '100%', borderRadius: 32 },
-  welcomeText: { fontSize: 14, color: '#64748B', fontWeight: '500' },
-  navigationSection: { flex: 1, paddingHorizontal: 16 },
-  glassItem: { marginVertical: 4, borderRadius: 16, overflow: 'hidden' },
-  glassSubItem: { marginLeft: 20, marginVertical: 2, borderRadius: 12 },
-  glassItemGradient: {
-    borderRadius: 16,
+  avatar: { width: '100%', height: '100%' },
+  welcomeText: { fontSize: 14, color: '#475569', fontWeight: '600' },
+
+  navigationSection: { flex: 1, paddingHorizontal: 14, paddingBottom: 24 },
+
+  // drawer items & containers
+  glassItem: {
+    marginVertical: 6,
+    borderRadius: 12,
+    overflow: 'hidden',
+    justifyContent: 'center',
+    // tab border: subtle rounded outline
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.06)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    elevation: 3,
+    borderColor: 'rgba(15,23,42,0.03)',
+    backgroundColor: 'rgba(255,255,255,0.9)',
   },
-  glassSubItemGradient: { borderRadius: 12 },
+  glassSubItem: {
+    marginLeft: 18,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(15,23,42,0.02)',
+    backgroundColor: 'rgba(255,255,255,0.94)',
+  },
+
+  // Active left border for top-level item
+  activeLeftBorder: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#2563EB',
+    paddingLeft: 6, // account for border so content doesn't shift
+  },
+
+  // Slight left accent for active subitem
+  subActiveLeftBorder: {
+    borderLeftWidth: 3,
+    borderLeftColor: '#60A5FA',
+    paddingLeft: 6,
+  },
+
+  glassItemGradientActive: {
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    justifyContent: 'center',
+  },
+
+  glassItemGradientFallback: {
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+  },
+
   glassItemContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
   },
+
   iconContainer: {
-    width: 28,
+    width: 36,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
-  itemIcon: { width: 24, height: 24, tintColor: '#1E293B' },
-  subItemIcon: { width: 20, height: 20, tintColor: '#1E293B' },
-  glassItemLabel: { fontSize: 16, fontWeight: '600', color: '#1E293B' },
-  glassSubItemLabel: { fontSize: 14, fontWeight: '500', color: '#1E293B' },
-  glassItemActive: { transform: [{ scale: 0.98 }] },
-  glassItemPressed: { transform: [{ scale: 0.96 }], opacity: 0.9 },
-  hrHeaderGradient: {
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.16,
-    shadowRadius: 5,
-    elevation: 3,
-    marginVertical: 4,
+
+  glassItemLabel: {
+    fontSize: Platform.OS === 'android' ? 15 : 15,
+    color: '#0f172a',
+    fontWeight: '600',
+    flexShrink: 1,
   },
+
+  glassSubItemLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#0f172a',
+  },
+
+  glassItemLabelActive: {
+    color: '#ffffff',
+  },
+
+  glassItemActive: {
+    transform: [{ scale: 0.998 }],
+  },
+
+  glassItemPressed: {
+    opacity: 0.95,
+  },
+
+  // Group header with box border to look like a mini-table header
+  groupHeaderPressable: {
+    marginVertical: 6,
+  },
+
+  hrHeaderBox: {
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(148,163,184,0.06)',
+    backgroundColor: 'rgba(255,255,255,0.96)',
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    elevation: Platform.OS === 'android' ? 0 : 1,
+  },
+
   hrHeaderContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingHorizontal: 6,
+    paddingVertical: 6,
   },
+
   hrTitleContainer: { flexDirection: 'row', alignItems: 'center' },
-  hrIcon: { width: 24, height: 24, tintColor: '#1E293B', marginRight: 12 },
-  hrTitle: { fontSize: 16, fontWeight: '700', color: '#1E293B' },
-  chevIconRotated: { transform: [{ rotate: '90deg' }] },
+  hrTitle: { fontSize: 15, fontWeight: '700', color: '#0f172a' },
+
   hrList: {
-    marginTop: 8,
-    paddingLeft: 8,
+    marginTop: 6,
+    paddingLeft: 6,
     borderLeftWidth: 2,
-    borderLeftColor: 'rgba(59,130,246,0.18)',
-    marginLeft: 16,
+    borderLeftColor: 'rgba(59,130,246,0.06)',
+    marginLeft: 12,
     marginBottom: 4,
+    // sub-table border box to group subitems visually
+    backgroundColor: 'rgba(255,255,255,0.98)',
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingRight: 8,
+  },
+
+  // separator between sub items to mimic table rows
+  subItemSeparator: {
+    height: 1,
+    backgroundColor: 'rgba(15,23,42,0.03)',
+    marginHorizontal: 8,
+    marginTop: 6,
   },
 });

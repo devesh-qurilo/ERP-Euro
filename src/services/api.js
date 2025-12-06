@@ -1,22 +1,41 @@
-// src/services/api.js
+// /src/services/api.js
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Use your API base
-// const API_BASE_URL = 'https://chat.swiftandgo.in';
+// Base URL (change to your production URL)
 const API_BASE_URL = 'https://6jnqmj85-80.inc1.devtunnels.ms';
+// const API_BASE_URL = 'https://erp.skavosystem.com';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000,
 });
 
-// Attach token to every request if exists
+// Storage keys (change if your app uses different keys)
+const AUTH_TOKEN_KEY = 'authToken';
+const REFRESH_TOKEN_KEY = 'refreshToken';
+const USER_DATA_KEY = 'userData';
+
+// --- Refresh token mutex/queue helpers ---
+let isRefreshing = false;
+let refreshSubscribers = [];
+
+function onRefreshed(newToken) {
+  refreshSubscribers.forEach(cb => cb(newToken));
+  refreshSubscribers = [];
+}
+
+function addRefreshSubscriber(cb) {
+  refreshSubscribers.push(cb);
+}
+
+// --- request interceptor: attach token ---
 api.interceptors.request.use(
   async config => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem(AUTH_TOKEN_KEY);
       if (token) {
+        config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token}`;
       }
     } catch (error) {
@@ -27,36 +46,115 @@ api.interceptors.request.use(
   error => Promise.reject(error),
 );
 
-// On 401: clear stored tokens so the app is forced to re-auth
+// --- helper: perform refresh and update storage ---
+async function performTokenRefresh() {
+  try {
+    const refreshToken = await AsyncStorage.getItem(REFRESH_TOKEN_KEY);
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
+    }
+
+    // call refresh endpoint (adjust path/shape to your backend)
+    const resp = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+      refreshToken,
+    });
+    // expected response shape: { accessToken: '...', refreshToken: '...' } - adapt as needed
+    const data = resp.data || {};
+    const newAccessToken = data.accessToken || data.token || data.access_token;
+    const newRefreshToken =
+      data.refreshToken || data.refresh_token || refreshToken;
+
+    if (!newAccessToken)
+      throw new Error('Refresh response missing access token');
+
+    await AsyncStorage.setItem(AUTH_TOKEN_KEY, newAccessToken);
+    if (newRefreshToken) {
+      await AsyncStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken);
+    }
+
+    return newAccessToken;
+  } catch (err) {
+    // ensure no stale tokens remain if refresh fails
+    try {
+      await Promise.all([
+        AsyncStorage.removeItem(AUTH_TOKEN_KEY),
+        AsyncStorage.removeItem(REFRESH_TOKEN_KEY),
+        AsyncStorage.removeItem(USER_DATA_KEY),
+      ]);
+    } catch (e) {
+      console.warn('Error clearing storage after failed refresh', e);
+    }
+    throw err;
+  }
+}
+
+// --- response interceptor: handle 401 with refresh/retry ---
 api.interceptors.response.use(
   response => response,
   async error => {
-    try {
-      const status = error?.response?.status;
-      if (status === 401) {
-        console.log('API 401 - clearing auth tokens from storage');
+    const originalRequest = error.config;
 
-        try {
-          await Promise.all([
-            AsyncStorage.removeItem('authToken'),
-            AsyncStorage.removeItem('refreshToken'),
-            AsyncStorage.removeItem('userData'),
-          ]);
-        } catch (e) {
-          console.warn('Error clearing storage on 401', e);
-        }
-
-        // mark error for callers so they can decide (optional)
-        error.isUnauthorized = true;
-      }
-    } catch (e) {
-      console.warn('Error in response interceptor', e);
+    // if no response or not a 401, just propagate
+    const status = error?.response?.status;
+    if (!status || status !== 401) {
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
+
+    // Prevent infinite loop: if original request already retried, give up
+    if (originalRequest && originalRequest._retry) {
+      // Mark as unauthorized for caller to handle (e.g., show login)
+      error.isUnauthorized = true;
+      return Promise.reject(error);
+    }
+
+    // If a refresh is already in progress, queue this request
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        addRefreshSubscriber(async newToken => {
+          try {
+            // set header and retry
+            if (newToken) {
+              originalRequest.headers = originalRequest.headers || {};
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            }
+            originalRequest._retry = true;
+            const resp = await api(originalRequest);
+            resolve(resp);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      });
+    }
+
+    // Start refresh flow
+    isRefreshing = true;
+
+    return new Promise(async (resolve, reject) => {
+      try {
+        const newToken = await performTokenRefresh();
+        // notify queued requests
+        onRefreshed(newToken);
+        // retry original request
+        if (newToken) {
+          originalRequest.headers = originalRequest.headers || {};
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        }
+        originalRequest._retry = true;
+        const resp = await api(originalRequest);
+        resolve(resp);
+      } catch (refreshErr) {
+        // Refresh failed: mark error for caller and reject
+        refreshErr.isUnauthorized = true;
+        reject(refreshErr);
+      } finally {
+        isRefreshing = false;
+      }
+    });
   },
 );
 
-// Auth API helpers - exported for saga/thunk use
+// ---- Auth API helpers ----
 export const authAPI = {
   login: credentials =>
     api
@@ -66,27 +164,47 @@ export const authAPI = {
         console.error('Login API error:', error);
         throw error;
       }),
-  logout: () => api.post('/auth/logout'),
+  logout: () =>
+    api
+      .post('/auth/logout')
+      .then(r => r.data)
+      .catch(err => {
+        throw err;
+      }),
   refreshToken: refreshToken =>
     api.post('/auth/refresh', { refreshToken }).then(response => response.data),
 };
 
+// ---- Employee API ----
 export const employeeAPI = {
   getProfile: () => api.get('/employee/me').then(response => response.data),
   updateMe: formData => api.put('/employee/me', formData).then(r => r.data),
-
   updateProfile: profileData =>
     api.put('/employee/me', profileData).then(response => response.data),
-
   uploadProfilePicture: formData =>
     api
       .post('/employee/me/profile-picture', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       })
       .then(response => response.data),
 };
+
+// export const employeeAPI = {
+//   getProfile: () => api.get('/employee/me').then(response => response.data),
+//   updateMe: formData => api.put('/employee/me', formData).then(r => r.data),
+
+//   updateProfile: profileData =>
+//     api.put('/employee/me', profileData).then(response => response.data),
+
+//   uploadProfilePicture: formData =>
+//     api
+//       .post('/employee/me/profile-picture', formData, {
+//         headers: {
+//           'Content-Type': 'multipart/form-data',
+//         },
+//       })
+//       .then(response => response.data),
+// };
 
 // leaves api
 export const leavesAPI = {
@@ -378,6 +496,91 @@ export const chatAPI = {
       throw err2;
     }
   },
+};
+
+// append to /src/services/api.js (after employeeAPI)
+// export const AdminchatAPI = {
+//   // GET /api/chat/rooms
+//   fetchRooms: () =>
+//     api
+//       .get('/api/chat/rooms')
+//       .then(res => res.data)
+//       .catch(error => {
+//         console.error('chatAPI.fetchRooms error', error);
+//         throw error;
+//       }),
+
+//   // GET /api/chat/history/{otherEmployeeId}
+//   fetchHistory: otherEmployeeId =>
+//     api
+//       .get(`/api/chat/history/${encodeURIComponent(otherEmployeeId)}`)
+//       .then(res => res.data)
+//       .catch(error => {
+//         console.error('chatAPI.fetchHistory error', error);
+//         throw error;
+//       }),
+
+//   // POST /api/chat/send  (multipart/form-data)
+//   sendMessage: formData =>
+//     api
+//       .post('/api/chat/send', formData, {
+//         headers: { 'Content-Type': 'multipart/form-data' },
+//       })
+//       .then(res => res.data)
+//       .catch(error => {
+//         console.error('chatAPI.sendMessage error', error);
+//         throw error;
+//       }),
+
+//   // POST /api/chat/mark-read/{otherEmployeeId}
+//   markRead: otherEmployeeId =>
+//     api
+//       .post(`/api/chat/mark-read/${encodeURIComponent(otherEmployeeId)}`)
+//       .then(res => res.data)
+//       .catch(error => {
+//         console.error('chatAPI.markRead error', error);
+//         throw error;
+//       }),
+// };
+
+export const AdminchatAPI = {
+  fetchRooms: () =>
+    api
+      .get('/api/chat/rooms')
+      .then(res => res.data)
+      .catch(error => {
+        console.error('chatAPI.fetchRooms error', error);
+        throw error;
+      }),
+
+  fetchHistory: otherEmployeeId =>
+    api
+      .get(`/api/chat/history/${encodeURIComponent(otherEmployeeId)}`)
+      .then(res => res.data)
+      .catch(error => {
+        console.error('chatAPI.fetchHistory error', error);
+        throw error;
+      }),
+
+  sendMessage: formData =>
+    api
+      .post('/api/chat/send', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(res => res.data)
+      .catch(error => {
+        console.error('chatAPI.sendMessage error', error);
+        throw error;
+      }),
+
+  markRead: otherEmployeeId =>
+    api
+      .post(`/api/chat/mark-read/${encodeURIComponent(otherEmployeeId)}`)
+      .then(res => res.data)
+      .catch(error => {
+        console.error('chatAPI.markRead error', error);
+        throw error;
+      }),
 };
 
 export const adminLeadsAPI = {

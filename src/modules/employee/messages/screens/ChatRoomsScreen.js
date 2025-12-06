@@ -48,7 +48,7 @@ const RoomCard = ({ item, onPress }) => {
           {name}
         </Text>
         <Text style={styles.lastMsg} numberOfLines={1}>
-          {item?.lastMessage?.content || 'No messages yet'}
+          {item?.lastMessage?.content || 'No messages yet devesh'}
         </Text>
       </View>
       {!!item?.unreadCount && (

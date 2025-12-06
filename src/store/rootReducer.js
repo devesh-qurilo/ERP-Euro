@@ -65,6 +65,8 @@ import birthdaysReducer from '../modules/admin/birthdays/store/reducer';
 import leavesReducer from '../modules/admin/leaves/store/reducer';
 import wfhReducer from '../modules/admin/wfh/store/reducer';
 import paymentGateways from '../modules/admin/finance/paymentGateways/reducer';
+import adminMessagesReducer from '../modules/admin/messages/store/reducers';
+import messagesReducer from '../modules/admin/messages/store/reducers';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -139,6 +141,7 @@ const rootReducer = combineReducers({
     leaves: leavesReducer,
     wfh: wfhReducer,
     paymentGateways: paymentGateways,
+    adminMessages: messagesReducer,
   }),
 });
 
