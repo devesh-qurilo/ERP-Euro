@@ -528,7 +528,7 @@ export default function PaymentFormModal({
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 marginBottom: 12,
-                marginTop: 8,
+                marginTop: 60,
               }}
             >
               <Text style={{ fontSize: 18, fontWeight: '700' }}>

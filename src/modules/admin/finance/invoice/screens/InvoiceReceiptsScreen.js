@@ -110,7 +110,7 @@ function ViewReceiptModal({ visible, onClose, data }) {
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <ScrollView
-        style={{ flex: 1, backgroundColor: '#fff' }}
+        style={{ flex: 1, backgroundColor: '#fff', marginTop: 40 }}
         contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
       >
         {/* Header */}

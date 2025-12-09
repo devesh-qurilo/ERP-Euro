@@ -130,6 +130,7 @@ export default function CreditNoteFormModal({
               padding: 16,
               backgroundColor: '#fff',
               paddingBottom: 40,
+              marginTop: 60,
             }}
             keyboardShouldPersistTaps="handled"
           >

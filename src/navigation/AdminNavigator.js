@@ -205,13 +205,13 @@ function MessagesStack() {
         component={AdminMessageRoomScreen}
         options={{
           headerShown: true,
-          headerTitle: 'Chat',
+          // headerTitle: 'Chat',
           headerStyle: {
             backgroundColor: 'transparent',
             elevation: 0,
             shadowOpacity: 0,
           },
-          headerTintColor: '#fff',
+          headerTintColor: '#310b0bff',
           headerBackground: () => (
             <LinearGradient
               colors={['rgba(37,99,235,0.95)', 'rgba(29,78,216,0.95)']}

@@ -86,6 +86,8 @@ export default function AdminDashboardScreen({ navigation }) {
       <View style={{ marginTop: 1 }}>
         <ProfileCardDashboard compact={false} />
       </View>
+
+      <Text>decvesg 00008101-001C696A1861401E</Text>
       {/* Fancy stat cards */}
       <DashboardStatCardsFancy />
 

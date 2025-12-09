@@ -102,7 +102,11 @@ function ViewPaymentModal({ visible, onClose, data }) {
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <ScrollView
-        contentContainerStyle={{ padding: 16, backgroundColor: '#fff' }}
+        contentContainerStyle={{
+          padding: 16,
+          backgroundColor: '#fff',
+          marginTop: 60,
+        }}
       >
         <View
           style={{
@@ -165,6 +169,7 @@ function EditPaymentModal({ visible, onClose, onSubmit, initial }) {
             flexDirection: 'row',
             justifyContent: 'space-between',
             marginBottom: 8,
+            marginTop: 60,
           }}
         >
           <Text style={{ fontSize: 18, fontWeight: '700' }}>Edit Payment</Text>
