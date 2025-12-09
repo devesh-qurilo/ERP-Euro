@@ -139,7 +139,7 @@ export default function ReceiptFormModal({
               padding: 16,
               backgroundColor: '#fff',
               paddingBottom: 40,
-              marginTop: 40,
+              marginTop: 60,
             }}
             keyboardShouldPersistTaps="handled"
           >

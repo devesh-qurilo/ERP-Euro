@@ -164,7 +164,7 @@ const LoginScreen = ({ navigation }) => {
   if (isCheckingAuth) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.appName}>SKAVO CheckingAuth</Text>
+        <Text style={styles.appName}>SKAVO</Text>
         <ActivityIndicator size="large" color="#3498db" style={styles.loader} />
         <Text style={styles.loadingText}>Checking authentication...</Text>
       </View>
