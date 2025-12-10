@@ -2484,7 +2484,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNDateTimePicker (8.5.0):
+  - RNDateTimePicker (8.5.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -3216,7 +3216,7 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: 29f0230e1a25f36c20b05f65e2eb8958d6526e82
   RNCMaskedView: 4c5ee1c8667d56077246cc6d1977f77393923560
   RNCPicker: bf95ec4b2483e2ab256047130bc536b437cd916c
-  RNDateTimePicker: 776fed1b26cfd8d7fff6dd382d6291546fdbe755
+  RNDateTimePicker: 243cc82889368422dab234d73dec63d6cdb1e70f
   RNGestureHandler: a2da8723f22d5ccc67e091b921684a7ed2832f98
   RNReanimated: f39d5f29612cb37617241ea2e91bfecaabe0d1c4
   RNScreens: d821082c6dd1cb397cc0c98b026eeafaa68be479

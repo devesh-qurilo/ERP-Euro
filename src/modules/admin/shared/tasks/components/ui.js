@@ -1,3 +1,5 @@
+// src/modules/admin/work/tasks/components/ui.js
+
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 
@@ -6,6 +8,7 @@ export const Button = ({
   onPress,
   bg = '#3B82F6',
   color = '#fff',
+  icon = null,
   style,
 }) => (
   <TouchableOpacity
@@ -16,13 +19,16 @@ export const Button = ({
         paddingHorizontal: 14,
         paddingVertical: 10,
         borderRadius: 8,
+        flexDirection: 'row', // ⬅️ IMPORTANT (for icon support)
         alignItems: 'center',
         justifyContent: 'center',
+        gap: 6, // ⬅️ spacing between icon & text
       },
       style,
     ]}
   >
-    <Text style={{ color, fontWeight: '700' }}>{title}</Text>
+    {icon && <View>{icon}</View>} {/* ⬅️ render icon properly */}
+    {title ? <Text style={{ color, fontWeight: '700' }}>{title}</Text> : null}
   </TouchableOpacity>
 );
 

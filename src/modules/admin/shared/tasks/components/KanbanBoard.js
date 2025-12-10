@@ -370,7 +370,7 @@ export default function KanbanBoard({ onCardPress }) {
           marginBottom: 8,
         }}
       >
-        <Text style={{ fontSize: 18, fontWeight: '800' }}>Kanban</Text>
+        <Text style={{ fontSize: 18, fontWeight: '800' }}>Kanbankkk</Text>
         <View style={{ flexDirection: 'row' }}>
           <TouchableOpacity onPress={() => dispatch(stagesFetch())}>
             <Text style={{ color: '#2563EB', fontWeight: '700' }}>Refresh</Text>
