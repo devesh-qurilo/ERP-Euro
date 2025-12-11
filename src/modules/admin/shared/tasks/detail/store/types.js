@@ -22,3 +22,8 @@ export const NOTES_FETCH_OK = '@tasks/detail/NOTES_FETCH_OK';
 export const NOTES_FETCH_ERR = '@tasks/detail/NOTES_FETCH_ERR';
 export const NOTES_CREATE_REQ = '@tasks/detail/NOTES_CREATE_REQ';
 export const NOTES_DELETE_REQ = '@tasks/detail/NOTES_DELETE_REQ';
+
+/* Timesheet */
+export const TIMESHEET_FETCH_REQ = '@tasks/detail/TIMESHEET_FETCH_REQ';
+export const TIMESHEET_FETCH_OK = '@tasks/detail/TIMESHEET_FETCH_OK';
+export const TIMESHEET_FETCH_ERR = '@tasks/detail/TIMESHEET_FETCH_ERR';

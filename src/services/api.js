@@ -1719,6 +1719,11 @@ export const AstatusesAPI = {
     api.delete(`/status/${encodeURIComponent(id)}`).then(r => r.data),
 };
 
+export const ATimesheetsAPI = {
+  listByTaskId: taskId =>
+    api.get(`/timesheets/task/${taskId}`).then(r => r.data),
+};
+
 // --- MY TIMESHEETS (list) ---
 export const AdminmyTimesheetsAPI = {
   list: (params = {}) => api.get('/timesheets', { params }).then(r => r.data),

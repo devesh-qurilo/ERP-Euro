@@ -7,6 +7,7 @@ const initial = {
   files: { list: [], busy: false, error: null },
   subs: { list: [], busy: false, error: null },
   notes: { list: [], busy: false, error: null },
+  timesheet: { list: [], busy: false, error: null },
 };
 
 export default function reducer(state = initial, action) {
@@ -42,6 +43,24 @@ export default function reducer(state = initial, action) {
       return {
         ...state,
         subs: { ...state.subs, busy: false, error: action.error },
+      };
+    /* Timesheet */
+    case T.TIMESHEET_FETCH_REQ:
+      return {
+        ...state,
+        timesheet: { ...state.timesheet, busy: true, error: null },
+      };
+
+    case T.TIMESHEET_FETCH_OK:
+      return {
+        ...state,
+        timesheet: { list: action.data || [], busy: false, error: null },
+      };
+
+    case T.TIMESHEET_FETCH_ERR:
+      return {
+        ...state,
+        timesheet: { ...state.timesheet, busy: false, error: action.error },
       };
 
     /* Notes */

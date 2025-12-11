@@ -1,9 +1,10 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import * as T from './types';
 import {
-  taskFilesAPI,
-  subtasksAPI,
-  notesAPI,
+  AtaskFilesAPI,
+  AsubtasksAPI,
+  AnotesAPI,
+  ATimesheetsAPI,
 } from '../../../../../../services/api';
 
 const getTaskId = s =>
@@ -13,7 +14,7 @@ const getTaskId = s =>
 function* filesFetchW() {
   try {
     const taskId = yield select(getTaskId);
-    const data = yield call(taskFilesAPI.list, taskId);
+    const data = yield call(AtaskFilesAPI.list, taskId);
     yield put({ type: T.FILES_FETCH_OK, data });
   } catch (e) {
     yield put({
@@ -24,11 +25,11 @@ function* filesFetchW() {
 }
 function* filesUploadW({ file }) {
   const taskId = yield select(getTaskId);
-  yield call(taskFilesAPI.upload, taskId, file);
+  yield call(AtaskFilesAPI.upload, taskId, file);
   yield* filesFetchW();
 }
 function* filesDeleteW({ fileId }) {
-  yield call(taskFilesAPI.remove, fileId);
+  yield call(AtaskFilesAPI.remove, fileId);
   yield* filesFetchW();
 }
 
@@ -36,7 +37,7 @@ function* filesDeleteW({ fileId }) {
 function* subsFetchW() {
   try {
     const taskId = yield select(getTaskId);
-    const data = yield call(subtasksAPI.list, taskId);
+    const data = yield call(AsubtasksAPI.list, taskId);
     yield put({ type: T.SUBS_FETCH_OK, data });
   } catch (e) {
     yield put({
@@ -47,17 +48,17 @@ function* subsFetchW() {
 }
 function* subsCreateW({ payload }) {
   const taskId = yield select(getTaskId);
-  yield call(subtasksAPI.create, taskId, payload);
+  yield call(AsubtasksAPI.create, taskId, payload);
   yield* subsFetchW();
 }
 function* subsUpdateW({ subId, payload }) {
   const taskId = yield select(getTaskId);
-  yield call(subtasksAPI.update, taskId, subId, payload);
+  yield call(AsubtasksAPI.update, taskId, subId, payload);
   yield* subsFetchW();
 }
 function* subsDeleteW({ subId }) {
   const taskId = yield select(getTaskId);
-  yield call(subtasksAPI.remove, taskId, subId);
+  yield call(AsubtasksAPI.remove, taskId, subId);
   yield* subsFetchW();
 }
 
@@ -65,7 +66,7 @@ function* subsDeleteW({ subId }) {
 function* notesFetchW() {
   try {
     const taskId = yield select(getTaskId);
-    const data = yield call(notesAPI.list, taskId);
+    const data = yield call(AnotesAPI.list, taskId);
     yield put({ type: T.NOTES_FETCH_OK, data });
   } catch (e) {
     yield put({
@@ -76,12 +77,25 @@ function* notesFetchW() {
 }
 function* notesCreateW({ payload }) {
   const taskId = yield select(getTaskId);
-  yield call(notesAPI.create, taskId, payload);
+  yield call(AnotesAPI.create, taskId, payload);
   yield* notesFetchW();
 }
 function* notesDeleteW({ taskNoteId }) {
-  yield call(notesAPI.removeByTaskNoteId, taskNoteId);
+  yield call(AnotesAPI.removeByTaskNoteId, taskNoteId);
   yield* notesFetchW();
+}
+
+function* timesheetFetchW() {
+  try {
+    const taskId = yield select(getTaskId);
+    const data = yield call(ATimesheetsAPI.listByTaskId, taskId);
+    yield put({ type: T.TIMESHEET_FETCH_OK, data });
+  } catch (e) {
+    yield put({
+      type: T.TIMESHEET_FETCH_ERR,
+      error: e?.message || 'Timesheet load failed',
+    });
+  }
 }
 
 export function* tasksDetailWatcher() {
@@ -97,6 +111,8 @@ export function* tasksDetailWatcher() {
   yield takeLatest(T.NOTES_FETCH_REQ, notesFetchW);
   yield takeLatest(T.NOTES_CREATE_REQ, notesCreateW);
   yield takeLatest(T.NOTES_DELETE_REQ, notesDeleteW);
+
+  yield takeLatest(T.TIMESHEET_FETCH_REQ, timesheetFetchW);
 }
 
 export default tasksDetailWatcher;

@@ -11,3 +11,6 @@ export const selectSubsBusy = s => !!base(s)?.subs?.busy;
 
 export const selectNotes = s => base(s)?.notes?.list || [];
 export const selectNotesBusy = s => !!base(s)?.notes?.busy;
+
+export const selectTimesheet = s => base(s)?.timesheet?.list || [];
+export const selectTimesheetBusy = s => !!base(s)?.timesheet?.busy;

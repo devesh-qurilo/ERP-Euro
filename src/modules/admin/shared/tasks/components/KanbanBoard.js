@@ -1,4 +1,5 @@
 // src/modules/shared/tasks/components/KanbanBoard.js
+
 import React, { useMemo, useState, useEffect } from 'react';
 import {
   View,
@@ -6,6 +7,7 @@ import {
   ScrollView,
   FlatList,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -17,7 +19,7 @@ import {
 import { stagesFetch } from '../../taskStages/store/actions';
 import StagesModal from '../../taskStages/components/StagesModal';
 
-/** TASKS (cards) — reuse your shared tasks slice used on list screen */
+/** TASKS */
 import { fetchTasks, setSource } from '../store/actions';
 import {
   selectList as selectTasks,
@@ -40,73 +42,133 @@ const Pill = ({ color = '#9CA3AF', children }) => (
   </View>
 );
 
-const Card = ({ item, onPress }) => (
-  <TouchableOpacity
-    onPress={onPress}
-    style={{
-      backgroundColor: '#fff',
-      borderRadius: 12,
-      borderWidth: 1,
-      borderColor: '#E5E7EB',
-      padding: 10,
-      marginBottom: 10,
-    }}
-  >
-    <Text style={{ fontWeight: '700' }}>{item.title}</Text>
-    {!!item.description && (
-      <Text numberOfLines={2} style={{ color: '#6B7280', marginTop: 4 }}>
-        {item.description}
-      </Text>
-    )}
-    <View
+/* ---------- CARD WITH EMPLOYEE AVATARS ---------- */
+
+const Card = ({ item, onPress }) => {
+  const employees = item?.assignedEmployees || [];
+
+  return (
+    <TouchableOpacity
+      onPress={onPress}
       style={{
-        flexDirection: 'row',
-        marginTop: 8,
-        justifyContent: 'space-between',
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        padding: 10,
+        marginBottom: 10,
       }}
     >
-      <Pill color="#EF4444">{item.priority || '—'}</Pill>
-      {item.dueDate && <Text style={{ color: '#6B7280' }}>{item.dueDate}</Text>}
-    </View>
-  </TouchableOpacity>
-);
+      {/* Title */}
+      <Text style={{ fontWeight: '700' }}>{item.title}</Text>
 
-/* ---------- main component ---------- */
+      {/* Project Name */}
+      {!!item.projectName && (
+        <Text numberOfLines={2} style={{ color: '#6B7280', marginTop: 4 }}>
+          {item.projectName}
+        </Text>
+      )}
+
+      {/* Short Code */}
+      <Text style={{ fontWeight: '700', color: '#257a73ff' }}>
+        #{item.projectShortCode}
+      </Text>
+
+      {/* Priority + Due Date */}
+      <View
+        style={{
+          flexDirection: 'row',
+          marginTop: 8,
+          justifyContent: 'space-between',
+        }}
+      >
+        <Pill color="#EF4444">{item.priority || '—'}</Pill>
+        {!!item.dueDate && (
+          <Text style={{ color: '#6B7280' }}>{item.dueDate}</Text>
+        )}
+      </View>
+
+      {/* 🔥 Assigned Employees — Small Circle Avatars */}
+      <View style={{ flexDirection: 'row', marginTop: 10 }}>
+        {employees.map((emp, idx) => (
+          <View
+            key={emp.employeeId}
+            style={{
+              marginLeft: idx === 0 ? 0 : -8,
+              borderRadius: 999,
+              borderWidth: 1,
+              borderColor: '#fff',
+              overflow: 'hidden',
+            }}
+          >
+            {emp.profileUrl ? (
+              <Image
+                source={{ uri: emp.profileUrl }}
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: 12,
+                }}
+              />
+            ) : (
+              <View
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: 12,
+                  backgroundColor: '#E5E7EB',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text style={{ fontSize: 10, color: '#6B7280' }}>
+                  {emp?.name ? emp.name[0].toUpperCase() : '?'}
+                </Text>
+              </View>
+            )}
+          </View>
+        ))}
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+/* ---------- MAIN KANBAN BOARD ---------- */
 
 export default function KanbanBoard({ onCardPress }) {
   const dispatch = useDispatch();
 
-  // Selectors with guards
   const stages = useSelector(selectStages) || [];
   const tasks = useSelector(selectTasks) || [];
   const stagesBusy = useSelector(selectStagesBusy) || false;
   const tasksBusy = useSelector(selectTasksBusy) || false;
-  const loading = stagesBusy || tasksBusy;
 
+  const loading = stagesBusy || tasksBusy;
   const [showStages, setShowStages] = useState(false);
 
-  // Initial load: ensure ALL tasks are fetched for Kanban
+  // Initial load
   useEffect(() => {
     dispatch(stagesFetch());
-    dispatch(setSource({ kind: 'all' })); // ignore per-project filters in kanban
+    dispatch(setSource({ kind: 'all' })); // Kanban always shows all
     dispatch(fetchTasks());
   }, [dispatch]);
 
-  // Use primitive deps to avoid deep compares / undefined
-  const stagesLen = Array.isArray(stages) ? stages.length : 0;
-  const tasksLen = Array.isArray(tasks) ? tasks.length : 0;
-
-  // Group tasks by taskStage.id (null → Unassigned)
+  // Group tasks by stage
   const grouped = useMemo(() => {
-    const m = new Map();
-    (stages || []).forEach(s => m.set(s.id, []));
+    const map = new Map();
+
+    // create empty bins
+    (stages || []).forEach(st => map.set(st.id, []));
+
+    // fill each stage
     (tasks || []).forEach(t => {
       const sid = t?.taskStage?.id ?? null;
-      if (!m.has(sid)) m.set(sid, []);
-      m.get(sid).push(t);
+      if (!map.has(sid)) map.set(sid, []);
+      map.get(sid).push(t);
     });
-    return m;
-  }, [stagesLen, tasksLen]);
+
+    return map;
+  }, [stages, tasks]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -118,12 +180,15 @@ export default function KanbanBoard({ onCardPress }) {
           marginBottom: 8,
         }}
       >
-        <Text style={{ fontSize: 18, fontWeight: '800' }}>Kanbankkk</Text>
+        <Text style={{ fontSize: 18, fontWeight: '800' }}>Kanban</Text>
+
         <View style={{ flexDirection: 'row' }}>
-          <TouchableOpacity onPress={() => dispatch(stagesFetch())}>
+          <TouchableOpacity onPress={() => dispatch(fetchTasks())}>
             <Text style={{ color: '#2563EB', fontWeight: '700' }}>Refresh</Text>
           </TouchableOpacity>
+
           <View style={{ width: 12 }} />
+
           <TouchableOpacity onPress={() => setShowStages(true)}>
             <Text style={{ color: '#2563EB', fontWeight: '700' }}>
               Manage Stages
@@ -132,7 +197,7 @@ export default function KanbanBoard({ onCardPress }) {
         </View>
       </View>
 
-      {/* Board (Horizontal) */}
+      {/* Board */}
       <ScrollView horizontal showsHorizontalScrollIndicator style={{ flex: 1 }}>
         {stages.map(stage => (
           <View
@@ -147,13 +212,13 @@ export default function KanbanBoard({ onCardPress }) {
               padding: 10,
             }}
           >
-            {/* Column header */}
+            {/* Column Header */}
             <View
               style={{
                 flexDirection: 'row',
-                justifyContent: 'space-between',
                 alignItems: 'center',
                 marginBottom: 8,
+                justifyContent: 'space-between',
               }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -162,7 +227,7 @@ export default function KanbanBoard({ onCardPress }) {
                     width: 10,
                     height: 10,
                     borderRadius: 999,
-                    backgroundColor: '#ef4444',
+                    backgroundColor: stage.labelColor || '#ef4444',
                     marginRight: 6,
                   }}
                 />
@@ -171,7 +236,6 @@ export default function KanbanBoard({ onCardPress }) {
                   {(grouped.get(stage.id) || []).length}
                 </Text>
               </View>
-              {/* (Delete/rename handled in Manage Stages modal) */}
             </View>
 
             {/* Cards */}
@@ -190,7 +254,7 @@ export default function KanbanBoard({ onCardPress }) {
           </View>
         ))}
 
-        {/* Unassigned column (tasks without taskStage) */}
+        {/* Unassigned Column */}
         {(grouped.get(null)?.length || 0) > 0 && (
           <View
             style={{
@@ -203,19 +267,10 @@ export default function KanbanBoard({ onCardPress }) {
               padding: 10,
             }}
           >
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginBottom: 8,
-                justifyContent: 'space-between',
-              }}
-            >
-              <Text style={{ fontWeight: '800' }}>Unassigned</Text>
-              <Text style={{ color: '#6B7280' }}>
-                {grouped.get(null).length}
-              </Text>
-            </View>
+            <Text style={{ fontWeight: '800', marginBottom: 8 }}>
+              Unassigned ({grouped.get(null).length})
+            </Text>
+
             <FlatList
               data={grouped.get(null)}
               keyExtractor={it => String(it.id)}
@@ -231,7 +286,7 @@ export default function KanbanBoard({ onCardPress }) {
         <Text style={{ marginTop: 8, color: '#6B7280' }}>Loading…</Text>
       )}
 
-      {/* Stages Add/Edit/Delete modal */}
+      {/* Stages Modal */}
       <StagesModal visible={showStages} onClose={() => setShowStages(false)} />
     </View>
   );
