@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Image } from 'react-native';
 import TaskActionsMenu from './TaskActionsMenu';
 import { Col } from './ui';
+import StatusDropdown from '../../../shared/tasks/components/StatusDropdown';
 
 const fmtDate = d => (d ? new Date(d).toLocaleDateString() : '---');
 const Priority = ({ p }) => {
@@ -95,23 +96,7 @@ export default function TaskRow({
       </Col>
 
       <Col>
-        <View
-          style={{
-            width: 150,
-            height: 38,
-            backgroundColor: '#fff',
-            borderRadius: 8,
-            borderWidth: 1,
-            borderColor: '#E5E7EB',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingHorizontal: 12,
-          }}
-        >
-          <Text>{item?.taskStage?.name || '—'}</Text>
-          <Text>▾</Text>
-        </View>
+        <StatusDropdown item={item} />
       </Col>
 
       <Col style={{ minWidth: 120 }}>

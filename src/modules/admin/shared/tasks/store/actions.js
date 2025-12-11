@@ -34,3 +34,8 @@ export const pinFail = error => ({ type: T.PIN_FAIL, error });
 export const unpinTask = taskId => ({ type: T.UNPIN_REQ, taskId });
 export const unpinOk = taskId => ({ type: T.UNPIN_OK, taskId });
 export const unpinFail = error => ({ type: T.UNPIN_FAIL, error });
+export const updateTaskStage = (taskId, stageId) => ({
+  type: T.TASK_STAGE_UPDATE_REQ,
+  taskId,
+  stageId,
+});

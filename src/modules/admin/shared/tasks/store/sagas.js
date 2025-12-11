@@ -87,6 +87,15 @@ function* unpinWorker({ taskId }) {
   }
 }
 
+function* updateStageWorker({ taskId, stageId }) {
+  try {
+    yield call(adminTasksAPI.updateStatus, taskId, stageId);
+    yield put(A.fetchTasks()); // refresh table
+  } catch (e) {
+    console.log('Failed to update stage', e);
+  }
+}
+
 export function* tasksWatcher() {
   yield takeLatest(T.FETCH_REQ, fetchWorker);
   yield takeLatest(T.CREATE_REQ, createWorker);
@@ -94,6 +103,7 @@ export function* tasksWatcher() {
   yield takeLatest(T.DELETE_REQ, deleteWorker);
   yield takeLatest(T.PIN_REQ, pinWorker);
   yield takeLatest(T.UNPIN_REQ, unpinWorker);
+  yield takeLatest(T.TASK_STAGE_UPDATE_REQ, updateStageWorker);
 }
 
 export default tasksWatcher;

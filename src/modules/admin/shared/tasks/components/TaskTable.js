@@ -1,3 +1,4 @@
+// src/modules/admin/work/tasks/components/TaskTable.js
 import React from 'react';
 import {
   View,
@@ -13,6 +14,8 @@ export default function TaskTable({
   data,
   busy,
   total,
+  stages, // ← added
+  onChangeStage, // ← added
   onView,
   onEdit,
   onDelete,
@@ -29,7 +32,6 @@ export default function TaskTable({
         padding: 12,
       }}
     >
-      {/* optional header slot (e.g., "Task Details" + Hide Completed chip) */}
       {titleSlot}
 
       <View
@@ -42,6 +44,7 @@ export default function TaskTable({
       >
         <ScrollView horizontal>
           <View style={{ minWidth: 1200 }}>
+            {/* HEADER ROW */}
             <View style={{ flexDirection: 'row' }}>
               <HeaderCol style={{ minWidth: 100 }}>Code</HeaderCol>
               <HeaderCol style={{ minWidth: 320 }}>Task Name</HeaderCol>
@@ -55,21 +58,25 @@ export default function TaskTable({
               <HeaderCol style={{ minWidth: 120 }}>Actions</HeaderCol>
             </View>
 
+            {/* BODY */}
             {busy ? (
               <View style={{ padding: 16, alignItems: 'center' }}>
                 <ActivityIndicator />
               </View>
             ) : (
               <FlatList
+                style={{ maxHeight: 400 }}
                 data={data}
-                keyExtractor={(it, i) => String(it.id ?? i)}
+                keyExtractor={it => String(it.id)}
                 renderItem={({ item }) => (
                   <TaskRow
                     item={item}
+                    allStages={stages}
                     onView={() => onView(item)}
                     onEdit={() => onEdit(item)}
                     onDelete={() => onDelete(item.id)}
                     onTogglePin={() => onTogglePin(item)}
+                    onChangeStage={onChangeStage}
                   />
                 )}
               />

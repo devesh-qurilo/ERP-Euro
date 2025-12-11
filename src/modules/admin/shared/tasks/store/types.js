@@ -39,3 +39,4 @@ export const TASK_UNPIN_REQ = '@tasks/UNPIN_REQ';
 export const TASKS_SET_MODAL = '@tasks/SET_MODAL';
 export const TASKS_FETCH_OK = '@tasks/FETCH_OK';
 export const TASKS_FETCH_ERR = '@tasks/FETCH_ERR';
+export const TASK_STAGE_UPDATE_REQ = 'TASK_STAGE_UPDATE_REQ';
