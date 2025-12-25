@@ -807,7 +807,7 @@ export const projectsApi = {
     const fd = new FormData();
     fd.append('status', status);
     return api
-      .patch(`/api/projects/${projectId}/status`, fd, {
+      .put(`/api/projects/${projectId}/status`, fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       .then(r => r.data);

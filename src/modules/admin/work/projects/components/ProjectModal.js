@@ -20,7 +20,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/Feather';
 import { Picker } from '@react-native-picker/picker';
-import { launchImageLibrary } from 'react-native-image-picker';
+// import { launchImageLibrary } from 'react-native-image-picker';
+import { pickImageOrDoc } from '../../../clients/components/fileHelpers';
 
 import {
   fetchProjectCategories,
@@ -206,25 +207,39 @@ export default function ProjectModal({
   }
 
   // File picker (image-picker) - same as before
+  // async function pickCompanyFile() {
+  //   try {
+  //     const res = await launchImageLibrary({
+  //       mediaType: 'mixed',
+  //       includeBase64: false,
+  //     });
+  //     if (res && res.assets && res.assets.length > 0) {
+  //       const file = res.assets[0];
+  //       const payload = {
+  //         uri:
+  //           Platform.OS === 'ios' && file.uri?.startsWith('file://')
+  //             ? file.uri
+  //             : file.uri,
+  //         name: file.fileName || `file-${Date.now()}`,
+  //         type: file.type || 'application/octet-stream',
+  //       };
+  //       setCompanyFile(payload);
+  //     }
+  //   } catch (err) {
+  //     console.log('pickCompanyFile error', err);
+  //     Alert.alert('File pick failed');
+  //   }
+  // }
+
   async function pickCompanyFile() {
     try {
-      const res = await launchImageLibrary({
-        mediaType: 'mixed',
-        includeBase64: false,
-      });
-      if (res && res.assets && res.assets.length > 0) {
-        const file = res.assets[0];
-        const payload = {
-          uri:
-            Platform.OS === 'ios' && file.uri?.startsWith('file://')
-              ? file.uri
-              : file.uri,
-          name: file.fileName || `file-${Date.now()}`,
-          type: file.type || 'application/octet-stream',
-        };
-        setCompanyFile(payload);
-      }
+      const file = await pickImageOrDoc();
+      setCompanyFile(file);
     } catch (err) {
+      if (DocumentPicker.isCancel?.(err)) {
+        // user cancelled → silently ignore
+        return;
+      }
       console.log('pickCompanyFile error', err);
       Alert.alert('File pick failed');
     }
@@ -449,6 +464,7 @@ export default function ProjectModal({
                     <Picker
                       selectedValue={v.departmentId || ''}
                       onValueChange={val => patch('departmentId', val)}
+                      style={{ color: value, backgroundColor: 'gray' }}
                     >
                       <Picker.Item label="Select department" value="" />
                       {departments.map(d => (

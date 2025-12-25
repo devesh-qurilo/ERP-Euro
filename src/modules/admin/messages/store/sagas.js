@@ -19,8 +19,8 @@ import socketClient from '../store/socketClient'; // adjust path if needed
 
 /* ---------- Config / constants ---------- */
 const AUTH_TOKEN_KEY = 'authToken';
-// const SOCKET_URL = 'https://6jnqmj85-80.inc1.devtunnels.ms'; // change if needed
-const SOCKET_URL = 'https://erp.skavosystem.com';
+const SOCKET_URL = 'https://6jnqmj85-80.inc1.devtunnels.ms'; // change if needed
+// const SOCKET_URL = 'https://erp.skavosystem.com';
 
 /* ---------- auth action names (adjust if your app uses different ones) ---------- */
 const AUTH_LOGIN_SUCC = 'AUTH_LOGIN_SUCC';

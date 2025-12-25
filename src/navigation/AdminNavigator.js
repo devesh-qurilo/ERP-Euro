@@ -58,7 +58,7 @@ import AdminDashboardScreen from '../modules/admin/dashboard/screens/AdminDashbo
 // } from '../modules/admin/messages/Screens/AdminEmployeeViewScreen';
 import AdminMessageViewScreen from '../modules/admin/messages/screens/AdminEmployeeViewScreen';
 import AdminMessageRoomScreen from '../modules/admin/messages/screens/AdminMessageRoomScreen';
-
+import AdminEmployeesViewScreen from '../modules/admin/hr/employees/screens/AdminEmployeeViewScreen';
 // Redux action
 import { logout as logoutAction } from '../store/actions';
 
@@ -134,7 +134,7 @@ function HRStack() {
       <Stack.Screen name="HREmployees" component={AdminEmployeesScreen} />
       <Stack.Screen
         name="AdminEmployeeView"
-        component={AdminMessageViewScreen}
+        component={AdminEmployeesViewScreen}
         options={{ title: 'Employee' }}
       />
       <Stack.Screen name="HRLeaves" component={AdminLeavesScreen} />

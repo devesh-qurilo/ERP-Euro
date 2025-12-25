@@ -50,7 +50,7 @@ export default function TaskQuickActionsBar({
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 10,
+          gap: 5,
           marginBottom: 10,
         }}
       >
@@ -72,6 +72,34 @@ export default function TaskQuickActionsBar({
           color="#111827"
           icon={<Feather name="user" size={18} color="#111827" />}
         />
+        <View style={{ flex: 1, alignItems: 'flex-end' }}>
+          <View
+            style={{
+              width: 120,
+              height: 40,
+              backgroundColor: '#fff',
+              borderRadius: 8,
+              borderWidth: 1,
+              borderColor: '#E5E7EB',
+              paddingHorizontal: 10,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <Feather name="search" size={18} color="#6b7280" />
+            <TextInput
+              value={searchValue}
+              onChangeText={onSearchChange}
+              placeholder="Search"
+              placeholderTextColor="#9ca3af"
+              style={{
+                flex: 1,
+                color: '#688ee2ff',
+              }}
+            />
+          </View>
+        </View>
       </View>
 
       {/* VIEW SWITCH BUTTONS + SEARCH */}
@@ -144,7 +172,7 @@ export default function TaskQuickActionsBar({
         />
 
         {/* SEARCH */}
-        <View style={{ flex: 1, alignItems: 'flex-end' }}>
+        {/* <View style={{ flex: 1, alignItems: 'flex-end' }}>
           <View
             style={{
               width: 160,
@@ -171,7 +199,7 @@ export default function TaskQuickActionsBar({
               }}
             />
           </View>
-        </View>
+        </View> */}
       </View>
     </View>
   );

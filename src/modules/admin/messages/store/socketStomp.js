@@ -4,8 +4,8 @@ import SockJS from 'sockjs-client';
 import EventEmitter from 'events';
 
 // const DEFAULT_URL = 'https://6jnqmj85-80.inc1.devtunnels.ms/ws-chat';
-// const DEFAULT_URL = 'https://6jnqmj85-80.inc1.devtunnels.ms/ws-chat';
-const DEFAULT_URL = 'https://erp.skavosystem.com/ws-chat';
+const DEFAULT_URL = 'https://6jnqmj85-80.inc1.devtunnels.ms/ws-chat';
+// const DEFAULT_URL = 'https://erp.skavosystem.com/ws-chat';
 
 class StompSocket extends EventEmitter {
   constructor() {
