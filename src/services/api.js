@@ -864,6 +864,12 @@ export const fetchHolidaysAPI = () =>
 export const createHolidaysBulkAPI = payload =>
   api.post('/employee/api/holidays/bulk', payload).then(r => r.data);
 
+export const updateHolidayAPI = (id, payload) =>
+  api.put(`/employee/api/holidays/${id}`, payload).then(r => r.data);
+
+export const deleteHolidayAPI = id =>
+  api.delete(`/employee/api/holidays/${id}`).then(r => r.data);
+
 export const adminAttendanceAPI = {
   // POST /employee/attendance/mark  (by specific dates)
   markByDates: payload =>

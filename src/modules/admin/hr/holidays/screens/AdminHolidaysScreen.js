@@ -12,6 +12,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import HolidaysTable from '../components/HolidaysTable';
 import HolidaysCalendar from '../components/HolidaysCalendar';
 import HolidayModal from '../components/HolidayModal';
+import { selectEditingHoliday } from '../store/selectors';
+import EditHolidayModal from '../components/EditHolidayModal';
 
 import {
   fetchHolidays,
@@ -20,6 +22,9 @@ import {
   createHolidaysBulk,
   setHolidayFilters,
   setHolidayMode,
+  updateHoliday,
+  openHolidayEditModal,
+  deleteHoliday,
 } from '../store/actions';
 import {
   selectHolidays,
@@ -37,9 +42,10 @@ export default function AdminHolidaysScreen() {
   const loading = useSelector(selectHolidaysLoading);
   const error = useSelector(selectHolidaysError);
   const filters = useSelector(selectHolidayFilters);
-  const modalOpen = useSelector(selectHolidayModalOpen);
+  const addModalOpen = useSelector(selectHolidayModalOpen);
   const creating = useSelector(selectHolidayCreating);
   const mode = useSelector(selectHolidayMode);
+  const editingHoliday = useSelector(selectEditingHoliday);
 
   useEffect(() => {
     dispatch(fetchHolidays());
@@ -142,15 +148,53 @@ export default function AdminHolidaysScreen() {
       {mode === 'calendar' ? (
         <HolidaysCalendar data={filtered} />
       ) : (
-        <HolidaysTable data={filtered} loading={loading} />
+        // <HolidaysTable data={filtered} loading={loading} />
+        <HolidaysTable
+          data={filtered}
+          loading={loading}
+          onEdit={holiday => {
+            console.log('EDIT CLICKED', holiday);
+            dispatch(openHolidayEditModal(holiday));
+          }}
+          onDelete={id => {
+            console.log('DELETE CLICKED', id);
+            dispatch(deleteHoliday(id));
+          }}
+        />
       )}
 
       {error ? <Text style={s.err}>Error: {String(error)}</Text> : null}
 
-      <HolidayModal
+      {/* <HolidayModal
         visible={modalOpen}
         onClose={() => dispatch(closeHolidayModal())}
         onSave={payload => dispatch(createHolidaysBulk(payload))}
+        loading={creating}
+      /> */}
+
+      {/* <HolidayModal
+        visible={modalOpen}
+        editingHoliday={editingHoliday} // ✅ now exists
+        onClose={() => dispatch(closeHolidayModal())}
+        onSave={(id, payload) =>
+          id
+            ? dispatch(updateHoliday(id, payload))
+            : dispatch(createHolidaysBulk(payload))
+        }
+        loading={creating}
+      /> */}
+      <HolidayModal
+        visible={addModalOpen}
+        onClose={() => dispatch(closeHolidayModal())}
+        onSave={payload => dispatch(createHolidaysBulk(payload))}
+        loading={creating}
+      />
+
+      <EditHolidayModal
+        visible={!!editingHoliday}
+        holiday={editingHoliday}
+        onClose={() => dispatch(closeHolidayModal())}
+        onSave={(id, payload) => dispatch(updateHoliday(id, payload))}
         loading={creating}
       />
     </ScrollView>

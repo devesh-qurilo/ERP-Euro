@@ -8,3 +8,7 @@ export const selectHolidayFilters = s =>
 export const selectHolidayModalOpen = s => !!root(s).modalOpen;
 export const selectHolidayCreating = s => !!root(s).creating;
 export const selectHolidayMode = s => root(s).mode || 'list';
+export const selectEditingHoliday = s => root(s).editingHoliday || null;
+
+// export const selectEditingHoliday = s =>
+//   s.admin?.hr?.holidays?.editingHoliday || null;

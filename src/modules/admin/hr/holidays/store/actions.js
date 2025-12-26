@@ -14,3 +14,19 @@ export const setHolidayFilters = patch => ({
   patch,
 });
 export const setHolidayMode = mode => ({ type: T.SET_HOLIDAY_MODE, mode });
+
+export const openHolidayEditModal = holiday => ({
+  type: T.OPEN_HOLIDAY_EDIT_MODAL,
+  payload: holiday,
+});
+
+export const updateHoliday = (id, payload) => ({
+  type: T.UPDATE_HOLIDAY_REQUEST,
+  id,
+  payload,
+});
+
+export const deleteHoliday = id => ({
+  type: T.DELETE_HOLIDAY_REQUEST,
+  id,
+});
