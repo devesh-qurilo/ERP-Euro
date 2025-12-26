@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -26,6 +26,7 @@ import {
   patchLeaveStatus,
   deleteLeave,
 } from '../store/actions';
+
 import {
   selectLeaves,
   selectLeavesLoading,
@@ -39,10 +40,9 @@ import {
   selectLeaveQuotaLoading,
 } from '../store/selectors';
 
-// we'll reuse admin employees list for multi-select in apply modal
 import { selectEmpList } from '../../employees/store/selectors';
 
-// const [mode, setMode] = React.useState('list'); // 'list' | 'calendar' | 'profile'
+/* ================= PILL ================= */
 
 const Pill = ({ label, active, onPress }) => (
   <Pressable
@@ -55,8 +55,11 @@ const Pill = ({ label, active, onPress }) => (
   </Pressable>
 );
 
+/* ================= SCREEN ================= */
+
 export default function AdminLeavesScreen() {
   const dispatch = useDispatch();
+  const wasApplying = useRef(false);
 
   const list = useSelector(selectLeaves);
   const loading = useSelector(selectLeavesLoading);
@@ -71,17 +74,29 @@ export default function AdminLeavesScreen() {
   const quota = useSelector(selectLeaveQuota);
   const quotaLoading = useSelector(selectLeaveQuotaLoading);
 
-  const employees = useSelector(selectEmpList); // from Admin → HR → Employees list
-  // const [mode, setMode] = React.useState('list');
+  const employees = useSelector(selectEmpList);
+
+  /* ===== FETCH ===== */
+
   useEffect(() => {
     dispatch(fetchLeaves());
   }, [dispatch]);
 
   useEffect(() => {
     if (mode === 'profile') dispatch(fetchQuota());
-  }, [dispatch, mode]);
+  }, [mode, dispatch]);
 
-  // client-side filters
+  /* ===== CLOSE MODAL ON SUCCESS ===== */
+
+  useEffect(() => {
+    if (wasApplying.current && !applying && modalOpen) {
+      dispatch(closeLeaveModal());
+    }
+    wasApplying.current = applying;
+  }, [applying, modalOpen, dispatch]);
+
+  /* ===== FILTER ===== */
+
   const filtered = useMemo(() => {
     const q = (filters.q || '').toLowerCase().trim();
     return list.filter(x => {
@@ -90,26 +105,27 @@ export default function AdminLeavesScreen() {
           `${x.employeeName} ${x.employeeId} ${x.leaveType} ${x.status} ${x.reason}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
-      if (filters.type !== 'All' && (x.leaveType || '') !== filters.type)
-        return false;
-      if (filters.status !== 'All' && (x.status || '') !== filters.status)
-        return false;
+      if (filters.type !== 'All' && x.leaveType !== filters.type) return false;
+      if (filters.status !== 'All' && x.status !== filters.status) return false;
       return true;
     });
   }, [list, filters]);
 
+  /* ===== ACTIONS ===== */
+
   const onApprove = row =>
     dispatch(patchLeaveStatus(row.id, { status: 'APPROVED' }));
+
   const onReject = row => {
     Alert.prompt
-      ? Alert.prompt('Reject', 'Enter rejection reason', txt => {
+      ? Alert.prompt('Reject', 'Enter rejection reason', txt =>
           dispatch(
             patchLeaveStatus(row.id, {
               status: 'REJECTED',
               rejectionReason: txt || 'Not specified',
             }),
-          );
-        })
+          ),
+        )
       : Alert.alert('Reject Leave', 'Reject this leave?', [
           { text: 'Cancel' },
           {
@@ -125,7 +141,8 @@ export default function AdminLeavesScreen() {
           },
         ]);
   };
-  const onDelete = row => {
+
+  const onDelete = row =>
     Alert.alert('Delete Leave', `Delete ${row.employeeName}'s leave?`, [
       { text: 'Cancel' },
       {
@@ -134,17 +151,18 @@ export default function AdminLeavesScreen() {
         onPress: () => dispatch(deleteLeave(row.id)),
       },
     ]);
-  };
 
   const handleApply = payload => dispatch(applyLeaves(payload));
 
   const resetFilters = () =>
     dispatch(setLeavesFilters({ q: '', type: 'All', status: 'All' }));
 
+  /* ================= UI ================= */
+
   return (
-    <ScrollView contentContainerStyle={styles.wrap}>
-      {/* Top pills */}
-      <View style={{ flexDirection: 'row', gap: 8 }}>
+    <View style={styles.screen}>
+      {/* ===== ROW 1 : MODE ===== */}
+      <View style={styles.modeRow}>
         {['list', 'calendar', 'profile'].map(m => (
           <Pill
             key={m}
@@ -155,18 +173,26 @@ export default function AdminLeavesScreen() {
         ))}
       </View>
 
-      {/* Filters + Add button row */}
-      <View style={styles.card}>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-          <View style={{ flexBasis: '60%', minWidth: 220, paddingRight: 8 }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'flex-end',
+          paddingHorizontal: 12,
+        }}
+      >
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ gap: 10 }}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.filterBlock}>
             <Text style={styles.label}>Search</Text>
             <TextInput
               value={filters.q}
               onChangeText={q => dispatch(setLeavesFilters({ q }))}
-              placeholder="employee, reason, status, type"
-              placeholderTextColor="#9ca3af"
+              placeholder="employee, reason, status"
               style={styles.input}
-              autoCapitalize="none"
             />
           </View>
 
@@ -176,59 +202,55 @@ export default function AdminLeavesScreen() {
             options={['All', 'SICK', 'CASUAL', 'EARNED']}
             onChange={type => dispatch(setLeavesFilters({ type }))}
           />
+
           <SelectSmall
             label="Status"
             value={filters.status}
             options={['All', 'APPROVED', 'PENDING', 'REJECTED']}
             onChange={status => dispatch(setLeavesFilters({ status }))}
           />
-        </View>
+        </ScrollView>
 
-        <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
+        <View style={{ flexDirection: 'column', gap: 10 }}>
           <Pressable
-            style={[styles.primaryBtn, { backgroundColor: '#1d4ed8' }]}
+            style={[styles.primaryBtn, styles.addBtn]}
             onPress={() => dispatch(openLeaveModal())}
           >
-            <Text style={[styles.primaryTxt, { color: '#fff' }]}>
-              + Add Leaves
-            </Text>
+            <Text style={styles.addTxt}>+ Add Leaves</Text>
           </Pressable>
+
           <Pressable style={styles.primaryBtn} onPress={resetFilters}>
-            <Text style={styles.primaryTxt}>Clear Filters</Text>
+            <Text style={styles.primaryTxt}>Clear</Text>
           </Pressable>
         </View>
       </View>
 
-      {mode === 'calendar' && (
-        <LeavesCalendar
-          data={leaves}
-          onApprove={lv => dispatch(approveLeave(lv.id))}
-          onReject={lv => dispatch(rejectLeave(lv.id))}
-          onDelete={lv => dispatch(deleteLeave(lv.id))}
-        />
-      )}
+      {/* ===== ROW 3 : CONTENT ===== */}
+      <View style={styles.content}>
+        {mode === 'profile' ? (
+          <LeaveQuotaCard data={quota} loading={quotaLoading} />
+        ) : mode === 'calendar' ? (
+          <LeavesCalendar
+            data={filtered}
+            onApprove={onApprove}
+            onReject={onReject}
+            onDelete={onDelete}
+          />
+        ) : (
+          <ScrollView horizontal>
+            <LeavesTable
+              data={filtered}
+              loading={loading}
+              busyIds={busyIds}
+              onApprove={onApprove}
+              onReject={onReject}
+              onDelete={onDelete}
+            />
+          </ScrollView>
+        )}
+      </View>
 
-      {/* Content by mode */}
-      {mode === 'profile' ? (
-        <LeaveQuotaCard data={quota} loading={quotaLoading} />
-      ) : mode === 'calendar' ? (
-        <View style={styles.card}>
-          <Text style={{ fontWeight: '700' }}>
-            Calendar view (coming later)
-          </Text>
-        </View>
-      ) : (
-        <LeavesTable
-          data={filtered}
-          loading={loading}
-          busyIds={busyIds}
-          onApprove={onApprove}
-          onReject={onReject}
-          onDelete={onDelete}
-        />
-      )}
-
-      {error ? <Text style={styles.err}>Error: {String(error)}</Text> : null}
+      {error && <Text style={styles.err}>{String(error)}</Text>}
 
       <LeaveApplyModal
         visible={modalOpen}
@@ -237,34 +259,33 @@ export default function AdminLeavesScreen() {
         employees={employees}
         applying={applying}
       />
-    </ScrollView>
+    </View>
   );
 }
 
-/** small select used in filter row */
+/* ================= SMALL SELECT ================= */
+
 const SelectSmall = ({ label, value, options, onChange }) => {
   const [open, setOpen] = useState(false);
   return (
-    <View style={{ minWidth: 150, marginRight: 8, marginBottom: 8 }}>
+    <View style={styles.selectWrap}>
       <Text style={styles.label}>{label}</Text>
       <Pressable style={styles.selectBtn} onPress={() => setOpen(o => !o)}>
-        <Text style={styles.value} numberOfLines={1}>
-          {value}
-        </Text>
+        <Text style={styles.value}>{value}</Text>
         <Text style={styles.caret}>{open ? '▴' : '▾'}</Text>
       </Pressable>
       {open && (
         <View style={styles.menu}>
           {options.map(opt => (
             <Pressable
-              key={String(opt)}
+              key={opt}
               onPress={() => {
                 onChange(opt);
                 setOpen(false);
               }}
               style={styles.menuItem}
             >
-              <Text style={styles.menuTxt}>{String(opt)}</Text>
+              <Text>{opt}</Text>
             </Pressable>
           ))}
         </View>
@@ -273,69 +294,85 @@ const SelectSmall = ({ label, value, options, onChange }) => {
   );
 };
 
+/* ================= STYLES ================= */
+
 const styles = StyleSheet.create({
-  wrap: { padding: 12, gap: 12 },
+  screen: { flex: 1, backgroundColor: '#f9fafb' },
+
+  modeRow: {
+    flexDirection: 'row',
+    padding: 12,
+    gap: 8,
+  },
+
   pill: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
-    paddingHorizontal: 12,
+    maxWidth: 160,
+    minWidth: 100,
+    borderColor: '#0042c6ff',
+    paddingHorizontal: 14,
+    marginHorizontal: 4,
     paddingVertical: 8,
     borderRadius: 999,
     backgroundColor: '#fff',
   },
   pillActive: { backgroundColor: '#1d4ed8', borderColor: '#1d4ed8' },
-  pillTxt: { fontWeight: '800', color: '#111827' },
+  pillTxt: { fontWeight: '800', color: '#111827', textAlign: 'center' },
   pillTxtActive: { color: '#fff' },
 
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
+  filtersRow: {
+    paddingHorizontal: 12,
+    gap: 10,
+    backgroundColor: '#1d4ed8',
+    paddingBottom: 8,
+    alignItems: 'flex-start',
+    maxHeight: 90,
   },
-  label: { fontSize: 12, fontWeight: '800', color: '#374151', marginBottom: 6 },
+
+  filterBlock: { maxWidth: 120 },
+
+  content: { flex: 1, paddingHorizontal: 12 },
+
+  label: { fontSize: 12, fontWeight: '800', marginBottom: 6 },
+
   input: {
     borderWidth: 1,
     borderColor: '#e5e7eb',
     borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    padding: 10,
     backgroundColor: '#fff',
-    color: '#111827',
   },
+
+  selectWrap: { minWidth: 150 },
 
   selectBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    backgroundColor: '#fff',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
     borderRadius: 10,
+    padding: 10,
+    backgroundColor: '#fff',
   },
-  value: { flex: 1, color: '#111827' },
-  caret: { color: '#6b7280' },
+
+  value: { flex: 1 },
+  caret: { opacity: 0.6 },
+
   menu: {
-    position: 'absolute',
-    top: 64,
+    position: 'static',
+    top: 60,
     left: 0,
     right: 0,
     backgroundColor: '#fff',
-    borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
-    overflow: 'hidden',
-    zIndex: 20,
+    borderRadius: 10,
+    zIndex: 10,
   },
+
   menuItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+    padding: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#f1f5f9',
   },
-  menuTxt: { color: '#111827' },
 
   primaryBtn: {
     borderWidth: 1,
@@ -344,8 +381,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     backgroundColor: '#fff',
+    // alignSelf: 'flex-end',
   },
-  primaryTxt: { fontWeight: '800', color: '#111827' },
 
-  err: { color: '#b00020', textAlign: 'center', marginTop: 10 },
+  addBtn: { backgroundColor: '#1d4ed8' },
+  addTxt: { color: '#fff', fontWeight: '800' },
+  primaryTxt: { fontWeight: '800' },
+
+  err: { color: '#b00020', textAlign: 'center', margin: 10 },
 });

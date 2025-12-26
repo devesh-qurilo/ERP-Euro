@@ -835,7 +835,7 @@ export const AdminleavesAPI = {
       });
     });
     return api
-      .post('/employee/api/leaves/admin/apply', fd, {
+      .post('/employee/api/leaves/apply', fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       .then(r => r.data);
