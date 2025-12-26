@@ -60,6 +60,7 @@ const Pill = ({ label, active, onPress }) => (
 export default function AdminLeavesScreen() {
   const dispatch = useDispatch();
   const wasApplying = useRef(false);
+  const prevBusyCount = useRef(0);
 
   const list = useSelector(selectLeaves);
   const loading = useSelector(selectLeavesLoading);
@@ -85,6 +86,14 @@ export default function AdminLeavesScreen() {
   useEffect(() => {
     if (mode === 'profile') dispatch(fetchQuota());
   }, [mode, dispatch]);
+
+  useEffect(() => {
+    // when all row actions finished → refetch list
+    if (prevBusyCount.current > 0 && busyIds.length === 0) {
+      dispatch(fetchLeaves());
+    }
+    prevBusyCount.current = busyIds.length;
+  }, [busyIds, dispatch]);
 
   /* ===== CLOSE MODAL ON SUCCESS ===== */
 
