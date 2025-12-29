@@ -28,6 +28,7 @@ import AppreciationsTable from '../components/AppreciationsTable';
 import AwardsTable from '../components/AwardsTable';
 import AppreciationModal from '../components/AppreciationModal';
 import AwardModal from '../components/AwardModal';
+import { fetchAwards } from '../store/actions';
 
 const Select = ({ label, value, options, onChange }) => {
   const [open, setOpen] = useState(false);
@@ -112,6 +113,10 @@ export default function AdminAppreciationsScreen() {
       return true;
     });
   }, [list, filters]);
+
+  useEffect(() => {
+    dispatch(fetchAwards());
+  }, [dispatch]);
 
   const clearFilters = () =>
     dispatch(

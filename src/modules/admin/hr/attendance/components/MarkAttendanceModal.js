@@ -1,5 +1,5 @@
 // src/modules/admin/hr/attendance/components/MarkAttendanceModal.js
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Modal,
   View,
@@ -9,35 +9,43 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import DateTimePicker from '@react-native-community/datetimepicker';
+
+import { fetchEmployees } from '../../employees/store/actions';
+import { fetchDepartments } from '../../departments/store/actions';
+
 import { selectDepartments } from '../../departments/store/selectors';
 import { selectEmpList } from '../../employees/store/selectors';
 import { selectAttSaving } from '../store/selectors';
 
-const Select = ({ label, value, options, onChange, style }) => {
+/* ================== SMALL SELECT ================== */
+const Select = ({ label, value, options, onChange }) => {
   const [open, setOpen] = useState(false);
+
   return (
-    <View style={[{ minWidth: 160, marginRight: 8, marginBottom: 8 }, style]}>
+    <View style={{ minWidth: 160, marginBottom: 8 }}>
       <Text style={styles.label}>{label}</Text>
-      <Pressable style={styles.selectBtn} onPress={() => setOpen(o => !o)}>
-        <Text style={styles.value} numberOfLines={1}>
-          {value ?? '—'}
-        </Text>
+
+      <Pressable style={styles.selectBtn} onPress={() => setOpen(v => !v)}>
+        <Text style={styles.value}>{value || 'All'}</Text>
         <Text style={styles.caret}>{open ? '▴' : '▾'}</Text>
       </Pressable>
+
       {open && (
         <View style={styles.menu}>
-          {options.map(opt => (
+          {options.map(o => (
             <Pressable
-              key={String(opt.value ?? opt)}
+              key={o.value}
               onPress={() => {
-                onChange(opt.value ?? opt);
+                onChange(o.value);
                 setOpen(false);
               }}
               style={styles.menuItem}
             >
-              <Text style={styles.menuTxt}>{String(opt.label ?? opt)}</Text>
+              <Text>{o.label}</Text>
             </Pressable>
           ))}
         </View>
@@ -46,27 +54,48 @@ const Select = ({ label, value, options, onChange, style }) => {
   );
 };
 
+/* ================== MAIN MODAL ================== */
 export default function MarkAttendanceModal({ visible, onClose, onSave }) {
+  const dispatch = useDispatch();
+
+  /* ---------- redux data ---------- */
   const departments = useSelector(selectDepartments);
   const employees = useSelector(selectEmpList);
   const saving = useSelector(selectAttSaving);
 
-  // form state
-  const [mode, setMode] = useState('date'); // 'date' | 'month'
+  /* ---------- fetch deps when modal opens ---------- */
+  useEffect(() => {
+    if (visible) {
+      dispatch(fetchEmployees());
+      dispatch(fetchDepartments());
+    }
+  }, [visible, dispatch]);
+
+  /* ---------- form state ---------- */
+  const [mode, setMode] = useState('date'); // date | month
   const [departmentId, setDept] = useState('');
   const [empIds, setEmpIds] = useState([]);
+
   const [datesCSV, setDatesCSV] = useState('');
   const [year, setYear] = useState(String(new Date().getFullYear()));
-  const [month, setMonth] = useState(String(new Date().getMonth() + 1)); // 1..12
+  const [month, setMonth] = useState(String(new Date().getMonth() + 1));
 
   const [clockInTime, setIn] = useState('09:00:00');
   const [clockOutTime, setOut] = useState('17:00:00');
+
   const [location, setLoc] = useState('Office');
   const [workingFrom, setWF] = useState('Office');
+
   const [late, setLate] = useState(false);
   const [halfDay, setHalf] = useState(false);
   const [overwrite, setOverwrite] = useState(false);
 
+  /* ---------- pickers ---------- */
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showInPicker, setShowInPicker] = useState(false);
+  const [showOutPicker, setShowOutPicker] = useState(false);
+
+  /* ---------- options ---------- */
   const deptOptions = useMemo(
     () => [
       { label: 'All', value: '' },
@@ -77,6 +106,7 @@ export default function MarkAttendanceModal({ visible, onClose, onSave }) {
     ],
     [departments],
   );
+
   const empOptions = useMemo(
     () =>
       employees.map(e => ({
@@ -86,14 +116,16 @@ export default function MarkAttendanceModal({ visible, onClose, onSave }) {
     [employees],
   );
 
-  const toggleEmp = id => {
+  const toggleEmp = id =>
     setEmpIds(prev =>
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id],
     );
-  };
 
+  /* ---------- submit ---------- */
   const submit = () => {
-    const payloadCore = {
+    if (!empIds.length) return;
+
+    const base = {
       payload: {
         clockInTime,
         clockInLocation: location,
@@ -105,17 +137,18 @@ export default function MarkAttendanceModal({ visible, onClose, onSave }) {
         halfDay,
       },
       overwrite,
-      markedBy: empIds[0], // fallback to current admin if you store it
+      markedBy: empIds[0],
     };
 
     if (mode === 'date') {
       const dates = datesCSV
         .split(',')
-        .map(s => s.trim())
+        .map(d => d.trim())
         .filter(Boolean);
+
       onSave({
         type: 'dates',
-        body: { employeeIds: empIds, dates, ...payloadCore },
+        body: { employeeIds: empIds, dates, ...base },
       });
     } else {
       onSave({
@@ -124,25 +157,21 @@ export default function MarkAttendanceModal({ visible, onClose, onSave }) {
           year: Number(year),
           month: Number(month),
           employeeIds: empIds,
-          ...payloadCore,
+          ...base,
         },
       });
     }
   };
 
+  /* ================== UI ================== */
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent animationType="fade">
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
           <Text style={styles.title}>Mark Attendance</Text>
 
-          {/* Mode pills */}
-          <View style={{ flexDirection: 'row', marginBottom: 10, gap: 8 }}>
+          {/* MODE */}
+          <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
             {['date', 'month'].map(m => (
               <Pressable
                 key={m}
@@ -158,147 +187,101 @@ export default function MarkAttendanceModal({ visible, onClose, onSave }) {
             ))}
           </View>
 
-          <ScrollView
-            style={{ maxHeight: 420 }}
-            contentContainerStyle={{ paddingBottom: 8 }}
-          >
+          <ScrollView style={{ maxHeight: 420 }}>
             <Select
               label="Department"
               value={departmentId}
               options={deptOptions}
               onChange={setDept}
             />
-            {/* Multi-select employees (simple badges) */}
+
+            {/* EMPLOYEES */}
             <Text style={styles.label}>Employees *</Text>
-            <View
-              style={{
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                gap: 8,
-                marginBottom: 8,
-              }}
-            >
-              {empOptions.map(opt => (
+            <View style={styles.tags}>
+              {empOptions.map(e => (
                 <Pressable
-                  key={opt.value}
-                  onPress={() => toggleEmp(opt.value)}
+                  key={e.value}
+                  onPress={() => toggleEmp(e.value)}
                   style={[
                     styles.tag,
-                    empIds.includes(opt.value) && styles.tagActive,
+                    empIds.includes(e.value) && styles.tagActive,
                   ]}
                 >
                   <Text
                     style={[
                       styles.tagTxt,
-                      empIds.includes(opt.value) && styles.tagTxtActive,
+                      empIds.includes(e.value) && styles.tagTxtActive,
                     ]}
                   >
-                    {opt.label}
+                    {e.label}
                   </Text>
                 </Pressable>
               ))}
             </View>
 
+            {/* DATE MODE */}
             {mode === 'date' ? (
-              <View style={{ marginBottom: 8 }}>
-                <Text style={styles.label}>
-                  Dates (comma separated YYYY-MM-DD)
-                </Text>
+              <>
+                <Text style={styles.label}>Dates</Text>
                 <TextInput
                   value={datesCSV}
                   onChangeText={setDatesCSV}
-                  placeholder="2025-09-01, 2025-09-02, ..."
+                  placeholder="YYYY-MM-DD, YYYY-MM-DD"
                   style={styles.input}
-                  placeholderTextColor="#9ca3af"
                 />
-              </View>
+
+                <Pressable
+                  onPress={() => setShowDatePicker(true)}
+                  style={{ marginTop: 6 }}
+                >
+                  <Text style={{ color: '#1d4ed8', fontWeight: '700' }}>
+                    + Pick Date
+                  </Text>
+                </Pressable>
+              </>
             ) : (
               <View style={{ flexDirection: 'row', gap: 8 }}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.label}>Year</Text>
-                  <TextInput
-                    value={year}
-                    onChangeText={setYear}
-                    keyboardType="numeric"
-                    style={styles.input}
-                  />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.label}>Month (1-12)</Text>
-                  <TextInput
-                    value={month}
-                    onChangeText={setMonth}
-                    keyboardType="numeric"
-                    style={styles.input}
-                  />
-                </View>
+                <TextInput
+                  style={[styles.input, { flex: 1 }]}
+                  value={year}
+                  onChangeText={setYear}
+                  placeholder="Year"
+                  keyboardType="numeric"
+                />
+                <TextInput
+                  style={[styles.input, { flex: 1 }]}
+                  value={month}
+                  onChangeText={setMonth}
+                  placeholder="Month"
+                  keyboardType="numeric"
+                />
               </View>
             )}
 
-            <View style={{ flexDirection: 'row', gap: 8, marginTop: 6 }}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.label}>Clock In</Text>
-                <TextInput
-                  value={clockInTime}
-                  onChangeText={setIn}
-                  style={styles.input}
-                />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.label}>Clock Out</Text>
-                <TextInput
-                  value={clockOutTime}
-                  onChangeText={setOut}
-                  style={styles.input}
-                />
-              </View>
-            </View>
-
-            <View style={{ flexDirection: 'row', gap: 8 }}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.label}>Location</Text>
-                <TextInput
-                  value={location}
-                  onChangeText={setLoc}
-                  style={styles.input}
-                />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.label}>Working From</Text>
-                <TextInput
-                  value={workingFrom}
-                  onChangeText={setWF}
-                  style={styles.input}
-                />
-              </View>
-            </View>
-
-            <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+            {/* TIME */}
+            <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
               <Pressable
-                onPress={() => setLate(v => !v)}
-                style={[styles.chk, late && styles.chkOn]}
+                onPress={() => setShowInPicker(true)}
+                style={[styles.input, { flex: 1 }]}
               >
-                <Text style={styles.chkTxt}>Late</Text>
+                <Text>In: {clockInTime}</Text>
               </Pressable>
+
               <Pressable
-                onPress={() => setHalf(v => !v)}
-                style={[styles.chk, halfDay && styles.chkOn]}
+                onPress={() => setShowOutPicker(true)}
+                style={[styles.input, { flex: 1 }]}
               >
-                <Text style={styles.chkTxt}>Half Day</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => setOverwrite(v => !v)}
-                style={[styles.chk, overwrite && styles.chkOn]}
-              >
-                <Text style={styles.chkTxt}>Attendance Overwrite</Text>
+                <Text>Out: {clockOutTime}</Text>
               </Pressable>
             </View>
           </ScrollView>
 
+          {/* ACTIONS */}
           <View style={styles.rowEnd}>
             <Pressable onPress={onClose} style={styles.btn}>
-              <Text style={styles.btnTxt}>Cancel</Text>
+              <Text>Cancel</Text>
             </Pressable>
+
             <Pressable
               onPress={submit}
               style={[styles.btn, styles.btnPrimary]}
@@ -307,113 +290,118 @@ export default function MarkAttendanceModal({ visible, onClose, onSave }) {
               {saving ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={[styles.btnTxt, { color: '#fff' }]}>Save</Text>
+                <Text style={{ color: '#fff', fontWeight: '900' }}>Save</Text>
               )}
             </Pressable>
           </View>
         </View>
       </View>
+
+      {/* DATE PICKER */}
+      {showDatePicker && (
+        <DateTimePicker
+          mode="date"
+          value={new Date()}
+          onChange={(e, d) => {
+            setShowDatePicker(false);
+            if (!d) return;
+            const iso = d.toISOString().slice(0, 10);
+            setDatesCSV(p => (p ? `${p}, ${iso}` : iso));
+          }}
+        />
+      )}
+
+      {/* TIME PICKERS */}
+      {showInPicker && (
+        <DateTimePicker
+          mode="time"
+          value={new Date()}
+          onChange={(e, d) => {
+            setShowInPicker(false);
+            if (!d) return;
+            setIn(d.toTimeString().slice(0, 8));
+          }}
+        />
+      )}
+
+      {showOutPicker && (
+        <DateTimePicker
+          mode="time"
+          value={new Date()}
+          onChange={(e, d) => {
+            setShowOutPicker(false);
+            if (!d) return;
+            setOut(d.toTimeString().slice(0, 8));
+          }}
+        />
+      )}
     </Modal>
   );
 }
 
+/* ================== STYLES ================== */
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.35)',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
   },
   sheet: {
     width: '94%',
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 12,
-    maxHeight: '90%',
   },
-  title: { fontSize: 18, fontWeight: '900', marginBottom: 8, color: '#0b0b0c' },
-  label: { fontSize: 12, fontWeight: '800', color: '#374151', marginBottom: 6 },
+  title: { fontSize: 18, fontWeight: '900', marginBottom: 8 },
+  label: { fontSize: 12, fontWeight: '800', marginBottom: 6 },
   input: {
     borderWidth: 1,
     borderColor: '#e5e7eb',
     borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    color: '#111827',
-    backgroundColor: '#fff',
+    padding: 10,
   },
   selectBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
     borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    backgroundColor: '#fff',
+    padding: 10,
+    flexDirection: 'row',
   },
-  value: { flex: 1, color: '#111827' },
-  caret: { color: '#6b7280' },
+  value: { flex: 1 },
+  caret: { opacity: 0.6 },
   menu: {
     position: 'absolute',
-    top: 64,
-    left: 0,
-    right: 0,
+    top: 60,
     backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
     borderRadius: 10,
-    zIndex: 30,
+    zIndex: 20,
   },
-  menuItem: {
-    padding: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#f1f5f9',
-  },
-  menuTxt: { color: '#111827' },
+  menuItem: { padding: 10 },
+  tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   tag: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
-  tagActive: { backgroundColor: '#1d4ed8', borderColor: '#1d4ed8' },
-  tagTxt: { color: '#111827', fontSize: 12 },
+  tagActive: { backgroundColor: '#1d4ed8' },
+  tagTxt: { fontSize: 12 },
   tagTxtActive: { color: '#fff' },
   pill: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
-  pillActive: { backgroundColor: '#111827', borderColor: '#111827' },
-  pillTxt: { color: '#111827', fontWeight: '800' },
+  pillActive: { backgroundColor: '#111827' },
   pillTxtActive: { color: '#fff' },
-  chk: {
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-  chkOn: { backgroundColor: '#e0f2fe', borderColor: '#38bdf8' },
-  chkTxt: { color: '#0b0b0c', fontWeight: '700' },
-  rowEnd: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 8,
-    marginTop: 10,
-  },
+  rowEnd: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8 },
   btn: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    backgroundColor: '#fff',
   },
-  btnPrimary: { backgroundColor: '#1d4ed8', borderColor: '#1d4ed8' },
-  btnTxt: { fontWeight: '900', color: '#111827' },
+  btnPrimary: { backgroundColor: '#1d4ed8' },
 });
