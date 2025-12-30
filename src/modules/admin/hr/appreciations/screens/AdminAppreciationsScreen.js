@@ -6,8 +6,11 @@ import {
   ScrollView,
   Pressable,
   TextInput,
+  Platform,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 import {
   fetchAppreciations,
   setApprecFilters,
@@ -16,7 +19,9 @@ import {
   openAwardModal,
   deleteAppreciation,
   toggleAward,
+  fetchAwards,
 } from '../store/actions';
+
 import {
   selectApprecs,
   selectApprecsFilters,
@@ -24,11 +29,21 @@ import {
   selectAwards,
   selectApprecMode,
 } from '../store/selectors';
+
 import AppreciationsTable from '../components/AppreciationsTable';
 import AwardsTable from '../components/AwardsTable';
 import AppreciationModal from '../components/AppreciationModal';
 import AwardModal from '../components/AwardModal';
-import { fetchAwards } from '../store/actions';
+
+/* ---------------- helpers ---------------- */
+
+const formatDate = d => {
+  if (!d) return '';
+  const dt = d instanceof Date ? d : new Date(d);
+  return dt.toISOString().slice(0, 10);
+};
+
+/* ---------------- Select ---------------- */
 
 const Select = ({ label, value, options, onChange }) => {
   const [open, setOpen] = useState(false);
@@ -61,18 +76,25 @@ const Select = ({ label, value, options, onChange }) => {
   );
 };
 
+/* ---------------- Screen ---------------- */
+
 export default function AdminAppreciationsScreen() {
   const dispatch = useDispatch();
+
   const list = useSelector(selectApprecs);
   const awards = useSelector(selectAwards);
   const filters = useSelector(selectApprecsFilters);
   const busyIds = useSelector(selectApprecBusyIds);
   const mode = useSelector(selectApprecMode);
-  console.log('selector list aprr', list);
+
+  const [showPicker, setShowPicker] = useState(null); // 'start' | 'end' | null
 
   useEffect(() => {
     dispatch(fetchAppreciations());
+    dispatch(fetchAwards());
   }, [dispatch]);
+
+  /* -------- filter options -------- */
 
   const awardOpts = useMemo(
     () => [
@@ -81,6 +103,7 @@ export default function AdminAppreciationsScreen() {
     ],
     [list],
   );
+
   const empOpts = useMemo(
     () => [
       'All',
@@ -90,6 +113,8 @@ export default function AdminAppreciationsScreen() {
     ],
     [list],
   );
+
+  /* -------- filtering -------- */
 
   const filtered = useMemo(() => {
     const q = (filters.q || '').trim().toLowerCase();
@@ -114,10 +139,6 @@ export default function AdminAppreciationsScreen() {
     });
   }, [list, filters]);
 
-  useEffect(() => {
-    dispatch(fetchAwards());
-  }, [dispatch]);
-
   const clearFilters = () =>
     dispatch(
       setApprecFilters({
@@ -129,11 +150,14 @@ export default function AdminAppreciationsScreen() {
       }),
     );
 
+  /* ---------------- UI ---------------- */
+
   return (
     <ScrollView contentContainerStyle={styles.wrap}>
-      {/* Filters */}
+      {/* ================= FILTERS ================= */}
       <View style={styles.card}>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+          {/* Search */}
           <View style={{ flexBasis: '60%', minWidth: 220, paddingRight: 8 }}>
             <Text style={styles.label}>Search</Text>
             <TextInput
@@ -144,12 +168,14 @@ export default function AdminAppreciationsScreen() {
               style={styles.input}
             />
           </View>
+
           <Select
             label="Award"
             value={filters.award}
             options={awardOpts}
             onChange={award => dispatch(setApprecFilters({ award }))}
           />
+
           <Select
             label="Employee"
             value={filters.employee}
@@ -157,28 +183,34 @@ export default function AdminAppreciationsScreen() {
             onChange={employee => dispatch(setApprecFilters({ employee }))}
           />
         </View>
+
+        {/* Date pickers */}
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 8 }}>
           <View style={{ minWidth: 150, marginRight: 8 }}>
             <Text style={styles.label}>Start</Text>
-            <TextInput
-              value={filters.start}
-              onChangeText={start => dispatch(setApprecFilters({ start }))}
-              placeholder="YYYY-MM-DD"
-              placeholderTextColor="#9ca3af"
+            <Pressable
+              onPress={() => setShowPicker('start')}
               style={styles.input}
-            />
+            >
+              <Text style={{ color: filters.start ? '#111827' : '#9ca3af' }}>
+                {filters.start || 'Select date'}
+              </Text>
+            </Pressable>
           </View>
+
           <View style={{ minWidth: 150 }}>
             <Text style={styles.label}>End</Text>
-            <TextInput
-              value={filters.end}
-              onChangeText={end => dispatch(setApprecFilters({ end }))}
-              placeholder="YYYY-MM-DD"
-              placeholderTextColor="#9ca3af"
+            <Pressable
+              onPress={() => setShowPicker('end')}
               style={styles.input}
-            />
+            >
+              <Text style={{ color: filters.end ? '#111827' : '#9ca3af' }}>
+                {filters.end || 'Select date'}
+              </Text>
+            </Pressable>
           </View>
         </View>
+
         {(filters.q ||
           filters.start ||
           filters.end ||
@@ -190,7 +222,7 @@ export default function AdminAppreciationsScreen() {
         )}
       </View>
 
-      {/* Buttons row */}
+      {/* ================= HEADER ================= */}
       <View style={styles.headerRow}>
         <Text style={styles.sectionTitle}>Appreciations</Text>
         <View style={{ gap: 8 }}>
@@ -202,6 +234,7 @@ export default function AdminAppreciationsScreen() {
               + Add Appreciation
             </Text>
           </Pressable>
+
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <Pressable
               style={[
@@ -212,6 +245,7 @@ export default function AdminAppreciationsScreen() {
             >
               <Text style={styles.primaryTxt}>List</Text>
             </Pressable>
+
             <Pressable
               style={[
                 styles.primaryBtn,
@@ -225,7 +259,30 @@ export default function AdminAppreciationsScreen() {
         </View>
       </View>
 
-      {/* Tables */}
+      {/* ================= DATE PICKER ================= */}
+      {showPicker && (
+        <DateTimePicker
+          value={
+            filters[showPicker] ? new Date(filters[showPicker]) : new Date()
+          }
+          mode="date"
+          display={Platform.OS === 'ios' ? 'inline' : 'default'}
+          onChange={(event, selectedDate) => {
+            if (Platform.OS !== 'ios') setShowPicker(null);
+            if (event?.type === 'dismissed' || !selectedDate) return;
+
+            dispatch(
+              setApprecFilters({
+                [showPicker]: formatDate(selectedDate),
+              }),
+            );
+
+            if (Platform.OS === 'ios') setShowPicker(null);
+          }}
+        />
+      )}
+
+      {/* ================= TABLES ================= */}
       {mode === 'list' ? (
         <AppreciationsTable
           data={filtered}
@@ -242,15 +299,18 @@ export default function AdminAppreciationsScreen() {
         />
       )}
 
-      {/* Modals */}
+      {/* ================= MODALS ================= */}
       <AppreciationModal />
       <AwardModal />
     </ScrollView>
   );
 }
 
+/* ---------------- styles ---------------- */
+
 const styles = StyleSheet.create({
   wrap: { padding: 12, gap: 12 },
+
   card: {
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -258,11 +318,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e5e7eb',
   },
+
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+
   sectionTitle: {
     fontSize: 20,
     fontWeight: '900',
@@ -270,7 +332,13 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
 
-  label: { fontSize: 12, fontWeight: '800', color: '#374151', marginBottom: 6 },
+  label: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#374151',
+    marginBottom: 6,
+  },
+
   input: {
     borderWidth: 1,
     borderColor: '#e5e7eb',
@@ -278,8 +346,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     backgroundColor: '#fff',
-    color: '#111827',
   },
+
   selectBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -290,8 +358,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
   },
+
   value: { flex: 1, color: '#111827' },
   caret: { color: '#6b7280' },
+
   menu: {
     position: 'absolute',
     top: 64,
@@ -303,12 +373,14 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
     zIndex: 20,
   },
+
   menuItem: {
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#f1f5f9',
   },
+
   menuTxt: { color: '#111827' },
 
   primaryBtn: {
@@ -319,8 +391,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     backgroundColor: '#fff',
   },
+
   primaryBtnActive: { backgroundColor: '#eff6ff' },
+
   primaryTxt: { fontWeight: '800', color: '#111827' },
+
   clearBtn: {
     alignSelf: 'flex-start',
     marginTop: 8,
@@ -331,5 +406,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     backgroundColor: '#fff',
   },
+
   clearTxt: { fontWeight: '800', color: '#111827' },
 });
