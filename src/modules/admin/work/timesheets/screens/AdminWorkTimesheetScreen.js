@@ -8,6 +8,7 @@ import {
   TextInput,
   Pressable,
   Image,
+  Alert,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import AddTimeLogModal from '../components/AddTimeLogModal';
@@ -16,6 +17,8 @@ import {
   createWeeklyTimesheet,
   getWeeklyTimesheet,
   createTimesheet,
+  VcreateWeeklyTimesheet,
+  VgetWeeklyTimesheet,
 } from '../store/actions';
 import {
   selectMyTimesheets,
@@ -43,6 +46,7 @@ import { selectList as selectTasks } from '../../../shared/tasks/store/selectors
 import TimesheetViewModal from '../components/TimesheetViewModal';
 import WeeklyTimesheetModal from '../components/WeeklyTimesheetModal';
 import TimesheetCalendarModal from '../components/TimesheetCalendarModal';
+import TimesheetsTable from '../components/TimesheetsTable';
 // const weeklyAll = useSelector(selectWeeklyAll);
 // const weeklyAllLoading = useSelector(selectWeeklyAllLoading);
 // const weeklyCreateLoading = useSelector(selectWeeklyCreateLoading);
@@ -141,6 +145,34 @@ export default function AdminTimesheetsScreen() {
     setViewOpen(true);
   };
 
+  const handleView = ts => {
+    setActive(ts);
+    setViewOpen(true);
+  };
+
+  const handleEdit = ts => {
+    setActive(ts);
+    setAddOpen(true); // or Edit modal
+  };
+
+  const handleDelete = ts => {
+    Alert.alert(
+      'Delete Timesheet',
+      'Are you sure you want to delete this entry?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            await dispatch(deleteTimesheet(ts.id));
+            dispatch(fetchMyTimesheets()); // 🔥 auto re-render
+          },
+        },
+      ],
+    );
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.wrap}>
       {/* Filters / Actions */}
@@ -234,7 +266,7 @@ export default function AdminTimesheetsScreen() {
 
       {/* Table */}
       <Text style={styles.sectionTitle}>My Timesheets</Text>
-      <ScrollView
+      {/* <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.tableWrap}
@@ -289,7 +321,13 @@ export default function AdminTimesheetsScreen() {
             <Text style={[styles.dim, { padding: 10 }]}>Loading…</Text>
           )}
         </View>
-      </ScrollView>
+      </ScrollView> */}
+      <TimesheetsTable
+        data={filtered}
+        onView={handleView}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
       {error && <Text style={styles.err}>Error: {String(error)}</Text>}
 
       {/* Modals */}
@@ -308,8 +346,8 @@ export default function AdminTimesheetsScreen() {
         tasks={myTasks} // from /me/tasks (selectTasks)
         loading={weeklyLoading}
         weekly={weekly}
-        onFetch={weekStart => dispatch(getWeeklyTimesheet(weekStart))}
-        onCreate={payload => dispatch(createWeeklyTimesheet(payload))}
+        onFetch={weekStart => dispatch(VgetWeeklyTimesheet(weekStart))}
+        onCreate={payload => dispatch(VcreateWeeklyTimesheet(payload))}
         onClose={() => setWeeklyOpen(false)}
       />
 

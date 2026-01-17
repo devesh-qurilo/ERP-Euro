@@ -9,3 +9,4 @@ export const selectSearch = s => base(s)?.q || '';
 export const selectView = s => base(s)?.view || 'list';
 export const selectModal = s => base(s)?.modal || { visible: false };
 export const selectTotal = s => base(s)?.total ?? 0;
+export const selectMyTasks = s => base(s).myList;

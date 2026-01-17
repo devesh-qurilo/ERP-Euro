@@ -96,6 +96,18 @@ function* updateStageWorker({ taskId, stageId }) {
   }
 }
 
+function* fetchMyTasksSaga() {
+  try {
+    const data = yield call(myTasksAPI.list);
+    yield put({ type: T.FETCH_MY_TASKS_SUCCESS, payload: data });
+  } catch (e) {
+    yield put({
+      type: T.FETCH_MY_TASKS_FAILURE,
+      error: e?.message || 'Failed to load my tasks',
+    });
+  }
+}
+
 export function* tasksWatcher() {
   yield takeLatest(T.FETCH_REQ, fetchWorker);
   yield takeLatest(T.CREATE_REQ, createWorker);
@@ -104,6 +116,7 @@ export function* tasksWatcher() {
   yield takeLatest(T.PIN_REQ, pinWorker);
   yield takeLatest(T.UNPIN_REQ, unpinWorker);
   yield takeLatest(T.TASK_STAGE_UPDATE_REQ, updateStageWorker);
+  yield takeLatest(T.FETCH_MY_TASKS_REQUEST, fetchMyTasksSaga);
 }
 
 export default tasksWatcher;

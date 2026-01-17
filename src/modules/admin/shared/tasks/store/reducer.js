@@ -3,6 +3,7 @@ import * as T from './types';
 const initial = {
   source: { kind: 'all', id: null }, // 👈 controls which API to call
   list: [],
+  myList: [],
   busy: false,
   error: null,
   filters: { hideCompleted: false, status: '', duration: '' },
@@ -64,6 +65,14 @@ export default function reducer(state = initial, action) {
           x.id === action.taskId ? { ...x, pinned: false, pinnedAt: null } : x,
         ),
       };
+    case T.FETCH_MY_TASKS_REQUEST:
+      return { ...state, loading: true, error: null };
+
+    case T.FETCH_MY_TASKS_SUCCESS:
+      return { ...state, loading: false, myList: action.payload || [] };
+
+    case T.FETCH_MY_TASKS_FAILURE:
+      return { ...state, loading: false, error: action.error };
 
     default:
       return state;

@@ -79,6 +79,39 @@ export default function AdminTimesheetsReducer(state = initial, action) {
         weekly: { ...state.weekly, loading: false, error: action.error },
       };
 
+    case T.VCREATE_WEEKLY_TIMESHEET_REQUEST:
+      // case T.VGET_WEEKLY_TIMESHEET_REQUEST:
+      return {
+        ...state,
+        weekly: {
+          ...state.weekly,
+          loading: true,
+          error: null,
+        },
+      };
+
+    case T.VCREATE_WEEKLY_TIMESHEET_SUCCESS:
+      // case T.VGET_WEEKLY_TIMESHEET_SUCCESS:
+      return {
+        ...state,
+        weekly: {
+          data: action.payload,
+          loading: false,
+          error: null,
+        },
+      };
+
+    case T.VCREATE_WEEKLY_TIMESHEET_FAILURE:
+      // case T.VGET_WEEKLY_TIMESHEET_FAILURE:
+      return {
+        ...state,
+        weekly: {
+          ...state.weekly,
+          loading: false,
+          error: action.error,
+        },
+      };
+
     default:
       return state;
   }

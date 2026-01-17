@@ -3,7 +3,7 @@ import * as T from './types';
 export const setBusy = busy => ({ type: T.SET_BUSY, busy });
 export const setFilters = (filters = {}) => ({ type: T.SET_FILTERS, filters });
 export const setSearch = (q = '') => ({ type: T.SET_SEARCH, q });
-export const setPagination = (page = 0, size = 20) => ({
+export const setPagination = (page = 0, size = 200) => ({
   type: T.SET_PAGINATION,
   page,
   size,

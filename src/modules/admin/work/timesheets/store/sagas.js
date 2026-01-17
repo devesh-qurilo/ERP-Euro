@@ -1,6 +1,7 @@
 import { call, put, takeLatest, all } from 'redux-saga/effects';
 import {
   AdminmyTimesheetsAPI,
+  AdminWeeklyTimesheetsAPI,
   AdminweeklyTimesheetsAPI,
 } from '../../../../../services/api';
 import * as T from './types';
@@ -87,6 +88,64 @@ function* getWeeklySaga({ weekStartDate }) {
   }
 }
 
+// function* VcreateWeeklySaga({ payload }) {
+//   console.log('rammm jii', payload);
+//   try {
+//     const res = yield call(AdminWeeklyTimesheetsAPI.create, payload);
+//     console.log('devesh bhaiii weekly chalegaa kyaa ', res);
+//     yield put({
+//       type: T.VCREATE_WEEKLY_TIMESHEET_SUCCESS,
+//       payload: res,
+//     });
+//   } catch (e) {
+//     console.log('rammm error');
+//     yield put({
+//       type: T.VCREATE_WEEKLY_TIMESHEET_FAILURE,
+//       error: e?.message || 'Create weekly timesheet failed',
+//     });
+//   }
+// }
+
+function* VcreateWeeklySaga({ payload }) {
+  try {
+    console.log('weekly payload =>', JSON.stringify(payload, null, 2));
+
+    const res = yield call(AdminWeeklyTimesheetsAPI.create, payload);
+
+    console.log('weekly create success =>', res);
+
+    yield put({
+      type: T.VCREATE_WEEKLY_TIMESHEET_SUCCESS,
+      payload: res,
+    });
+  } catch (e) {
+    console.error('weekly create failed =>', e?.response?.data || e);
+
+    yield put({
+      type: T.VCREATE_WEEKLY_TIMESHEET_FAILURE,
+      error:
+        e?.response?.data?.message ||
+        e?.message ||
+        'Create weekly timesheet failed',
+    });
+  }
+}
+
+function* VgetWeeklySaga({ weekStartDate }) {
+  try {
+    const res = yield call(AdminWeeklyTimesheetsAPI.getMine, weekStartDate);
+    yield put({
+      type: T.VGET_WEEKLY_TIMESHEET_SUCCESS,
+      payload: res,
+    });
+  } catch (e) {
+    yield put({
+      type: T.VGET_WEEKLY_TIMESHEET_FAILURE,
+      error: e?.message || 'Fetch weekly timesheet failed',
+    });
+  }
+}
+
 export function* AdminTimesheetsWatcher() {
   yield all([
     takeLatest(T.FETCH_MY_TIMESHEETS_REQUEST, fetchMine),
@@ -96,5 +155,7 @@ export function* AdminTimesheetsWatcher() {
 
     takeLatest(T.CREATE_WEEKLY_TIMESHEET_REQUEST, createWeeklySaga),
     takeLatest(T.GET_WEEKLY_TIMESHEET_REQUEST, getWeeklySaga),
+    takeLatest(T.VCREATE_WEEKLY_TIMESHEET_REQUEST, VcreateWeeklySaga),
+    takeLatest(T.VGET_WEEKLY_TIMESHEET_REQUEST, VgetWeeklySaga),
   ]);
 }

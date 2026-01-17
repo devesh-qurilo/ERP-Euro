@@ -7,6 +7,7 @@ import {
   Image,
   Pressable,
 } from 'react-native';
+import KebabMenu from './KebabMenu';
 
 const fmtDate = d => (d ? new Date(d).toLocaleDateString() : '—');
 const fmtTime = t => (t ? t.slice(0, 5) : '—');
@@ -21,7 +22,12 @@ const RowHead = ({ cols, widths }) => (
   </View>
 );
 
-export default function TimesheetsTable({ data = [], onView }) {
+export default function TimesheetsTable({
+  data = [],
+  onView,
+  onEdit,
+  onDelete,
+}) {
   return (
     <ScrollView horizontal style={styles.tableWrap}>
       <View style={styles.table}>
@@ -86,9 +92,13 @@ export default function TimesheetsTable({ data = [], onView }) {
             <Cell w={90} text={`${s.durationHours ?? 0} h`} />
 
             <View style={[styles.td, { width: 100 }]}>
-              <Pressable onPress={() => onView?.(s)} style={styles.viewBtn}>
-                <Text style={styles.viewTxt}>View</Text>
-              </Pressable>
+              <View style={[styles.td, { width: 100, alignItems: 'center' }]}>
+                <KebabMenu
+                  onView={() => onView?.(s)}
+                  onEdit={() => onEdit?.(s)}
+                  onDelete={() => onDelete?.(s)}
+                />
+              </View>
             </View>
           </View>
         ))}

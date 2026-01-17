@@ -39,3 +39,7 @@ export const updateTaskStage = (taskId, stageId) => ({
   taskId,
   stageId,
 });
+
+export const fetchMyTasks = () => ({
+  type: T.FETCH_MY_TASKS_REQUEST,
+});

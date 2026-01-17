@@ -1747,6 +1747,15 @@ export const AdminweeklyTimesheetsAPI = {
       .then(r => r.data),
 };
 
+export const AdminWeeklyTimesheetsAPI = {
+  create: payload => api.post('/timesheets/weekly', payload).then(r => r.data),
+
+  getMine: weekStartDate =>
+    api
+      .get('/timesheets/weekly', { params: { weekStartDate } })
+      .then(r => r.data),
+};
+
 export const projectInvoicesAPI = {
   listByProject: projectId =>
     api

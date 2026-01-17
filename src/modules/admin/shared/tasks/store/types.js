@@ -40,3 +40,8 @@ export const TASKS_SET_MODAL = '@tasks/SET_MODAL';
 export const TASKS_FETCH_OK = '@tasks/FETCH_OK';
 export const TASKS_FETCH_ERR = '@tasks/FETCH_ERR';
 export const TASK_STAGE_UPDATE_REQ = 'TASK_STAGE_UPDATE_REQ';
+
+// shared/tasks/store/types.js
+export const FETCH_MY_TASKS_REQUEST = 'tasks/FETCH_MY_TASKS_REQUEST';
+export const FETCH_MY_TASKS_SUCCESS = 'tasks/FETCH_MY_TASKS_SUCCESS';
+export const FETCH_MY_TASKS_FAILURE = 'tasks/FETCH_MY_TASKS_FAILURE';

@@ -464,7 +464,7 @@ export default function ProjectModal({
                     <Picker
                       selectedValue={v.departmentId || ''}
                       onValueChange={val => patch('departmentId', val)}
-                      style={{ color: value, backgroundColor: 'gray' }}
+                      // style={{ color: value, backgroundColor: 'gray' }}
                     >
                       <Picker.Item label="Select department" value="" />
                       {departments.map(d => (

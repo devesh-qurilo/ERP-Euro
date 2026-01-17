@@ -8,9 +8,18 @@ export const selectCreateTimesheetLoading = s =>
 export const selectCreateTimesheetError = s =>
   s.admin?.work?.timesheets?.create?.error;
 
-export const selectWeeklyTimesheet = s =>
-  s.admin?.work?.timesheets?.weekly || null;
+// export const selectWeeklyTimesheet = s =>
+//   s.admin?.work?.timesheets?.weekly || null;
 export const selectWeeklyTimesheetLoad = s =>
   !!s.admin?.work?.timesheets?.weeklyLoading;
+// export const selectWeeklyTimesheetError = s =>
+//   s.admin?.work?.timesheets?.weeklyError || null;
+
+export const selectWeeklyTimesheet = s =>
+  s.admin?.work?.timesheets?.weekly?.data || null;
+
+export const selectWeeklyTimesheetLoading = s =>
+  !!s.admin?.work?.timesheets?.weekly?.loading;
+
 export const selectWeeklyTimesheetError = s =>
-  s.admin?.work?.timesheets?.weeklyError || null;
+  s.admin?.work?.timesheets?.weekly?.error || null;
