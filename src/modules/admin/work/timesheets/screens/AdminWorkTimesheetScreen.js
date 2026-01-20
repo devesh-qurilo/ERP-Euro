@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import AddTimeLogModal from '../components/AddTimeLogModal';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import {
   fetchMyTimesheets,
   createWeeklyTimesheet,
@@ -29,18 +30,6 @@ import {
   selectWeeklyTimesheetLoad,
   selectCreateTimesheetLoading,
 } from '../store/selectors';
-// import {
-//   selectMyTimesheets,
-//   selectMyTimesheetsLoad,
-//   selectWeeklyAll,
-//   selectWeeklyAllLoading,
-//   selectWeeklyCreateLoading,
-// } from '../store/selectors';
-
-import { getWeeklyTimesheetsAll } from '../store/actions';
-//  import { selectTasks } from '../../tasks/store/selectors';
-
-// ✅ pull “my tasks” for the Weekly modal dropdown
 import { fetchTasks as fetchMyTasks } from '../../../shared/tasks/store/actions';
 import { selectList as selectTasks } from '../../../shared/tasks/store/selectors';
 
@@ -48,10 +37,6 @@ import TimesheetViewModal from '../components/TimesheetViewModal';
 import WeeklyTimesheetModal from '../components/WeeklyTimesheetModal';
 import TimesheetCalendarModal from '../components/TimesheetCalendarModal';
 import TimesheetsTable from '../components/TimesheetsTable';
-// const weeklyAll = useSelector(selectWeeklyAll);
-// const weeklyAllLoading = useSelector(selectWeeklyAllLoading);
-// const weeklyCreateLoading = useSelector(selectWeeklyCreateLoading);
-// const myTasks = useSelector(selectTasks);
 
 const Pill = ({ active, label, onPress }) => (
   <Pressable
@@ -84,11 +69,9 @@ const Cell = ({ w, children, text }) => (
   </View>
 );
 
-const fmtDate = d => (d ? new Date(d).toLocaleDateString() : '—');
-const fmtTime = t => (t ? t.slice(0, 5) : '—');
-
 export default function AdminTimesheetsScreen() {
   const dispatch = useDispatch();
+  const [picker, setPicker] = useState({ field: null });
 
   // timesheets
   const list = useSelector(selectMyTimesheets);
@@ -114,6 +97,17 @@ export default function AdminTimesheetsScreen() {
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
   const hasFilters = !!(search.trim() || start || end);
+
+  const openDatePicker = field => setPicker({ field });
+  const closeDatePicker = () => setPicker({ field: null });
+
+  const onDateChange = (_, d) => {
+    if (!d) return closeDatePicker();
+    const v = d.toISOString().slice(0, 10);
+    if (picker.field === 'start') setStart(v);
+    if (picker.field === 'end') setEnd(v);
+    closeDatePicker();
+  };
 
   const filtered = useMemo(() => {
     let data = list;
@@ -173,16 +167,9 @@ export default function AdminTimesheetsScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.wrap}>
-      {/* Filters / Actions */}
-      <View style={styles.card}>
-        <View
-          style={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            gap: 8,
-            marginBottom: 8,
-          }}
-        >
+      <View style={styles.toolbar}>
+        {/* LEFT: MODE */}
+        <View style={styles.modeGroup}>
           <Pill
             label="List"
             active={mode === 'list'}
@@ -197,125 +184,75 @@ export default function AdminTimesheetsScreen() {
             }}
           />
 
-          <Pressable
-            style={[styles.primaryBtn]}
-            onPress={() => setAddOpen(true)}
-          >
-            <Text style={styles.primaryTxt}>+ Add Log</Text>
-          </Pressable>
-          <Pressable
-            style={[styles.primaryBtn, { backgroundColor: '#111827' }]}
-            onPress={() => setWeeklyOpen(true)}
-          >
-            <Text style={[styles.primaryTxt, { color: '#fff' }]}>+ Weekly</Text>
-          </Pressable>
-        </View>
+          {/* RIGHT: ACTIONS */}
+          <View style={styles.actionGroup}>
+            <Pressable
+              style={styles.actionBtn}
+              onPress={() => setAddOpen(true)}
+            >
+              <Text style={styles.actionTxt}>＋ Log</Text>
+            </Pressable>
 
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-          <View style={{ flexBasis: '60%', minWidth: 220, paddingRight: 8 }}>
-            <Text style={styles.label}>Search</Text>
-            <TextInput
-              value={search}
-              onChangeText={setSearch}
-              placeholder="memo, employee, task, project"
-              placeholderTextColor="#9ca3af"
-              style={styles.input}
-            />
-          </View>
-          <View style={{ flexBasis: '20%', minWidth: 150, paddingRight: 8 }}>
-            <Text style={styles.label}>Start From</Text>
-            <TextInput
-              value={start}
-              onChangeText={setStart}
-              placeholder="YYYY-MM-DD"
-              placeholderTextColor="#9ca3af"
-              style={styles.input}
-            />
-          </View>
-          <View style={{ flexBasis: '20%', minWidth: 150 }}>
-            <Text style={styles.label}>End To</Text>
-            <TextInput
-              value={end}
-              onChangeText={setEnd}
-              placeholder="YYYY-MM-DD"
-              placeholderTextColor="#9ca3af"
-              style={styles.input}
-            />
+            <Pressable
+              style={[styles.actionBtn, styles.actionPrimary]}
+              onPress={() => setWeeklyOpen(true)}
+            >
+              <Text style={[styles.actionTxt, { color: '#fff' }]}>Weekly</Text>
+            </Pressable>
           </View>
         </View>
 
-        {hasFilters && (
+        {/* CENTER: FILTERS */}
+        <View style={styles.filterRow}>
+          <TextInput
+            value={search}
+            onChangeText={setSearch}
+            placeholder="Search"
+            placeholderTextColor="#9ca3af"
+            style={[styles.input, styles.search]}
+          />
+
           <Pressable
-            onPress={() => {
-              setSearch('');
-              setStart('');
-              setEnd('');
-            }}
-            style={styles.clearBtn}
+            style={styles.dateInput}
+            onPress={() => openDatePicker('start')}
           >
-            <Text style={styles.clearTxt}>Clear All</Text>
+            <Text style={!start && styles.placeholder}>{start || 'Start'}</Text>
           </Pressable>
-        )}
+
+          <Pressable
+            style={styles.dateInput}
+            onPress={() => openDatePicker('end')}
+          >
+            <Text style={!end && styles.placeholder}>{end || 'End'}</Text>
+          </Pressable>
+
+          {(search || start || end) && (
+            <Pressable
+              onPress={() => {
+                setSearch('');
+                setStart('');
+                setEnd('');
+              }}
+              style={styles.clearBtnInline}
+            >
+              <Text style={styles.clearTxt}>✕</Text>
+            </Pressable>
+          )}
+        </View>
       </View>
+
+      {picker.field && (
+        <DateTimePicker
+          value={new Date()}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={onDateChange}
+        />
+      )}
 
       {/* Table */}
       <Text style={styles.sectionTitle}>My Timesheets</Text>
-      {/* <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.tableWrap}
-      >
-        <View style={styles.table}>
-          <RowHead
-            cols={['Employee', 'Start', 'End', 'Memo', 'Hours', 'Action']}
-            widths={[220, 180, 180, 260, 100, 120]}
-          />
-          {(loading ? [] : filtered).map(ts => (
-            <Row key={ts.id}>
-              <Cell w={220}>
-                <View
-                  style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
-                >
-                  {ts.employees?.[0]?.profileUrl ? (
-                    <Image
-                      source={{ uri: ts.employees[0].profileUrl }}
-                      style={styles.avatar}
-                    />
-                  ) : (
-                    <View style={[styles.avatar, styles.avatarEmpty]}>
-                      <Text>👤</Text>
-                    </View>
-                  )}
-                  <View>
-                    <Text style={styles.body} numberOfLines={1}>
-                      {ts.employees?.[0]?.name || ts.employeeId}
-                    </Text>
-                    <Text style={styles.dim}>#{ts.employeeId}</Text>
-                  </View>
-                </View>
-              </Cell>
-              <Cell
-                w={180}
-                text={`${fmtDate(ts.startDate)}  ${fmtTime(ts.startTime)}`}
-              />
-              <Cell
-                w={180}
-                text={`${fmtDate(ts.endDate)}  ${fmtTime(ts.endTime)}`}
-              />
-              <Cell w={260} text={ts.memo || '—'} />
-              <Cell w={100} text={`${ts.durationHours ?? 0}h`} />
-              <Cell w={120}>
-                <Pressable style={styles.viewBtn} onPress={() => openView(ts)}>
-                  <Text style={styles.viewTxt}>View</Text>
-                </Pressable>
-              </Cell>
-            </Row>
-          ))}
-          {loading && (
-            <Text style={[styles.dim, { padding: 10 }]}>Loading…</Text>
-          )}
-        </View>
-      </ScrollView> */}
+
       <TimesheetsTable
         data={filtered}
         onView={handleView}
@@ -455,4 +392,77 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   viewTxt: { color: '#fff', fontWeight: '900' },
+  toolbar: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    gap: 10,
+  },
+
+  modeGroup: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+
+  filterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+
+  search: {
+    flex: 1,
+    minWidth: 120,
+    maxWidth: 120,
+  },
+
+  dateInput: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    minWidth: 90,
+    maxWidth: 90,
+    backgroundColor: '#fff',
+  },
+
+  placeholder: {
+    color: '#9ca3af',
+  },
+
+  clearBtnInline: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#f3f4f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  actionGroup: {
+    flexDirection: 'row',
+    gap: 8,
+    alignSelf: 'flex-end',
+  },
+
+  actionBtn: {
+    borderWidth: 1,
+    borderColor: '#1d4ed8',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+
+  actionPrimary: {
+    backgroundColor: '#111827',
+    borderColor: '#111827',
+  },
+
+  actionTxt: {
+    fontWeight: '900',
+    color: '#111827',
+  },
 });
