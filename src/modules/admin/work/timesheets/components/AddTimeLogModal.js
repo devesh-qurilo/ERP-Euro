@@ -6,17 +6,17 @@ import {
   StyleSheet,
   Pressable,
   ScrollView,
-  Image,
-  Platform,
   TextInput,
+  Platform,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { selectList as selectMyTasks } from '../../../shared/tasks/store/selectors';
 import { selectMyTimesheets } from '../store/selectors';
+import BottomSheetSelect from '../components/BottomSheetSelect';
 
-/* ----------------------------- helpers ----------------------------- */
+/* ---------------- helpers ---------------- */
 
 const FieldLabel = ({ children, required }) => (
   <Text style={styles.label}>
@@ -29,9 +29,9 @@ const parseHM = s => {
   const m = s.match(/^(\d{1,2}):(\d{2})$/);
   if (!m) return null;
   const h = Number(m[1]);
-  const mnt = Number(m[2]);
-  if (h > 23 || mnt > 59) return null;
-  return h * 60 + mnt;
+  const mm = Number(m[2]);
+  if (h > 23 || mm > 59) return null;
+  return h * 60 + mm;
 };
 
 const diffHours = (sd, st, ed, et) => {
@@ -60,18 +60,18 @@ const diffHours = (sd, st, ed, et) => {
   return ms > 0 ? +(ms / 3600000).toFixed(2) : 0;
 };
 
-/* ----------------------------- main ----------------------------- */
+/* ---------------- main ---------------- */
 
 export default function AddTimeLogModal({
   visible,
   onClose,
   onSubmit,
   saving = false,
-  editData = null, // 👈 important
+  editData = null,
 }) {
   const tasks = useSelector(selectMyTasks);
-  const list = useSelector(selectMyTimesheets);
-  const employeeId = list?.[0]?.employeeId;
+  const timesheets = useSelector(selectMyTimesheets);
+  const employeeId = timesheets?.[0]?.employeeId;
 
   /* ---------- state ---------- */
   const [projectId, setProjectId] = useState(null);
@@ -86,6 +86,48 @@ export default function AddTimeLogModal({
   const [error, setError] = useState('');
 
   const [picker, setPicker] = useState({ mode: null, field: null });
+  const [projectOpen, setProjectOpen] = useState(false);
+  const [taskOpen, setTaskOpen] = useState(false);
+
+  /* ---------- derived options ---------- */
+
+  const projectOptions = useMemo(() => {
+    const map = new Map();
+    tasks.forEach(t => {
+      if (!map.has(t.projectId)) {
+        map.set(t.projectId, {
+          value: t.projectId,
+          label: t.projectName || `Project #${t.projectId}`,
+        });
+      }
+    });
+    return Array.from(map.values());
+  }, [tasks]);
+
+  const taskOptions = useMemo(() => {
+    return tasks
+      .filter(t => t.projectId === projectId)
+      .map(t => ({
+        value: t.id,
+        label: t.title,
+        group: t.projectName,
+      }));
+  }, [tasks, projectId]);
+
+  const selectedProject = useMemo(
+    () => projectOptions.find(p => p.value === projectId),
+    [projectOptions, projectId],
+  );
+
+  const selectedTask = useMemo(
+    () => taskOptions.find(t => t.value === taskId),
+    [taskOptions, taskId],
+  );
+
+  const totalHours = useMemo(
+    () => diffHours(startDate, startTime, endDate, endTime),
+    [startDate, startTime, endDate, endTime],
+  );
 
   /* ---------- prefill / reset ---------- */
   useEffect(() => {
@@ -111,31 +153,8 @@ export default function AddTimeLogModal({
     setError('');
   }, [visible, editData]);
 
-  /* ---------- derived ---------- */
-  const projects = useMemo(() => {
-    const map = new Map();
-    tasks.forEach(t => {
-      if (!map.has(t.projectId)) {
-        map.set(t.projectId, {
-          id: t.projectId,
-          name: t.projectName || `Project #${t.projectId}`,
-        });
-      }
-    });
-    return Array.from(map.values());
-  }, [tasks]);
-
-  const filteredTasks = useMemo(
-    () => tasks.filter(t => (projectId ? t.projectId === projectId : true)),
-    [tasks, projectId],
-  );
-
-  const totalHours = useMemo(
-    () => diffHours(startDate, startTime, endDate, endTime),
-    [startDate, startTime, endDate, endTime],
-  );
-
   /* ---------- picker ---------- */
+
   const openPicker = (mode, field) => setPicker({ mode, field });
   const closePicker = () => setPicker({ mode: null, field: null });
 
@@ -172,13 +191,16 @@ export default function AddTimeLogModal({
   };
 
   /* ---------- submit ---------- */
-  const handleSave = () => {
+
+  const handleSave = async () => {
     if (!projectId) return setError('Select project');
     if (!taskId) return setError('Select task');
     if (!startDate || !startTime || !endDate || !endTime)
-      return setError('Select start and end date/time');
+      return setError('Select start & end date/time');
     if (totalHours <= 0) return setError('End must be after start');
     if (!memo.trim()) return setError('Memo required');
+
+    setError('');
 
     const payload = {
       projectId,
@@ -193,7 +215,12 @@ export default function AddTimeLogModal({
 
     if (editData?.id) payload.id = editData.id;
 
-    onSubmit(payload);
+    try {
+      await onSubmit(payload); // ✅ wait till API success
+      onClose(); // ✅ CLOSE MODAL AFTER SUCCESS
+    } catch (e) {
+      setError(e?.message || 'Failed to save');
+    }
   };
 
   if (!visible) return null;
@@ -212,31 +239,55 @@ export default function AddTimeLogModal({
           </View>
 
           <ScrollView contentContainerStyle={styles.body}>
+            {/* Project */}
             <FieldLabel required>Project</FieldLabel>
-            {projects.map(p => (
-              <Pressable
-                key={p.id}
-                style={[
-                  styles.option,
-                  projectId === p.id && styles.optionActive,
-                ]}
-                onPress={() => setProjectId(p.id)}
-              >
-                <Text>{p.name}</Text>
-              </Pressable>
-            ))}
+            <Pressable
+              style={styles.input}
+              onPress={() => setProjectOpen(true)}
+            >
+              <Text style={{ color: selectedProject ? '#111' : '#9ca3af' }}>
+                {selectedProject?.label || 'Select Project'}
+              </Text>
+            </Pressable>
 
+            <BottomSheetSelect
+              visible={projectOpen}
+              title="Select Project"
+              value={projectId}
+              options={projectOptions}
+              onSelect={o => {
+                setProjectId(o.value);
+                setTaskId(null);
+              }}
+              onClose={() => setProjectOpen(false)}
+            />
+
+            {/* Task */}
             <FieldLabel required>Task</FieldLabel>
-            {filteredTasks.map(t => (
-              <Pressable
-                key={t.id}
-                style={[styles.option, taskId === t.id && styles.optionActive]}
-                onPress={() => setTaskId(t.id)}
-              >
-                <Text>{t.title}</Text>
-              </Pressable>
-            ))}
+            <Pressable
+              style={[
+                styles.input,
+                !projectId && { backgroundColor: '#f3f4f6' },
+              ]}
+              disabled={!projectId}
+              onPress={() => setTaskOpen(true)}
+            >
+              <Text style={{ color: selectedTask ? '#111' : '#9ca3af' }}>
+                {selectedTask?.label ||
+                  (projectId ? 'Select Task' : 'Select project first')}
+              </Text>
+            </Pressable>
 
+            <BottomSheetSelect
+              visible={taskOpen}
+              title="Select Task"
+              value={taskId}
+              options={taskOptions}
+              onSelect={o => setTaskId(o.value)}
+              onClose={() => setTaskOpen(false)}
+            />
+
+            {/* Dates / Times */}
             <FieldLabel required>Start Date</FieldLabel>
             <Pressable
               style={styles.input}
@@ -252,15 +303,6 @@ export default function AddTimeLogModal({
             >
               <Text>{startTime || 'Select time'}</Text>
             </Pressable>
-            {picker.mode && (
-              <DateTimePicker
-                value={pickerValue}
-                mode={picker.mode}
-                is24Hour
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                onChange={onPickerChange}
-              />
-            )}
 
             <FieldLabel required>End Date</FieldLabel>
             <Pressable
@@ -278,6 +320,17 @@ export default function AddTimeLogModal({
               <Text>{endTime || 'Select time'}</Text>
             </Pressable>
 
+            {picker.mode && (
+              <DateTimePicker
+                value={pickerValue}
+                mode={picker.mode}
+                is24Hour
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={onPickerChange}
+              />
+            )}
+
+            {/* Memo */}
             <FieldLabel required>Memo</FieldLabel>
             <TextInput
               value={memo}
@@ -303,12 +356,12 @@ export default function AddTimeLogModal({
   );
 }
 
-/* ----------------------------- styles ----------------------------- */
+/* ---------------- styles ---------------- */
 
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'rgba(0,0,0,0.35)',
     justifyContent: 'flex-end',
   },
   sheet: {
@@ -335,15 +388,6 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 8,
   },
-
-  option: {
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 8,
-    marginBottom: 6,
-  },
-  optionActive: { backgroundColor: '#eef2ff' },
 
   total: { marginTop: 10, fontWeight: '900' },
   err: { color: '#b00020', marginTop: 6 },
