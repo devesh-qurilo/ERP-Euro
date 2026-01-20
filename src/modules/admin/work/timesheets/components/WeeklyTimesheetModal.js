@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useDispatch, useSelector } from 'react-redux';
+
+import Icon from 'react-native-vector-icons/Ionicons';
 import {
   selectFilters,
   selectMyTasks,
@@ -171,8 +173,12 @@ export default function WeeklyTimesheetModal({
                 {/* Header */}
                 <View style={styles.header}>
                   <Text style={styles.title}>Weekly Timesheet</Text>
-                  <Pressable onPress={onClose}>
-                    <Text style={styles.close}>✕</Text>
+                  <Pressable
+                    onPress={onClose}
+                    hitSlop={10}
+                    style={styles.closeBtn}
+                  >
+                    <Icon name="close" size={26} color="#111827" />
                   </Pressable>
                 </View>
 
@@ -363,4 +369,12 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   primaryTxt: { color: '#fff', fontWeight: '900' },
+  closeBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f3f4f6',
+  },
 });

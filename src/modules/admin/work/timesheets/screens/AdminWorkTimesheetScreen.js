@@ -19,6 +19,7 @@ import {
   createTimesheet,
   VcreateWeeklyTimesheet,
   VgetWeeklyTimesheet,
+  deleteTimesheet,
 } from '../store/actions';
 import {
   selectMyTimesheets,
@@ -164,10 +165,7 @@ export default function AdminTimesheetsScreen() {
         {
           text: 'Delete',
           style: 'destructive',
-          onPress: async () => {
-            await dispatch(deleteTimesheet(ts.id));
-            dispatch(fetchMyTimesheets()); // 🔥 auto re-render
-          },
+          onPress: () => dispatch(deleteTimesheet(ts.id)),
         },
       ],
     );
@@ -198,11 +196,7 @@ export default function AdminTimesheetsScreen() {
               setCalendarOpen(true);
             }}
           />
-          <Pill
-            label="Weekly"
-            active={mode === 'weekly'}
-            onPress={() => setMode('weekly')}
-          />
+
           <Pressable
             style={[styles.primaryBtn]}
             onPress={() => setAddOpen(true)}
@@ -355,6 +349,7 @@ export default function AdminTimesheetsScreen() {
         visible={addOpen}
         onClose={() => setAddOpen(false)}
         saving={creating}
+        editData={active}
         // (optional) tasks prop. If you omit, it will use selectTasks from store
         // tasks={useSelector(selectTasks)}
         onSubmit={payload => dispatch(createTimesheet(payload))}

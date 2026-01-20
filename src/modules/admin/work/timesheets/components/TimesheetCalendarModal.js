@@ -7,6 +7,7 @@ import {
   Pressable,
   ScrollView,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 const fmt = d => (d ? new Date(d).toLocaleDateString() : '—');
 
 export default function TimesheetCalendarModal({
@@ -28,8 +29,9 @@ export default function TimesheetCalendarModal({
         <View style={s.sheet}>
           <View style={s.header}>
             <Text style={s.h2}>Calendar (grouped by start date)</Text>
-            <Pressable onPress={onClose}>
-              <Text style={{ fontWeight: '900' }}>✕</Text>
+
+            <Pressable onPress={onClose} hitSlop={10} style={s.closeBtn}>
+              <Icon name="close" size={26} color="#111827" />
             </Pressable>
           </View>
           <ScrollView contentContainerStyle={{ padding: 12, gap: 10 }}>
@@ -81,4 +83,12 @@ const s = StyleSheet.create({
   },
   dayTitle: { fontWeight: '900', color: '#111827', marginBottom: 6 },
   row: { color: '#111827' },
+  closeBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f3f4f6',
+  },
 });

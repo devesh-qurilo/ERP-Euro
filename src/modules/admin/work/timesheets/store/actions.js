@@ -28,3 +28,8 @@ export const VgetWeeklyTimesheet = weekStartDate => ({
   type: T.VGET_WEEKLY_TIMESHEET_REQUEST,
   weekStartDate,
 });
+
+export const deleteTimesheet = id => ({
+  type: T.DELETE_TIMESHEET_REQUEST,
+  id,
+});

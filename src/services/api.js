@@ -1736,6 +1736,7 @@ export const ATimesheetsAPI = {
 export const AdminmyTimesheetsAPI = {
   list: (params = {}) => api.get('/timesheets', { params }).then(r => r.data),
   create: payload => api.post('/timesheets', payload).then(r => r.data),
+  remove: id => api.delete(`/timesheets/${id}`),
 };
 
 // --- WEEKLY TIMESHEETS ---

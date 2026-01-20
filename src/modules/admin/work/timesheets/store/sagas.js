@@ -111,6 +111,7 @@ function* VcreateWeeklySaga({ payload }) {
     console.log('weekly payload =>', JSON.stringify(payload, null, 2));
 
     const res = yield call(AdminWeeklyTimesheetsAPI.create, payload);
+    yield put({ type: T.FETCH_MY_TIMESHEETS_REQUEST });
 
     console.log('weekly create success =>', res);
 
@@ -146,6 +147,22 @@ function* VgetWeeklySaga({ weekStartDate }) {
   }
 }
 
+function* deleteTimesheetSaga({ id }) {
+  try {
+    yield call(AdminmyTimesheetsAPI.remove, id);
+
+    // 🔥 refresh list
+    yield put({ type: T.FETCH_MY_TIMESHEETS_REQUEST });
+
+    yield put({ type: T.DELETE_TIMESHEET_SUCCESS });
+  } catch (e) {
+    yield put({
+      type: T.DELETE_TIMESHEET_FAILURE,
+      error: e?.message || 'Delete failed',
+    });
+  }
+}
+
 export function* AdminTimesheetsWatcher() {
   yield all([
     takeLatest(T.FETCH_MY_TIMESHEETS_REQUEST, fetchMine),
@@ -157,5 +174,6 @@ export function* AdminTimesheetsWatcher() {
     takeLatest(T.GET_WEEKLY_TIMESHEET_REQUEST, getWeeklySaga),
     takeLatest(T.VCREATE_WEEKLY_TIMESHEET_REQUEST, VcreateWeeklySaga),
     takeLatest(T.VGET_WEEKLY_TIMESHEET_REQUEST, VgetWeeklySaga),
+    takeLatest(T.DELETE_TIMESHEET_REQUEST, deleteTimesheetSaga),
   ]);
 }

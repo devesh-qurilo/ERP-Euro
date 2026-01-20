@@ -15,6 +15,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { selectList as selectMyTasks } from '../../../shared/tasks/store/selectors';
 import { selectMyTimesheets } from '../store/selectors';
 import BottomSheetSelect from '../components/BottomSheetSelect';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 /* ---------------- helpers ---------------- */
 
@@ -233,8 +234,8 @@ export default function AddTimeLogModal({
             <Text style={styles.title}>
               {editData ? 'Edit Time Log' : 'Add Time Log'}
             </Text>
-            <Pressable onPress={onClose}>
-              <Text style={{ fontWeight: '900' }}>✕</Text>
+            <Pressable onPress={onClose} hitSlop={10} style={styles.closeBtn}>
+              <Icon name="close" size={26} color="#111827" />
             </Pressable>
           </View>
 
@@ -400,4 +401,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   saveTxt: { color: '#fff', fontWeight: '900' },
+  closeBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f3f4f6',
+  },
 });
