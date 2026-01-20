@@ -1,4 +1,3 @@
-// src/modules/employee/works/timesheets/components/AddTimeLogModal.js
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Modal,
@@ -6,70 +5,33 @@ import {
   Text,
   StyleSheet,
   Pressable,
-  TextInput,
   ScrollView,
   Image,
+  Platform,
+  TextInput,
 } from 'react-native';
 import { useSelector } from 'react-redux';
-import { selectList as selectMyTasks } from '../../../shared/tasks/store/selectors'; // <- your tasks selector path
+import DateTimePicker from '@react-native-community/datetimepicker';
+
+import { selectList as selectMyTasks } from '../../../shared/tasks/store/selectors';
 import { selectMyTimesheets } from '../store/selectors';
 
-/* ----------------------------- tiny components ---------------------------- */
+/* ----------------------------- helpers ----------------------------- */
+
 const FieldLabel = ({ children, required }) => (
   <Text style={styles.label}>
-    {children} {required ? <Text style={{ color: '#ef4444' }}>*</Text> : null}
+    {children} {required && <Text style={{ color: '#ef4444' }}>*</Text>}
   </Text>
 );
 
-const Select = ({ placeholder = 'Select', value, onChange, options = [] }) => {
-  const [open, setOpen] = useState(false);
-  const current = options.find(o => String(o.value) === String(value));
-  return (
-    <View style={{ marginBottom: 12 }}>
-      <Pressable
-        style={styles.selectBtn}
-        onPress={() => setOpen(o => !o)}
-        accessibilityRole="button"
-      >
-        <Text style={[styles.value, !current && { color: '#9ca3af' }]}>
-          {current ? current.label : placeholder}
-        </Text>
-        <Text style={styles.caret}>{open ? '▴' : '▾'}</Text>
-      </Pressable>
-      {open && (
-        <View style={styles.menu}>
-          <ScrollView style={{ maxHeight: 220 }}>
-            {options.map(o => (
-              <Pressable
-                key={String(o.value)}
-                onPress={() => {
-                  onChange(o.value, o);
-                  setOpen(false);
-                }}
-                style={styles.menuItem}
-              >
-                <Text style={styles.menuTxt} numberOfLines={1}>
-                  {o.label}
-                </Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-        </View>
-      )}
-    </View>
-  );
-};
-
-/* -------------------------------- utilities ------------------------------- */
 const parseHM = s => {
-  // "09:00" -> minutes since 00:00  (returns null on bad input)
-  if (!s || typeof s !== 'string') return null;
+  if (!s) return null;
   const m = s.match(/^(\d{1,2}):(\d{2})$/);
   if (!m) return null;
-  const hh = Number(m[1]);
-  const mm = Number(m[2]);
-  if (hh > 23 || mm > 59) return null;
-  return hh * 60 + mm;
+  const h = Number(m[1]);
+  const mnt = Number(m[2]);
+  if (h > 23 || mnt > 59) return null;
+  return h * 60 + mnt;
 };
 
 const diffHours = (sd, st, ed, et) => {
@@ -78,15 +40,13 @@ const diffHours = (sd, st, ed, et) => {
   const m1 = parseHM(st);
   const m2 = parseHM(et);
   if (!d1 || !d2 || m1 == null || m2 == null) return 0;
-  // build full Date objects with local time
+
   const start = new Date(
     d1.getFullYear(),
     d1.getMonth(),
     d1.getDate(),
     Math.floor(m1 / 60),
     m1 % 60,
-    0,
-    0,
   );
   const end = new Date(
     d2.getFullYear(),
@@ -94,61 +54,52 @@ const diffHours = (sd, st, ed, et) => {
     d2.getDate(),
     Math.floor(m2 / 60),
     m2 % 60,
-    0,
-    0,
   );
-  const ms = end.getTime() - start.getTime();
-  if (Number.isNaN(ms) || ms <= 0) return 0;
-  return +(ms / 3600000).toFixed(2);
+
+  const ms = end - start;
+  return ms > 0 ? +(ms / 3600000).toFixed(2) : 0;
 };
 
-/* ---------------------------------- main ---------------------------------- */
+/* ----------------------------- main ----------------------------- */
+
 export default function AddTimeLogModal({
   visible,
   onClose,
   onSubmit,
-  tasks: tasksProp, // optional; if not passed, we read from store
-  employee, // optional {name, profileUrl, roleText}
-  saving = false, // optional: show "Saving…" on Save button
+  saving = false,
+  editData = null, // 👈 important
 }) {
-  // tasks source
-  const tasksFromStore = useSelector(selectMyTasks);
-  const tasks =
-    tasksProp && Array.isArray(tasksProp) ? tasksProp : tasksFromStore;
+  const tasks = useSelector(selectMyTasks);
+  const list = useSelector(selectMyTimesheets);
+  const employeeId = list?.[0]?.employeeId;
 
-  // project list derived from tasks (unique)
-  const projectOptions = useMemo(() => {
-    const map = new Map();
-    tasks.forEach(t => {
-      const pid = t.projectId;
-      const label = t.projectName || `Project #${pid}`;
-      if (!map.has(pid)) map.set(pid, { value: pid, label });
-    });
-    return Array.from(map.values());
-  }, [tasks]);
-
-  // tasks filtered by selected project
-  const taskOptions = useMemo(() => {
-    if (!tasks?.length) return [];
-    if (!projectOptions.length) return [];
-    return tasks
-      .filter(t => (projectId ? t.projectId === projectId : true))
-      .map(t => ({ value: t.id, label: t.title || `Task #${t.id}` }));
-  }, [tasks]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // form state
+  /* ---------- state ---------- */
   const [projectId, setProjectId] = useState(null);
   const [taskId, setTaskId] = useState(null);
-  const [startDate, setStartDate] = useState(''); // YYYY-MM-DD
-  const [startTime, setStartTime] = useState(''); // HH:MM
+
+  const [startDate, setStartDate] = useState('');
+  const [startTime, setStartTime] = useState('');
   const [endDate, setEndDate] = useState('');
   const [endTime, setEndTime] = useState('');
-  const [memo, setMemo] = useState('');
-  const [err, setErr] = useState('');
 
-  // reset when opened/closed
+  const [memo, setMemo] = useState('');
+  const [error, setError] = useState('');
+
+  const [picker, setPicker] = useState({ mode: null, field: null });
+
+  /* ---------- prefill / reset ---------- */
   useEffect(() => {
-    if (!visible) {
+    if (!visible) return;
+
+    if (editData) {
+      setProjectId(editData.projectId ?? null);
+      setTaskId(editData.taskId ?? null);
+      setStartDate(editData.startDate ?? '');
+      setStartTime(editData.startTime?.slice(0, 5) ?? '');
+      setEndDate(editData.endDate ?? '');
+      setEndTime(editData.endTime?.slice(0, 5) ?? '');
+      setMemo(editData.memo ?? '');
+    } else {
       setProjectId(null);
       setTaskId(null);
       setStartDate('');
@@ -156,48 +107,79 @@ export default function AddTimeLogModal({
       setEndDate('');
       setEndTime('');
       setMemo('');
-      setErr('');
     }
-  }, [visible]);
+    setError('');
+  }, [visible, editData]);
 
-  // when project changes, filter tasks and clear selected task if not in list
-  useEffect(() => {
-    if (!projectId || !taskId) return;
-    const ok = tasks.some(t => t.id === taskId && t.projectId === projectId);
-    if (!ok) setTaskId(null);
-  }, [projectId, taskId, tasks]);
+  /* ---------- derived ---------- */
+  const projects = useMemo(() => {
+    const map = new Map();
+    tasks.forEach(t => {
+      if (!map.has(t.projectId)) {
+        map.set(t.projectId, {
+          id: t.projectId,
+          name: t.projectName || `Project #${t.projectId}`,
+        });
+      }
+    });
+    return Array.from(map.values());
+  }, [tasks]);
+
+  const filteredTasks = useMemo(
+    () => tasks.filter(t => (projectId ? t.projectId === projectId : true)),
+    [tasks, projectId],
+  );
 
   const totalHours = useMemo(
     () => diffHours(startDate, startTime, endDate, endTime),
     [startDate, startTime, endDate, endTime],
   );
 
-  const validate = () => {
-    if (!projectId) return 'Please select a project.';
-    if (!taskId) return 'Please select a task.';
-    if (!startDate) return 'Start date is required (YYYY-MM-DD).';
-    if (!startTime) return 'Start time is required (HH:MM).';
-    if (!endDate) return 'End date is required (YYYY-MM-DD).';
-    if (!endTime) return 'End time is required (HH:MM).';
-    if (parseHM(startTime) == null)
-      return 'Invalid start time. Use HH:MM (24h).';
-    if (parseHM(endTime) == null) return 'Invalid end time. Use HH:MM (24h).';
-    if (diffHours(startDate, startTime, endDate, endTime) <= 0)
-      return 'End must be after start.';
-    if (!memo.trim()) return 'Memo is required.';
-    return '';
+  /* ---------- picker ---------- */
+  const openPicker = (mode, field) => setPicker({ mode, field });
+  const closePicker = () => setPicker({ mode: null, field: null });
+
+  const pickerValue = useMemo(() => {
+    if (picker.field === 'startDate' && startDate) return new Date(startDate);
+    if (picker.field === 'endDate' && endDate) return new Date(endDate);
+    if (picker.field === 'startTime' && startTime) {
+      const [h, m] = startTime.split(':');
+      const d = new Date();
+      d.setHours(h, m, 0, 0);
+      return d;
+    }
+    if (picker.field === 'endTime' && endTime) {
+      const [h, m] = endTime.split(':');
+      const d = new Date();
+      d.setHours(h, m, 0, 0);
+      return d;
+    }
+    return new Date();
+  }, [picker, startDate, endDate, startTime, endTime]);
+
+  const onPickerChange = (_, d) => {
+    if (!d) return closePicker();
+
+    const date = d.toISOString().slice(0, 10);
+    const time = d.toTimeString().slice(0, 5);
+
+    if (picker.field === 'startDate') setStartDate(date);
+    if (picker.field === 'endDate') setEndDate(date);
+    if (picker.field === 'startTime') setStartTime(time);
+    if (picker.field === 'endTime') setEndTime(time);
+
+    closePicker();
   };
 
-  const list = useSelector(selectMyTimesheets);
-  const emp = list[0]?.employeeId;
-
+  /* ---------- submit ---------- */
   const handleSave = () => {
-    const v = validate();
-    if (v) {
-      setErr(v);
-      return;
-    }
-    setErr('');
+    if (!projectId) return setError('Select project');
+    if (!taskId) return setError('Select task');
+    if (!startDate || !startTime || !endDate || !endTime)
+      return setError('Select start and end date/time');
+    if (totalHours <= 0) return setError('End must be after start');
+    if (!memo.trim()) return setError('Memo required');
+
     const payload = {
       projectId,
       taskId,
@@ -205,166 +187,115 @@ export default function AddTimeLogModal({
       startTime,
       endDate,
       endTime,
-      employeeId: emp,
+      employeeId,
       memo: memo.trim(),
     };
-    console.log('[TimeLog][REQUEST] payload ->', payload);
-    onSubmit?.(payload);
+
+    if (editData?.id) payload.id = editData.id;
+
+    onSubmit(payload);
   };
 
   if (!visible) return null;
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
+    <Modal visible transparent animationType="slide">
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
           <View style={styles.header}>
-            <Text style={styles.h1}>TimeLog Details</Text>
-            <Pressable onPress={onClose} hitSlop={10}>
+            <Text style={styles.title}>
+              {editData ? 'Edit Time Log' : 'Add Time Log'}
+            </Text>
+            <Pressable onPress={onClose}>
               <Text style={{ fontWeight: '900' }}>✕</Text>
             </Pressable>
           </View>
 
-          <ScrollView
-            contentContainerStyle={{ padding: 14, paddingBottom: 24 }}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* Project */}
+          <ScrollView contentContainerStyle={styles.body}>
             <FieldLabel required>Project</FieldLabel>
-            <Select
-              placeholder="Project Name"
-              value={projectId}
-              onChange={v => setProjectId(v)}
-              options={projectOptions}
-            />
-
-            {/* Task */}
-            <FieldLabel required>Task</FieldLabel>
-            <Select
-              placeholder="Task Name"
-              value={taskId}
-              onChange={v => setTaskId(v)}
-              options={
-                projectId
-                  ? tasks
-                      .filter(t => t.projectId === projectId)
-                      .map(t => ({
-                        value: t.id,
-                        label: t.title || `Task #${t.id}`,
-                      }))
-                  : taskOptions
-              }
-            />
-
-            {/* Employee (read-only display if provided) */}
-            {employee ? (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 10,
-                  marginTop: 6,
-                }}
+            {projects.map(p => (
+              <Pressable
+                key={p.id}
+                style={[
+                  styles.option,
+                  projectId === p.id && styles.optionActive,
+                ]}
+                onPress={() => setProjectId(p.id)}
               >
-                {employee.profileUrl ? (
-                  <Image
-                    source={{ uri: employee.profileUrl }}
-                    style={styles.avatar}
-                  />
-                ) : (
-                  <View style={[styles.avatar, styles.avatarEmpty]}>
-                    <Text>👤</Text>
-                  </View>
-                )}
-                <View>
-                  <Text style={styles.empName}>{employee.name}</Text>
-                  <Text style={styles.dim}>
-                    {employee.roleText || 'Trainee'}
-                  </Text>
-                </View>
-              </View>
-            ) : null}
+                <Text>{p.name}</Text>
+              </Pressable>
+            ))}
 
-            {/* Dates / Times */}
-            <View style={{ marginTop: 10 }}>
-              <FieldLabel required>Start Date</FieldLabel>
-              <TextInput
-                value={startDate}
-                onChangeText={setStartDate}
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor="#9ca3af"
-                style={styles.input}
-              />
-              <FieldLabel required>Start Time</FieldLabel>
-              <TextInput
-                value={startTime}
-                onChangeText={setStartTime}
-                placeholder="HH:MM:SS (24h)"
-                placeholderTextColor="#9ca3af"
-                style={styles.input}
-                autoCapitalize="none"
-              />
+            <FieldLabel required>Task</FieldLabel>
+            {filteredTasks.map(t => (
+              <Pressable
+                key={t.id}
+                style={[styles.option, taskId === t.id && styles.optionActive]}
+                onPress={() => setTaskId(t.id)}
+              >
+                <Text>{t.title}</Text>
+              </Pressable>
+            ))}
 
-              <FieldLabel required>End Date</FieldLabel>
-              <TextInput
-                value={endDate}
-                onChangeText={setEndDate}
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor="#9ca3af"
-                style={styles.input}
-              />
-              <FieldLabel required>End Time</FieldLabel>
-              <TextInput
-                value={endTime}
-                onChangeText={setEndTime}
-                placeholder="HH:MM:SS (24h)"
-                placeholderTextColor="#9ca3af"
-                style={styles.input}
-                autoCapitalize="none"
-              />
-            </View>
+            <FieldLabel required>Start Date</FieldLabel>
+            <Pressable
+              style={styles.input}
+              onPress={() => openPicker('date', 'startDate')}
+            >
+              <Text>{startDate || 'Select date'}</Text>
+            </Pressable>
 
-            {/* Memo */}
+            <FieldLabel required>Start Time</FieldLabel>
+            <Pressable
+              style={styles.input}
+              onPress={() => openPicker('time', 'startTime')}
+            >
+              <Text>{startTime || 'Select time'}</Text>
+            </Pressable>
+            {picker.mode && (
+              <DateTimePicker
+                value={pickerValue}
+                mode={picker.mode}
+                is24Hour
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={onPickerChange}
+              />
+            )}
+
+            <FieldLabel required>End Date</FieldLabel>
+            <Pressable
+              style={styles.input}
+              onPress={() => openPicker('date', 'endDate')}
+            >
+              <Text>{endDate || 'Select date'}</Text>
+            </Pressable>
+
+            <FieldLabel required>End Time</FieldLabel>
+            <Pressable
+              style={styles.input}
+              onPress={() => openPicker('time', 'endTime')}
+            >
+              <Text>{endTime || 'Select time'}</Text>
+            </Pressable>
+
             <FieldLabel required>Memo</FieldLabel>
             <TextInput
               value={memo}
               onChangeText={setMemo}
-              placeholder="What did you work on?"
-              placeholderTextColor="#9ca3af"
-              style={[styles.input, { height: 92, textAlignVertical: 'top' }]}
+              style={[styles.input, { height: 90 }]}
               multiline
             />
 
-            {/* total hours */}
-            <Text style={styles.totalLabel}>Total Hours</Text>
-            <Text style={styles.totalValue}>{totalHours}h</Text>
+            <Text style={styles.total}>Total: {totalHours} hrs</Text>
+            {!!error && <Text style={styles.err}>{error}</Text>}
 
-            {err ? <Text style={styles.err}>{err}</Text> : null}
-
-            {/* actions */}
-            <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
-              <Pressable
-                onPress={handleSave}
-                style={[
-                  styles.primaryBtn,
-                  { backgroundColor: '#3b82f6', borderColor: '#3b82f6' },
-                  saving && { opacity: 0.6 },
-                ]}
-                disabled={saving}
-              >
-                <Text style={[styles.primaryTxt, { color: '#fff' }]}>
-                  {saving ? 'Saving…' : 'Save'}
-                </Text>
-              </Pressable>
-              <Pressable onPress={onClose} style={styles.secondaryBtn}>
-                <Text style={styles.secondaryTxt}>Cancel</Text>
-              </Pressable>
-            </View>
+            <Pressable
+              style={styles.saveBtn}
+              onPress={handleSave}
+              disabled={saving}
+            >
+              <Text style={styles.saveTxt}>{saving ? 'Saving…' : 'Save'}</Text>
+            </Pressable>
           </ScrollView>
         </View>
       </View>
@@ -372,11 +303,12 @@ export default function AddTimeLogModal({
   );
 }
 
-/* ---------------------------------- styles -------------------------------- */
+/* ----------------------------- styles ----------------------------- */
+
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.25)',
+    backgroundColor: 'rgba(0,0,0,0.3)',
     justifyContent: 'flex-end',
   },
   sheet: {
@@ -386,102 +318,42 @@ const styles = StyleSheet.create({
     maxHeight: '92%',
   },
   header: {
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    padding: 14,
     borderBottomWidth: 1,
     borderColor: '#e5e7eb',
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
   },
-  h1: { fontSize: 22, fontWeight: '900', color: '#0b0b0c' },
+  title: { fontSize: 18, fontWeight: '900' },
+  body: { padding: 14 },
 
-  label: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#374151',
-    marginBottom: 6,
-    marginTop: 8,
-  },
+  label: { fontSize: 12, fontWeight: '800', marginTop: 8 },
   input: {
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    backgroundColor: '#fff',
     borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    color: '#111827',
+    padding: 10,
     marginBottom: 8,
   },
 
-  selectBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  option: {
+    padding: 10,
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    backgroundColor: '#fff',
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    borderRadius: 10,
+    borderRadius: 8,
+    marginBottom: 6,
   },
-  value: { flex: 1, color: '#111827' },
-  caret: { color: '#6b7280' },
-  menu: {
-    position: 'absolute',
-    top: 46,
-    left: 0,
-    right: 0,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    overflow: 'hidden',
-    zIndex: 50,
-  },
-  menuItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#f1f5f9',
-  },
-  menuTxt: { color: '#111827' },
+  optionActive: { backgroundColor: '#eef2ff' },
 
-  avatar: { width: 40, height: 40, borderRadius: 20 },
-  avatarEmpty: {
-    backgroundColor: '#f3f4f6',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  empName: { fontWeight: '900', color: '#111827' },
-  dim: { color: '#6b7280' },
+  total: { marginTop: 10, fontWeight: '900' },
+  err: { color: '#b00020', marginTop: 6 },
 
-  totalLabel: { marginTop: 8, color: '#374151', fontWeight: '800' },
-  totalValue: {
-    fontSize: 28,
-    fontWeight: '900',
-    color: '#1d4ed8',
-    marginTop: 2,
-  },
-
-  primaryBtn: {
-    borderWidth: 1,
-    borderColor: '#1d4ed8',
+  saveBtn: {
+    backgroundColor: '#111827',
+    padding: 14,
     borderRadius: 12,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    backgroundColor: '#fff',
+    marginTop: 12,
+    alignItems: 'center',
   },
-  primaryTxt: { fontWeight: '900', color: '#111827' },
-
-  secondaryBtn: {
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    backgroundColor: '#fff',
-  },
-  secondaryTxt: { fontWeight: '900', color: '#111827' },
-
-  err: { color: '#b00020', marginTop: 8, fontWeight: '800' },
+  saveTxt: { color: '#fff', fontWeight: '900' },
 });
