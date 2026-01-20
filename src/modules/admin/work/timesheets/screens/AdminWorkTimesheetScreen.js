@@ -41,7 +41,11 @@ import TimesheetsTable from '../components/TimesheetsTable';
 const Pill = ({ active, label, onPress }) => (
   <Pressable
     onPress={onPress}
-    style={[styles.pill, active && styles.pillActive]}
+    style={({ pressed }) => [
+      styles.pill,
+      active && styles.pillActive,
+      active && pressed && styles.pillPressed, // 🔥 ONLY ACTIVE HOVER
+    ]}
   >
     <Text style={[styles.pillTxt, active && styles.pillTxtActive]}>
       {label}
@@ -197,7 +201,9 @@ export default function AdminTimesheetsScreen() {
               style={[styles.actionBtn, styles.actionPrimary]}
               onPress={() => setWeeklyOpen(true)}
             >
-              <Text style={[styles.actionTxt, { color: '#fff' }]}>Weekly</Text>
+              <Text style={[styles.actionTxt, { color: '#111827' }]}>
+                ＋ Weekly Log
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -316,9 +322,11 @@ const styles = StyleSheet.create({
   },
   pill: {
     backgroundColor: '#f3f4f6',
-    borderRadius: 999,
+    borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 8,
+    borderColor: '#111827',
+    borderWidth: 1,
   },
   pillActive: { backgroundColor: '#111827' },
   pillTxt: { color: '#111827', fontWeight: '900' },
@@ -457,12 +465,17 @@ const styles = StyleSheet.create({
   },
 
   actionPrimary: {
-    backgroundColor: '#111827',
-    borderColor: '#111827',
+    backgroundColor: '#ffffff',
+    borderColor: '#1c2d53',
+    color: '#111827',
   },
 
   actionTxt: {
     fontWeight: '900',
     color: '#111827',
+  },
+  pillPressed: {
+    backgroundColor: '#0f172a', // slightly darker than active
+    transform: [{ scale: 0.96 }],
   },
 });
