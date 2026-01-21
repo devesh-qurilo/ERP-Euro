@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Text, Modal, Pressable } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const Row = ({ label, danger, onPress }) => (
   <TouchableOpacity
@@ -29,14 +30,14 @@ export default function TaskActionsMenu({
         onPress={() => setOpen(true)}
         style={{
           backgroundColor: '#fff',
-          borderWidth: 1,
+          // borderWidth: 1,
           borderColor: '#E5E7EB',
           paddingHorizontal: 10,
           paddingVertical: 8,
           borderRadius: 8,
         }}
       >
-        <Text>⋮</Text>
+        <Ionicons name="ellipsis-vertical" size={20} color="#292929c0" />
       </TouchableOpacity>
 
       <Modal

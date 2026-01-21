@@ -113,3 +113,29 @@ export const updateTask = (taskId, payload) => {
     })
     .then(r => r.data);
 };
+
+// ---------------------- TASK CATEGORIES (CRUD) ----------------------
+
+// Create category
+export const createCategory = payload =>
+  api.post('/task/task-categories', payload).then(r => r.data);
+
+// Delete category
+export const deleteCategory = categoryId =>
+  api
+    .delete(`/task/task-categories/${encodeURIComponent(categoryId)}`)
+    .then(r => r.data);
+
+// ---------------------- LABELS (CRUD) ----------------------
+
+// CREATE
+export const createLabel = payload =>
+  api.post('/api/labels', payload).then(r => r.data);
+
+// UPDATE
+export const updateLabel = (labelId, payload) =>
+  api.put(`/api/labels/${labelId}`, payload).then(r => r.data);
+
+// DELETE
+export const deleteLabel = labelId =>
+  api.delete(`/api/labels/${labelId}`).then(r => r.data);
