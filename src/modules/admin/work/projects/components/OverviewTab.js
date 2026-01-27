@@ -14,6 +14,7 @@ import { PieChart, BarChart } from 'react-native-chart-kit';
 import Svg, { Circle } from 'react-native-svg';
 import { fetchMetrics } from '../store/actions';
 import { selectAWPMetrics, selectAWPBusyIds } from '../store/selectors';
+import ProjectTaskListPanel from '../components/ProjectTaskListPanel';
 
 const W = Dimensions.get('window').width;
 const CONTENT_PADDING = 12;
@@ -175,6 +176,7 @@ export default function OverviewStyled({ project }) {
   return (
     <ScrollView contentContainerStyle={styles.wrap}>
       {/* Progress card (semicircle + dates) */}
+      <ProjectTaskListPanel projectId={projectId} projectMembers={members} />
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Project progress</Text>
 
@@ -364,6 +366,7 @@ export default function OverviewStyled({ project }) {
           <Text style={styles.muted}>No members</Text>
         )}
       </View>
+      {/* <ProjectTaskListPanel projectId={projectId} /> */}
 
       {/* bottom spacing */}
       <View style={{ height: 28 }} />

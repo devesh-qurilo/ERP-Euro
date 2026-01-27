@@ -160,7 +160,7 @@ function ViewModal({ visible, onClose, item }) {
     >
       <View style={styles.modalBackdrop}>
         <View style={styles.modalCard}>
-          <Text style={styles.modalTitle}>Task Details</Text>
+          <Text style={styles.modalTitle}>Task Details -</Text>
           <ScrollView style={{ maxHeight: 480 }} showsVerticalScrollIndicator>
             <Row label="Title" value={item?.title} />
             <Row label="Category" value={item?.categoryId?.name} />

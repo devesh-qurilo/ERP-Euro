@@ -15,7 +15,9 @@ function* fetchAll() {
 }
 
 function* patchProgress({ id, percent }) {
+  console.log('hhhhhh jj', id, percent);
   try {
+    console.log('hhhhhh', id, percent);
     yield put({ type: T.AWP_BUSY, id, on: true });
     yield call(adminWorkProjectsAPI.patchProgress, id, percent);
     yield put({ type: T.AWP_FETCH_ALL });
@@ -68,7 +70,9 @@ function* deleteProject({ id }) {
 }
 
 function* patchStatus({ id, status }) {
+  console.log('patch. jjj', id, status);
   try {
+    console.log('sssssss', id, status);
     yield put({ type: T.AWP_BUSY, id, on: true });
     yield call(adminWorkProjectsAPI.patchStatus, id, status);
     yield put({ type: T.AWP_FETCH_ALL });

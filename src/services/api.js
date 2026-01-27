@@ -813,6 +813,15 @@ export const projectsApi = {
       })
       .then(r => r.data);
   },
+  patchProgress: (id, percent) => {
+    const fd = new formData();
+    fd.append('percent', percent);
+    return api
+      .put(`/api/projects/${id}/progress`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(r => r.data);
+  },
 };
 
 // --- LEAVES (ADMIN/HR) --- //
