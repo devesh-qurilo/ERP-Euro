@@ -20,6 +20,7 @@ function* fetchMine({ params }) {
 }
 
 function* createTimesheetSaga({ payload }) {
+  console.log('bhoooo', payload);
   try {
     const created = yield call(AdminmyTimesheetsAPI.create, payload);
     console.log('bholuuuuuu', created);
@@ -107,8 +108,9 @@ function* getWeeklySaga({ weekStartDate }) {
 // }
 
 function* VcreateWeeklySaga({ payload }) {
+  console.log('weekly payload =>', payload);
   try {
-    console.log('weekly payload =>', JSON.stringify(payload, null, 2));
+    console.log('weekly payload =>', JSON.stringify(payload));
 
     const res = yield call(AdminWeeklyTimesheetsAPI.create, payload);
     yield put({ type: T.FETCH_MY_TIMESHEETS_REQUEST });
