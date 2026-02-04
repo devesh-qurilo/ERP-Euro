@@ -17,6 +17,7 @@ import { selectAWPMetrics, selectAWPBusyIds } from '../store/selectors';
 import ProjectTaskListPanel from '../components/ProjectTaskListPanel';
 import ProjectTimesheetsByProjectId from '../components/ProjectTimesheetsByProjectId';
 import ProjectMembersPanel from '../components/ProjectMembersPanel';
+import ProjectMilestonesPanel from '../components/ProjectMilestonesPanel';
 
 const W = Dimensions.get('window').width;
 const CONTENT_PADDING = 12;
@@ -377,6 +378,11 @@ export default function OverviewStyled({ project }) {
 
       <View style={styles.card}>
         <ProjectMembersPanel projectId={projectId} />
+      </View>
+
+      {/* MILESTONES */}
+      <View style={{ marginTop: 16 }}>
+        <ProjectMilestonesPanel projectId={projectId} />
       </View>
 
       {/* bottom spacing */}
