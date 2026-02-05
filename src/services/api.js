@@ -1767,10 +1767,12 @@ export const AdminWeeklyTimesheetsAPI = {
 };
 
 export const projectInvoicesAPI = {
-  listByProject: projectId =>
+  listByProject: projectId => {
+    console.log('listByProject', projectId);
     api
       .get(`/api/invoices/project/${encodeURIComponent(projectId)}`)
-      .then(r => (Array.isArray(r.data) ? r.data : [])),
+      .then(r => (Array.isArray(r.data) ? r.data : []));
+  },
 };
 
 // --- PROJECT FILES ---

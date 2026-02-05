@@ -7,6 +7,7 @@ import {
   Pressable,
   Alert,
   Linking,
+  ScrollView,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
@@ -77,7 +78,11 @@ export default function ProjectFilesTab() {
     ]);
 
   return (
-    <View style={{ padding: 12, gap: 12 }}>
+    <ScrollView
+      style={{ flex: 1 }}
+      contentContainerStyle={{ padding: 12, gap: 12 }}
+      showsVerticalScrollIndicator={false}
+    >
       {/* Filters */}
       <View style={s.card}>
         <Text style={s.title}>Filters</Text>
@@ -123,7 +128,7 @@ export default function ProjectFilesTab() {
         onClose={() => dispatch(closeUpload())}
         onUpload={file => dispatch(uploadFile(projectId, file))}
       />
-    </View>
+    </ScrollView>
   );
 }
 

@@ -130,7 +130,7 @@ export default function ProjectPaymentsTab() {
       </View>
 
       {/* Add Payment (opens PROJECT slice modal) */}
-      <View style={{ marginTop: 8, flexDirection: 'row', gap: 8 }}>
+      {/* <View style={{ marginTop: 8, flexDirection: 'row', gap: 8 }}>
         <Pressable
           style={[s.btn, s.primary]}
           onPress={() => {
@@ -140,7 +140,7 @@ export default function ProjectPaymentsTab() {
         >
           <Text style={[s.btnTxt, { color: '#fff' }]}>+ Add Payment</Text>
         </Pressable>
-      </View>
+      </View> */}
 
       {/* Table */}
       <PaymentsTable

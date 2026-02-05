@@ -16,8 +16,9 @@ import {
 } from './store/selectors';
 
 import InvoicesTable from '../../../../finance/invoice/components/InvoiceTable';
-import InvoiceFormModal from '../../../../finance/invoice/components/InvoiceFormModal';
+import ProjectInvoiceFormModal from '../../../../finance/invoice/components/ProjectInvoiceFormModal';
 import InvoiceViewModal from '../../../../finance/invoice/components/InvoiceViewModal';
+import * as A from '../../../../finance/invoice/store/actions';
 
 import {
   createInvoice,
@@ -39,12 +40,14 @@ export default function ProjectInvoicesTab() {
   const dispatch = useDispatch();
 
   // Resolve projectId from multiple entry points safely
-  const projectId =
-    route?.params?.projectId ??
-    route?.params?.project?.id ??
-    route?.projectId ??
-    route?.project?.id;
+  const projectId = route?.params?.project;
+  // route?.params?.project?.id ??
+  // route?.projectId ??
+  // route?.project?.id;
+  const client = route?.params?.project;
+  const project = route?.params?.project;
 
+  console.log('rammmkk', project);
   const rows = useSelector(selectProjectInvoices);
   const loading = useSelector(selectProjectInvoicesBusy);
   const error = useSelector(selectProjectInvoicesErr);
@@ -56,11 +59,11 @@ export default function ProjectInvoicesTab() {
   const [viewing, setViewing] = useState(null);
   const [search, setSearch] = useState('');
 
-  useFocusEffect(
-    useCallback(() => {
-      if (projectId) dispatch(listByProject(projectId));
-    }, [dispatch, projectId]),
-  );
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     if (projectId) dispatch(listByProject(projectId));
+  //   }, [dispatch, projectId]),
+  // );
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -84,6 +87,11 @@ export default function ProjectInvoicesTab() {
   const onViewRow = row => {
     setViewing(row);
     setViewOpen(true);
+  };
+
+  const onCreate = payload => {
+    dispatch(A.create(payload));
+    setFormOpen(false);
   };
   const onSave = payload => {
     if (editing) dispatch(updateInvoice(editing.invoiceNumber, payload));
@@ -169,12 +177,13 @@ export default function ProjectInvoicesTab() {
         invoice={viewing}
         onClose={() => setViewOpen(false)}
       />
-      <InvoiceFormModal
+      <ProjectInvoiceFormModal
         visible={formOpen}
         editing={editing}
-        presetProjectId={projectId}
+        client={client}
+        project={project}
         onClose={() => setFormOpen(false)}
-        onSave={onSave}
+        onSave={onCreate}
         busy={!!saving}
       />
     </View>

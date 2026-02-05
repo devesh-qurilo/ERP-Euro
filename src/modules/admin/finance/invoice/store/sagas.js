@@ -69,11 +69,12 @@ function* getOneSaga({ payload: { invoiceNumber } }) {
 function* createSaga({ payload }) {
   try {
     const created = yield call(API.create, payload);
-    console.log('create saga', created);
+    console.log('create saga', created, payload);
     yield put({ type: T.CREATE_SUCCESS, payload: created });
     // refresh list after create
     yield put(listAction());
   } catch (e) {
+    console.log('create saga errrr');
     yield put({
       type: T.CREATE_FAILURE,
       payload: e?.message || 'Create failed',

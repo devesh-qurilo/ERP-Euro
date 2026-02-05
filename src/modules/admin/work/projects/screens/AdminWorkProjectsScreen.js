@@ -11,6 +11,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
+import ProjectsCalendar from '../components/ProjectsCalendar';
 
 import {
   selectAWPList,
@@ -57,6 +58,8 @@ export default function AdminWorkProjectsScreen() {
   useEffect(() => {
     dispatch(fetchAll());
   }, [dispatch]);
+
+  console.log('projectlist', list);
 
   const filtered = useMemo(() => {
     const q = (filters.q || '').toLowerCase().trim();
@@ -200,10 +203,9 @@ export default function AdminWorkProjectsScreen() {
       {/* View */}
       {mode === 'calendar' ? (
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Calendar (coming soon)</Text>
-          <Text style={{ color: '#6b7280' }}>
-            Render project dates on a month grid here.
-          </Text>
+          <Text style={styles.sectionTitle}>Project Calendar</Text>
+
+          <ProjectsCalendar projects={filtered} onSelectProject={onView} />
         </View>
       ) : (
         <ProjectsTable
