@@ -611,6 +611,26 @@ export const adminLeadsAPI = {
   // change-to-client will navigate to a screen (no API yet)
 };
 
+// -------- Lead Source --------
+export const leadSourceAPI = {
+  list: () => api.get('/deals/dealCategory/LeadSource').then(r => r.data),
+
+  create: name =>
+    api.post('/deals/dealCategory/LeadSource', { name }).then(r => r.data),
+
+  delete: id => api.delete(`/deals/dealCategory/LeadSource/${id}`),
+};
+
+// -------- Client Category --------
+export const clientCategoryAPI = {
+  list: () => api.get('/clients/category').then(r => r.data),
+
+  create: categoryName =>
+    api.post('/clients/category', { categoryName }).then(r => r.data),
+
+  delete: id => api.delete(`/clients/category/${id}`),
+};
+
 // --- ADMIN SETTINGS APIS ---
 export const adminSettingsAPI = {
   // multipart: { profile: object with fields, file: optional RN file { uri, name, type } }

@@ -1,5 +1,5 @@
 // src/modules/admin/leads/contacts/components/AddLeadModal.tsx
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Modal,
   View,
@@ -10,6 +10,10 @@ import {
   ScrollView,
   Switch,
 } from 'react-native';
+import { clientCategoryAPI, leadSourceAPI } from '../../../../../services/api';
+import AddOptionModal from './AddOptionModal';
+import OptionSelectWithAdd from './OptionSelectWithAdd';
+import EmployeeSelect from './EmployeeSelect';
 
 const Field = ({ label, required, children }) => (
   <View style={{ marginBottom: 12 }}>
@@ -43,17 +47,6 @@ const ChoicePills = ({ options, value, onChange }) => {
   );
 };
 
-// Option lists for dropdown-style (pills) fields
-const CLIENT_CATEGORIES = ['Development', 'Production', 'Startup', 'Agency'];
-const LEAD_SOURCES = [
-  'Website',
-  'Referral',
-  'Social Media',
-  'Cold Call',
-  'Email Campaign',
-  'Other',
-];
-
 const PIPELINES = ['Default Pipeline'];
 const DEAL_STAGES = [
   'Generated',
@@ -71,6 +64,7 @@ export default function AddLeadModal({
   onSave,
   currentUserId, // e.g. EMP-009 for addedBy default
   defaultOwnerId, // e.g. EMP-010
+  empOptions = [],
 }) {
   const [form, setForm] = useState({
     // Lead basic
@@ -109,6 +103,12 @@ export default function AddLeadModal({
     },
   });
 
+  const [leadSources, setLeadSources] = useState([]);
+  const [categories, setCategories] = useState([]);
+
+  const [addSourceOpen, setAddSourceOpen] = useState(false);
+  const [addCategoryOpen, setAddCategoryOpen] = useState(false);
+
   const [saving, setSaving] = useState(false);
 
   const valid = useMemo(
@@ -123,6 +123,13 @@ export default function AddLeadModal({
   const set = (k, v) => setForm(s => ({ ...s, [k]: v }));
   const setDeal = (k, v) =>
     setForm(s => ({ ...s, deal: { ...s.deal, [k]: v } }));
+
+  useEffect(() => {
+    if (!visible) return;
+
+    leadSourceAPI.list().then(setLeadSources);
+    clientCategoryAPI.list().then(setCategories);
+  }, [visible]);
 
   const submit = async () => {
     if (!valid || saving) return;
@@ -225,44 +232,44 @@ export default function AddLeadModal({
               </View>
             </View>
 
-            <Field label="Client Category">
-              <ChoicePills
-                options={CLIENT_CATEGORIES}
-                value={form.clientCategory}
-                onChange={v => set('clientCategory', v)}
-              />
-            </Field>
+            {/* <Field label="Client Category"> */}
+            <OptionSelectWithAdd
+              label="Client Category"
+              value={form.clientCategory}
+              options={categories}
+              onChange={opt => set('clientCategory', opt.categoryName)}
+              onAddPress={() => setAddCategoryOpen(true)}
+            />
+            {/* </Field> */}
 
-            <Field label="Lead Source">
-              <ChoicePills
-                options={LEAD_SOURCES}
-                value={form.leadSource}
-                onChange={v => set('leadSource', v)}
-              />
-            </Field>
+            {/* <Field label="Lead Source"> */}
+            <OptionSelectWithAdd
+              label="Lead Source"
+              value={form.leadSource}
+              options={leadSources}
+              onChange={opt => set('leadSource', opt.name)}
+              onAddPress={() => setAddSourceOpen(true)}
+            />
+            {/* </Field> */}
 
             {/* OWNER INFO */}
             <Text style={styles.sectionTitle}>Owner & Created By</Text>
             <View style={styles.row2}>
               <View style={styles.half}>
                 <Field label="Lead Owner (Employee ID)" required>
-                  <TextInput
-                    style={styles.input}
+                  <EmployeeSelect
                     value={form.leadOwner}
-                    onChangeText={v => set('leadOwner', v)}
-                    autoCapitalize="characters"
-                    placeholder="EMP-009"
+                    options={empOptions}
+                    onChange={v => set('leadOwner', v)}
                   />
                 </Field>
               </View>
               <View style={styles.half}>
                 <Field label="Added By (Employee ID)" required>
-                  <TextInput
-                    style={styles.input}
+                  <EmployeeSelect
                     value={form.addedBy}
-                    onChangeText={v => set('addedBy', v)}
-                    autoCapitalize="characters"
-                    placeholder="EMP-015"
+                    options={empOptions}
+                    onChange={v => set('addedBy', v)}
                   />
                 </Field>
               </View>
@@ -465,6 +472,30 @@ export default function AddLeadModal({
                 </View>
               </View>
             )}
+
+            <AddOptionModal
+              visible={addSourceOpen}
+              title="Add Lead Source"
+              placeholder="Facebook"
+              onClose={() => setAddSourceOpen(false)}
+              onSave={async name => {
+                const item = await leadSourceAPI.create(name);
+                setLeadSources(s => [...s, item]);
+                set('leadSource', item.name);
+              }}
+            />
+
+            <AddOptionModal
+              visible={addCategoryOpen}
+              title="Add Client Category"
+              placeholder="Corporate"
+              onClose={() => setAddCategoryOpen(false)}
+              onSave={async name => {
+                const item = await clientCategoryAPI.create(name);
+                setCategories(s => [...s, item]);
+                set('clientCategory', item.categoryName);
+              }}
+            />
           </ScrollView>
 
           <View style={styles.footer}>

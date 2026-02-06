@@ -49,7 +49,10 @@ export default function LeadsTable({ data, loading, busyIds, onRowMenuPress }) {
           <Text style={[styles.cell, styles.headerCell, { minWidth: 120 }]}>
             Owner
           </Text>
-          <Text style={[styles.cell, styles.headerCell, styles.actionsCol]} />
+          <Text style={[styles.cell, styles.headerCell, styles.actionsCol]}>
+            {' '}
+            Action
+          </Text>
         </View>
 
         {/* Rows */}
@@ -140,8 +143,8 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   dotIcon: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: '900',
-    color: '#4b5563',
+    color: '#0c1015',
   },
 });

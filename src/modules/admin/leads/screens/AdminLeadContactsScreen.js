@@ -27,6 +27,9 @@ import {
   selectAdminLeadsFilters,
   selectAdminLeadsBusyIds,
 } from '../store/selectors';
+import DateFilterField from '../components/DateFilterField';
+import { selectEmpList } from '../../hr/employees/store/selectors';
+import { fetchEmployees } from '../../hr/employees/store/actions';
 
 import LeadsTable from '../components/LeadsTable';
 import AddLeadModal from '../contacts/components/AddLeadModal';
@@ -100,6 +103,11 @@ export default function AdminLeadContactsScreen() {
   };
   const busyIds = useSelector(selectAdminLeadsBusyIds);
   const me = useSelector(s => s?.auth?.profile?.employeeId) || '';
+  const employees = useSelector(selectEmpList);
+
+  useEffect(() => {
+    dispatch(fetchEmployees());
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(fetchAdminLeads());
@@ -226,6 +234,15 @@ export default function AdminLeadContactsScreen() {
     navigation.navigate('AdminLeadViewScreen', { id: lead.id });
   };
 
+  const empOptions = useMemo(
+    () =>
+      employees.map(e => ({
+        label: `${e.name} (${e.employeeId})`,
+        value: e.employeeId,
+      })),
+    [employees],
+  );
+
   const handleEdit = lead => {
     setShowActionMenu(false);
     setFormMode('edit');
@@ -305,24 +322,18 @@ export default function AdminLeadContactsScreen() {
           </View>
 
           <View style={{ flexBasis: '20%', minWidth: 150, paddingRight: 8 }}>
-            <Text style={styles.label}>Start From</Text>
-            <TextInput
-              value={String(filters.start || '')}
-              onChangeText={start => dispatch(setAdminLeadsFilters({ start }))}
-              placeholder="YYYY-MM-DD"
-              placeholderTextColor="#9ca3af"
-              style={styles.input}
+            <DateFilterField
+              label="Select Start From"
+              value={filters.start}
+              onChange={start => dispatch(setAdminLeadsFilters({ start }))}
             />
           </View>
 
           <View style={{ flexBasis: '20%', minWidth: 150 }}>
-            <Text style={styles.label}>End To</Text>
-            <TextInput
-              value={String(filters.end || '')}
-              onChangeText={end => dispatch(setAdminLeadsFilters({ end }))}
-              placeholder="YYYY-MM-DD"
-              placeholderTextColor="#9ca3af"
-              style={styles.input}
+            <DateFilterField
+              label="Select End To"
+              value={filters.end}
+              onChange={end => dispatch(setAdminLeadsFilters({ end }))}
             />
           </View>
         </View>
@@ -334,6 +345,7 @@ export default function AdminLeadContactsScreen() {
             options={sources}
             onChange={source => dispatch(setAdminLeadsFilters({ source }))}
           />
+
           <Select
             label="Owner"
             value={filters.owner || 'All'}
@@ -385,6 +397,7 @@ export default function AdminLeadContactsScreen() {
         onSave={handleSaveLead}
         currentUserId={me}
         defaultOwnerId={me}
+        empOptions={empOptions}
       />
 
       {/* 5) 3-dot Action bottom sheet */}
