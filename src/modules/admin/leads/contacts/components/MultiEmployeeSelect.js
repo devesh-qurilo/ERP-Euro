@@ -8,7 +8,7 @@ export default function MultiEmployeeSelect({
   onClose,
 }) {
   return (
-    <View style={styles.dropdown}>
+    <View style={styles.sheet}>
       <ScrollView>
         {options.map(opt => {
           const selected = value.includes(opt.value);
@@ -16,6 +16,7 @@ export default function MultiEmployeeSelect({
           return (
             <Pressable
               key={opt.value}
+              style={styles.row}
               onPress={() => {
                 if (selected) {
                   onChange(value.filter(v => v !== opt.value));
@@ -24,7 +25,7 @@ export default function MultiEmployeeSelect({
                 }
               }}
             >
-              <Text style={styles.container}>
+              <Text style={styles.text}>
                 {selected ? '✅ ' : '⬜ '} {opt.label}
               </Text>
             </Pressable>
@@ -40,27 +41,26 @@ export default function MultiEmployeeSelect({
 }
 
 const styles = StyleSheet.create({
-  container: {
+  sheet: {
     backgroundColor: '#fff',
-    // maxHeight: '55%',
-    borderTopLeftRadius: 6,
-    borderTopRightRadius: 6,
-    padding: 3,
+    borderRadius: 16,
+    padding: 12,
+    maxHeight: '70%',
   },
-  dropdown: {
-    borderWidth: 1,
-    borderTopLeftRadius: 6,
-    borderTopRightRadius: 6,
+  row: {
+    paddingVertical: 10,
   },
-
+  text: {
+    fontSize: 14,
+    color: '#111827',
+  },
   doneBtn: {
-    marginTop: 10,
-    backgroundColor: '#1343ad',
+    marginTop: 12,
+    backgroundColor: '#111827',
     borderRadius: 10,
     paddingVertical: 12,
     alignItems: 'center',
   },
-
   doneTxt: {
     color: '#fff',
     fontWeight: '900',

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
 
 export default function EmployeeSelect({
   label,
@@ -23,18 +23,23 @@ export default function EmployeeSelect({
 
       {open && (
         <View style={styles.menu}>
-          {options.map(opt => (
-            <Pressable
-              key={opt.value}
-              style={styles.menuItem}
-              onPress={() => {
-                onChange(opt.value);
-                setOpen(false);
-              }}
-            >
-              <Text>{opt.label}</Text>
-            </Pressable>
-          ))}
+          <ScrollView
+            style={{ maxHeight: 220 }}
+            showsVerticalScrollIndicator={true}
+          >
+            {options.map(opt => (
+              <Pressable
+                key={opt.value}
+                style={styles.menuItem}
+                onPress={() => {
+                  onChange(opt.value);
+                  setOpen(false);
+                }}
+              >
+                <Text>{opt.label}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
         </View>
       )}
     </View>
@@ -59,8 +64,17 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
     borderRadius: 10,
     backgroundColor: '#fff',
-    maxHeight: 220,
+    // maxHeight: 220,
   },
+  menu: {
+    marginTop: 4,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    overflow: 'hidden', // 🔥 important for rounded corners
+  },
+
   menuItem: {
     padding: 10,
     borderBottomWidth: 1,

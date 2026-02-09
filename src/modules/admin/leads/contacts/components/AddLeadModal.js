@@ -62,7 +62,6 @@ const DEAL_STAGES = [
   'Win',
   'Lost',
 ];
-const DEAL_CATEGORIES = ['Sales', 'Development', 'Production'];
 
 export default function AddLeadModal({
   visible,
@@ -71,6 +70,7 @@ export default function AddLeadModal({
   currentUserId, // e.g. EMP-009 for addedBy default
   defaultOwnerId, // e.g. EMP-010
   empOptions = [],
+  initialData = null,
 }) {
   const [form, setForm] = useState({
     // Lead basic
@@ -119,11 +119,6 @@ export default function AddLeadModal({
   const [showDate, setShowDate] = useState(false);
   const [openWatchers, setOpenWatchers] = useState(false);
 
-  // useEffect(() => {
-  //   if (!visible) return;
-
-  // }, [visible]);
-
   const [saving, setSaving] = useState(false);
 
   const valid = useMemo(
@@ -146,6 +141,82 @@ export default function AddLeadModal({
     clientCategoryAPI.list().then(setCategories);
     dealCategoryAPI.list().then(setDealCategories);
   }, [visible]);
+
+  useEffect(() => {
+    if (!visible) return;
+
+    // CREATE MODE → RESET
+    if (!initialData) {
+      setForm({
+        name: '',
+        email: '',
+        mobileNumber: '',
+        clientCategory: 'Corporate',
+        leadSource: 'Website',
+
+        addedBy: currentUserId || '',
+        leadOwner: defaultOwnerId || '',
+
+        companyName: '',
+        officialWebsite: '',
+        officePhone: '',
+        city: '',
+        state: '',
+        postalCode: '',
+        country: '',
+        companyAddress: '',
+
+        createDeal: false,
+        autoConvertToClient: false,
+        deal: {
+          title: '',
+          pipeline: 'Default Pipeline',
+          dealStage: 'Generated',
+          dealCategory: 'Enterprise',
+          value: '',
+          expectedCloseDate: '',
+          dealAgent: defaultOwnerId || '',
+          dealWatchers: [],
+        },
+      });
+      return;
+    }
+
+    // EDIT MODE → PREFILL
+    setForm({
+      name: initialData.name || '',
+      email: initialData.email || '',
+      mobileNumber: initialData.mobileNumber || '',
+      clientCategory: initialData.clientCategory || 'Corporate',
+      leadSource: initialData.leadSource || 'Website',
+
+      addedBy: initialData.addedBy || currentUserId || '',
+      leadOwner: initialData.leadOwner || defaultOwnerId || '',
+
+      companyName: initialData.companyName || '',
+      officialWebsite: initialData.officialWebsite || '',
+      officePhone: initialData.officePhone || '',
+      city: initialData.city || '',
+      state: initialData.state || '',
+      postalCode: initialData.postalCode || '',
+      country: initialData.country || '',
+      companyAddress: initialData.companyAddress || '',
+
+      createDeal: !!initialData.deal,
+      autoConvertToClient: !!initialData.autoConvertToClient,
+
+      deal: {
+        title: initialData.deal?.title || '',
+        pipeline: initialData.deal?.pipeline || 'Default Pipeline',
+        dealStage: initialData.deal?.dealStage || 'Generated',
+        dealCategory: initialData.deal?.dealCategory || 'Enterprise',
+        value: initialData.deal?.value ? String(initialData.deal.value) : '',
+        expectedCloseDate: initialData.deal?.expectedCloseDate || '',
+        dealAgent: initialData.deal?.dealAgent || defaultOwnerId || '',
+        dealWatchers: initialData.deal?.dealWatchers || [],
+      },
+    });
+  }, [visible, initialData]);
 
   const submit = async () => {
     if (!valid || saving) return;
@@ -505,13 +576,40 @@ export default function AddLeadModal({
                     </Field>
 
                     {/* Dropdown modal */}
-                    {openWatchers && (
+                    {/* {openWatchers && (
                       <MultiEmployeeSelect
                         value={form.deal.dealWatchers}
                         options={empOptions}
                         onChange={v => setDeal('dealWatchers', v)}
                         onClose={() => setOpenWatchers(false)}
                       />
+                    )} */}
+
+                    {openWatchers && (
+                      <Modal
+                        visible
+                        transparent
+                        animationType="fade"
+                        onRequestClose={() => setOpenWatchers(false)}
+                      >
+                        <Pressable
+                          style={styles.overlay}
+                          onPress={() => setOpenWatchers(false)}
+                        >
+                          <View style={styles.watchersSheet}>
+                            <Text style={styles.sheetTitle}>
+                              Select Deal Watchers
+                            </Text>
+
+                            <MultiEmployeeSelect
+                              value={form.deal.dealWatchers}
+                              options={empOptions}
+                              onChange={v => setDeal('dealWatchers', v)}
+                              onClose={() => setOpenWatchers(false)}
+                            />
+                          </View>
+                        </Pressable>
+                      </Modal>
                     )}
                   </View>
                 </View>
@@ -628,6 +726,24 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: '#fff',
     justifyContent: 'center',
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'flex-end',
+  },
+
+  watchersSheet: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+
+  sheetTitle: {
+    fontSize: 14,
+    fontWeight: '900',
+    marginBottom: 8,
   },
 
   rowSwitch: {

@@ -398,6 +398,7 @@ export default function AdminLeadContactsScreen() {
         currentUserId={me}
         defaultOwnerId={me}
         empOptions={empOptions}
+        initialData={formTarget}
       />
 
       {/* 5) 3-dot Action bottom sheet */}
