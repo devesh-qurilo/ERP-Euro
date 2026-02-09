@@ -631,6 +631,17 @@ export const clientCategoryAPI = {
   delete: id => api.delete(`/clients/category/${id}`),
 };
 
+export const dealCategoryAPI = {
+  // GET all deal categories
+  list: () => api.get('/deals/dealCategory').then(r => r.data),
+
+  // CREATE deal category
+  create: payload => api.post('/deals/dealCategory', payload).then(r => r.data),
+
+  // DELETE deal category
+  remove: id => api.delete(`/deals/dealCategory/${id}`).then(r => r.data),
+};
+
 // --- ADMIN SETTINGS APIS ---
 export const adminSettingsAPI = {
   // multipart: { profile: object with fields, file: optional RN file { uri, name, type } }

@@ -10,10 +10,16 @@ import {
   ScrollView,
   Switch,
 } from 'react-native';
-import { clientCategoryAPI, leadSourceAPI } from '../../../../../services/api';
+import {
+  clientCategoryAPI,
+  dealCategoryAPI,
+  leadSourceAPI,
+} from '../../../../../services/api';
 import AddOptionModal from './AddOptionModal';
 import OptionSelectWithAdd from './OptionSelectWithAdd';
 import EmployeeSelect from './EmployeeSelect';
+import MultiEmployeeSelect from './MultiEmployeeSelect';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const Field = ({ label, required, children }) => (
   <View style={{ marginBottom: 12 }}>
@@ -108,6 +114,14 @@ export default function AddLeadModal({
 
   const [addSourceOpen, setAddSourceOpen] = useState(false);
   const [addCategoryOpen, setAddCategoryOpen] = useState(false);
+  const [dealCategories, setDealCategories] = useState([]);
+  const [addDealCatOpen, setAddDealCatOpen] = useState(false);
+  const [showDate, setShowDate] = useState(false);
+
+  // useEffect(() => {
+  //   if (!visible) return;
+
+  // }, [visible]);
 
   const [saving, setSaving] = useState(false);
 
@@ -129,6 +143,7 @@ export default function AddLeadModal({
 
     leadSourceAPI.list().then(setLeadSources);
     clientCategoryAPI.list().then(setCategories);
+    dealCategoryAPI.list().then(setDealCategories);
   }, [visible]);
 
   const submit = async () => {
@@ -192,7 +207,7 @@ export default function AddLeadModal({
           <Text style={styles.title}>Add Lead</Text>
 
           <ScrollView
-            contentContainerStyle={{ paddingBottom: 12 }}
+            contentContainerStyle={{ paddingBottom: 160 }}
             showsVerticalScrollIndicator={false}
           >
             {/* BASIC DETAILS */}
@@ -409,13 +424,13 @@ export default function AddLeadModal({
                   />
                 </Field>
 
-                <Field label="Category">
-                  <ChoicePills
-                    options={DEAL_CATEGORIES}
-                    value={form.deal.dealCategory}
-                    onChange={v => setDeal('dealCategory', v)}
-                  />
-                </Field>
+                <OptionSelectWithAdd
+                  label="Deal Category"
+                  value={form.deal.dealCategory}
+                  options={dealCategories}
+                  onChange={opt => setDeal('dealCategory', opt.categoryName)}
+                  onAddPress={() => setAddDealCatOpen(true)}
+                />
 
                 <View style={styles.row2}>
                   <View style={styles.half}>
@@ -430,42 +445,55 @@ export default function AddLeadModal({
                     </Field>
                   </View>
                   <View style={styles.half}>
-                    <Field label="Expected Close Date (YYYY-MM-DD)">
-                      <TextInput
+                    <Field label="Expected Close Date">
+                      <Pressable
                         style={styles.input}
-                        value={form.deal.expectedCloseDate}
-                        onChangeText={v => setDeal('expectedCloseDate', v)}
-                        placeholder="2025-11-01"
-                      />
+                        onPress={() => setShowDate(true)}
+                      >
+                        <Text>
+                          {form.deal.expectedCloseDate || 'Select date'}
+                        </Text>
+                      </Pressable>
+
+                      {showDate && (
+                        <DateTimePicker
+                          value={
+                            form.deal.expectedCloseDate
+                              ? new Date(form.deal.expectedCloseDate)
+                              : new Date()
+                          }
+                          mode="date"
+                          onChange={(_, d) => {
+                            setShowDate(false);
+                            if (d) {
+                              setDeal(
+                                'expectedCloseDate',
+                                d.toISOString().slice(0, 10),
+                              );
+                            }
+                          }}
+                        />
+                      )}
                     </Field>
                   </View>
                 </View>
 
                 <View style={styles.row2}>
                   <View style={styles.half}>
-                    <Field label="Deal Agent (Employee ID)">
-                      <TextInput
-                        style={styles.input}
+                    <Field label="Deal Agent (Employee)">
+                      <EmployeeSelect
                         value={form.deal.dealAgent}
-                        onChangeText={v => setDeal('dealAgent', v)}
-                        autoCapitalize="characters"
-                        placeholder="EMP-015"
+                        options={empOptions}
+                        onChange={v => setDeal('dealAgent', v)}
                       />
                     </Field>
                   </View>
                   <View style={styles.half}>
-                    <Field label="Deal Watchers (comma-sep Employee IDs)">
-                      <TextInput
-                        style={styles.input}
-                        value={(form.deal.dealWatchers || []).join(',')}
-                        onChangeText={v =>
-                          setDeal(
-                            'dealWatchers',
-                            v.split(',').map(s => s.trim()),
-                          )
-                        }
-                        autoCapitalize="characters"
-                        placeholder="EMP-015, EMP-009"
+                    <Field label="Deal Watchers">
+                      <MultiEmployeeSelect
+                        value={form.deal.dealWatchers}
+                        options={empOptions}
+                        onChange={v => setDeal('dealWatchers', v)}
                       />
                     </Field>
                   </View>
@@ -494,6 +522,20 @@ export default function AddLeadModal({
                 const item = await clientCategoryAPI.create(name);
                 setCategories(s => [...s, item]);
                 set('clientCategory', item.categoryName);
+              }}
+            />
+
+            <AddOptionModal
+              visible={addDealCatOpen}
+              title="Add Deal Category"
+              placeholder="Enterprise"
+              onClose={() => setAddDealCatOpen(false)}
+              onSave={async name => {
+                const item = await dealCategoryAPI.create({
+                  categoryName: name,
+                });
+                setDealCategories(s => [...s, item]);
+                setDeal('dealCategory', item.categoryName);
               }}
             />
           </ScrollView>
