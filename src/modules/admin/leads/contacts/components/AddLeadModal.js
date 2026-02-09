@@ -117,6 +117,7 @@ export default function AddLeadModal({
   const [dealCategories, setDealCategories] = useState([]);
   const [addDealCatOpen, setAddDealCatOpen] = useState(false);
   const [showDate, setShowDate] = useState(false);
+  const [openWatchers, setOpenWatchers] = useState(false);
 
   // useEffect(() => {
   //   if (!visible) return;
@@ -490,12 +491,28 @@ export default function AddLeadModal({
                   </View>
                   <View style={styles.half}>
                     <Field label="Deal Watchers">
+                      {/* Closed dropdown */}
+                      <Pressable
+                        style={styles.input}
+                        onPress={() => setOpenWatchers(true)}
+                      >
+                        <Text numberOfLines={1}>
+                          {form.deal.dealWatchers?.length
+                            ? form.deal.dealWatchers.join(', ')
+                            : 'Select watchers'}
+                        </Text>
+                      </Pressable>
+                    </Field>
+
+                    {/* Dropdown modal */}
+                    {openWatchers && (
                       <MultiEmployeeSelect
                         value={form.deal.dealWatchers}
                         options={empOptions}
                         onChange={v => setDeal('dealWatchers', v)}
+                        onClose={() => setOpenWatchers(false)}
                       />
-                    </Field>
+                    )}
                   </View>
                 </View>
               </View>
@@ -603,6 +620,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     fontSize: 13,
   },
+  dropdownInput: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+  },
+
   rowSwitch: {
     flexDirection: 'row',
     justifyContent: 'space-between',
