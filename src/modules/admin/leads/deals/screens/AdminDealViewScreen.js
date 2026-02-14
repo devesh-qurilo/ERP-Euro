@@ -7,10 +7,12 @@ import {
   ActivityIndicator,
   Image,
   TextInput,
+  Pressable,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOne } from '../../deals/store/actions';
 import { selectDealOne } from '../../deals/store/selectors';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import {
   fetchDocs,
   uploadDoc,
@@ -59,15 +61,19 @@ export default function AdminDealViewScreen({ route }) {
 
   useEffect(() => {
     if (!dealId) return;
-    // header card
+
     dispatch(fetchOne(dealId));
-    // preload all tabs
-    dispatch(fetchDocs(dealId));
-    dispatch(fetchFollowups(dealId));
-    dispatch(fetchNotes(dealId));
-    dispatch(fetchComments(dealId));
-    dispatch(fetchTags(dealId));
   }, [dealId]);
+
+  useEffect(() => {
+    if (!dealId) return;
+
+    if (active === 'documents') dispatch(fetchDocs(dealId));
+    if (active === 'Follow up') dispatch(fetchFollowups(dealId));
+    if (active === 'Notes') dispatch(fetchNotes(dealId));
+    if (active === 'Comments') dispatch(fetchComments(dealId));
+    if (active === 'Tags') dispatch(fetchTags(dealId));
+  }, [active, dealId]);
 
   if (!deal) return <ActivityIndicator style={{ marginTop: 20 }} />;
 
@@ -239,20 +245,79 @@ function FollowupsTab({ dealId }) {
   const dispatch = useDispatch();
   const list = useSelector(selectDealFollowups);
   const [f, setF] = useState({
-    nextDate: '',
-    startTime: '',
+    nextDate: null, // Date
+    startTime: null, // Date
     remarks: '',
     sendReminder: true,
     remindBefore: 1,
     remindUnit: 'DAYS',
   });
+  const [showDate, setShowDate] = useState(false);
+  const [showTime, setShowTime] = useState(false);
+  // const onCreate = () => dispatch(addFollowup(dealId, f));
+  const onCreate = () => {
+    if (!f.nextDate || !f.startTime) return;
 
-  const onCreate = () => dispatch(addFollowup(dealId, f));
+    dispatch(
+      addFollowup(dealId, {
+        ...f,
+        nextDate: f.nextDate.toISOString().slice(0, 10),
+        startTime: f.startTime.toTimeString().slice(0, 5), // HH:mm
+      }),
+    );
+  };
 
   return (
     <View>
       <Text style={{ fontWeight: '700', marginBottom: 8 }}>Add Follow up</Text>
-      <Field
+      {/* NEXT DATE */}
+      <Text style={{ fontWeight: '600', marginBottom: 4 }}>Next Date</Text>
+      <Pressable style={styles.input} onPress={() => setShowDate(true)}>
+        <Text>
+          {f.nextDate ? f.nextDate.toISOString().slice(0, 10) : 'Select date'}
+        </Text>
+      </Pressable>
+
+      {showDate && (
+        <DateTimePicker
+          value={f.nextDate || new Date()}
+          mode="date"
+          display="default"
+          onChange={(_, d) => {
+            setShowDate(false);
+            if (d) setF({ ...f, nextDate: d });
+          }}
+        />
+      )}
+
+      {/* START TIME */}
+      <Text style={{ fontWeight: '600', marginBottom: 4, marginTop: 8 }}>
+        Start Time
+      </Text>
+      <Pressable style={styles.input} onPress={() => setShowTime(true)}>
+        <Text>
+          {f.startTime
+            ? f.startTime.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+            : 'Select time'}
+        </Text>
+      </Pressable>
+
+      {showTime && (
+        <DateTimePicker
+          value={f.startTime || new Date()}
+          mode="time"
+          display="default"
+          onChange={(_, t) => {
+            setShowTime(false);
+            if (t) setF({ ...f, startTime: t });
+          }}
+        />
+      )}
+
+      {/* <Field
         label="Next Date"
         value={f.nextDate}
         onChange={v => setF({ ...f, nextDate: v })}
@@ -263,7 +328,7 @@ function FollowupsTab({ dealId }) {
         value={f.startTime}
         onChange={v => setF({ ...f, startTime: v })}
         placeholder="HH:mm"
-      />
+      /> */}
       <Field
         label="Remarks"
         value={f.remarks}
@@ -568,3 +633,13 @@ function Field({
     </View>
   );
 }
+
+const styles = {
+  input: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    borderColor: '#e5e7eb',
+    backgroundColor: '#fff',
+  },
+};

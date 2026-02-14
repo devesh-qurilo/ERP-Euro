@@ -17,6 +17,8 @@ import {
   updateStage,
   deleteStage,
 } from '../store/actions';
+
+import getLatestFollowup from '../../../components/followup';
 import {
   selectKanbanBusy,
   selectKanbanStages,
@@ -137,7 +139,7 @@ function KanbanCard({ item, stage, stages, dispatch, navigation }) {
     item.leadName || item.assignedEmployeesMeta?.[0]?.name || '--';
   const leadMobile = item.leadMobile || '--';
   const tags = Array.isArray(item.tags) ? item.tags : [];
-  const calend = item.followups[0]?.nextDate || '--';
+  // const calend = item.followups[0]?.nextDate || '--';
 
   // avatars from assignedEmployeesMeta (max 3)
   const avatars = (item.assignedEmployeesMeta || []).slice(0, 3);
@@ -145,6 +147,22 @@ function KanbanCard({ item, stage, stages, dispatch, navigation }) {
   // first 2 tags to show
   const visibleTags = tags.slice(0, 2);
   const overflow = tags.length - visibleTags.length;
+
+  // const latestFollowup = useMemo(
+  //   () => getLatestFollowup(item.followups),
+  //   [item.followups],
+  // );
+
+  // const calend = latestFollowup
+  //   ? `${latestFollowup.nextDate} ${latestFollowup.startTime.slice(0, 5)}`
+  //   : '--';
+
+  const latestFollowup = useMemo(
+    () => getLatestFollowup(item.followups),
+    [item.followups],
+  );
+
+  const calend = latestFollowup ? `${latestFollowup.nextDate}` : '--';
 
   return (
     <View style={styles.card}>
@@ -369,10 +387,10 @@ const styles = StyleSheet.create({
   leadCalender: {
     color: '#843838ff',
     marginTop: 4,
-    backgroundColor: '#b4d2deff',
+    // backgroundColor: '#b4d2deff',
     padding: 10,
     alignItems: 'center',
-    borderWidth: 1,
+    // borderWidth: 1,
     borderRadius: 20,
   },
 
