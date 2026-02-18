@@ -5,6 +5,6 @@
     "**/*.tsx",
     "App.js",
     "src/modules/admin/leads/contacts/components/AddLeadModal.js"
-  ],
+, "src/modules/admin/leads/contacts/components/MultiEmployeeSelect.js", "src/modules/admin/leads/contacts/components/MultiEmployeeSelect.js"  ],
   "exclude": ["**/node_modules", "**/Pods"]
 }

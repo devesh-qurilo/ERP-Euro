@@ -19,3 +19,11 @@ export default function getLatestFollowup(followups = []) {
 //     }))
 //     .sort((a, b) => b._dt - a._dt)[0];
 // }
+
+export function getSortDate(item) {
+  const latest = getLatestFollowup(item.followups);
+
+  if (!latest) return null;
+
+  return new Date(`${latest.nextDate}T${latest.startTime || '00:00:00'}`);
+}

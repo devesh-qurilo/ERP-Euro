@@ -1648,6 +1648,14 @@ export const adminDealViewAPI = {
         payload,
       )
       .then(r => r.data),
+  deleteNote: (dealId, noteId) =>
+    api
+      .delete(
+        `/deals/${encodeURIComponent(dealId)}/notes/${encodeURIComponent(
+          noteId,
+        )}`,
+      )
+      .then(r => r.data),
 
   // FOLLOWUPS
   listFollowups: dealId =>
@@ -1663,6 +1671,15 @@ export const adminDealViewAPI = {
           followupId,
         )}`,
         payload,
+      )
+      .then(r => r.data),
+
+  deleteFollowup: (dealId, followupId) =>
+    api
+      .delete(
+        `/deals/${encodeURIComponent(dealId)}/followups/${encodeURIComponent(
+          followupId,
+        )}`,
       )
       .then(r => r.data),
 };

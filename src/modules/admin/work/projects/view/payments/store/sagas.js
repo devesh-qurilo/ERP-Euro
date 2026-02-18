@@ -19,6 +19,9 @@ function* listByProjectSaga({ payload: { projectId } }) {
 
 function* updatePaymentSaga({ payload: { paymentId, payload, projectId } }) {
   try {
+    console.log('devesh payment id', paymentId);
+    console.log('devesh projectId', projectId);
+    console.log('devesh  payload', payload);
     const data = yield call(projectPaymentsAPI.update, paymentId, payload);
     yield put({ type: T.UPDATE_SUCCESS, payload: data });
     yield put({ type: T.LIST_BY_PROJECT_REQUEST, payload: { projectId } });

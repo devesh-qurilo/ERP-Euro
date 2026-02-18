@@ -79,8 +79,12 @@ function* tagAdd({ dealId, payload }) {
 function* tagDel({ dealId, tagId }) {
   try {
     yield put(setBusy(true));
-    yield safeCall(adminDealViewAPI.deleteTag, dealId, tagId);
-    yield put({ type: T.TAG_DEL_OK, tagId });
+
+    yield call(adminDealViewAPI.deleteTag, dealId, tagId);
+
+    // 🔥 refetch list
+    const data = yield call(adminDealViewAPI.listTags, dealId);
+    yield put({ type: T.TAGS_FETCH_OK, data });
   } catch (error) {
     yield put({ type: T.TAG_DEL_ERR, error });
   } finally {
@@ -146,6 +150,16 @@ function* noteUpd({ dealId, noteId, payload }) {
   }
 }
 
+function* deleteNoteSaga({ dealId, noteId }) {
+  try {
+    yield call(adminDealViewAPI.deleteNote, dealId, noteId);
+
+    yield put({ type: T.NOTE_DEL_OK, noteId });
+  } catch (e) {
+    yield put({ type: T.NOTE_DEL_FAIL, error: e.message });
+  }
+}
+
 // FOLLOWUPS
 function* fupsFetch({ dealId }) {
   try {
@@ -182,6 +196,21 @@ function* fupUpd({ dealId, followupId, payload }) {
     yield put(setBusy(false));
   }
 }
+function* fupDel({ dealId, followupId }) {
+  try {
+    yield put(setBusy(true));
+    yield safeCall(adminDealViewAPI.deleteFollowup, dealId, followupId);
+
+    yield put({
+      type: T.FUP_DEL_OK,
+      followupId,
+    });
+  } catch (error) {
+    yield put({ type: T.FUP_DEL_ERR, error });
+  } finally {
+    yield put(setBusy(false));
+  }
+}
 
 export default function* dealsViewWatcher() {
   yield takeLatest(T.COMMENTS_FETCH_REQ, commentsFetch);
@@ -199,8 +228,10 @@ export default function* dealsViewWatcher() {
   yield takeLatest(T.NOTES_FETCH_REQ, notesFetch);
   yield takeLatest(T.NOTE_ADD_REQ, noteAdd);
   yield takeLatest(T.NOTE_UPD_REQ, noteUpd);
+  yield takeLatest(T.NOTE_DEL_REQ, deleteNoteSaga);
 
   yield takeLatest(T.FUPS_FETCH_REQ, fupsFetch);
   yield takeLatest(T.FUP_ADD_REQ, fupAdd);
   yield takeLatest(T.FUP_UPD_REQ, fupUpd);
+  yield takeLatest(T.FUP_DEL_REQ, fupDel);
 }

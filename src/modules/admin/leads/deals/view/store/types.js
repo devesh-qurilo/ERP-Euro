@@ -55,4 +55,12 @@ export const FUP_UPD_REQ = `${MODULE}/FUP_UPD_REQ`;
 export const FUP_UPD_OK = `${MODULE}/FUP_UPD_OK`;
 export const FUP_UPD_ERR = `${MODULE}/FUP_UPD_ERR`;
 
+export const FUP_DEL_REQ = `${MODULE}/FUP_DEL_REQ`;
+export const FUP_DEL_OK = `${MODULE}/FUP_DEL_OK`;
+export const FUP_DEL_ERR = `${MODULE}/FUP_DEL_ERR`;
+
 export const SET_BUSY = `${MODULE}/SET_BUSY`;
+
+export const NOTE_DEL_REQ = 'NOTE_DEL_REQ';
+export const NOTE_DEL_OK = 'NOTE_DEL_OK';
+export const NOTE_DEL_FAIL = 'NOTE_DEL_FAIL';

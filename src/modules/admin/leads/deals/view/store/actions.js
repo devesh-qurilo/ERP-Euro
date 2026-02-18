@@ -54,6 +54,12 @@ export const updateNote = (dealId, noteId, payload) => ({
   payload,
 });
 
+export const deleteNote = (dealId, noteId) => ({
+  type: T.NOTE_DEL_REQ,
+  dealId,
+  noteId,
+});
+
 // followups
 export const fetchFollowups = dealId => ({ type: T.FUPS_FETCH_REQ, dealId });
 export const addFollowup = (dealId, payload) => ({
@@ -66,6 +72,12 @@ export const updateFollowup = (dealId, followupId, payload) => ({
   dealId,
   followupId,
   payload,
+});
+
+export const deleteFollowup = (dealId, followupId) => ({
+  type: T.FUP_DEL_REQ,
+  dealId,
+  followupId,
 });
 
 // ui

@@ -65,11 +65,18 @@ export default function reducer(state = initial, action) {
       return { ...state, notes: [action.data, ...(state.notes || [])] };
     case T.NOTE_UPD_OK: {
       const upd = action.data;
+
       return {
         ...state,
         notes: (state.notes || []).map(n => (n.id === upd.id ? upd : n)),
       };
     }
+
+    case T.NOTE_DEL_OK:
+      return {
+        ...state,
+        notes: state.notes.filter(n => n.id !== action.noteId),
+      };
 
     // FUPS
     case T.FUPS_FETCH_OK:
@@ -85,6 +92,28 @@ export default function reducer(state = initial, action) {
         ),
       };
     }
+    case T.FUPS_FETCH_OK:
+      return { ...state, followups: action.data };
+
+    case T.FUP_ADD_OK:
+      return {
+        ...state,
+        followups: [action.data, ...state.followups],
+      };
+
+    case T.FUP_UPD_OK:
+      return {
+        ...state,
+        followups: state.followups.map(f =>
+          f.id === action.data.id ? action.data : f,
+        ),
+      };
+
+    case T.FUP_DEL_OK:
+      return {
+        ...state,
+        followups: state.followups.filter(f => f.id !== action.followupId),
+      };
 
     // ERRORS
     case T.COMMENTS_FETCH_ERR:

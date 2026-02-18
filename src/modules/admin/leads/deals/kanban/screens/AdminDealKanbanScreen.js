@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   StyleSheet,
   Image,
+  TextInput,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -18,7 +19,7 @@ import {
   deleteStage,
 } from '../store/actions';
 
-import getLatestFollowup from '../../../components/followup';
+import getLatestFollowup, { getSortDate } from '../../../components/followup';
 import {
   selectKanbanBusy,
   selectKanbanStages,
@@ -35,6 +36,12 @@ import { useNavigation } from '@react-navigation/native';
  */
 
 export default function AdminDealKanbanScreen() {
+  const [stageModalVisible, setStageModalVisible] = useState(false);
+  const [stageName, setStageName] = useState('');
+  const [editingStage, setEditingStage] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+
+  const [stageMenuOpen, setStageMenuOpen] = useState(null);
   const dispatch = useDispatch();
   const nav = useNavigation();
 
@@ -53,7 +60,22 @@ export default function AdminDealKanbanScreen() {
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <Text style={styles.title}>Deals Kanban</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        {/* <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity
+            onPress={() => dispatch(fetchKanban())}
+            style={styles.refreshBtn}
+          >
+            <Text style={styles.refreshText}>Refresh</Text>
+          </TouchableOpacity>
+        </View> */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <TouchableOpacity
+            onPress={() => setStageModalVisible(true)}
+            style={styles.createStageBtn}
+          >
+            <Text style={styles.createStageText}>+ Stage</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity
             onPress={() => dispatch(fetchKanban())}
             style={styles.refreshBtn}
@@ -68,7 +90,7 @@ export default function AdminDealKanbanScreen() {
         contentContainerStyle={styles.columnsContainer}
         showsHorizontalScrollIndicator={false}
       >
-        {stages.map(stage => (
+        {/* {stages.map(stage => (
           <View key={stage.id} style={styles.column}>
             <View style={styles.columnHeader}>
               <Text style={styles.columnTitle}>{stage.name}</Text>
@@ -80,7 +102,7 @@ export default function AdminDealKanbanScreen() {
             </View>
 
             <FlatList
-              data={columns[stage.name] || []}
+              data={sortedData}
               keyExtractor={item => String(item.id)}
               renderItem={({ item }) => (
                 <KanbanCard
@@ -95,7 +117,144 @@ export default function AdminDealKanbanScreen() {
               contentContainerStyle={{ paddingBottom: 40 }}
             />
           </View>
-        ))}
+        ))} */}
+
+        {stages.map(stage => {
+          const list = columns[stage.name] || [];
+          const now = new Date();
+
+          const sortedData = [...list].sort((a, b) => {
+            const da = getSortDate(a);
+            const db = getSortDate(b);
+
+            if (!da && !db) return 0;
+            if (!da) return 1;
+            if (!db) return -1;
+
+            const aOverdue = da < now;
+            const bOverdue = db < now;
+
+            // overdue first
+            if (aOverdue && !bOverdue) return -1;
+            if (!aOverdue && bOverdue) return 1;
+
+            // earliest first
+            return da - db;
+          });
+
+          return (
+            // <View key={stage.id} style={styles.column}>
+            //   {/* <View style={styles.columnHeader}>
+            //     <Text style={styles.columnTitle}>{stage.name}</Text>
+            //     <View style={styles.countBadge}>
+            //       <Text style={styles.countText}>{sortedData.length}</Text>
+            //     </View>
+            //   </View> */}
+
+            //   <View style={styles.columnHeader}>
+            //     <Text style={styles.columnTitle}>{stage.name}</Text>
+
+            //     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            //       <View style={styles.countBadge}>
+            //         <Text style={styles.countText}>{sortedData.length}</Text>
+            //       </View>
+
+            //       <TouchableOpacity
+            //         onPress={() =>
+            //           setStageMenuOpen(
+            //             stageMenuOpen === stage.id ? null : stage.id,
+            //           )
+            //         }
+            //         style={{ marginLeft: 8 }}
+            //       >
+            //         <Text style={{ fontSize: 18 }}>⋮</Text>
+            //       </TouchableOpacity>
+            //     </View>
+            //   </View>
+
+            //   <FlatList
+            //     data={sortedData}
+            //     keyExtractor={item => String(item.id)}
+            //     renderItem={({ item }) => (
+            //       <KanbanCard
+            //         item={item}
+            //         stage={stage}
+            //         stages={stages}
+            //         dispatch={dispatch}
+            //         navigation={nav}
+            //       />
+            //     )}
+            //     style={{ marginTop: 10 }}
+            //     contentContainerStyle={{ paddingBottom: 40 }}
+            //   />
+            // </View>
+            <View key={stage.id} style={styles.column}>
+              <View style={styles.columnHeader}>
+                <Text style={styles.columnTitle}>{stage.name}</Text>
+
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={styles.countBadge}>
+                    <Text style={styles.countText}>{sortedData.length}</Text>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={() =>
+                      setStageMenuOpen(
+                        stageMenuOpen === stage.id ? null : stage.id,
+                      )
+                    }
+                    style={{ marginLeft: 8 }}
+                  >
+                    <Text style={{ fontSize: 18 }}>⋮</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* ✅ STAGE MENU (NOW CORRECT POSITION) */}
+              {stageMenuOpen === stage.id && (
+                <View style={styles.stageMenu}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setEditingStage(stage);
+                      setStageName(stage.name);
+                      setStageModalVisible(true);
+                      setStageMenuOpen(null);
+                    }}
+                    style={styles.stageMenuItem}
+                  >
+                    <Text>Edit</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      setDeleteConfirm(stage);
+                      setStageMenuOpen(null);
+                    }}
+                    style={styles.stageMenuItem}
+                  >
+                    <Text style={{ color: 'red' }}>Delete</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              <FlatList
+                data={sortedData}
+                keyExtractor={item => String(item.id)}
+                renderItem={({ item }) => (
+                  <KanbanCard
+                    item={item}
+                    stage={stage}
+                    stages={stages}
+                    dispatch={dispatch}
+                    navigation={nav}
+                  />
+                )}
+                style={{ marginTop: 10 }}
+                contentContainerStyle={{ paddingBottom: 40 }}
+              />
+            </View>
+          );
+        })}
 
         {/* Unassigned column if any */}
         {columns['Unassigned'] && columns['Unassigned'].length > 0 && (
@@ -125,6 +284,93 @@ export default function AdminDealKanbanScreen() {
           </View>
         )}
       </ScrollView>
+      {stageModalVisible && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>
+              {editingStage ? 'Update Stage' : 'Create Stage'}
+            </Text>
+
+            <TextInput
+              placeholder="Stage name"
+              value={stageName}
+              onChangeText={setStageName}
+              style={styles.input}
+            />
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                onPress={() => {
+                  setStageModalVisible(false);
+                  setStageName('');
+                  setEditingStage(null);
+                }}
+                style={styles.cancelBtn}
+              >
+                <Text style={styles.cancelText}>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => {
+                  if (!stageName.trim()) return;
+
+                  if (editingStage) {
+                    dispatch(
+                      updateStage(editingStage.id, {
+                        name: stageName.trim(),
+                      }),
+                    );
+                  } else {
+                    dispatch(createStage({ name: stageName.trim() }));
+                  }
+
+                  setStageModalVisible(false);
+                  setStageName('');
+                  setEditingStage(null);
+                }}
+                style={styles.saveBtn}
+              >
+                <Text style={styles.saveText}>
+                  {editingStage ? 'Update' : 'Create'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
+
+      {deleteConfirm && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>
+              Delete "{deleteConfirm.name}"?
+            </Text>
+
+            <Text style={{ marginTop: 10, color: '#666' }}>
+              All deals in this stage may be affected.
+            </Text>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                onPress={() => setDeleteConfirm(null)}
+                style={styles.cancelBtn}
+              >
+                <Text style={styles.cancelText}>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => {
+                  dispatch(deleteStage(deleteConfirm.id));
+                  setDeleteConfirm(null);
+                }}
+                style={[styles.saveBtn, { backgroundColor: '#E53935' }]}
+              >
+                <Text style={styles.saveText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -132,7 +378,7 @@ export default function AdminDealKanbanScreen() {
 /* ---------------- Kanban Card (fancy) ---------------- */
 function KanbanCard({ item, stage, stages, dispatch, navigation }) {
   const [openMenu, setOpenMenu] = useState(false);
-  console.log('chandu', item);
+  // console.log('chandu', item);
 
   // minimal required fields
   const leadName =
@@ -346,6 +592,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   countText: { color: '#333', fontWeight: '700' },
+  stageMenu: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#eef0f3',
+    borderRadius: 8,
+    marginTop: 6,
+    paddingVertical: 6,
+  },
+
+  stageMenuItem: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
 
   card: {
     backgroundColor: '#fff',
@@ -436,4 +695,75 @@ const styles = StyleSheet.create({
   menuLabel: { color: '#333', fontWeight: '700', marginBottom: 6 },
   menuItem: { paddingVertical: 8 },
   menuItemText: { color: '#333' },
+  createStageBtn: {
+    backgroundColor: '#2B6BD8',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
+  },
+  createStageText: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  modalBox: {
+    width: 320,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+  },
+
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    marginBottom: 16,
+  },
+
+  input: {
+    borderWidth: 1,
+    borderColor: '#e6e9ef',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 20,
+    gap: 12,
+  },
+
+  cancelBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+
+  cancelText: {
+    color: '#666',
+    fontWeight: '600',
+  },
+
+  saveBtn: {
+    backgroundColor: '#2B6BD8',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+
+  saveText: {
+    color: '#fff',
+    fontWeight: '700',
+  },
 });
