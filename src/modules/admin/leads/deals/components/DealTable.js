@@ -63,7 +63,12 @@ export default function DealTable({
   }
 
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator
+      style={{ flex: 1 }}
+      contentContainerStyle={{ paddingBottom: 20 }}
+    >
       <View style={{ width: TOTAL_WIDTH }}>
         {/* ================= HEADER ================= */}
         <View style={[styles.row, styles.headerRow]}>
@@ -80,7 +85,7 @@ export default function DealTable({
           keyExtractor={keyExtractor}
           renderItem={renderItem}
           showsVerticalScrollIndicator
-          removeClippedSubviews
+          removeClippedSubviews={false}
           initialNumToRender={15}
           maxToRenderPerBatch={20}
           windowSize={10}

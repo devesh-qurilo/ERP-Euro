@@ -67,6 +67,7 @@ import wfhReducer from '../modules/admin/wfh/store/reducer';
 import paymentGateways from '../modules/admin/finance/paymentGateways/reducer';
 import adminMessagesReducer from '../modules/admin/messages/store/reducers';
 import messagesReducer from '../modules/admin/messages/store/reducers';
+import reducerPriority from '../modules/admin/leads/deals/priorities/reducer';
 
 const rootReducer = combineReducers({
   auth: userReducer,
@@ -91,6 +92,7 @@ const rootReducer = combineReducers({
 
   admin: combineReducers({
     leads: adminLeadsReducer, // ✅ <-- this is the Admin Lead Contacts reducer
+    Priority: reducerPriority,
     settings: adminSettingsReducer,
     hr: combineReducers({
       designations: adminDesignationsReducer, // ✅ add this

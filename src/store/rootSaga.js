@@ -72,6 +72,7 @@ import { leavesWatcher } from '../modules/admin/leaves/store/sagas';
 import { wfhWatcher } from '../modules/admin/wfh/store/sagas';
 import paymentGatewaysWatcher from '../modules/admin/finance/paymentGateways/sagas';
 import { adminMessagesSaga } from '../modules/admin/messages/store/sagas';
+import adminDealspriority from '../modules/admin/leads/deals/priorities/saga';
 
 // Root saga that combines all sagas
 export default function* rootSaga() {
@@ -138,6 +139,7 @@ export default function* rootSaga() {
     fork(wfhWatcher),
     fork(paymentGatewaysWatcher),
     fork(adminMessagesSaga),
+    fork(adminDealspriority),
   ]);
 }
 // adminFinanceInvoiceWatcher

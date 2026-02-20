@@ -6,16 +6,23 @@ import {
   ActivityIndicator,
   StyleSheet,
   Image,
+  Modal,
 } from 'react-native';
 
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { deleteDeal, setEditing, setFormOpen } from '../../deals/store/actions';
+import { selectPriorities } from '../priorities/selectors';
+import api from '../../../../../services/api';
+import { selectKanbanStages } from '../kanban/store/selectors';
 
 const DealRow = memo(function DealRow({ item, busy, onAddFollowup, columns }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const priorities = useSelector(selectPriorities);
+  const [stageDropdown, setStageDropdown] = useState(false);
+  const [priorityDropdown, setPriorityDropdown] = useState(false);
 
   /* ================= FORMATTERS ================= */
 
@@ -39,6 +46,34 @@ const DealRow = memo(function DealRow({ item, busy, onAddFollowup, columns }) {
       (a, b) => new Date(b.nextDate) - new Date(a.nextDate),
     )[0];
   }, [item.followups]);
+
+  const stages = useSelector(selectKanbanStages);
+
+  /* ================= UPDATE STAGE ================= */
+
+  const handleStageChange = async stageName => {
+    try {
+      await api.put(`/deals/${item.id}/stage?stage=${stageName}`);
+    } catch (err) {
+      console.log('Stage update error', err);
+    }
+  };
+
+  /* ================= UPDATE PRIORITY ================= */
+
+  const handlePriorityChange = async status => {
+    const selected = priorities.find(p => p.status === status);
+    if (!selected) return;
+
+    try {
+      console.log('devvvvvv', item.id, selected.id);
+      await api.put(`/deals/${item.id}/priority`, {
+        priorityId: selected.id,
+      });
+    } catch (err) {
+      console.log('Priority update error', err);
+    }
+  };
 
   /* ================= ACTIONS ================= */
 
@@ -155,25 +190,29 @@ const DealRow = memo(function DealRow({ item, busy, onAddFollowup, columns }) {
         )}
       </View>
 
-      {/* STAGE */}
+      {/* STAGE DROPDOWN */}
       <View style={[styles.cell, { width: columns[7].width }]}>
-        <View style={styles.stageBadge}>
+        <Pressable
+          style={styles.stageBadge}
+          onPress={() => setStageDropdown(true)}
+        >
           <Text style={styles.stageText}>{item.dealStage}</Text>
-        </View>
+        </Pressable>
       </View>
 
       {/* PRIORITY */}
       <View style={[styles.cell, { width: columns[8].width }]}>
-        {item.priority && (
-          <View
-            style={[
-              styles.priorityBadge,
-              { backgroundColor: item.priority.color || '#999' },
-            ]}
-          >
-            <Text style={styles.priorityText}>{item.priority.status}</Text>
-          </View>
-        )}
+        <Pressable
+          style={[
+            styles.priorityBadge,
+            { backgroundColor: item.priority?.color || '#999' },
+          ]}
+          onPress={() => setPriorityDropdown(true)}
+        >
+          <Text style={styles.priorityText}>
+            {item.priority?.status || 'Select'}
+          </Text>
+        </Pressable>
       </View>
 
       {/* TAGS */}
@@ -221,6 +260,65 @@ const DealRow = memo(function DealRow({ item, busy, onAddFollowup, columns }) {
           </>
         )}
       </View>
+
+      {stageDropdown && (
+        <Modal transparent animationType="fade">
+          <Pressable
+            style={styles.overlay}
+            onPress={() => setStageDropdown(false)}
+          >
+            <View style={styles.dropdownCard}>
+              {stages?.map(stage => (
+                <Pressable
+                  key={stage.id}
+                  style={styles.dropdownItem}
+                  onPress={async () => {
+                    await handleStageChange(stage.name);
+                    setStageDropdown(false);
+                  }}
+                >
+                  <Text>{stage.name}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </Pressable>
+        </Modal>
+      )}
+
+      {priorityDropdown && (
+        <Modal transparent animationType="fade">
+          <Pressable
+            style={styles.overlay}
+            onPress={() => setPriorityDropdown(false)}
+          >
+            <View style={styles.dropdownCard}>
+              {priorities?.map(p => (
+                <Pressable
+                  key={p.id}
+                  style={styles.dropdownItem}
+                  onPress={async () => {
+                    await handlePriorityChange(p.status);
+                    setPriorityDropdown(false);
+                  }}
+                >
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View
+                      style={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: 5,
+                        backgroundColor: p.color,
+                        marginRight: 8,
+                      }}
+                    />
+                    <Text>{p.status}</Text>
+                  </View>
+                </Pressable>
+              ))}
+            </View>
+          </Pressable>
+        </Modal>
+      )}
     </View>
   );
 });
@@ -326,15 +424,37 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
 
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  dropdownCard: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingVertical: 8,
+    width: 200,
+    elevation: 5,
+  },
+
+  dropdownItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+  },
+
   menu: {
     position: 'absolute',
     right: 0,
-    top: 24,
+    top: 30,
     backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: '#ddd',
     borderRadius: 8,
     width: 140,
+    elevation: 6,
+    zIndex: 999,
   },
 
   menuItem: {
