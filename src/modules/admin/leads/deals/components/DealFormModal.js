@@ -18,7 +18,7 @@ import { fetchEmployees } from '../../../hr/employees/store/actions';
 import { selectAdminLeads } from '../../../leads/store/selectors';
 import { fetchAdminLeads } from '../../store/actions';
 
-export default function DealFormModal({ open, editing }) {
+export default function DealFormModal({ open, editing, onClose }) {
   const dispatch = useDispatch();
 
   const employees = useSelector(selectEmpList) || [];
@@ -81,7 +81,13 @@ export default function DealFormModal({ open, editing }) {
     }
   }, [editing, open]);
 
-  if (!open) return null;
+  //   if (!open) return null;
+
+  useEffect(() => {
+    if (!open) {
+      setForm(emptyForm);
+    }
+  }, [open]);
 
   /* ================= Save ================= */
 
@@ -113,12 +119,13 @@ export default function DealFormModal({ open, editing }) {
         payload,
       });
     }
+    onClose?.();
   };
 
   return (
     <Modal transparent visible={open} animationType="fade">
-      <View style={styles.overlay}>
-        <View style={styles.card}>
+      <Pressable style={styles.overlay} onPress={onClose}>
+        <Pressable style={styles.card} onPress={() => {}}>
           <ScrollView>
             <Text style={styles.title}>
               {editing ? 'Edit Deal' : 'Add Deal'}
@@ -234,9 +241,19 @@ export default function DealFormModal({ open, editing }) {
                 {editing ? 'Update' : 'Create'}
               </Text>
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.saveBtn,
+                { backgroundColor: '#ccc', marginTop: 8 },
+              ]}
+              onPress={onClose}
+            >
+              <Text style={{ color: '#000', fontWeight: '700' }}>Cancel</Text>
+            </TouchableOpacity>
           </ScrollView>
-        </View>
-      </View>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 }

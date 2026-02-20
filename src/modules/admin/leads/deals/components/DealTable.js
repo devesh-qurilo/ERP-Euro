@@ -63,7 +63,12 @@ export default function DealTable({
   }
 
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator
+      style={{ flex: 1 }}
+      contentContainerStyle={{ paddingBottom: 20 }}
+    >
       <View style={{ width: TOTAL_WIDTH }}>
         {/* ================= HEADER ================= */}
         <View style={[styles.row, styles.headerRow]}>
