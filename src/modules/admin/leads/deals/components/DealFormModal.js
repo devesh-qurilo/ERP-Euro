@@ -390,7 +390,6 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
-import axios from 'axios';
 
 import { selectEmpList } from '../../../hr/employees/store/selectors';
 import { fetchEmployees } from '../../../hr/employees/store/actions';
