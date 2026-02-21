@@ -519,6 +519,7 @@ export default function DealFormModal({ open, editing, onClose }) {
     } catch (err) {
       console.log(err);
     }
+    onClose?.();
   };
 
   const handleDeleteCategory = async id => {
