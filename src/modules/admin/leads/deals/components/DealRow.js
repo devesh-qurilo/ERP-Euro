@@ -104,7 +104,7 @@ const DealRow = memo(function DealRow({ item, busy, onAddFollowup, columns }) {
 
   return (
     <View style={styles.row}>
-      {/* DEAL */}
+      {/* DEALkk */}
       <View style={[styles.cell, { width: columns[0].width }]}>
         <Text numberOfLines={1}>{item.title}</Text>
       </View>
