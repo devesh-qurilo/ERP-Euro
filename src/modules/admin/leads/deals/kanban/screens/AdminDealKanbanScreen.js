@@ -26,6 +26,8 @@ import {
   selectKanbanColumns,
 } from '../store/selectors';
 import { useNavigation } from '@react-navigation/native';
+import { selectPriorities } from '../../priorities/selectors';
+import api from '../../../../../../services/api';
 
 /**
  * Fancy Kanban screen (drop-in)
@@ -60,14 +62,6 @@ export default function AdminDealKanbanScreen() {
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <Text style={styles.title}>Deals Kanban</Text>
-        {/* <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <TouchableOpacity
-            onPress={() => dispatch(fetchKanban())}
-            style={styles.refreshBtn}
-          >
-            <Text style={styles.refreshText}>Refresh</Text>
-          </TouchableOpacity>
-        </View> */}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <TouchableOpacity
             onPress={() => setStageModalVisible(true)}
@@ -90,35 +84,6 @@ export default function AdminDealKanbanScreen() {
         contentContainerStyle={styles.columnsContainer}
         showsHorizontalScrollIndicator={false}
       >
-        {/* {stages.map(stage => (
-          <View key={stage.id} style={styles.column}>
-            <View style={styles.columnHeader}>
-              <Text style={styles.columnTitle}>{stage.name}</Text>
-              <View style={styles.countBadge}>
-                <Text style={styles.countText}>
-                  {(columns[stage.name] || []).length}
-                </Text>
-              </View>
-            </View>
-
-            <FlatList
-              data={sortedData}
-              keyExtractor={item => String(item.id)}
-              renderItem={({ item }) => (
-                <KanbanCard
-                  item={item}
-                  stage={stage}
-                  stages={stages}
-                  dispatch={dispatch}
-                  navigation={nav}
-                />
-              )}
-              style={{ marginTop: 10 }}
-              contentContainerStyle={{ paddingBottom: 40 }}
-            />
-          </View>
-        ))} */}
-
         {stages.map(stage => {
           const list = columns[stage.name] || [];
           const now = new Date();
@@ -378,7 +343,8 @@ export default function AdminDealKanbanScreen() {
 /* ---------------- Kanban Card (fancy) ---------------- */
 function KanbanCard({ item, stage, stages, dispatch, navigation }) {
   const [openMenu, setOpenMenu] = useState(false);
-  // console.log('chandu', item);
+  const priorities = useSelector(selectPriorities);
+  const [priorityOpen, setPriorityOpen] = useState(false);
 
   // minimal required fields
   const leadName =
@@ -410,15 +376,50 @@ function KanbanCard({ item, stage, stages, dispatch, navigation }) {
 
   const calend = latestFollowup ? `${latestFollowup.nextDate}` : '--';
 
+  const handlePriorityChange = async status => {
+    const selected = priorities.find(p => p.status === status);
+    if (!selected) return;
+
+    try {
+      await api.put(`/deals/${item.id}/priority`, {
+        priorityId: selected.id,
+      });
+
+      dispatch(fetchKanban()); // refresh board
+    } catch (err) {
+      console.log('Priority update error', err);
+    }
+  };
+
   return (
     <View style={styles.card}>
       <View style={styles.cardTop}>
-        <Text style={styles.cardTitle} numberOfLines={1}>
+        {/* <Text style={styles.cardTitle} numberOfLines={1}>
           {item.title}
-        </Text>
+        </Text> */}
         {/* <Text style={styles.cardTitle} numberOfLines={1}>
           {calend}
         </Text> */}
+
+        <View style={{ flex: 1 }}>
+          <Text style={styles.cardTitle} numberOfLines={1}>
+            {item.title}
+          </Text>
+
+          {item.priority && (
+            <TouchableOpacity
+              onPress={() => setPriorityOpen(!priorityOpen)}
+              style={[
+                styles.priorityBadgeKanban,
+                { backgroundColor: item.priority.color || '#999' },
+              ]}
+            >
+              <Text style={styles.priorityTextKanban}>
+                {item.priority.status}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
 
         <View style={{ alignItems: 'flex-end' }}>
           <TouchableOpacity
@@ -491,6 +492,33 @@ function KanbanCard({ item, stage, stages, dispatch, navigation }) {
               style={styles.menuItem}
             >
               <Text style={styles.menuItemText}>{s.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+      {priorityOpen && (
+        <View style={styles.priorityMenu}>
+          {priorities.map(p => (
+            <TouchableOpacity
+              key={p.id}
+              style={styles.priorityMenuItem}
+              onPress={() => {
+                setPriorityOpen(false);
+                handlePriorityChange(p.status);
+              }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View
+                  style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: 5,
+                    backgroundColor: p.color,
+                    marginRight: 8,
+                  }}
+                />
+                <Text>{p.status}</Text>
+              </View>
             </TouchableOpacity>
           ))}
         </View>
@@ -765,5 +793,33 @@ const styles = StyleSheet.create({
   saveText: {
     color: '#fff',
     fontWeight: '700',
+  },
+
+  priorityBadgeKanban: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginTop: 6,
+  },
+
+  priorityTextKanban: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+
+  priorityMenu: {
+    marginTop: 10,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#eef0f3',
+    borderRadius: 8,
+    paddingVertical: 6,
+  },
+
+  priorityMenuItem: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
 });
