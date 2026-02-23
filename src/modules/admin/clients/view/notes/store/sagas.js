@@ -5,6 +5,7 @@ import { clientNotesAPI } from '../../../../../../services/api';
 function* listSaga({ payload: { clientId } }) {
   try {
     const data = yield call(clientNotesAPI.list, clientId);
+    console.log('devesh client notes', clientId, data);
     yield put({ type: T.LIST_OK, payload: data });
   } catch (e) {
     yield put({ type: T.LIST_ERR, payload: e?.message || 'Load failed' });

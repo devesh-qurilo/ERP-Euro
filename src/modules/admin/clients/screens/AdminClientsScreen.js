@@ -32,7 +32,7 @@ export default function AdminClientsScreen() {
   const dispatch = useDispatch();
   const nav = useNavigation();
 
-  const items = useSelector(selectClients) || [];
+  const itemsl = useSelector(selectClients) || [];
   const loading = useSelector(selectClientsBusy);
   const saving = useSelector(selectClientsSave);
   const categories = useSelector(selectCategories) || [];
@@ -58,9 +58,41 @@ export default function AdminClientsScreen() {
       // refresh categories when screen focuses so dropdown stays up-to-date
       dispatch(A.categoryList());
       // fetch clients list with current filters
-      dispatch(A.list(filters));
+      // dispatch(A.list(filters));
     }, [dispatch, filters]),
   );
+
+  // const filteredItems = useMemo(() => {
+
+  const items = useMemo(() => {
+    return (itemsl || []).filter(c => {
+      // 🔍 SEARCH
+      if (filters.q) {
+        const q = filters.q.toLowerCase();
+
+        const match =
+          c.name?.toLowerCase().includes(q) ||
+          c.email?.toLowerCase().includes(q) ||
+          c.mobile?.toLowerCase().includes(q) ||
+          c.clientId?.toLowerCase().includes(q);
+
+        if (!match) return false;
+      }
+
+      // 📂 CATEGORY
+      if (filters.category && c.category !== filters.category) return false;
+
+      // 📊 STATUS
+      if (filters.status && c.status !== filters.status) return false;
+
+      // 🌍 COUNTRY
+      if (filters.country && c.country !== filters.country) return false;
+
+      return true;
+    });
+  }, [itemsl, filters]);
+
+  console.log('devesh client data', itemsl);
 
   // Handlers
   function openMenu(row) {
@@ -137,7 +169,7 @@ export default function AdminClientsScreen() {
               onChangeText={setLocalSearch}
               returnKeyType="search"
               onSubmitEditing={() => applyFilters({ q: localSearch })}
-              style={{ flex: 1, height: 40 }}
+              style={{ flex: 1, height: 40, color: '#c83939' }}
             />
             {localSearch ? (
               <TouchableOpacity
@@ -206,6 +238,9 @@ export default function AdminClientsScreen() {
               Apply
             </Text>
           </TouchableOpacity>
+          <Text style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>
+            Category
+          </Text>
 
           <TouchableOpacity
             onPress={clearFilters}

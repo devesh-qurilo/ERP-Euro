@@ -52,7 +52,7 @@ export default function AdminDealViewScreen({ route }) {
     if (!dealId) return;
 
     dispatch(fetchOne(dealId));
-    console.log('devvvvvvv', deal);
+    console.log('devvvvvvvkkkkk', deal);
   }, [dealId]);
 
   useEffect(() => {

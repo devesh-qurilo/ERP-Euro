@@ -196,6 +196,8 @@ export default function AdminClientViewScreen() {
   const paramId = route?.params?.id ?? navClient?.id;
   // external code like "CLI001" for children tabs
   const paramClientId = route?.params?.clientId ?? navClient?.clientId;
+  const clientId = route?.params?.id;
+  console.log('bhaii client routes', route?.params?.id);
 
   // Load full client detail for Profile tab
   //   React.useEffect(() => {
@@ -275,9 +277,9 @@ export default function AdminClientViewScreen() {
       case 'creditNotes':
         return <ClientCreditNotesTab route={injected} />;
       case 'documents':
-        return <ClientDocumentsTab route={injected} />;
+        return <ClientDocumentsTab route={clientId} />;
       case 'notes':
-        return <ClientNotesTab route={injected} />;
+        return <ClientNotesTab route={clientId} />;
       default:
         return null;
     }
