@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
+import { formatDate } from '../../../../utils/helpers';
 
 import { selectAdminLeads } from '../store/selectors';
 import {
@@ -346,88 +347,126 @@ export default function AdminLeadViewScreen() {
           </>
         )}
 
-        {/* NOTES TAB */}
         {tab === 'notes' && (
           <>
+            {/* ===== HEADER ===== */}
             <View style={styles.notesHeaderRow}>
               <Text style={styles.cardTitle}>Notes</Text>
+
               <Pressable style={styles.addNoteBtn} onPress={handleAddNotePress}>
                 <Text style={styles.addNoteTxt}>+ Add Note</Text>
               </Pressable>
             </View>
 
+            {/* ===== LOADING ===== */}
             {notesLoading && (
               <View style={styles.notesCenter}>
                 <ActivityIndicator />
               </View>
             )}
 
+            {/* ===== ERROR ===== */}
             {notesError && (
               <View style={styles.notesCenter}>
                 <Text style={styles.notesErrorTxt}>{notesError}</Text>
               </View>
             )}
 
+            {/* ===== EMPTY STATE ===== */}
             {!notesLoading && !notesError && notes.length === 0 && (
-              <View style={styles.notesCenter}>
-                <Text style={styles.placeholderTxt}>
-                  No notes added yet. Tap "Add Note" to create one.
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyIcon}>📝</Text>
+                <Text style={styles.emptyTitle}>No Notes Yet</Text>
+                <Text style={styles.emptySub}>
+                  Start documenting important updates about this lead.
                 </Text>
               </View>
             )}
 
+            {/* ===== NOTES LIST ===== */}
             {!notesLoading &&
               !notesError &&
               notes.map(note => {
                 const busy = !!notesBusyIds[note.id];
+                const isPublic = note.noteType === 'PUBLIC';
+
                 return (
                   <View key={note.id} style={styles.noteCard}>
-                    <View style={styles.noteHeaderRow}>
-                      <View>
-                        <Text style={styles.noteTitle}>{note.noteTitle}</Text>
-                        <View style={styles.noteMetaRow}>
-                          <View style={styles.badge}>
-                            <Text style={styles.badgeTxt}>{note.noteType}</Text>
-                          </View>
-                          <Text style={styles.metaTxt}>
-                            By {note.createdBy || '-'}
+                    {/* HEADER */}
+                    <View style={styles.noteTopRow}>
+                      <View style={styles.noteLeft}>
+                        <View style={styles.avatarCircle}>
+                          <Text style={styles.avatarTxt}>
+                            {note.createdBy?.charAt(0) || 'U'}
                           </Text>
-                          {note.createdAt && (
-                            <Text style={styles.metaTxt}>
-                              • {new Date(note.createdAt).toLocaleString()}
-                            </Text>
-                          )}
                         </View>
-                      </View>
-                      <View style={styles.noteActionsRow}>
-                        {busy ? (
-                          <ActivityIndicator size="small" />
-                        ) : (
-                          <>
-                            <Pressable
-                              style={styles.noteActionBtn}
-                              onPress={() => handleEditNotePress(note)}
-                            >
-                              <Text style={styles.noteActionTxt}>Edit</Text>
-                            </Pressable>
-                            <Pressable
-                              style={styles.noteActionBtn}
-                              onPress={() => handleDeleteNotePress(note)}
+
+                        <View>
+                          <Text style={styles.noteTitle}>{note.noteTitle}</Text>
+                          <View style={styles.metaRow}>
+                            <View
+                              style={[
+                                styles.typeBadge,
+                                {
+                                  backgroundColor: isPublic
+                                    ? '#e0f2fe'
+                                    : '#fef3c7',
+                                },
+                              ]}
                             >
                               <Text
                                 style={[
-                                  styles.noteActionTxt,
-                                  { color: '#b91c1c' },
+                                  styles.typeTxt,
+                                  {
+                                    color: isPublic ? '#0369a1' : '#92400e',
+                                  },
                                 ]}
                               >
-                                Delete
+                                {note.noteType}
                               </Text>
-                            </Pressable>
-                          </>
+                            </View>
+
+                            <Text style={styles.metaTxt}>{note.createdBy}</Text>
+
+                            <Text style={styles.metaTxt}>
+                              • {formatDate(note.createdAt)}
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+
+                      {/* ACTIONS */}
+                      <View>
+                        {busy ? (
+                          <ActivityIndicator size="small" />
+                        ) : (
+                          <Pressable
+                            style={styles.kebabBtn}
+                            onPress={() => handleEditNotePress(note)}
+                          >
+                            <Text style={styles.kebabTxt}>⋮</Text>
+                          </Pressable>
                         )}
                       </View>
                     </View>
+
+                    {/* DETAILS */}
                     <Text style={styles.noteDetails}>{note.noteDetails}</Text>
+
+                    {/* FOOTER ACTIONS */}
+                    <View style={styles.noteFooter}>
+                      <Pressable onPress={() => handleEditNotePress(note)}>
+                        <Text style={styles.footerAction}>Edit</Text>
+                      </Pressable>
+
+                      <Pressable onPress={() => handleDeleteNotePress(note)}>
+                        <Text
+                          style={[styles.footerAction, { color: '#b91c1c' }]}
+                        >
+                          Delete
+                        </Text>
+                      </Pressable>
+                    </View>
                   </View>
                 );
               })}
@@ -484,20 +523,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#e5e7eb',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 9,
     marginRight: 4,
+    width: 120,
   },
   backArrow: {
-    fontSize: 14,
+    fontSize: 20,
     color: '#1d4ed8',
     marginRight: 3,
   },
   backLabel: {
-    fontSize: 12,
+    fontSize: 16,
     fontWeight: '600',
     color: '#111827',
+    paddingLeft: 6,
   },
   title: {
     fontSize: 18,
@@ -516,9 +557,10 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   tabBtn: {
+    width: 118,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 999,
+    borderRadius: 9,
     borderWidth: 1,
     borderColor: '#e5e7eb',
     backgroundColor: '#f9fafb',
@@ -534,6 +576,148 @@ const styles = StyleSheet.create({
   },
   tabTxtActive: {
     color: '#ffffff',
+  },
+
+  notesHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+
+  addNoteBtn: {
+    backgroundColor: '#3F6AE1',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 3,
+    width: 120,
+  },
+
+  addNoteTxt: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+
+  notesCenter: {
+    paddingVertical: 40,
+    alignItems: 'center',
+  },
+
+  notesErrorTxt: {
+    color: '#b91c1c',
+  },
+
+  emptyState: {
+    paddingVertical: 60,
+    alignItems: 'center',
+  },
+
+  emptyIcon: {
+    fontSize: 40,
+    marginBottom: 12,
+  },
+
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+
+  emptySub: {
+    fontSize: 13,
+    color: '#6b7280',
+    marginTop: 6,
+  },
+
+  noteCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+
+  noteTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+
+  noteLeft: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+
+  avatarCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#e5e7eb',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+
+  avatarTxt: {
+    fontWeight: '700',
+  },
+
+  noteTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+  },
+
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    flexWrap: 'wrap',
+  },
+
+  typeBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    marginRight: 6,
+  },
+
+  typeTxt: {
+    fontSize: 10,
+    fontWeight: '700',
+  },
+
+  metaTxt: {
+    fontSize: 11,
+    color: '#6b7280',
+    marginRight: 6,
+  },
+
+  noteDetails: {
+    marginTop: 12,
+    fontSize: 13,
+    lineHeight: 18,
+    color: '#374151',
+  },
+
+  noteFooter: {
+    flexDirection: 'row',
+    marginTop: 14,
+    gap: 20,
+  },
+
+  footerAction: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#3F6AE1',
+  },
+
+  kebabBtn: {
+    padding: 6,
+  },
+
+  kebabTxt: {
+    fontSize: 18,
   },
 
   content: {

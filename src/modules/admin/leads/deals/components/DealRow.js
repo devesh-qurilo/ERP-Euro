@@ -23,6 +23,7 @@ const DealRow = memo(function DealRow({
   onEdit,
   columns,
   onDelete,
+  onRowUpdate,
 }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -58,7 +59,20 @@ const DealRow = memo(function DealRow({
 
   /* ================= UPDATE STAGE ================= */
 
+  // const handleStageChange = async stageName => {
+  //   try {
+  //     await api.put(`/deals/${item.id}/stage?stage=${stageName}`);
+  //   } catch (err) {
+  //     console.log('Stage update error', err);
+  //   }
+  // };
+
   const handleStageChange = async stageName => {
+    // 🔥 Optimistic update first
+    onRowUpdate?.(item.id, {
+      dealStage: stageName,
+    });
+
     try {
       await api.put(`/deals/${item.id}/stage?stage=${stageName}`);
     } catch (err) {
@@ -68,12 +82,35 @@ const DealRow = memo(function DealRow({
 
   /* ================= UPDATE PRIORITY ================= */
 
+  // const handlePriorityChange = async status => {
+  //   const selected = priorities.find(p => p.status === status);
+  //   if (!selected) return;
+
+  //   try {
+  //     console.log('devvvvvv', item.id, selected.id);
+  //     await api.put(`/deals/${item.id}/priority`, {
+  //       priorityId: selected.id,
+  //     });
+  //   } catch (err) {
+  //     console.log('Priority update error', err);
+  //   }
+  // };
+
   const handlePriorityChange = async status => {
     const selected = priorities.find(p => p.status === status);
     if (!selected) return;
 
+    // 🔥 Optimistic update
+    onRowUpdate?.(item.id, {
+      priority: {
+        ...item.priority,
+        status: selected.status,
+        color: selected.color,
+      },
+    });
+
     try {
-      console.log('devvvvvv', item.id, selected.id);
+      console.log('hello devesj', selected.id, item.id);
       await api.put(`/deals/${item.id}/priority`, {
         priorityId: selected.id,
       });

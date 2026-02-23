@@ -592,21 +592,21 @@ export const adminLeadsAPI = {
   update: (id, payload) => api.put(`/leads/${id}`, payload).then(r => r.data),
 
   listNotes(leadId) {
-    return axios.get(`/leads/${leadId}/notes`).then(r => r.data);
+    return api.get(`/leads/${leadId}/notes`).then(r => r.data);
   },
 
   createNote(leadId, payload) {
-    return axios.post(`/leads/${leadId}/notes`, payload).then(r => r.data);
+    return api.post(`/leads/${leadId}/notes`, payload).then(r => r.data);
   },
 
   updateNote(leadId, noteId, payload) {
-    return axios
+    return api
       .put(`/leads/${leadId}/notes/${noteId}`, payload)
       .then(r => r.data);
   },
 
   deleteNote(leadId, noteId) {
-    return axios.delete(`/leads/${leadId}/notes/${noteId}`).then(r => r.data);
+    return api.delete(`/leads/${leadId}/notes/${noteId}`).then(r => r.data);
   },
   // change-to-client will navigate to a screen (no API yet)
 };

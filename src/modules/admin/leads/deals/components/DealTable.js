@@ -36,6 +36,7 @@ export default function DealTable({
   onAddFollowup,
   onEdit,
   onDelete,
+  onRowUpdate,
 }) {
   const keyExtractor = item => String(item.id);
 
@@ -47,6 +48,7 @@ export default function DealTable({
       columns={COLUMNS} // 👈 pass width config
       onEdit={onEdit}
       onDelete={onDelete}
+      onRowUpdate={onRowUpdate}
     />
   );
 

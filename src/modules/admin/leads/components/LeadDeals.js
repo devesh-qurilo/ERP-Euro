@@ -126,6 +126,12 @@ export default function LeadDeals({ leadId }) {
     fetchDeals();
   };
 
+  const handleRowUpdate = (dealId, updatedFields) => {
+    setData(prev =>
+      prev.map(d => (d.id === dealId ? { ...d, ...updatedFields } : d)),
+    );
+  };
+
   const handleDeleteDeal = async deal => {
     try {
       await api.delete(`/deals/${deal.id}`);
@@ -162,6 +168,7 @@ export default function LeadDeals({ leadId }) {
         onAddFollowup={handleAddFollowup}
         onEdit={handleEditDeal}
         onDelete={handleDeleteDeal}
+        onRowUpdate={handleRowUpdate}
       />
 
       {/* ===== DEAL FORM ===== */}
