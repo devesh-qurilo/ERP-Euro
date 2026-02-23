@@ -16,7 +16,14 @@ import { selectPriorities } from '../priorities/selectors';
 import api from '../../../../../services/api';
 import { selectKanbanStages } from '../kanban/store/selectors';
 
-const DealRow = memo(function DealRow({ item, busy, onAddFollowup, columns }) {
+const DealRow = memo(function DealRow({
+  item,
+  busy,
+  onAddFollowup,
+  onEdit,
+  columns,
+  onDelete,
+}) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -84,20 +91,40 @@ const DealRow = memo(function DealRow({ item, busy, onAddFollowup, columns }) {
     });
   };
 
+  // const handleEdit = () => {
+  //   setMenuOpen(false);
+  //   dispatch(setEditing(item));
+  //   dispatch(setFormOpen(true));
+  // };
+
   const handleEdit = () => {
     setMenuOpen(false);
-    dispatch(setEditing(item));
-    dispatch(setFormOpen(true));
+    if (onEdit) {
+      onEdit(item);
+    } else {
+      dispatch(setEditing(item));
+      dispatch(setFormOpen(true));
+    }
   };
 
-  const handleDelete = () => {
-    setMenuOpen(false);
-    dispatch(deleteDeal(item.id));
-  };
+  // const handleDelete = () => {
+  //   setMenuOpen(false);
+  //   dispatch(deleteDeal(item.id));
+  // };
 
   const handleFollowup = () => {
     setMenuOpen(false);
     onAddFollowup?.(item.id);
+  };
+
+  const handleDelete = () => {
+    setMenuOpen(false);
+
+    if (onDelete) {
+      onDelete(item);
+    } else {
+      dispatch(deleteDeal(item.id));
+    }
   };
 
   /* ================= UI ================= */

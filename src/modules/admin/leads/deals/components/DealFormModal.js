@@ -399,7 +399,8 @@ import api from '../../../../../services/api';
 import { selectKanbanStages } from '../kanban/store/selectors';
 import { fetchKanban } from '../kanban/store/actions';
 
-export default function DealFormModal({ open, editing, onClose }) {
+// export default function DealFormModal({ open, editing, onClose }) {
+export default function DealFormModal({ open, editing, onClose, forceLeadId }) {
   const dispatch = useDispatch();
   const employees = useSelector(selectEmpList) || [];
   const leads = useSelector(selectAdminLeads) || [];
@@ -419,7 +420,7 @@ export default function DealFormModal({ open, editing, onClose }) {
 
   const emptyForm = {
     title: '',
-    leadId: null,
+    leadId: forceLeadId || null,
     pipeline: 'Default Pipeline',
     dealStage: 'Generated',
     dealCategory: 'Corporate',

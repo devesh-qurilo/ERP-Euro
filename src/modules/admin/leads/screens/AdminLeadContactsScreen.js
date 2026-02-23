@@ -37,31 +37,46 @@ import AddLeadModal from '../contacts/components/AddLeadModal';
 // Simple select dropdown for filters
 const Select = ({ label, value, options, onChange, style }) => {
   const [open, setOpen] = useState(false);
+
   return (
-    <View style={[{ minWidth: 150, marginRight: 8, marginBottom: 8 }, style]}>
+    <View style={[{ minWidth: 160, marginRight: 12 }, style]}>
       <Text style={styles.label}>{label}</Text>
-      <Pressable style={styles.selectBtn} onPress={() => setOpen(o => !o)}>
+
+      <Pressable style={styles.selectBtn} onPress={() => setOpen(true)}>
         <Text style={styles.value} numberOfLines={1}>
           {String(value ?? 'All')}
         </Text>
-        <Text style={styles.caret}>{open ? '▴' : '▾'}</Text>
+        <Text style={styles.caret}>▾</Text>
       </Pressable>
-      {open && (
-        <View style={styles.menu}>
-          {options.map(opt => (
-            <Pressable
-              key={String(opt)}
-              onPress={() => {
-                onChange(opt);
-                setOpen(false);
-              }}
-              style={styles.menuItem}
-            >
-              <Text style={styles.menuTxt}>{String(opt)}</Text>
-            </Pressable>
-          ))}
-        </View>
-      )}
+
+      <Modal
+        visible={open}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setOpen(false)}
+      >
+        <Pressable
+          style={styles.dropdownOverlay}
+          onPress={() => setOpen(false)}
+        >
+          <View style={styles.dropdownModal}>
+            <ScrollView>
+              {options.map(opt => (
+                <Pressable
+                  key={String(opt)}
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    onChange(opt);
+                    setOpen(false);
+                  }}
+                >
+                  <Text style={styles.dropdownText}>{String(opt)}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 };
@@ -308,63 +323,78 @@ export default function AdminLeadContactsScreen() {
     <ScrollView contentContainerStyle={styles.wrap}>
       {/* 1) Filters card */}
       <View style={styles.card}>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-          <View style={{ flexBasis: '60%', minWidth: 220, paddingRight: 8 }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterRow}
+        >
+          {/* SEARCH */}
+          <View style={styles.filterItemWide}>
             <Text style={styles.label}>Search</Text>
             <TextInput
               value={String(filters.q || '')}
               onChangeText={q => dispatch(setAdminLeadsFilters({ q }))}
-              placeholder="name, email, company, phone, location"
+              placeholder="Search name, email, company..."
               placeholderTextColor="#9ca3af"
               style={styles.input}
               autoCapitalize="none"
             />
           </View>
 
-          <View style={{ flexBasis: '20%', minWidth: 150, paddingRight: 8 }}>
-            <DateFilterField
-              label="Select Start From"
-              value={filters.start}
-              onChange={start => dispatch(setAdminLeadsFilters({ start }))}
-            />
-          </View>
-
-          <View style={{ flexBasis: '20%', minWidth: 150 }}>
-            <DateFilterField
-              label="Select End To"
-              value={filters.end}
-              onChange={end => dispatch(setAdminLeadsFilters({ end }))}
-            />
-          </View>
-        </View>
-
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 8 }}>
+          {/* SOURCE */}
           <Select
             label="Source"
             value={filters.source || 'All'}
             options={sources}
             onChange={source => dispatch(setAdminLeadsFilters({ source }))}
+            style={styles.filterItem}
           />
 
+          {/* OWNER */}
           <Select
             label="Owner"
             value={filters.owner || 'All'}
             options={owners}
             onChange={owner => dispatch(setAdminLeadsFilters({ owner }))}
+            style={styles.filterItem}
           />
+
+          {/* STATUS */}
           <Select
             label="Status"
             value={filters.status || 'All'}
             options={statuses}
             onChange={status => dispatch(setAdminLeadsFilters({ status }))}
+            style={styles.filterItem}
           />
-        </View>
 
-        {hasFilters && (
-          <Pressable onPress={resetFilters} style={styles.clearBtn}>
-            <Text style={styles.clearTxt}>Clear All</Text>
-          </Pressable>
-        )}
+          {/* START DATE */}
+          <View style={styles.filterItem}>
+            <Text style={styles.calender}>Select Calender From</Text>
+            <DateFilterField
+              label="Start"
+              value={filters.start}
+              onChange={start => dispatch(setAdminLeadsFilters({ start }))}
+            />
+          </View>
+
+          {/* END DATE */}
+          <View style={styles.filterItem}>
+            <Text style={styles.calender}>Select Calender To</Text>
+            <DateFilterField
+              label="End"
+              value={filters.end}
+              onChange={end => dispatch(setAdminLeadsFilters({ end }))}
+            />
+          </View>
+
+          {/* CLEAR BUTTON */}
+          {hasFilters && (
+            <Pressable onPress={resetFilters} style={styles.clearBtnInline}>
+              <Text style={styles.clearTxt}>Clear</Text>
+            </Pressable>
+          )}
+        </ScrollView>
       </View>
 
       {/* 2) Header + Add button */}
@@ -464,6 +494,12 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
   },
   label: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#374151',
+    marginBottom: 6,
+  },
+  calender: {
     fontSize: 12,
     fontWeight: '800',
     color: '#374151',
@@ -585,5 +621,55 @@ const styles = StyleSheet.create({
   },
   actionDangerTxt: {
     color: '#b91c1c',
+  },
+  filterRow: {
+    alignItems: 'flex-end',
+    paddingBottom: 4,
+  },
+
+  filterItem: {
+    minWidth: 160,
+    marginRight: 12,
+  },
+
+  filterItemWide: {
+    minWidth: 260,
+    marginRight: 12,
+  },
+
+  clearBtnInline: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: '#fff',
+    alignSelf: 'flex-end',
+  },
+
+  dropdownOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    justifyContent: 'center',
+    paddingHorizontal: 40,
+  },
+
+  dropdownModal: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingVertical: 8,
+    maxHeight: 400,
+  },
+
+  dropdownItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#f1f5f9',
+  },
+
+  dropdownText: {
+    fontSize: 14,
+    color: '#111827',
   },
 });

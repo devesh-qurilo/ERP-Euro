@@ -28,6 +28,8 @@ import {
   deleteLeadNote,
 } from '../notes/store/actions';
 
+import LeadDeals from '../components/LeadDeals';
+
 // ----------------- Small UI helpers -----------------
 const TabButton = ({ label, active, onPress }) => (
   <Pressable
@@ -433,12 +435,20 @@ export default function AdminLeadViewScreen() {
         )}
 
         {/* DEAL TAB (placeholder for now) */}
-        {tab === 'deal' && (
+        {/* {tab === 'deal' && (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Deal</Text>
             <Text style={styles.placeholderTxt}>
               Deal tab will be implemented later.
             </Text>
+          </View>
+        )} */}
+
+        {tab === 'deal' && (
+          <View style={styles.card}>
+            {/* <Text style={styles.cardTitle}>Deals</Text> */}
+
+            <LeadDeals leadId={lead?.id} />
           </View>
         )}
       </ScrollView>

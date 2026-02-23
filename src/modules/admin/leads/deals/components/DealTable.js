@@ -34,6 +34,8 @@ export default function DealTable({
   loading = false,
   busyIds = {},
   onAddFollowup,
+  onEdit,
+  onDelete,
 }) {
   const keyExtractor = item => String(item.id);
 
@@ -43,6 +45,8 @@ export default function DealTable({
       busy={!!busyIds?.[item.id]}
       onAddFollowup={onAddFollowup}
       columns={COLUMNS} // 👈 pass width config
+      onEdit={onEdit}
+      onDelete={onDelete}
     />
   );
 
@@ -89,6 +93,7 @@ export default function DealTable({
           initialNumToRender={15}
           maxToRenderPerBatch={20}
           windowSize={10}
+          contentContainerStyle={{ paddingBottom: 140 }}
         />
       </View>
     </ScrollView>
