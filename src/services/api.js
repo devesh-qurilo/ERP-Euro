@@ -4,8 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
 // Base URL (change to your production URL)
-const API_BASE_URL = 'https://6jnqmj85-80.inc1.devtunnels.ms';
-// const API_BASE_URL = 'https://erp.skavosystem.com';
+// const API_BASE_URL = 'https://6jnqmj85-80.inc1.devtunnels.ms';
+const API_BASE_URL = 'https://erp.skavosystem.com';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -453,7 +453,7 @@ export const chatAPI = {
 
     // 2) First try axios (Authorization will be added by your interceptor)
     try {
-      // console.log('[CHAT] axios POST =>', '/api/chat/send', {
+      console.log('[CHAT] axios POST =>', '/api/chat/send', {
         receiverId,
         content,
         messageType,

@@ -4,13 +4,13 @@ import * as T from './types';
 import { clientCreditNotesAPI } from '../../../../../../services/api';
 
 function* listByClientSaga({ payload: { clientId } }) {
-//  // // console.log('[CNC] listByClientSaga ->', clientId); // ✅ debug
+  // // console.log('[CNC] listByClientSaga ->', clientId); // ✅ debug
   try {
     const data = yield call(clientCreditNotesAPI.listByClient, clientId);
     // console.log(
-      '[CNC] listByClient success',
-      Array.isArray(data) ? data.length : data,
-    );
+    //   '[CNC] listByClient success',
+    //   Array.isArray(data) ? data.length : data,
+    // );
     yield put({ type: T.LIST_BY_CLIENT_SUCCESS, payload: data });
   } catch (e) {
     // console.log('[CNC] listByClient error', e?.message);

@@ -284,10 +284,10 @@ export default function TaskModal({ modal, onClose, onSubmit }) {
   useEffect(() => {
     if (!visible) return;
 
-    fetchCategories().then(setCategories).catch(// console.log);
-    fetchProjects().then(setProjects).catch(// console.log);
-    fetchTaskStages().then(setStages).catch(// console.log);
-    fetchEmployees().then(setEmployees).catch(// console.log);
+    fetchCategories().then(setCategories).catch(console.log);
+    fetchProjects().then(setProjects).catch(console.log);
+    fetchTaskStages().then(setStages).catch(console.log);
+    fetchEmployees().then(setEmployees).catch(console.log);
   }, [visible]);
 
   ////////////////////////////////////////////////////////////////////////////
@@ -295,8 +295,8 @@ export default function TaskModal({ modal, onClose, onSubmit }) {
   ////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
     if (form.projectId) {
-      fetchMilestones(form.projectId).then(setMilestones).catch(// console.log);
-      fetchLabels(form.projectId).then(setLabels).catch(// console.log);
+      fetchMilestones(form.projectId).then(setMilestones).catch(console.log);
+      fetchLabels(form.projectId).then(setLabels).catch(console.log);
     } else {
       setMilestones([]);
       setLabels([]);
@@ -377,11 +377,11 @@ export default function TaskModal({ modal, onClose, onSubmit }) {
     if (mode === 'add') {
       createTask(payload)
         .then(() => onSubmit?.(payload))
-        .catch(// console.log);
+        .catch(console.log);
     } else {
       updateTask(rec.id, payload)
         .then(() => onSubmit?.(payload))
-        .catch(// console.log);
+        .catch(console.log);
     }
 
     onClose();

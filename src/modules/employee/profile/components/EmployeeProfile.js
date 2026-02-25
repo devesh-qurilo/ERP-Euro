@@ -60,7 +60,7 @@ const EmployeeProfile = () => {
             uri: profile.profilePictureUrl || 'https://via.placeholder.com/120',
           }}
           style={styles.profileImage}
-          onError={() => // console.log('Image load error')}
+          onError={() => console.log('Image load error')}
         />
         <View style={styles.profileInfo}>
           <Text style={styles.name}>{profile.name}</Text>
