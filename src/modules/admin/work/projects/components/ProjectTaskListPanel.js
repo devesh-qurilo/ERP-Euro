@@ -7,7 +7,7 @@
 
 // export default function ProjectTasksByProjectId({ projectId }) {
 //   const [busy, setBusy] = useState(false);
-//   console.log('kkkkkkk', projectId);
+//   // console.log('kkkkkkk', projectId);
 //   const [tasks, setTasks] = useState([]);
 //   const [hideCompleted, setHideCompleted] = useState(false);
 
@@ -49,13 +49,13 @@
 //           busy={busy}
 //           data={data}
 //           total={data.length}
-//           onView={rec => console.log('view task', rec.id)}
-//           onEdit={rec => console.log('edit task', rec.id)}
-//           onDelete={id => console.log('delete task', id)}
+//           onView={rec => // console.log('view task', rec.id)}
+//           onEdit={rec => // console.log('edit task', rec.id)}
+//           onDelete={id => // console.log('delete task', id)}
 //           onTogglePin={rec =>
 //             isPinned(rec)
-//               ? console.log('unpin', rec.id)
-//               : console.log('pin', rec.id)
+//               ? // console.log('unpin', rec.id)
+//               : // console.log('pin', rec.id)
 //           }
 //           hideCompleted={hideCompleted}
 //           onToggleHide={() => setHideCompleted(v => !v)}
@@ -144,7 +144,7 @@
 //           data={data}
 //           total={data.length}
 //           onAdd={() => setModal({ visible: true, mode: 'add', record: null })}
-//           onView={rec => console.log('view', rec.id)}
+//           onView={rec => // console.log('view', rec.id)}
 //           onEdit={rec => setModal({ visible: true, mode: 'edit', record: rec })}
 //           onDelete={onDelete}
 //           onTogglePin={onTogglePin}

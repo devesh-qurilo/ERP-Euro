@@ -49,17 +49,17 @@ function* fetchHistory({ peerId }) {
 // Send
 function* sendMsg({ payload }) {
   try {
-    console.log('[CHAT] saga sending ->', payload);
+    // console.log('[CHAT] saga sending ->', payload);
     const data = yield call(chatAPI.send, payload);
-    console.log('[CHAT] saga response <-', data);
+    // console.log('[CHAT] saga response <-', data);
     yield put({ type: T.SEND_CHAT_MESSAGE_SUCCESS, payload: data });
   } catch (e) {
     // log everything we can
-    console.log('[CHAT] saga error !! message:', e?.message);
-    console.log('[CHAT] code:', e?.code);
-    console.log('[CHAT] response status:', e?.response?.status);
-    console.log('[CHAT] response data:', e?.response?.data);
-    console.log('[CHAT] request:', !!e?.request, e?.request?.responseURL);
+    // console.log('[CHAT] saga error !! message:', e?.message);
+    // console.log('[CHAT] code:', e?.code);
+    // console.log('[CHAT] response status:', e?.response?.status);
+    // console.log('[CHAT] response data:', e?.response?.data);
+    // console.log('[CHAT] request:', !!e?.request, e?.request?.responseURL);
     yield put({
       type: T.SEND_CHAT_MESSAGE_FAILURE,
       error: e?.message || 'Failed to send',

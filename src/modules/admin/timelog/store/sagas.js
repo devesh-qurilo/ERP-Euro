@@ -6,7 +6,7 @@ import {
   fetchTimelogFailure,
 } from './actions';
 
-console.log('[timelog sagas] FETCH_TIMELOG_REQUEST ->', FETCH_TIMELOG_REQUEST);
+// console.log('[timelog sagas] FETCH_TIMELOG_REQUEST ->', FETCH_TIMELOG_REQUEST);
 
 function* fetchTimelogWorker(action) {
   try {

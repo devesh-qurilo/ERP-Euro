@@ -208,7 +208,7 @@ export default function AddTimeLogModal({
       employeeId: emp,
       memo: memo.trim(),
     };
-    console.log('[TimeLog][REQUEST] payload ->', payload);
+    // console.log('[TimeLog][REQUEST] payload ->', payload);
     onSubmit?.(payload);
   };
 

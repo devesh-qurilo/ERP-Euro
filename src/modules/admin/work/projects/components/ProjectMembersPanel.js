@@ -34,7 +34,7 @@
 //   }, [projectId]);
 
 //   /* ---------------- OPTIONS ---------------- */
-//   console.log('bhosk', selectedEmp);
+//   // console.log('bhosk', selectedEmp);
 //   const empOpts = useMemo(
 //     () =>
 //       employees.map(e => ({
@@ -52,14 +52,14 @@
 //   /* ---------------- MEMBER ACTIONS ---------------- */
 
 //   const assignEmployee = async () => {
-//     console.log('🔥 ASSIGN EMPLOYEE CALLED');
+//     // console.log('🔥 ASSIGN EMPLOYEE CALLED');
 //     if (!selectedEmp) {
 //       Alert.alert('Select employee', 'Please select an employee to assign');
 //       return;
 //     }
-//     console.log('project employee assign', projectId, selectedEmp);
+//     // console.log('project employee assign', projectId, selectedEmp);
 //     try {
-//       console.log('project employee assign', projectId, selectedEmp);
+//       // console.log('project employee assign', projectId, selectedEmp);
 //       await api.post(`/api/projects/${projectId}/assign`, {
 //         employeeIds: selectedEmp,
 //       });
@@ -77,11 +77,11 @@
 
 //   const removeEmployee = async employeeId => {
 //     try {
-//       console.log('project view hai', projectId, employeeId);
+//       // console.log('project view hai', projectId, employeeId);
 //       await api.delete(`/api/projects/${projectId}/assign/${employeeId}`);
 //       loadProject();
 //     } catch (e) {
-//       console.log('project view hai error ');
+//       // console.log('project view hai error ');
 //       Alert.alert(
 //         'Error',
 //         e?.response?.data?.message || 'Failed to remove member',
@@ -347,7 +347,7 @@ export default function ProjectMembersPanel({ projectId }) {
 
   const assignEmployee = async employeeId => {
     try {
-      console.log('🔥 ASSIGN EMPLOYEE CALLED', employeeId);
+      // console.log('🔥 ASSIGN EMPLOYEE CALLED', employeeId);
 
       await api.post(`/api/projects/${projectId}/assign`, {
         employeeIds: [employeeId],

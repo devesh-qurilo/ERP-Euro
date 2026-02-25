@@ -4,7 +4,7 @@ import * as T from './types';
 import { projectInvoicesAPI } from '../../../../../../../services/api';
 
 function* listByProjectSaga({ payload: { projectId } }) {
-  console.log('listByProjectSaga', projectId);
+  // console.log('listByProjectSaga', projectId);
   try {
     const data = yield call(projectInvoicesAPI.listByProject, projectId);
     yield put({ type: T.LIST_BY_PROJECT_SUCCESS, payload: data });

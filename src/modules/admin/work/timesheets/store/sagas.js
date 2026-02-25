@@ -9,7 +9,7 @@ import * as T from './types';
 function* fetchMine({ params }) {
   try {
     const data = yield call(AdminmyTimesheetsAPI.list, params || {});
-    console.log('debvvvvv', data);
+    // console.log('debvvvvv', data);
     yield put({ type: T.FETCH_MY_TIMESHEETS_SUCCESS, payload: data });
   } catch (e) {
     yield put({
@@ -20,10 +20,10 @@ function* fetchMine({ params }) {
 }
 
 function* createTimesheetSaga({ payload }) {
-  console.log('bhoooo', payload);
+  // console.log('bhoooo', payload);
   try {
     const created = yield call(AdminmyTimesheetsAPI.create, payload);
-    console.log('bholuuuuuu', created);
+    // console.log('bholuuuuuu', created);
     yield put({ type: T.CREATE_TIMESHEET_SUCCESS, payload: created });
     // optionally re-fetch full list (commented; we already prepend in reducer)
     const list = yield call(AdminmyTimesheetsAPI.list, {});
@@ -53,7 +53,7 @@ function* createWeekly({ payload }) {
 function* getWeekly({ weekStartDate }) {
   try {
     const data = yield call(AdminweeklyTimesheetsAPI.getMine, weekStartDate);
-    console.log('weeklllly', data);
+    // console.log('weeklllly', data);
     yield put({ type: T.GET_WEEKLY_TS_SUCCESS, payload: data });
   } catch (e) {
     yield put({
@@ -66,7 +66,7 @@ function* getWeekly({ weekStartDate }) {
 function* createWeeklySaga({ payload }) {
   try {
     const res = yield call(AdminweeklyTimesheetsAPI.create, payload);
-    console.log('weekly res', res);
+    // console.log('weekly res', res);
     yield put({ type: T.CREATE_WEEKLY_TIMESHEET_SUCCESS, payload: res });
   } catch (e) {
     yield put({
@@ -90,16 +90,16 @@ function* getWeeklySaga({ weekStartDate }) {
 }
 
 // function* VcreateWeeklySaga({ payload }) {
-//   console.log('rammm jii', payload);
+//   // console.log('rammm jii', payload);
 //   try {
 //     const res = yield call(AdminWeeklyTimesheetsAPI.create, payload);
-//     console.log('devesh bhaiii weekly chalegaa kyaa ', res);
+//     // console.log('devesh bhaiii weekly chalegaa kyaa ', res);
 //     yield put({
 //       type: T.VCREATE_WEEKLY_TIMESHEET_SUCCESS,
 //       payload: res,
 //     });
 //   } catch (e) {
-//     console.log('rammm error');
+//     // console.log('rammm error');
 //     yield put({
 //       type: T.VCREATE_WEEKLY_TIMESHEET_FAILURE,
 //       error: e?.message || 'Create weekly timesheet failed',
@@ -108,14 +108,14 @@ function* getWeeklySaga({ weekStartDate }) {
 // }
 
 function* VcreateWeeklySaga({ payload }) {
-  console.log('weekly payload =>', payload);
+  // console.log('weekly payload =>', payload);
   try {
-    console.log('weekly payload =>', JSON.stringify(payload));
+    // console.log('weekly payload =>', JSON.stringify(payload));
 
     const res = yield call(AdminWeeklyTimesheetsAPI.create, payload);
     yield put({ type: T.FETCH_MY_TIMESHEETS_REQUEST });
 
-    console.log('weekly create success =>', res);
+    // console.log('weekly create success =>', res);
 
     yield put({
       type: T.VCREATE_WEEKLY_TIMESHEET_SUCCESS,

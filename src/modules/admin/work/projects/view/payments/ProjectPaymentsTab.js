@@ -75,7 +75,7 @@ export default function ProjectPaymentsTab() {
       if (projectId) dispatch(listByProject(projectId));
     }, [dispatch, projectId]),
   );
-  console.log('STATE anywhere:', raju, projectId);
+  // console.log('STATE anywhere:', raju, projectId);
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
     if (!s) return rows;

@@ -197,7 +197,7 @@ export default function AdminClientViewScreen() {
   // external code like "CLI001" for children tabs
   const paramClientId = route?.params?.clientId ?? navClient?.clientId;
   const clientId = route?.params?.id;
-  console.log('bhaii client routes', route?.params?.id);
+  // console.log('bhaii client routes', route?.params?.id);
 
   // Load full client detail for Profile tab
   //   React.useEffect(() => {

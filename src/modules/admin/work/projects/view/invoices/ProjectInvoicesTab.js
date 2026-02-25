@@ -47,7 +47,7 @@ export default function ProjectInvoicesTab() {
   const client = route?.params?.project;
   const project = route?.params?.project;
 
-  console.log('rammmkk', project);
+  // console.log('rammmkk', project);
   const rows = useSelector(selectProjectInvoices);
   const loading = useSelector(selectProjectInvoicesBusy);
   const error = useSelector(selectProjectInvoicesErr);

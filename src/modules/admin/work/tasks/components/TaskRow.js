@@ -35,7 +35,7 @@ export default function TaskRow({
   onDelete,
   onTogglePin,
 }) {
-  console.log('item', item);
+  // console.log('item', item);
   return (
     <View
       style={{

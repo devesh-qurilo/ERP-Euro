@@ -89,7 +89,7 @@ export default function EmployeeTimesheetsScreen() {
   const list = useSelector(selectMyTimesheets);
   const loading = useSelector(selectMyTimesheetsLoad);
   const error = useSelector(selectMyTimesheetsError);
-  // console.log('ggggggggggg', list[0].employeeId);
+  // // console.log('ggggggggggg', list[0].employeeId);
 
   // weekly
   const weekly = useSelector(selectWeeklyTimesheet);

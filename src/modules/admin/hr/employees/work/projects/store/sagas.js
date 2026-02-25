@@ -5,7 +5,7 @@ import { projectsApi } from '../../../../../../../services/api';
 function* fetchList({ employeeId }) {
   try {
     const data = yield call(projectsApi.listByEmployee, employeeId);
-    console.log('admin hr employee => project', data);
+    // console.log('admin hr employee => project', data);
     yield put({ type: T.EMP_PROJ_FETCH_SUCCESS, payload: data });
   } catch (e) {
     yield put({

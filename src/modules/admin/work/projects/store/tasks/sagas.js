@@ -9,68 +9,68 @@ import {
 } from './actions';
 import { adminProjectTasksAPI } from '../../../../../../services/api'; // adjust path if needed
 
-console.log('[SAGA] tasks/sagas file loaded');
+// console.log('[SAGA] tasks/sagas file loaded');
 
 function* fetchTasksWorker({ projectId }) {
-  console.log('[SAGA] TASKS_FETCH received with projectId:', projectId);
+  // console.log('[SAGA] TASKS_FETCH received with projectId:', projectId);
   try {
     yield put(setTasksBusy(true));
     const data = yield call(adminProjectTasksAPI.listByProject, projectId);
-    // console.log('[SAGA] listByProject OK:', {
+    // // console.log('[SAGA] listByProject OK:', {
     //   projectId,
     //   count: (data || []).length,
     // });
-    console.log('sagar task', data);
+    // console.log('sagar task', data);
     yield put(setTasks(projectId, data || []));
   } catch (err) {
-    console.log('[SAGA] fetchTasksWorker error:', err);
+    // console.log('[SAGA] fetchTasksWorker error:', err);
     yield put(setTasksBusy(false));
     yield put(setTasksError(err?.message || 'Failed to load tasks'));
   }
 }
 
 function* createTaskWorker({ payload }) {
-  console.log('[SAGA] TASKS_CREATE', payload?.projectId);
+  // console.log('[SAGA] TASKS_CREATE', payload?.projectId);
   try {
     yield put(setTasksBusy(true));
     yield call(adminProjectTasksAPI.create, payload);
     yield put(fetchTasksByProject(payload.projectId));
   } catch (err) {
-    console.log('[SAGA] createTaskWorker error:', err);
+    // console.log('[SAGA] createTaskWorker error:', err);
     yield put(setTasksBusy(false));
     yield put(setTasksError(err?.message || 'Create task failed'));
   }
 }
 
 function* updateTaskWorker({ taskId, payload }) {
-  console.log('[SAGA] TASKS_UPDATE', taskId, payload?.projectId);
+  // console.log('[SAGA] TASKS_UPDATE', taskId, payload?.projectId);
   try {
     yield put(setTasksBusy(true));
     yield call(adminProjectTasksAPI.update, taskId, payload);
     if (payload.projectId) yield put(fetchTasksByProject(payload.projectId));
     else yield put(setTasksBusy(false));
   } catch (err) {
-    console.log('[SAGA] updateTaskWorker error:', err);
+    // console.log('[SAGA] updateTaskWorker error:', err);
     yield put(setTasksBusy(false));
     yield put(setTasksError(err?.message || 'Update task failed'));
   }
 }
 
 function* deleteTaskWorker({ projectId, taskId }) {
-  console.log('[SAGA] TASKS_DELETE', projectId, taskId);
+  // console.log('[SAGA] TASKS_DELETE', projectId, taskId);
   try {
     yield put(setTasksBusy(true));
     yield call(adminProjectTasksAPI.remove, { projectId, taskId });
     yield put(fetchTasksByProject(projectId));
   } catch (err) {
-    console.log('[SAGA] deleteTaskWorker error:', err);
+    // console.log('[SAGA] deleteTaskWorker error:', err);
     yield put(setTasksBusy(false));
     yield put(setTasksError(err?.message || 'Delete task failed'));
   }
 }
 
 export function* adminProjectTasksWatcher() {
-  console.log('[SAGA] adminProjectTasksWatcher ONLINE');
+  // console.log('[SAGA] adminProjectTasksWatcher ONLINE');
   yield takeLatest(TASKS_FETCH, fetchTasksWorker);
   yield takeLatest(TASKS_CREATE, createTaskWorker);
   yield takeLatest(TASKS_UPDATE, updateTaskWorker);

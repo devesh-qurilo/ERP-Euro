@@ -22,7 +22,7 @@ function* fetchQuota() {
 
 function* applyLeaves({ payload }) {
   try {
-    console.log('leaves', payload);
+    // console.log('leaves', payload);
     const created = yield call(leavesAPI.apply, payload);
     yield put({ type: T.APPLY_LEAVES_SUCCESS, payload: created });
   } catch (e) {

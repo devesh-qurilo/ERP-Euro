@@ -92,7 +92,7 @@ export default function AdminClientsScreen() {
     });
   }, [itemsl, filters]);
 
-  console.log('devesh client data', itemsl);
+  // // console.log('devesh client data', itemsl);
 
   // Handlers
   function openMenu(row) {

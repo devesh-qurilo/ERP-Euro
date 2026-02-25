@@ -5,7 +5,7 @@ import { projectNotesAPI } from '../../../../../../../services/api';
 function* listByProjectSaga({ payload: { projectId } }) {
   try {
     const data = yield call(projectNotesAPI.listByProject, projectId);
-    console.log('noteskkkkkk', data);
+    // console.log('noteskkkkkk', data);
     yield put({ type: T.LIST_BY_PROJECT_SUCCESS, payload: data });
   } catch (e) {
     yield put({

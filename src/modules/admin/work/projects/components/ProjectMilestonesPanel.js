@@ -248,7 +248,7 @@ export default function ProjectMilestonesPanel({ projectId }) {
     const fd = new FormData();
     fd.append('status', status);
 
-    console.log('milestoneId, status', milestoneId, status);
+    // console.log('milestoneId, status', milestoneId, status);
 
     try {
       await api.patch(
@@ -263,7 +263,7 @@ export default function ProjectMilestonesPanel({ projectId }) {
 
       load();
     } catch (e) {
-      console.log(e);
+      // console.log(e);
       Alert.alert('Error', 'Failed to update status');
     }
   };

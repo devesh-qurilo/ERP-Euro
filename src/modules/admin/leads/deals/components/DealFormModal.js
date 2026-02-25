@@ -466,7 +466,7 @@ export default function DealFormModal({ open, editing, onClose, forceLeadId }) {
       const res = await api.get('/deals/dealCategory');
       setCategories(res.data || []);
     } catch (err) {
-      console.log('Category fetch error', err);
+      // console.log('Category fetch error', err);
     }
   };
 
@@ -517,7 +517,7 @@ export default function DealFormModal({ open, editing, onClose, forceLeadId }) {
 
       setNewCategoryName('');
     } catch (err) {
-      console.log(err);
+      // console.log(err);
     }
     onClose?.();
   };
@@ -527,7 +527,7 @@ export default function DealFormModal({ open, editing, onClose, forceLeadId }) {
       await api.delete(`/deals/dealCategory/${id}`);
       setCategories(prev => prev.filter(cat => cat.id !== id));
     } catch (err) {
-      console.log(err);
+      // console.log(err);
     }
   };
 

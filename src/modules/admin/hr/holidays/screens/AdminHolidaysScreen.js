@@ -153,11 +153,11 @@ export default function AdminHolidaysScreen() {
           data={filtered}
           loading={loading}
           onEdit={holiday => {
-            console.log('EDIT CLICKED', holiday);
+            // console.log('EDIT CLICKED', holiday);
             dispatch(openHolidayEditModal(holiday));
           }}
           onDelete={id => {
-            console.log('DELETE CLICKED', id);
+            // console.log('DELETE CLICKED', id);
             dispatch(deleteHoliday(id));
           }}
         />

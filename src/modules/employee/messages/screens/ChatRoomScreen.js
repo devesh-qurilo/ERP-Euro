@@ -107,7 +107,7 @@ export default function ChatRoomScreen({ route, navigation }) {
       content: text.trim(),
       messageType: 'TEXT',
     };
-    console.log('[CHAT] sendChatMessage payload ->', payload);
+    // console.log('[CHAT] sendChatMessage payload ->', payload);
     dispatch(sendChatMessage(payload));
     setDidSendAtLeastOnce(true);
   };

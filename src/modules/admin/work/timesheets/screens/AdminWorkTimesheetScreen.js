@@ -81,7 +81,7 @@ export default function AdminTimesheetsScreen() {
   const list = useSelector(selectMyTimesheets);
   const loading = useSelector(selectMyTimesheetsLoad);
   const error = useSelector(selectMyTimesheetsError);
-  console.log('ggggggggggg', list);
+  // console.log('ggggggggggg', list);
 
   // weekly
   const weekly = useSelector(selectWeeklyTimesheet);

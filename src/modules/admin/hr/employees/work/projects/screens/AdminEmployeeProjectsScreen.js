@@ -24,14 +24,14 @@ import ProjectModal from '../components/ProjectModal';
 export default function AdminEmployeeProjectsScreen({ emp }) {
   //   const emp = route?.params?.emp; // pass { emp } from parent view screen
   const employeeId = emp?.employeeId;
-  console.log('onAdd', emp);
+  // console.log('onAdd', emp);
 
   const dispatch = useDispatch();
   const list = useSelector(selectEmpProjects);
   const loading = useSelector(selectEmpProjectsLoading);
   const modalOpen = useSelector(selectEmpProjModalOpen);
   const editing = useSelector(selectEmpProjEditing);
-  console.log('onAdd list', list);
+  // console.log('onAdd list', list);
   useEffect(() => {
     if (employeeId) dispatch(fetchEmpProjects(employeeId));
   }, [dispatch, employeeId]);

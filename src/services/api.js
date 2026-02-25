@@ -418,7 +418,7 @@ export const weeklyTimesheetsAPI = {
 //       return res.data;
 //     } catch (err) {
 //       // If this is a tunnel/HTTPS boundary issue, try a JSON fallback (only if backend accepts JSON)
-//       console.log(
+//       // console.log(
 //         '[CHAT] multipart failed, trying JSON fallback…',
 //         err?.message,
 //       );
@@ -453,7 +453,7 @@ export const chatAPI = {
 
     // 2) First try axios (Authorization will be added by your interceptor)
     try {
-      console.log('[CHAT] axios POST =>', '/api/chat/send', {
+      // console.log('[CHAT] axios POST =>', '/api/chat/send', {
         receiverId,
         content,
         messageType,
@@ -461,7 +461,7 @@ export const chatAPI = {
       const res = await api.post('/api/chat/send', fd); // do NOT set Content-Type manually
       return res.data;
     } catch (err) {
-      console.log('[CHAT] axios multipart failed:', err?.message);
+      // console.log('[CHAT] axios multipart failed:', err?.message);
     }
 
     // 3) Fallback to fetch with Authorization (this was missing, causing 401)
@@ -470,7 +470,7 @@ export const chatAPI = {
       const url = `${base}/api/chat/send`;
       const token = await AsyncStorage.getItem('authToken');
 
-      console.log('[CHAT] fetch POST =>', url);
+      // console.log('[CHAT] fetch POST =>', url);
       const resp = await fetch(url, {
         method: 'POST',
         headers: token
@@ -480,7 +480,7 @@ export const chatAPI = {
       });
 
       const text = await resp.text();
-      console.log('[CHAT] fetch status:', resp.status, 'body:', text);
+      // console.log('[CHAT] fetch status:', resp.status, 'body:', text);
 
       if (!resp.ok) {
         throw new Error(`HTTP ${resp.status}`);
@@ -493,7 +493,7 @@ export const chatAPI = {
         return text;
       }
     } catch (err2) {
-      console.log('[CHAT] fetch multipart failed:', err2?.message);
+      // console.log('[CHAT] fetch multipart failed:', err2?.message);
       throw err2;
     }
   },
@@ -665,6 +665,7 @@ export const adminSettingsAPI = {
     const fd = new FormData();
     Object.entries(company).forEach(([k, v]) => fd.append(k, String(v ?? '')));
     if (logoFile) fd.append('logoFile', logoFile); // { uri, name, type }
+
     return api
       .put('/employee/company', fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -1816,7 +1817,7 @@ export const AdminWeeklyTimesheetsAPI = {
 
 export const projectInvoicesAPI = {
   listByProject: projectId => {
-    console.log('listByProject', projectId);
+    // console.log('listByProject', projectId);
     api
       .get(`/api/invoices/project/${encodeURIComponent(projectId)}`)
       .then(r => (Array.isArray(r.data) ? r.data : []));

@@ -63,7 +63,7 @@ const DealRow = memo(function DealRow({
   //   try {
   //     await api.put(`/deals/${item.id}/stage?stage=${stageName}`);
   //   } catch (err) {
-  //     console.log('Stage update error', err);
+  //     // console.log('Stage update error', err);
   //   }
   // };
 
@@ -76,7 +76,7 @@ const DealRow = memo(function DealRow({
     try {
       await api.put(`/deals/${item.id}/stage?stage=${stageName}`);
     } catch (err) {
-      console.log('Stage update error', err);
+      // console.log('Stage update error', err);
     }
   };
 
@@ -87,12 +87,12 @@ const DealRow = memo(function DealRow({
   //   if (!selected) return;
 
   //   try {
-  //     console.log('devvvvvv', item.id, selected.id);
+  //     // console.log('devvvvvv', item.id, selected.id);
   //     await api.put(`/deals/${item.id}/priority`, {
   //       priorityId: selected.id,
   //     });
   //   } catch (err) {
-  //     console.log('Priority update error', err);
+  //     // console.log('Priority update error', err);
   //   }
   // };
 
@@ -110,12 +110,12 @@ const DealRow = memo(function DealRow({
     });
 
     try {
-      console.log('hello devesj', selected.id, item.id);
+      // console.log('hello devesj', selected.id, item.id);
       await api.put(`/deals/${item.id}/priority`, {
         priorityId: selected.id,
       });
     } catch (err) {
-      console.log('Priority update error', err);
+      // console.log('Priority update error', err);
     }
   };
 

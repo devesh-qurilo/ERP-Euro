@@ -21,9 +21,9 @@ function* uploadProjectFileSaga({ payload: { projectId, file } }) {
   try {
     const item = yield call(projectFilesAPI.upload, projectId, file);
     // append freshly uploaded file at top
-    console.log('deveshhhhh', item);
+    // console.log('deveshhhhh', item);
     yield put(uploadProjectFileSuccess(item));
-    console.log('deveshoo', item);
+    // console.log('deveshoo', item);
     // optional: refresh list from server
     const items = yield call(projectFilesAPI.list, projectId);
     yield put(fetchProjectFilesSuccess(projectId, items));

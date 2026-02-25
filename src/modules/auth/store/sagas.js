@@ -10,7 +10,7 @@ function* loginSaga(action) {
 
     // Call the real API
     const response = yield call(authAPI.login, { employeeId, password });
-    console.log('API baseURL =', axios.defaults.baseURL);
+    // console.log('API baseURL =', axios.defaults.baseURL);
     // Transform the API response to match our expected format
     const userData = {
       user: {

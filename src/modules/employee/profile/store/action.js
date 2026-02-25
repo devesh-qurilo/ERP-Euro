@@ -20,7 +20,7 @@ export const fetchEmployeeProfileSuccess = profile => ({
   payload: profile,
 });
 
-console.log('fetchEmployeeProfileSuccess', fetchEmployeeProfileSuccess());
+// console.log('fetchEmployeeProfileSuccess', fetchEmployeeProfileSuccess());
 
 export const fetchEmployeeProfileFailure = error => ({
   type: FETCH_EMPLOYEE_PROFILE_FAILURE,

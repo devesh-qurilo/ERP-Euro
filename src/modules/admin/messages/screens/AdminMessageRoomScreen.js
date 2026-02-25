@@ -203,12 +203,12 @@ export default function AdminMessageRoomScreen({ route, navigation }) {
       });
 
       if (!file) {
-        console.log('User cancelled or no file returned');
+        // console.log('User cancelled or no file returned');
         return;
       }
 
       // file shape: { uri, name, type }
-      console.log('Picked file:', file);
+      // console.log('Picked file:', file);
 
       const messageType = (file.type || '').startsWith('image/')
         ? 'IMAGE'

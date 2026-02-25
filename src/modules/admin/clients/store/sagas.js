@@ -59,7 +59,7 @@ function* deleteSaga({ payload: { id } }) {
 function* categoryListSaga() {
   try {
     const data = yield call(API.getCategories); // <--- implement in clientsAPI or rename accordingly
-    console.log('devesh category', data);
+    // // console.log('devesh category', data);
     yield put({ type: T.CATEGORY_LIST_SUCCESS, payload: data });
   } catch (e) {
     yield put({
@@ -101,7 +101,7 @@ function* categoryDeleteSaga({ payload: { id } }) {
 function* subCategoryListSaga() {
   try {
     const data = yield call(API.getSubcategories); // <--- implement or rename
-    console.log('devesh subcategory', data);
+    // // console.log('devesh subcategory', data);
     yield put({ type: T.SUBCATEGORY_LIST_SUCCESS, payload: data });
   } catch (e) {
     yield put({

@@ -13,7 +13,7 @@
 //       const res = await api.get(`/deals/lead/${leadId}`);
 //       setData(res.data || []);
 //     } catch (err) {
-//       console.log('Lead deals error', err);
+//       // console.log('Lead deals error', err);
 //     } finally {
 //       setLoading(false);
 //     }
@@ -92,7 +92,7 @@ export default function LeadDeals({ leadId }) {
       const res = await api.get(`/deals/lead/${leadId}`);
       setData(res.data || []);
     } catch (err) {
-      console.log('Lead deals error', err);
+      // console.log('Lead deals error', err);
     } finally {
       setLoading(false);
     }
@@ -137,7 +137,7 @@ export default function LeadDeals({ leadId }) {
       await api.delete(`/deals/${deal.id}`);
       fetchDeals(); // 🔥 refetch after delete
     } catch (err) {
-      console.log(err);
+      // console.log(err);
     }
   };
 

@@ -44,7 +44,7 @@ function* fetchAppreciations() {
 function* createApprec(action) {
   const payload = action?.payload;
   try {
-    console.log('createApprec', payload);
+    // console.log('createApprec', payload);
     yield put({ type: APPREC_BUSY, payload: true });
     yield call(adminAppreciationsAPI.create, payload);
     yield put({ type: APPREC_CLOSE_MODAL });
@@ -61,7 +61,7 @@ function* updateApprec(action) {
   // action shape: { type, id, payload }
   const { id, payload } = action || {};
   try {
-    console.log('updateApprec', payload);
+    // console.log('updateApprec', payload);
     yield put({ type: APPREC_BUSY, payload: true });
     yield call(adminAppreciationsAPI.update, id, payload);
     yield put({ type: APPREC_CLOSE_MODAL });

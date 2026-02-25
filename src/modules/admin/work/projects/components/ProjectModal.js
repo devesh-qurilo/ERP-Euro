@@ -226,7 +226,7 @@ export default function ProjectModal({
   //       setCompanyFile(payload);
   //     }
   //   } catch (err) {
-  //     console.log('pickCompanyFile error', err);
+  //     // console.log('pickCompanyFile error', err);
   //     Alert.alert('File pick failed');
   //   }
   // }
@@ -240,7 +240,7 @@ export default function ProjectModal({
         // user cancelled → silently ignore
         return;
       }
-      console.log('pickCompanyFile error', err);
+      // console.log('pickCompanyFile error', err);
       Alert.alert('File pick failed');
     }
   }
@@ -288,7 +288,7 @@ export default function ProjectModal({
     };
 
     // Optional: debug console to inspect exact payload before dispatch
-    console.log('create huu payload ->', payload);
+    // console.log('create huu payload ->', payload);
 
     onSave?.(payload);
   }

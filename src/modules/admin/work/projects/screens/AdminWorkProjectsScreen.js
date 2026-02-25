@@ -59,7 +59,7 @@ export default function AdminWorkProjectsScreen() {
     dispatch(fetchAll());
   }, [dispatch]);
 
-  console.log('projectlist', list);
+  // console.log('projectlist', list);
 
   const filtered = useMemo(() => {
     const q = (filters.q || '').toLowerCase().trim();

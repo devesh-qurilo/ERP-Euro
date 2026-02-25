@@ -354,7 +354,7 @@ export default function ProjectTasksPanel({ projectId }) {
   const rows = useMemo(() => list || [], [list]);
 
   const onAdd = () => {
-    console.log('projectId', projectId), setAdding(true);
+    // console.log('projectId', projectId), setAdding(true);
   };
   const onView = item => setViewing(item);
   const onEdit = item => setEditing(item);

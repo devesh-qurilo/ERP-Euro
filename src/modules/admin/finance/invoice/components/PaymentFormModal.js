@@ -86,7 +86,7 @@
 //       setFile(toRNFile(doc));
 //     } catch (e) {
 //       if (!DocumentPicker.isCancel(e)) {
-//         console.log('[PaymentFormModal] File pick error:', e?.message);
+//         // console.log('[PaymentFormModal] File pick error:', e?.message);
 //         Alert.alert('File selection failed');
 //       }
 //     }
@@ -473,7 +473,7 @@ export default function PaymentFormModal({
       setFile(toRNFile(doc));
     } catch (e) {
       if (!DocumentPicker.isCancel(e)) {
-        console.log('[PaymentFormModal] File pick error:', e?.message);
+        // console.log('[PaymentFormModal] File pick error:', e?.message);
         Alert.alert('File selection failed');
       }
     }

@@ -387,7 +387,7 @@ function KanbanCard({ item, stage, stages, dispatch, navigation }) {
 
       dispatch(fetchKanban()); // refresh board
     } catch (err) {
-      console.log('Priority update error', err);
+      // console.log('Priority update error', err);
     }
   };
 

@@ -25,7 +25,7 @@ export default function DealEmployeesSection({ dealId, employees }) {
       const res = await api.get(`/deals/${dealId}/employees`);
       setAssigned(res.data || []);
     } catch (err) {
-      console.log('Fetch employees error:', err?.response?.data || err);
+      // console.log('Fetch employees error:', err?.response?.data || err);
     } finally {
       setLoading(false);
     }
@@ -63,7 +63,7 @@ export default function DealEmployeesSection({ dealId, employees }) {
       setSelectedIds([]);
       fetchAssigned();
     } catch (err) {
-      console.log('Add error:', err?.response?.data || err);
+      // console.log('Add error:', err?.response?.data || err);
     } finally {
       setLoading(false);
     }
@@ -79,7 +79,7 @@ export default function DealEmployeesSection({ dealId, employees }) {
 
       fetchAssigned();
     } catch (err) {
-      console.log('Delete error:', err?.response?.data || err);
+      // console.log('Delete error:', err?.response?.data || err);
     } finally {
       setLoading(false);
     }

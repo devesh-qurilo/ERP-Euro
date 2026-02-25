@@ -39,7 +39,7 @@ export default function UploadFileModal({ visible, onClose, onSubmit }) {
       if (DocumentPicker.isCancel && DocumentPicker.isCancel(e)) {
         // user cancelled, ignore
       } else {
-        console.log('[UploadFileModal] picker error:', e?.message);
+        // console.log('[UploadFileModal] picker error:', e?.message);
       }
     }
   }

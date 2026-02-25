@@ -77,7 +77,7 @@ export default function ProjectInvoiceFormModal({
       tax: Number(form.tax) || 0,
       discount: Number(form.discount) || 0,
     };
-    console.log('dekhlooo', payload);
+    // console.log('dekhlooo', payload);
     onSave(payload);
   }
 

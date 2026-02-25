@@ -45,9 +45,9 @@ function* updLead({ id, payload }) {
 function* createLead({ payload }) {
   try {
     // payload must match your raw JSON spec (includes nested "deal" when enabled)
-    console.log('[LEADS] create payload ->', payload);
+    // console.log('[LEADS] create payload ->', payload);
     const data = yield call(adminLeadsAPI.create, payload);
-    console.log('[LEADS] create response <-', data);
+    // console.log('[LEADS] create response <-', data);
     yield put(createLeadSuccess(data));
   } catch (e) {
     yield put(createLeadFailure(e?.message || 'Failed to create lead'));

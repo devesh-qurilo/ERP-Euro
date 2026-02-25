@@ -6,7 +6,7 @@ import { weeklyTimesheetsAPI } from '../../../../../services/api';
 function* fetchWeeklySaga({ weekStartDate }) {
   try {
     const data = yield call(weeklyTimesheetsAPI.getMine, weekStartDate);
-    console.log('devvvvv', data);
+    // console.log('devvvvv', data);
     yield put({ type: T.FETCH_WEEKLY_SUCCESS, payload: data });
   } catch (e) {
     yield put({ type: T.FETCH_WEEKLY_FAILURE, error: e?.message });

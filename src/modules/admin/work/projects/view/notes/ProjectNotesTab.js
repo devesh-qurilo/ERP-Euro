@@ -46,7 +46,7 @@ export default function ProjectNotesTab() {
   const creatingPreset = useSelector(selectProjectNotesCreatePreset);
   const busyIds = useSelector(selectProjectNotesBusyIds);
   const devii = useSelector(rahul);
-  console.log('notes', projectId, rows, devii);
+  // console.log('notes', projectId, rows, devii);
   const [q, setQ] = useState('');
 
   useFocusEffect(

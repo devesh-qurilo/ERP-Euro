@@ -99,7 +99,7 @@ export default function AdminLeadContactsScreen() {
   const handleConvertToClient = () => {
     if (!actionLead) return;
     // TODO: call your convert-to-client API or navigation here
-    console.log('[LEAD] change to client ->', actionLead.id);
+    // console.log('[LEAD] change to client ->', actionLead.id);
     closeActionMenu();
   };
 

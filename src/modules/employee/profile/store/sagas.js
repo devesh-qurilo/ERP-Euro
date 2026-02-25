@@ -12,7 +12,7 @@ import { employeeAPI } from '../../../../services/api';
 // export function* fetchEmployeeProfileSaga() {
 //   try {
 //     const profile = yield call(employeeAPI.getProfile);
-//     console.log('fetching profile.   bhaijaan', profile);
+//     // console.log('fetching profile.   bhaijaan', profile);
 //     yield put(fetchEmployeeProfileSuccess(profile));
 //   } catch (error) {
 //     yield put(fetchEmployeeProfileFailure(error.message));

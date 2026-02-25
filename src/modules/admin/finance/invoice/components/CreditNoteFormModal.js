@@ -64,7 +64,7 @@ export default function CreditNoteFormModal({
       setFile(toRNFile(doc));
     } catch (e) {
       if (!(DocumentPicker.isCancel && DocumentPicker.isCancel(e))) {
-        console.log('[CreditNoteForm] picker error:', e?.message || e);
+        // console.log('[CreditNoteForm] picker error:', e?.message || e);
         Alert.alert('File pick failed');
       }
     }
