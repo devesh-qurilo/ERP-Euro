@@ -13,6 +13,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Feather';
 import { Picker } from '@react-native-picker/picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Modal } from 'react-native';
 
 import * as A from '../store/actions';
 import {
@@ -25,8 +27,20 @@ import {
 import ClientFormModal from '../components/ClientFormModal';
 import ClientsActionSheet from '../components/ClientsActionSheet';
 import ClientsTable from '../components/ClientsTable';
+import DealFormModal from '../../leads/deals/components/DealFormModal';
+import {
+  selectEditing,
+  selectFormOpen,
+} from '../../leads/deals/store/selectors';
+import { setFormOpen } from '../../leads/deals/store/actions';
 
-const defaultFilters = { q: '', category: '' };
+const defaultFilters = {
+  q: '',
+  category: '',
+  client: '',
+  startDate: '',
+  endDate: '',
+};
 
 export default function AdminClientsScreen() {
   const dispatch = useDispatch();
@@ -43,7 +57,12 @@ export default function AdminClientsScreen() {
   const [sheet, setSheet] = useState({ open: false, row: null });
   const [addOpen, setAddOpen] = useState(false);
   const [editRow, setEditRow] = useState(null);
-
+  const [showStart, setShowStart] = useState(false);
+  const [showEnd, setShowEnd] = useState(false);
+  const [categoryModal, setCategoryModal] = useState(false);
+  const [addtoDeal, setAddtoDeal] = useState(false);
+  const formOpen = useSelector(selectFormOpen);
+  const editing = useSelector(selectEditing);
   // small debounce for search
   useEffect(() => {
     const t = setTimeout(() => {
@@ -82,11 +101,22 @@ export default function AdminClientsScreen() {
       // 📂 CATEGORY
       if (filters.category && c.category !== filters.category) return false;
 
-      // 📊 STATUS
-      if (filters.status && c.status !== filters.status) return false;
+      // 📅 START DATE
+      if (filters.startDate) {
+        const created = new Date(c.createdAt);
+        const start = new Date(filters.startDate);
 
-      // 🌍 COUNTRY
-      if (filters.country && c.country !== filters.country) return false;
+        if (created < start) return false;
+      }
+
+      // 📅 END DATE
+      if (filters.endDate) {
+        const created = new Date(c.createdAt);
+        const end = new Date(filters.endDate);
+        end.setHours(23, 59, 59, 999);
+
+        if (created > end) return false;
+      }
 
       return true;
     });
@@ -100,7 +130,8 @@ export default function AdminClientsScreen() {
   }
   function toDeal() {
     setSheet({ open: false, row: null });
-    nav.navigate('AdminDealsCreate', { prefillFromClient: sheet.row });
+    // nav.navigate('AdminDealsCreate', { prefillFromClient: sheet.row });
+    dispatch(setFormOpen(true));
   }
   function toView() {
     setSheet({ open: false, row: null });
@@ -147,115 +178,208 @@ export default function AdminClientsScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ alignItems: 'center', paddingRight: 8 }}
         >
-          {/* Search box */}
+          {/* FILTER SECTION */}
           <View
             style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              backgroundColor: '#f9fafb',
-              borderRadius: 8,
-              borderWidth: 1,
-              borderColor: '#e6e9ee',
-              paddingHorizontal: 8,
-              marginRight: 8,
-              height: 40,
-              minWidth: 220,
-            }}
-          >
-            <Icon name="search" size={16} style={{ marginRight: 6 }} />
-            <TextInput
-              placeholder="Search name / email / clientId"
-              value={localSearch}
-              onChangeText={setLocalSearch}
-              returnKeyType="search"
-              onSubmitEditing={() => applyFilters({ q: localSearch })}
-              style={{ flex: 1, height: 40, color: '#c83939' }}
-            />
-            {localSearch ? (
-              <TouchableOpacity
-                onPress={() => setLocalSearch('')}
-                style={{ padding: 6 }}
-              >
-                <Icon name="x" size={14} />
-              </TouchableOpacity>
-            ) : null}
-          </View>
-
-          {/* Compact Category dropdown */}
-          <View
-            style={{
-              minWidth: 200,
-              marginRight: 8,
-            }}
-          >
-            <Text style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>
-              Category
-            </Text>
-            <View
-              style={{
-                borderWidth: 1,
-                borderColor: '#e6e9ee',
-                borderRadius: 8,
-                overflow: 'hidden',
-                backgroundColor: '#fff',
-                height: 40,
-                justifyContent: 'center',
-              }}
-            >
-              <Picker
-                selectedValue={filters.category || 'All'}
-                onValueChange={onCategoryChange}
-                mode="dropdown"
-                style={{ height: Platform.OS === 'ios' ? 36 : undefined }}
-              >
-                <Picker.Item label="All" value="All" />
-                {(categories || []).map(cat => (
-                  <Picker.Item
-                    key={cat.id}
-                    label={cat.categoryName}
-                    value={cat.categoryName}
-                  />
-                ))}
-              </Picker>
-            </View>
-          </View>
-
-          {/* Apply / Clear quick controls */}
-          <TouchableOpacity
-            onPress={() => applyFilters({ q: localSearch })}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              backgroundColor: '#111827',
-              paddingVertical: 8,
-              paddingHorizontal: 12,
-              borderRadius: 8,
-              marginLeft: 6,
-            }}
-          >
-            <Icon name="refresh-ccw" size={14} color="#fff" />
-            <Text style={{ color: '#fff', fontWeight: '700', marginLeft: 6 }}>
-              Apply
-            </Text>
-          </TouchableOpacity>
-          <Text style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>
-            Category
-          </Text>
-
-          <TouchableOpacity
-            onPress={clearFilters}
-            style={{
-              paddingVertical: 8,
-              paddingHorizontal: 12,
-              borderRadius: 8,
+              backgroundColor: '#fff',
+              borderRadius: 10,
+              padding: 12,
               borderWidth: 1,
               borderColor: '#e5e7eb',
-              backgroundColor: '#fff',
-              marginLeft: 8,
             }}
           >
-            <Text style={{ color: '#6b7280', fontWeight: '600' }}>Clear</Text>
-          </TouchableOpacity>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+              {/* SEARCH */}
+              <View style={{ width: 220 }}>
+                <Text
+                  style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}
+                >
+                  Search
+                </Text>
+                <TextInput
+                  placeholder="Name / Email / Client ID"
+                  value={localSearch}
+                  onChangeText={setLocalSearch}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#e5e7eb',
+                    borderRadius: 8,
+                    paddingHorizontal: 10,
+                    height: 40,
+                    backgroundColor: '#fff',
+                  }}
+                />
+              </View>
+
+              {/* CATEGORY */}
+              <View style={{ width: 200 }}>
+                <Text
+                  style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}
+                >
+                  Category
+                </Text>
+
+                <TouchableOpacity
+                  onPress={() => setCategoryModal(true)}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#e5e7eb',
+                    borderRadius: 8,
+                    height: 40,
+                    justifyContent: 'center',
+                    paddingHorizontal: 10,
+                    backgroundColor: '#fff',
+                  }}
+                >
+                  <Text>{filters.category || 'Select Category'}</Text>
+                </TouchableOpacity>
+              </View>
+
+              <Modal visible={categoryModal} transparent animationType="fade">
+                <View
+                  style={{
+                    flex: 1,
+                    backgroundColor: 'rgba(0,0,0,0.4)',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <View
+                    style={{
+                      backgroundColor: '#fff',
+                      width: 320,
+                      borderRadius: 10,
+                      padding: 16,
+                      maxHeight: 400,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontWeight: '700',
+                        fontSize: 16,
+                        marginBottom: 10,
+                      }}
+                    >
+                      Select Category
+                    </Text>
+
+                    <ScrollView>
+                      <TouchableOpacity
+                        onPress={() => {
+                          applyFilters({ category: '' });
+                          setCategoryModal(false);
+                        }}
+                        style={{ paddingVertical: 12 }}
+                      >
+                        <Text>All</Text>
+                      </TouchableOpacity>
+
+                      {categories.map(cat => (
+                        <TouchableOpacity
+                          key={cat.id}
+                          onPress={() => {
+                            applyFilters({ category: cat.categoryName });
+                            setCategoryModal(false);
+                          }}
+                          style={{ paddingVertical: 12 }}
+                        >
+                          <Text>{cat.categoryName}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+
+                    <TouchableOpacity
+                      onPress={() => setCategoryModal(false)}
+                      style={{ marginTop: 10 }}
+                    >
+                      <Text style={{ color: 'red', textAlign: 'center' }}>
+                        Close
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Modal>
+
+              {/* START DATE */}
+              <View style={{ width: 180 }}>
+                <Text
+                  style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}
+                >
+                  Start Date
+                </Text>
+
+                <TouchableOpacity
+                  onPress={() => setShowStart(true)}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#e5e7eb',
+                    borderRadius: 8,
+                    height: 40,
+                    justifyContent: 'center',
+                    paddingHorizontal: 10,
+                  }}
+                >
+                  <Text>{filters.startDate || 'Select Date'}</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* END DATE */}
+              <View style={{ width: 180 }}>
+                <Text
+                  style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}
+                >
+                  End Date
+                </Text>
+
+                <TouchableOpacity
+                  onPress={() => setShowEnd(true)}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#e5e7eb',
+                    borderRadius: 8,
+                    height: 40,
+                    justifyContent: 'center',
+                    paddingHorizontal: 10,
+                  }}
+                >
+                  <Text>{filters.endDate || 'Select Date'}</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* APPLY BUTTON */}
+              <View style={{ justifyContent: 'flex-end' }}>
+                <TouchableOpacity
+                  onPress={() => applyFilters({ q: localSearch })}
+                  style={{
+                    backgroundColor: '#111827',
+                    paddingVertical: 10,
+                    paddingHorizontal: 18,
+                    borderRadius: 8,
+                  }}
+                >
+                  <Text style={{ color: '#fff', fontWeight: '700' }}>
+                    Apply
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* RESET */}
+              <View style={{ justifyContent: 'flex-end' }}>
+                <TouchableOpacity
+                  onPress={clearFilters}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#e5e7eb',
+                    paddingVertical: 10,
+                    paddingHorizontal: 18,
+                    borderRadius: 8,
+                  }}
+                >
+                  <Text style={{ fontWeight: '600' }}>Reset</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
         </ScrollView>
       </View>
 
@@ -267,6 +391,35 @@ export default function AdminClientsScreen() {
           marginTop: 12,
         }}
       >
+        {showStart && (
+          <DateTimePicker
+            value={new Date()}
+            mode="date"
+            display="default"
+            onChange={(e, date) => {
+              setShowStart(false);
+              if (date) {
+                const d = date.toISOString().slice(0, 10);
+                applyFilters({ startDate: d });
+              }
+            }}
+          />
+        )}
+
+        {showEnd && (
+          <DateTimePicker
+            value={new Date()}
+            mode="date"
+            display="default"
+            onChange={(e, date) => {
+              setShowEnd(false);
+              if (date) {
+                const d = date.toISOString().slice(0, 10);
+                applyFilters({ endDate: d });
+              }
+            }}
+          />
+        )}
         <TouchableOpacity
           onPress={() => setAddOpen(true)}
           style={{
@@ -322,6 +475,13 @@ export default function AdminClientsScreen() {
           setEditRow(null);
         }}
       />
+      {/* {addtoDeal && ( */}
+      <DealFormModal
+        open={formOpen}
+        editing={editing}
+        onClose={() => dispatch(setFormOpen(false))}
+      />
+      {/* )} */}
     </View>
   );
 }

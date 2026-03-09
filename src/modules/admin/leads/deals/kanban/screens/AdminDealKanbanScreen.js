@@ -108,51 +108,6 @@ export default function AdminDealKanbanScreen() {
           });
 
           return (
-            // <View key={stage.id} style={styles.column}>
-            //   {/* <View style={styles.columnHeader}>
-            //     <Text style={styles.columnTitle}>{stage.name}</Text>
-            //     <View style={styles.countBadge}>
-            //       <Text style={styles.countText}>{sortedData.length}</Text>
-            //     </View>
-            //   </View> */}
-
-            //   <View style={styles.columnHeader}>
-            //     <Text style={styles.columnTitle}>{stage.name}</Text>
-
-            //     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            //       <View style={styles.countBadge}>
-            //         <Text style={styles.countText}>{sortedData.length}</Text>
-            //       </View>
-
-            //       <TouchableOpacity
-            //         onPress={() =>
-            //           setStageMenuOpen(
-            //             stageMenuOpen === stage.id ? null : stage.id,
-            //           )
-            //         }
-            //         style={{ marginLeft: 8 }}
-            //       >
-            //         <Text style={{ fontSize: 18 }}>⋮</Text>
-            //       </TouchableOpacity>
-            //     </View>
-            //   </View>
-
-            //   <FlatList
-            //     data={sortedData}
-            //     keyExtractor={item => String(item.id)}
-            //     renderItem={({ item }) => (
-            //       <KanbanCard
-            //         item={item}
-            //         stage={stage}
-            //         stages={stages}
-            //         dispatch={dispatch}
-            //         navigation={nav}
-            //       />
-            //     )}
-            //     style={{ marginTop: 10 }}
-            //     contentContainerStyle={{ paddingBottom: 40 }}
-            //   />
-            // </View>
             <View key={stage.id} style={styles.column}>
               <View style={styles.columnHeader}>
                 <Text style={styles.columnTitle}>{stage.name}</Text>

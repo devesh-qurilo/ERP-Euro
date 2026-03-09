@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ERP.ipa</key>
+	<array>
+		<dict>
+			<key>architectures</key>
+			<array>
+				<string>arm64</string>
+			</array>
+			<key>buildNumber</key>
+			<string>2</string>
+			<key>certificate</key>
+			<dict>
+				<key>SHA1</key>
+				<string>DC1D85B4E91F4780FE5D97EDB7553D02A5637F1C</string>
+				<key>dateExpires</key>
+				<string>11/20/26</string>
+				<key>type</key>
+				<string>Apple Distribution</string>
+			</dict>
+			<key>embeddedBinaries</key>
+			<array>
+				<dict>
+					<key>architectures</key>
+					<array>
+						<string>arm64</string>
+					</array>
+					<key>buildNumber</key>
+					<string>0.12.0</string>
+					<key>certificate</key>
+					<dict>
+						<key>SHA1</key>
+						<string>DC1D85B4E91F4780FE5D97EDB7553D02A5637F1C</string>
+						<key>dateExpires</key>
+						<string>11/20/26</string>
+						<key>type</key>
+						<string>Apple Distribution</string>
+					</dict>
+					<key>name</key>
+					<string>hermes.framework</string>
+					<key>team</key>
+					<dict>
+						<key>id</key>
+						<string>2Y4DD476XP</string>
+						<key>name</key>
+						<string>SILVESTER SUCKEL</string>
+					</dict>
+					<key>versionNumber</key>
+					<string>0.12.0</string>
+				</dict>
+			</array>
+			<key>entitlements</key>
+			<dict>
+				<key>application-identifier</key>
+				<string>2Y4DD476XP.com.iamdevesh.skavo</string>
+				<key>com.apple.developer.team-identifier</key>
+				<string>2Y4DD476XP</string>
+				<key>get-task-allow</key>
+				<false/>
+			</dict>
+			<key>name</key>
+			<string>ERP.app</string>
+			<key>profile</key>
+			<dict>
+				<key>UUID</key>
+				<string>ff9abe51-5b6c-4476-9962-c45b67b8ac3f</string>
+				<key>dateExpires</key>
+				<string>11/20/26</string>
+				<key>name</key>
+				<string>iOS Team Ad Hoc Provisioning Profile: com.iamdevesh.skavo</string>
+			</dict>
+			<key>team</key>
+			<dict>
+				<key>id</key>
+				<string>2Y4DD476XP</string>
+				<key>name</key>
+				<string>SILVESTER SUCKEL</string>
+			</dict>
+			<key>versionNumber</key>
+			<string>1.0.8</string>
+		</dict>
+	</array>
+</dict>
+</plist>
