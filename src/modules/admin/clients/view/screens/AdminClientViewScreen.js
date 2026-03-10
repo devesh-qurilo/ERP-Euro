@@ -24,6 +24,7 @@ import ClientNotesTab from '../notes/ClientNotesTab';
 function ProfileTab() {
   const data = useSelector(selectClientDetail);
   const busy = useSelector(selectClientDetailBusy);
+  console.log('dekh bhaiii', data);
 
   if (busy)
     return (

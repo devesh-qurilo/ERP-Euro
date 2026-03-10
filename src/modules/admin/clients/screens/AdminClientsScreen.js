@@ -72,13 +72,22 @@ export default function AdminClientsScreen() {
   }, [localSearch]);
 
   // Load clients + categories on focus and when filters change
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     // refresh categories when screen focuses so dropdown stays up-to-date
+  //     dispatch(A.categoryList());
+  //     // fetch clients list with current filters
+  //     // dispatch(A.list(filters));
+  //   }, [dispatch, filters]),
+  // );
+
   useFocusEffect(
     useCallback(() => {
-      // refresh categories when screen focuses so dropdown stays up-to-date
       dispatch(A.categoryList());
-      // fetch clients list with current filters
-      // dispatch(A.list(filters));
-    }, [dispatch, filters]),
+
+      // load clients first time
+      dispatch(A.list(defaultFilters));
+    }, [dispatch]),
   );
 
   // const filteredItems = useMemo(() => {
@@ -429,7 +438,7 @@ export default function AdminClientsScreen() {
             borderRadius: 10,
           }}
         >
-          <Text style={{ color: '#fff', fontWeight: '700' }}>Add Client</Text>
+          <Text style={{ color: '#fff', fontWeight: '700' }}>Add Clienthh</Text>
         </TouchableOpacity>
       </View>
 
@@ -460,6 +469,7 @@ export default function AdminClientsScreen() {
         visible={addOpen}
         onClose={() => setAddOpen(false)}
         onSubmit={payload => {
+          console.log('payload', payload);
           dispatch(A.create(payload));
           setAddOpen(false);
         }}

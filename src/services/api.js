@@ -1362,6 +1362,7 @@ export const clientsAPI = {
     fd.append('client', JSON.stringify(client));
     if (profilePicture) fd.append('profilePicture', profilePicture); // {uri,name,type}
     if (companyLogo) fd.append('companyLogo', companyLogo);
+    console.log('form of payload', fd);
     return api
       .post('/clients', fd, {
         headers: { 'Content-Type': 'multipart/form-data' },

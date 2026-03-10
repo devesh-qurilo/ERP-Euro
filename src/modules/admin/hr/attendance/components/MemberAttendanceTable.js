@@ -2,6 +2,24 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 
 export default function MemberAttendanceTable({ data }) {
+  const calculateHours = (inTime, outTime) => {
+    if (!inTime || !outTime) return '—';
+
+    const [h1, m1, s1] = inTime.split(':').map(Number);
+    const [h2, m2, s2] = outTime.split(':').map(Number);
+
+    const start = h1 * 3600 + m1 * 60 + s1;
+    const end = h2 * 3600 + m2 * 60 + s2;
+
+    const diff = end - start;
+
+    if (diff <= 0) return '—';
+
+    const hours = Math.floor(diff / 3600);
+    const minutes = Math.floor((diff % 3600) / 60);
+
+    return `${hours}h ${minutes}m`;
+  };
   return (
     <ScrollView
       horizontal
@@ -22,7 +40,9 @@ export default function MemberAttendanceTable({ data }) {
             <Text style={styles.cell}>{r.status}</Text>
             <Text style={styles.cell}>{r.clockInTime ?? '—'}</Text>
             <Text style={styles.cell}>{r.clockOutTime ?? '—'}</Text>
-            <Text style={styles.cell}>{r.isPresent ? '8h' : '—'}</Text>
+            <Text style={styles.cell}>
+              {calculateHours(r.clockInTime, r.clockOutTime)}
+            </Text>
           </View>
         ))}
       </View>

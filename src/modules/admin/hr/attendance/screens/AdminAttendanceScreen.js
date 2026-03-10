@@ -54,20 +54,23 @@ const Select = ({ label, value, options, onChange }) => {
         </Text>
         <Text style={styles.caret}>{open ? '▴' : '▾'}</Text>
       </Pressable>
+
       {open && (
         <View style={styles.menu}>
-          {options.map(opt => (
-            <Pressable
-              key={String(opt.value ?? opt)}
-              onPress={() => {
-                onChange(opt.value ?? opt);
-                setOpen(false);
-              }}
-              style={styles.menuItem}
-            >
-              <Text style={styles.menuTxt}>{String(opt.label ?? opt)}</Text>
-            </Pressable>
-          ))}
+          <ScrollView style={{ maxHeight: 220 }} showsVerticalScrollIndicator>
+            {options.map(opt => (
+              <Pressable
+                key={String(opt.value ?? opt)}
+                onPress={() => {
+                  onChange(opt.value ?? opt);
+                  setOpen(false);
+                }}
+                style={styles.menuItem}
+              >
+                <Text style={styles.menuTxt}>{String(opt.label ?? opt)}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
         </View>
       )}
     </View>
@@ -80,7 +83,7 @@ const Legend = () => (
       ['⭐', 'Holiday'],
       ['📅', 'Day Off'],
       ['✔', 'Present'],
-      ['½', 'Half Day'],
+      ['☆', 'Half Day'],
       ['●', 'Late'],
       ['🛫', 'On Leave'],
     ].map(([icon, txt]) => (
@@ -106,6 +109,11 @@ export default function AdminAttendanceScreen() {
   const modalOpen = useSelector(selectAttModalOpen);
 
   const employees = useSelector(selectEmpList);
+  useEffect(() => {
+    if (employees.length && !selectedEmp) {
+      setSelectedEmp(employees[0].employeeId);
+    }
+  }, [employees]);
   const empOptions = useMemo(
     () =>
       employees.map(e => ({
@@ -114,7 +122,7 @@ export default function AdminAttendanceScreen() {
       })),
     [employees],
   );
-  const [selectedEmp, setSelectedEmp] = useState(empOptions[0]?.value || '');
+  const [selectedEmp, setSelectedEmp] = useState('');
 
   useEffect(() => {
     dispatch(fetchAttList());
@@ -142,7 +150,7 @@ export default function AdminAttendanceScreen() {
         {/* <Text style={styles.sectionTitle}>Ma</Text> */}
         <View style={styles.segBar}>
           <SegBtn
-            label="+ Mark Attendance"
+            label="+ Mark"
             active={false}
             onPress={() => dispatch(openAttModal())}
           />
@@ -155,12 +163,14 @@ export default function AdminAttendanceScreen() {
             }}
           />
           <SegBtn
-            label="Attendance by Member"
+            label="Member"
             active={mode === 'member'}
             onPress={() => {
-              const id = selectedEmp || empOptions[0]?.value;
               dispatch(setAttMode('member'));
-              if (id) dispatch(fetchAttByEmployee(id));
+
+              if (selectedEmp) {
+                dispatch(fetchAttByEmployee(selectedEmp));
+              }
             }}
           />
         </View>
@@ -169,21 +179,23 @@ export default function AdminAttendanceScreen() {
       {/* Filters */}
       <View style={styles.card}>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-          <View style={{ flexBasis: '60%', minWidth: 240, paddingRight: 8 }}>
-            <Text style={styles.label}>Search</Text>
-            <TextInput
-              value={filters.q}
-              onChangeText={q => dispatch(setAttFilters({ q }))}
-              placeholder="employee, id, status, date"
-              placeholderTextColor="#9ca3af"
-              style={styles.input}
-              autoCapitalize="none"
-            />
-          </View>
+          {mode === 'list' && (
+            <View style={{ flexBasis: '60%', minWidth: 240, paddingRight: 8 }}>
+              <Text style={styles.label}>Search</Text>
+              <TextInput
+                value={filters.q}
+                onChangeText={q => dispatch(setAttFilters({ q }))}
+                placeholder="employee, id, status, date"
+                placeholderTextColor="#9ca3af"
+                style={styles.input}
+                autoCapitalize="none"
+              />
+            </View>
+          )}
           {mode === 'member' && (
             <Select
               label="Employee"
-              value={selectedEmp}
+              value={selectedEmp || 'Select Employee'}
               options={empOptions}
               onChange={v => {
                 setSelectedEmp(v);
@@ -238,7 +250,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     gap: 6,
   },
-  segBtn: { paddingVertical: 8, paddingHorizontal: 10, borderRadius: 10 },
+  segBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    width: '32%',
+    borderWidth: 1,
+    borderColor: '#cfc8c8',
+  },
   segBtnActive: { backgroundColor: '#111827' },
   segTxt: { fontWeight: '300', color: '#111827' },
   segTxtActive: { color: '#fff' },

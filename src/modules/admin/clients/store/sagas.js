@@ -14,12 +14,15 @@ function* listSaga({ payload: { filters } }) {
 const getFilters = s => s.admin.clients.filters;
 
 function* createSaga({ payload }) {
+  console.log('bahar saga payload', payload);
   try {
     yield call(API.create, payload);
+    console.log('saga payload', payload);
     yield put({ type: T.CREATE_SUCCESS });
     const f = yield select(getFilters);
     yield put({ type: T.LIST_REQUEST, payload: { filters: f } });
   } catch (e) {
+    console.log('bahar fail saga payload');
     yield put({
       type: T.CREATE_FAILURE,
       payload: e?.message || 'Create failed',

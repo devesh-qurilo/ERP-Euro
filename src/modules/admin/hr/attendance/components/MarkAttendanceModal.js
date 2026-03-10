@@ -36,18 +36,20 @@ const Select = ({ label, value, options, onChange }) => {
 
       {open && (
         <View style={styles.menu}>
-          {options.map(o => (
-            <Pressable
-              key={o.value}
-              onPress={() => {
-                onChange(o.value);
-                setOpen(false);
-              }}
-              style={styles.menuItem}
-            >
-              <Text>{o.label}</Text>
-            </Pressable>
-          ))}
+          <ScrollView style={{ maxHeight: 60 }}>
+            {options.map(o => (
+              <Pressable
+                key={o.value}
+                onPress={() => {
+                  onChange(o.value);
+                  setOpen(false);
+                }}
+                style={styles.menuItem}
+              >
+                <Text>{o.label}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
         </View>
       )}
     </View>
@@ -75,8 +77,9 @@ export default function MarkAttendanceModal({ visible, onClose, onSave }) {
   const [mode, setMode] = useState('date'); // date | month
   const [departmentId, setDept] = useState('');
   const [empIds, setEmpIds] = useState([]);
-
   const [datesCSV, setDatesCSV] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [year, setYear] = useState(String(new Date().getFullYear()));
   const [month, setMonth] = useState(String(new Date().getMonth() + 1));
 
@@ -107,19 +110,40 @@ export default function MarkAttendanceModal({ visible, onClose, onSave }) {
     [departments],
   );
 
-  const empOptions = useMemo(
-    () =>
-      employees.map(e => ({
-        label: `${e.name} (${e.employeeId})`,
-        value: e.employeeId,
-      })),
-    [employees],
-  );
+  const empOptions = useMemo(() => {
+    let list = employees;
+
+    if (departmentId) {
+      list = list.filter(e => String(e.departmentId) === departmentId);
+    }
+
+    return list.map(e => ({
+      label: `${e.name} (${e.employeeId})`,
+      value: e.employeeId,
+    }));
+  }, [employees, departmentId]);
 
   const toggleEmp = id =>
     setEmpIds(prev =>
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id],
     );
+
+  const buildDates = () => {
+    if (!startDate) return [];
+
+    const start = new Date(startDate);
+    const end = endDate ? new Date(endDate) : new Date(startDate);
+
+    const dates = [];
+    const current = new Date(start);
+
+    while (current <= end) {
+      dates.push(current.toISOString().slice(0, 10));
+      current.setDate(current.getDate() + 1);
+    }
+
+    return dates;
+  };
 
   /* ---------- submit ---------- */
   const submit = () => {
@@ -141,10 +165,7 @@ export default function MarkAttendanceModal({ visible, onClose, onSave }) {
     };
 
     if (mode === 'date') {
-      const dates = datesCSV
-        .split(',')
-        .map(d => d.trim())
-        .filter(Boolean);
+      const dates = buildDates();
 
       onSave({
         type: 'dates',
@@ -197,38 +218,52 @@ export default function MarkAttendanceModal({ visible, onClose, onSave }) {
 
             {/* EMPLOYEES */}
             <Text style={styles.label}>Employees *</Text>
-            <View style={styles.tags}>
-              {empOptions.map(e => (
-                <Pressable
-                  key={e.value}
-                  onPress={() => toggleEmp(e.value)}
-                  style={[
-                    styles.tag,
-                    empIds.includes(e.value) && styles.tagActive,
-                  ]}
-                >
-                  <Text
+
+            <View style={styles.employeeBox}>
+              <ScrollView style={{ maxHeight: 100 }}>
+                {empOptions.map(e => (
+                  <Pressable
+                    key={e.value}
+                    onPress={() => toggleEmp(e.value)}
                     style={[
-                      styles.tagTxt,
-                      empIds.includes(e.value) && styles.tagTxtActive,
+                      styles.employeeRow,
+                      empIds.includes(e.value) && styles.employeeRowActive,
                     ]}
                   >
-                    {e.label}
-                  </Text>
-                </Pressable>
-              ))}
+                    <Text
+                      style={
+                        empIds.includes(e.value)
+                          ? styles.employeeTxtActive
+                          : styles.employeeTxt
+                      }
+                    >
+                      {e.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
             </View>
 
             {/* DATE MODE */}
             {mode === 'date' ? (
               <>
                 <Text style={styles.label}>Dates</Text>
-                <TextInput
-                  value={datesCSV}
-                  onChangeText={setDatesCSV}
-                  placeholder="YYYY-MM-DD, YYYY-MM-DD"
-                  style={styles.input}
-                />
+
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <Pressable
+                    style={[styles.input, { flex: 1 }]}
+                    onPress={() => setShowDatePicker('start')}
+                  >
+                    <Text>{startDate || 'Start Date'}</Text>
+                  </Pressable>
+
+                  <Pressable
+                    style={[styles.input, { flex: 1 }]}
+                    onPress={() => setShowDatePicker('end')}
+                  >
+                    <Text>{endDate || 'End Date'}</Text>
+                  </Pressable>
+                </View>
 
                 <Pressable
                   onPress={() => setShowDatePicker(true)}
@@ -245,15 +280,28 @@ export default function MarkAttendanceModal({ visible, onClose, onSave }) {
                   style={[styles.input, { flex: 1 }]}
                   value={year}
                   onChangeText={setYear}
-                  placeholder="Year"
+                  placeholder="Year (2026)"
                   keyboardType="numeric"
                 />
-                <TextInput
-                  style={[styles.input, { flex: 1 }]}
+
+                <Select
+                  label="Month"
                   value={month}
-                  onChangeText={setMonth}
-                  placeholder="Month"
-                  keyboardType="numeric"
+                  options={[
+                    { label: 'Jan', value: '1' },
+                    { label: 'Feb', value: '2' },
+                    { label: 'Mar', value: '3' },
+                    { label: 'Apr', value: '4' },
+                    { label: 'May', value: '5' },
+                    { label: 'Jun', value: '6' },
+                    { label: 'Jul', value: '7' },
+                    { label: 'Aug', value: '8' },
+                    { label: 'Sep', value: '9' },
+                    { label: 'Oct', value: '10' },
+                    { label: 'Nov', value: '11' },
+                    { label: 'Dec', value: '12' },
+                  ]}
+                  onChange={setMonth}
                 />
               </View>
             )}
@@ -303,10 +351,13 @@ export default function MarkAttendanceModal({ visible, onClose, onSave }) {
           mode="date"
           value={new Date()}
           onChange={(e, d) => {
-            setShowDatePicker(false);
             if (!d) return;
             const iso = d.toISOString().slice(0, 10);
-            setDatesCSV(p => (p ? `${p}, ${iso}` : iso));
+
+            if (showDatePicker === 'start') setStartDate(iso);
+            if (showDatePicker === 'end') setEndDate(iso);
+
+            setShowDatePicker(false);
           }}
         />
       )}
@@ -343,65 +394,173 @@ export default function MarkAttendanceModal({ visible, onClose, onSave }) {
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    backgroundColor: 'rgba(0,0,0,0.45)',
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   sheet: {
     width: '94%',
+    maxHeight: '85%',
     backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 12,
+    borderRadius: 14,
+    padding: 16,
   },
-  title: { fontSize: 18, fontWeight: '900', marginBottom: 8 },
-  label: { fontSize: 12, fontWeight: '800', marginBottom: 6 },
+
+  title: {
+    fontSize: 18,
+    fontWeight: '900',
+    marginBottom: 12,
+  },
+
+  label: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#374151',
+    marginBottom: 6,
+    marginTop: 8,
+  },
+
   input: {
     borderWidth: 1,
     borderColor: '#e5e7eb',
     borderRadius: 10,
-    padding: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: '#fafafa',
   },
+
+  employeeBox: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 10,
+    padding: 6,
+  },
+
+  employeeRow: {
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+  },
+
+  employeeRowActive: {
+    backgroundColor: '#1d4ed8',
+  },
+
+  employeeTxt: {
+    fontSize: 13,
+  },
+
+  employeeTxtActive: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+
   selectBtn: {
     borderWidth: 1,
+    borderColor: '#e5e7eb',
     borderRadius: 10,
-    padding: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: '#fafafa',
     flexDirection: 'row',
+    alignItems: 'center',
   },
-  value: { flex: 1 },
-  caret: { opacity: 0.6 },
+
+  value: {
+    flex: 1,
+    fontSize: 13,
+  },
+
+  caret: {
+    opacity: 0.6,
+    fontSize: 12,
+  },
+
   menu: {
     position: 'absolute',
     top: 60,
+    left: 0,
+    right: 0,
     backgroundColor: '#fff',
     borderWidth: 1,
+    borderColor: '#e5e7eb',
     borderRadius: 10,
     zIndex: 20,
+    elevation: 5,
   },
-  menuItem: { padding: 10 },
-  tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+
+  menuItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+
+  tags: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+
   tag: {
     borderWidth: 1,
+    borderColor: '#d1d5db',
     borderRadius: 999,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 6,
+    backgroundColor: '#fff',
   },
-  tagActive: { backgroundColor: '#1d4ed8' },
-  tagTxt: { fontSize: 12 },
-  tagTxtActive: { color: '#fff' },
+
+  tagActive: {
+    backgroundColor: '#2563eb',
+    borderColor: '#2563eb',
+  },
+
+  tagTxt: {
+    fontSize: 12,
+    color: '#374151',
+  },
+
+  tagTxtActive: {
+    color: '#fff',
+  },
+
   pill: {
     borderWidth: 1,
+    borderColor: '#d1d5db',
     borderRadius: 999,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 6,
+    backgroundColor: '#fff',
   },
-  pillActive: { backgroundColor: '#111827' },
-  pillTxtActive: { color: '#fff' },
-  rowEnd: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8 },
+
+  pillActive: {
+    backgroundColor: '#111827',
+    borderColor: '#111827',
+  },
+
+  pillTxtActive: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+
+  rowEnd: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 10,
+    marginTop: 12,
+  },
+
   btn: {
     borderWidth: 1,
+    borderColor: '#d1d5db',
     borderRadius: 10,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingVertical: 10,
+    backgroundColor: '#fff',
   },
-  btnPrimary: { backgroundColor: '#1d4ed8' },
+
+  btnPrimary: {
+    backgroundColor: '#2563eb',
+    borderColor: '#2563eb',
+  },
 });
