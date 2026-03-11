@@ -34,3 +34,12 @@ export const INVITE_EMPLOYEE_SUCCESS =
 export const INVITE_EMPLOYEE_FAILURE =
   'admin/hr/employees/INVITE_EMPLOYEE_FAILURE';
 export const INVITE_EMPLOYEE_CLEAR = 'admin/hr/employees/INVITE_EMPLOYEE_CLEAR';
+
+/* ================= EMPLOYEE ATTENDANCE ================= */
+
+export const FETCH_EMP_ATT_CAL_REQ = 'admin/employees/FETCH_EMP_ATT_CAL_REQ';
+
+export const FETCH_EMP_ATT_CAL_SUCCESS =
+  'admin/employees/FETCH_EMP_ATT_CAL_SUCCESS';
+
+export const FETCH_EMP_ATT_CAL_FAIL = 'admin/employees/FETCH_EMP_ATT_CAL_FAIL';

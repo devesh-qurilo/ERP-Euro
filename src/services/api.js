@@ -931,6 +931,17 @@ export const adminAttendanceAPI = {
     api
       .get(`/employee/attendance/${encodeURIComponent(employeeId)}/all-saved`)
       .then(r => r.data),
+
+  calendar: (employeeId, from, to) =>
+    api
+      .get('/employee/attendance/calendar', {
+        params: {
+          employeeId,
+          from,
+          to,
+        },
+      })
+      .then(r => r.data),
 };
 // src/api/adminAwardsAPI.js
 const toFormFile = f =>

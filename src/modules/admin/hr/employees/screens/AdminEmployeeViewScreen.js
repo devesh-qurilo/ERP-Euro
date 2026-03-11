@@ -1,5 +1,5 @@
 // AdminEmployeeViewScreen.js
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,9 +8,20 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import AdminEmployeeProjectsScreen from '../../employees/work/projects/screens/AdminEmployeeProjectsScreen';
+import EmployeeAttendanceCalendar from '../components/EmployeeAttendanceCalendar';
+// import { useDispatch, useSelector } from 'react-redux';
+import {
+  openAttModal,
+  closeAttModal,
+  markAttByDates,
+  markAttByMonth,
+} from '../../attendance/store/actions';
+
+import { selectAttModalOpen } from '../../attendance/store/selectors';
+import MarkAttendanceModal from '../../attendance/components/MarkAttendanceModal';
 
 // If you pass the whole employee object via navigation, great.
 // Otherwise we try to find it from Redux list by id.
@@ -90,8 +101,8 @@ const TinyStatusChart = ({
 };
 
 function ProfileTab({ emp }) {
-  // (Optional) Replace these with real stats when you wire their APIs
   const stats = { tasks: 4, projects: 2, hours: 2 };
+
   const taskBreakdown = {
     completed: 12,
     todo: 5,
@@ -100,70 +111,95 @@ function ProfileTab({ emp }) {
     notStarted: 2,
   };
 
+  const dispatch = useDispatch();
+  const modalOpen = useSelector(selectAttModalOpen);
+
+  const onSave = ({ type, body }) => {
+    if (type === 'dates') dispatch(markAttByDates(body));
+    else dispatch(markAttByMonth(body));
+  };
+
   return (
-    <ScrollView contentContainerStyle={{ padding: 12 }}>
-      {/* Header card */}
-      <View style={styles.card}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <Image
-            source={
-              emp?.profilePictureUrl
-                ? { uri: emp.profilePictureUrl }
-                : require('../../../../../assets/icons/dashicons_awards.png')
-            }
-            style={styles.avatar}
-          />
-          <View style={{ flex: 1 }}>
-            <Text style={styles.empName}>{emp?.name || '—'}</Text>
-            <Text style={styles.empSub}>{emp?.designationName || '—'}</Text>
-            <Text style={styles.empMeta}>
-              Employee ID: {emp?.employeeId || '—'}
-            </Text>
-            <Text style={styles.empMeta}>
-              Reporting To: {emp?.reportingToName || '—'}
-            </Text>
+    <>
+      <ScrollView contentContainerStyle={{ padding: 12 }}>
+        {/* Header card */}
+        <View style={styles.card}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <Image
+              source={
+                emp?.profilePictureUrl
+                  ? { uri: emp.profilePictureUrl }
+                  : require('../../../../../assets/icons/dashicons_awards.png')
+              }
+              style={styles.avatar}
+            />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.empName}>{emp?.name || '—'}</Text>
+              <Text style={styles.empSub}>{emp?.designationName || '—'}</Text>
+              <Text style={styles.empMeta}>
+                Employee ID: {emp?.employeeId || '—'}
+              </Text>
+              <Text style={styles.empMeta}>
+                Reporting To: {emp?.reportingToName || '—'}
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
 
-      {/* About */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>About</Text>
-        <Text style={styles.aboutTxt}>{emp?.about?.trim() || '—'}</Text>
-      </View>
+        {/* About */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>About</Text>
+          <Text style={styles.aboutTxt}>{emp?.about?.trim() || '—'}</Text>
+        </View>
 
-      {/* Quick info */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Details</Text>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-          <View style={styles.colHalf}>
-            <Bullet label="Email" value={emp?.email} />
-            <Bullet label="Phone" value={emp?.mobile} />
-            <Bullet label="Gender" value={emp?.gender} />
-            <Bullet label="Birthday" value={emp?.birthday} />
-          </View>
-          <View style={styles.colHalf}>
-            <Bullet label="Blood Group" value={emp?.bloodGroup} />
-            <Bullet label="Department" value={emp?.departmentName} />
-            <Bullet label="Country" value={emp?.country} />
-            <Bullet label="Office Shift" value={emp?.officeShift} />
+        {/* Quick info */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Details</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+            <View style={styles.colHalf}>
+              <Bullet label="Email" value={emp?.email} />
+              <Bullet label="Phone" value={emp?.mobile} />
+              <Bullet label="Gender" value={emp?.gender} />
+              <Bullet label="Birthday" value={emp?.birthday} />
+            </View>
+
+            <View style={styles.colHalf}>
+              <Bullet label="Blood Group" value={emp?.bloodGroup} />
+              <Bullet label="Department" value={emp?.departmentName} />
+              <Bullet label="Country" value={emp?.country} />
+              <Bullet label="Office Shift" value={emp?.officeShift} />
+            </View>
           </View>
         </View>
-      </View>
 
-      {/* Stats */}
-      <View style={[styles.row, { marginBottom: 12 }]}>
-        <StatCard label="Tasks" value={stats.tasks} />
-        <StatCard label="Projects" value={stats.projects} />
-        <StatCard label="Hours Logged" value={stats.hours} />
-      </View>
+        {/* Stats */}
+        <View style={[styles.row, { marginBottom: 12 }]}>
+          <StatCard label="Tasks" value={stats.tasks} />
+          <StatCard label="Projects" value={stats.projects} />
+          <StatCard label="Hours Logged" value={stats.hours} />
+        </View>
 
-      {/* Task “chart” */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Tasks</Text>
-        <TinyStatusChart {...taskBreakdown} />
-      </View>
-    </ScrollView>
+        {/* Task chart */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Tasks</Text>
+          <TinyStatusChart {...taskBreakdown} />
+        </View>
+
+        {/* Attendance */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Attendance</Text>
+
+          <EmployeeAttendanceCalendar employeeId={emp?.employeeId} />
+        </View>
+      </ScrollView>
+
+      {/* 🔴 Modal must be outside ScrollView */}
+      <MarkAttendanceModal
+        visible={modalOpen}
+        onClose={() => dispatch(closeAttModal())}
+        onSave={onSave}
+      />
+    </>
   );
 }
 
@@ -188,13 +224,27 @@ export default function AdminEmployeeViewScreen({ route }) {
     { key: 'promotion', title: 'Promotion' },
   ]);
 
-  const renderScene = SceneMap({
-    profile: () => <ProfileTab emp={emp} />,
-    work: () => <AdminEmployeeProjectsScreen emp={emp} />,
-    docs: () => <Placeholder label="Documents" />,
-    emergency: () => <Placeholder label="Emergency" />,
-    promotion: () => <Placeholder label="Promotion" />,
-  });
+  const renderScene = ({ route }) => {
+    switch (route.key) {
+      case 'profile':
+        return <ProfileTab emp={emp} />;
+
+      case 'work':
+        return <AdminEmployeeProjectsScreen emp={emp} />;
+
+      case 'docs':
+        return <Placeholder label="Documents" />;
+
+      case 'emergency':
+        return <Placeholder label="Emergency" />;
+
+      case 'promotion':
+        return <Placeholder label="Promotion" />;
+
+      default:
+        return null;
+    }
+  };
 
   return (
     <TabView

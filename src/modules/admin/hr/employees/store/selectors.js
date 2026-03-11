@@ -16,3 +16,12 @@ export const selectEmpModalOpen = s => !!root(s).modalOpen;
 export const selectEmpEditing = s => root(s).editing;
 
 export const selectInviteOpen = s => !!root(s).inviteOpen;
+
+/* ================= EMPLOYEE ATTENDANCE ================= */
+
+export const selectEmpAttendanceCalendar = s =>
+  root(s).attendanceCalendar || [];
+
+export const selectEmpAttendanceLoading = s => !!root(s).attendanceLoading;
+
+export const selectEmpAttendanceError = s => root(s).attendanceError;

@@ -25,6 +25,10 @@ const init = {
   inviteLoading: false,
   inviteError: null,
   inviteSuccess: false,
+
+  attendanceCalendar: [],
+  attendanceLoading: false,
+  attendanceError: null,
 };
 
 export default function adminEmployeesReducer(state = init, action) {
@@ -157,6 +161,27 @@ export default function adminEmployeesReducer(state = init, action) {
         inviteLoading: false,
         inviteError: null,
         inviteSuccess: false,
+      };
+
+    case T.FETCH_EMP_ATT_CAL_REQ:
+      return {
+        ...state,
+        attendanceLoading: true,
+        attendanceError: null,
+      };
+
+    case T.FETCH_EMP_ATT_CAL_SUCCESS:
+      return {
+        ...state,
+        attendanceLoading: false,
+        attendanceCalendar: action.items || [],
+      };
+
+    case T.FETCH_EMP_ATT_CAL_FAIL:
+      return {
+        ...state,
+        attendanceLoading: false,
+        attendanceError: action.error,
       };
 
     default:

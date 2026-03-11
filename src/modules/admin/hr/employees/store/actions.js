@@ -40,3 +40,8 @@ export const inviteEmployee = payload => ({
 });
 
 export const clearInviteState = () => ({ type: T.INVITE_EMPLOYEE_CLEAR });
+
+export const fetchEmployeeAttendanceCalendar = payload => ({
+  type: T.FETCH_EMP_ATT_CAL_REQ,
+  payload, // { employeeId, from, to }
+});

@@ -34,7 +34,7 @@ import AttendanceTable from '../components/AttendanceTable';
 import MemberAttendanceTable from '../components/MemberAttendanceTable';
 import MarkAttendanceModal from '../components/MarkAttendanceModal';
 
-const SegBtn = ({ label, active, onPress }) => (
+export const SegBtn = ({ label, active, onPress }) => (
   <Pressable
     onPress={onPress}
     style={[styles.segBtn, active && styles.segBtnActive]}

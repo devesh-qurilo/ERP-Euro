@@ -1,6 +1,9 @@
 import { all, call, put, select, takeLatest } from 'redux-saga/effects';
 import * as T from './types';
-import { adminEmployeesAPI as API } from '../../../../../services/api';
+import {
+  adminAttendanceAPI,
+  adminEmployeesAPI as API,
+} from '../../../../../services/api';
 import { selectEmpPage, selectEmpSize } from './selectors';
 
 function* fetchList({ opts }) {
@@ -82,6 +85,25 @@ function* inviteWorker({ payload }) {
   }
 }
 
+function* fetchEmployeeAttendanceCalendar({ payload }) {
+  try {
+    const { employeeId, from, to } = payload;
+
+    const data = yield call(adminAttendanceAPI.calendar, employeeId, from, to);
+    // backend object → array convert
+    const items = Object.values(data || {});
+    yield put({
+      type: T.FETCH_EMP_ATT_CAL_SUCCESS,
+      items,
+    });
+  } catch (e) {
+    yield put({
+      type: T.FETCH_EMP_ATT_CAL_FAIL,
+      error: e?.message || 'Attendance fetch failed',
+    });
+  }
+}
+
 export function* adminEmployeesWatcher() {
   yield all([
     takeLatest(T.FETCH_EMP_REQ, fetchList),
@@ -90,5 +112,6 @@ export function* adminEmployeesWatcher() {
     takeLatest(T.DELETE_EMP_REQ, deleteOne),
     takeLatest(T.PATCH_ROLE_REQ, patchRole),
     takeLatest(T.INVITE_EMPLOYEE_REQUEST, inviteWorker),
+    takeLatest(T.FETCH_EMP_ATT_CAL_REQ, fetchEmployeeAttendanceCalendar),
   ]);
 }

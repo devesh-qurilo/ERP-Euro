@@ -24,6 +24,7 @@ import {
 function* fetchList() {
   try {
     const data = yield call(adminAttendanceAPI.listAll);
+    console.log('kumgggggg', data);
     yield put({ type: ATT_FETCH_LIST_SUCCESS, items: data || [] });
   } catch (e) {
     yield put({ type: ATT_FETCH_LIST_ERROR, error: e.message });
