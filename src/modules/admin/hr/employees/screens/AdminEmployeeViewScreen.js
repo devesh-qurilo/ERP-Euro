@@ -201,7 +201,7 @@ function ProfileTab({ emp }) {
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Employee Leaves</Text>
+          {/* <Text style={styles.cardTitle}>Employee Leaves</Text> */}
 
           <EmployeeLeavesSection employeeId={emp?.employeeId} />
         </View>
