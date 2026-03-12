@@ -914,6 +914,21 @@ export const AdminEmployeeDocs = {
     api.delete(`/employee/${empId}/documents/${docId}`).then(r => r.data),
 };
 
+export const AdminPromotionAPI = {
+  // GET promotions by employee
+  byEmployee: employeeId =>
+    api.get(`/admin/api/promotions/employee/${employeeId}`).then(r => r.data),
+
+  // CREATE promotion
+  create: (employeeId, body) =>
+    api
+      .post(`/admin/api/promotions/employee/${employeeId}`, body)
+      .then(r => r.data),
+
+  // DELETE promotion
+  remove: id => api.delete(`/admin/api/promotions/${id}`).then(r => r.data),
+};
+
 // GET /employee/api/holidays
 export const fetchHolidaysAPI = () =>
   api.get('/employee/api/holidays').then(r => r.data);

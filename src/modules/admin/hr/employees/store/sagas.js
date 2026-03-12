@@ -4,6 +4,7 @@ import {
   adminAttendanceAPI,
   AdminEmployeeDocs,
   AdminleavesAPI,
+  AdminPromotionAPI,
   adminEmployeesAPI as API,
 } from '../../../../../services/api';
 import { selectEmpPage, selectEmpSize } from './selectors';
@@ -181,6 +182,43 @@ function* deleteEmployeeDoc({ empId, docId }) {
   yield put(fetchEmployeeDocs(empId));
 }
 
+function* fetchEmployeePromotions({ employeeId }) {
+  try {
+    const data = yield call(AdminPromotionAPI.byEmployee, employeeId);
+
+    yield put({
+      type: T.FETCH_EMP_PROMOTIONS_SUCCESS,
+      items: data || [],
+    });
+  } catch (e) {
+    yield put({
+      type: T.FETCH_EMP_PROMOTIONS_FAIL,
+      error: e.message,
+    });
+  }
+}
+
+function* createEmployeePromotion({ employeeId, body }) {
+  try {
+    yield call(AdminPromotionAPI.create, employeeId, body);
+
+    yield put({ type: T.CREATE_EMP_PROMOTION_SUCCESS });
+
+    yield put(fetchEmployeePromotions(employeeId));
+  } catch (e) {
+    yield put({
+      type: T.CREATE_EMP_PROMOTION_FAIL,
+      error: e.message,
+    });
+  }
+}
+
+function* deleteEmployeePromotion({ id }) {
+  yield call(AdminPromotionAPI.remove, id);
+
+  yield put(fetchEmployeePromotions());
+}
+
 export function* adminEmployeesWatcher() {
   yield all([
     takeLatest(T.FETCH_EMP_REQ, fetchList),
@@ -195,5 +233,8 @@ export function* adminEmployeesWatcher() {
     takeLatest(T.EMP_DOC_UPLOAD, uploadEmployeeDoc),
     takeLatest(T.EMP_DOC_DELETE, deleteEmployeeDoc),
     takeLatest(T.EMP_DOCS_FETCH, fetchEmployeeDocs),
+    takeLatest(T.FETCH_EMP_PROMOTIONS_REQ, fetchEmployeePromotions),
+    takeLatest(T.CREATE_EMP_PROMOTION_REQ, createEmployeePromotion),
+    takeLatest(T.DELETE_EMP_PROMOTION_REQ, deleteEmployeePromotion),
   ]);
 }

@@ -16,6 +16,7 @@ import EmployeeLeaveQuota from '../components/EmployeeLeaveQuota';
 import EmployeeLeavesSection from '../components/EmployeeLeavesSection';
 import EmployeeDocumentsTab from '../components/EmployeeDocumentsTab';
 import AdminEmployeeEmergency from '../components/AdminEmployeeEmergency';
+import EmployeePromotionTab from '../components/EmployeePromotionTab';
 // import { useDispatch, useSelector } from 'react-redux';
 import {
   openAttModal,
@@ -255,7 +256,7 @@ export default function AdminEmployeeViewScreen({ route }) {
         return <AdminEmployeeEmergency employeeId={emp?.employeeId} />;
 
       case 'promotion':
-        return <Placeholder label="Promotion" />;
+        return <EmployeePromotionTab emp={emp?.employeeId} />;
 
       default:
         return null;

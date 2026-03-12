@@ -40,3 +40,9 @@ export const selectEmployeeDocs = s => root(s).employeeDocs || [];
 export const selectEmployeeDocsLoading = s => root(s).employeeDocsLoading;
 
 export const selectEmployeeDocsError = s => root(s).employeeDocsError;
+
+export const selectEmployeePromotions = s => root(s).promotions || [];
+
+export const selectEmployeePromotionsLoading = s => root(s).promotionsLoading;
+
+export const selectPromotionModalOpen = s => root(s).promotionModalOpen;

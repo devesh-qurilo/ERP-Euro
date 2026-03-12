@@ -40,6 +40,12 @@ const init = {
   employeeDocs: [],
   employeeDocsLoading: false,
   employeeDocsError: null,
+
+  promotions: [],
+  promotionsLoading: false,
+  promotionModalOpen: false,
+
+  promotionModalOpen: false,
 };
 
 export default function adminEmployeesReducer(state = init, action) {
@@ -254,6 +260,37 @@ export default function adminEmployeesReducer(state = init, action) {
         ...state,
         employeeDocsLoading: false,
         employeeDocsError: action.error,
+      };
+
+    case T.FETCH_EMP_PROMOTIONS_REQ:
+      return {
+        ...state,
+        promotionsLoading: true,
+      };
+
+    case T.FETCH_EMP_PROMOTIONS_SUCCESS:
+      return {
+        ...state,
+        promotionsLoading: false,
+        promotions: action.items,
+      };
+
+    case T.FETCH_EMP_PROMOTIONS_FAIL:
+      return {
+        ...state,
+        promotionsLoading: false,
+      };
+
+    case T.OPEN_PROMOTION_MODAL:
+      return {
+        ...state,
+        promotionModalOpen: true,
+      };
+
+    case T.CLOSE_PROMOTION_MODAL:
+      return {
+        ...state,
+        promotionModalOpen: false,
       };
 
     default:

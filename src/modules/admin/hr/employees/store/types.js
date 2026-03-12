@@ -70,3 +70,29 @@ export const EMP_DOCS_FAIL = 'admin/hr/docs/EMP_DOCS_FAIL';
 
 export const EMP_DOC_UPLOAD = 'admin/hr/docs/EMP_DOC_UPLOAD';
 export const EMP_DOC_DELETE = 'admin/hr/docs/EMP_DOC_DELETE';
+
+export const FETCH_EMP_PROMOTIONS_REQ =
+  'admin/hr/promotions/FETCH_EMP_PROMOTIONS_REQ';
+
+export const FETCH_EMP_PROMOTIONS_SUCCESS =
+  'admin/hr/promotions/FETCH_EMP_PROMOTIONS_SUCCESS';
+
+export const FETCH_EMP_PROMOTIONS_FAIL =
+  'admin/hr/promotions/FETCH_EMP_PROMOTIONS_FAIL';
+
+export const CREATE_EMP_PROMOTION_REQ =
+  'admin/hr/promotions/CREATE_EMP_PROMOTION_REQ';
+
+export const CREATE_EMP_PROMOTION_SUCCESS =
+  'admin/hr/promotions/CREATE_EMP_PROMOTION_SUCCESS';
+
+export const CREATE_EMP_PROMOTION_FAIL =
+  'admin/hr/promotions/CREATE_EMP_PROMOTION_FAIL';
+
+export const DELETE_EMP_PROMOTION_REQ =
+  'admin/hr/promotions/DELETE_EMP_PROMOTION_REQ';
+
+export const OPEN_PROMOTION_MODAL = 'admin/hr/promotions/OPEN_PROMOTION_MODAL';
+
+export const CLOSE_PROMOTION_MODAL =
+  'admin/hr/promotions/CLOSE_PROMOTION_MODAL';

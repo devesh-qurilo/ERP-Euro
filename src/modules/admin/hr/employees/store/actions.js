@@ -72,3 +72,27 @@ export const deleteEmployeeDoc = (empId, docId) => ({
   empId,
   docId,
 });
+
+export const fetchEmployeePromotions = employeeId => ({
+  type: T.FETCH_EMP_PROMOTIONS_REQ,
+  employeeId,
+});
+
+export const createEmployeePromotion = (employeeId, body) => ({
+  type: T.CREATE_EMP_PROMOTION_REQ,
+  employeeId,
+  body,
+});
+
+export const deleteEmployeePromotion = id => ({
+  type: T.DELETE_EMP_PROMOTION_REQ,
+  id,
+});
+
+export const openPromotionModal = () => ({
+  type: T.OPEN_PROMOTION_MODAL,
+});
+
+export const closePromotionModal = () => ({
+  type: T.CLOSE_PROMOTION_MODAL,
+});
