@@ -43,3 +43,14 @@ export const FETCH_EMP_ATT_CAL_SUCCESS =
   'admin/employees/FETCH_EMP_ATT_CAL_SUCCESS';
 
 export const FETCH_EMP_ATT_CAL_FAIL = 'admin/employees/FETCH_EMP_ATT_CAL_FAIL';
+
+// ======================== leave section ========================
+
+export const FETCH_EMP_LEAVE_QUOTA_REQ =
+  'admin/hr/leaves/FETCH_EMP_LEAVE_QUOTA_REQ';
+
+export const FETCH_EMP_LEAVE_QUOTA_SUCCESS =
+  'admin/hr/leaves/FETCH_EMP_LEAVE_QUOTA_SUCCESS';
+
+export const FETCH_EMP_LEAVE_QUOTA_FAIL =
+  'admin/hr/leaves/FETCH_EMP_LEAVE_QUOTA_FAIL';

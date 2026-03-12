@@ -25,3 +25,6 @@ export const selectEmpAttendanceCalendar = s =>
 export const selectEmpAttendanceLoading = s => !!root(s).attendanceLoading;
 
 export const selectEmpAttendanceError = s => root(s).attendanceError;
+
+export const selectEmpLeaveQuota = s => root(s).quota || [];
+export const selectEmpLeaveQuotaLoading = s => root(s).quotaLoading;

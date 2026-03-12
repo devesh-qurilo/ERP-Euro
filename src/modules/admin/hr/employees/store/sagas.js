@@ -2,6 +2,7 @@ import { all, call, put, select, takeLatest } from 'redux-saga/effects';
 import * as T from './types';
 import {
   adminAttendanceAPI,
+  AdminleavesAPI,
   adminEmployeesAPI as API,
 } from '../../../../../services/api';
 import { selectEmpPage, selectEmpSize } from './selectors';
@@ -104,6 +105,22 @@ function* fetchEmployeeAttendanceCalendar({ payload }) {
   }
 }
 
+function* fetchEmployeeLeaveQuota({ employeeId }) {
+  try {
+    const data = yield call(AdminleavesAPI.employeeQuota, employeeId);
+
+    yield put({
+      type: T.FETCH_EMP_LEAVE_QUOTA_SUCCESS,
+      items: data || [],
+    });
+  } catch (e) {
+    yield put({
+      type: T.FETCH_EMP_LEAVE_QUOTA_FAIL,
+      error: e?.message || 'Leave quota fetch failed',
+    });
+  }
+}
+
 export function* adminEmployeesWatcher() {
   yield all([
     takeLatest(T.FETCH_EMP_REQ, fetchList),
@@ -113,5 +130,6 @@ export function* adminEmployeesWatcher() {
     takeLatest(T.PATCH_ROLE_REQ, patchRole),
     takeLatest(T.INVITE_EMPLOYEE_REQUEST, inviteWorker),
     takeLatest(T.FETCH_EMP_ATT_CAL_REQ, fetchEmployeeAttendanceCalendar),
+    takeLatest(T.FETCH_EMP_LEAVE_QUOTA_REQ, fetchEmployeeLeaveQuota),
   ]);
 }

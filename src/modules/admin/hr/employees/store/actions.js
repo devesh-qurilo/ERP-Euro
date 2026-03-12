@@ -45,3 +45,8 @@ export const fetchEmployeeAttendanceCalendar = payload => ({
   type: T.FETCH_EMP_ATT_CAL_REQ,
   payload, // { employeeId, from, to }
 });
+
+export const fetchEmployeeLeaveQuota = employeeId => ({
+  type: T.FETCH_EMP_LEAVE_QUOTA_REQ,
+  employeeId,
+});

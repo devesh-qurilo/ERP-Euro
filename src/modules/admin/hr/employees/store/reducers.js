@@ -29,6 +29,10 @@ const init = {
   attendanceCalendar: [],
   attendanceLoading: false,
   attendanceError: null,
+
+  quota: [],
+  quotaLoading: false,
+  quotaError: null,
 };
 
 export default function adminEmployeesReducer(state = init, action) {
@@ -182,6 +186,27 @@ export default function adminEmployeesReducer(state = init, action) {
         ...state,
         attendanceLoading: false,
         attendanceError: action.error,
+      };
+
+    case T.FETCH_EMP_LEAVE_QUOTA_REQ:
+      return {
+        ...state,
+        quotaLoading: true,
+        quotaError: null,
+      };
+
+    case T.FETCH_EMP_LEAVE_QUOTA_SUCCESS:
+      return {
+        ...state,
+        quotaLoading: false,
+        quota: action.items,
+      };
+
+    case T.FETCH_EMP_LEAVE_QUOTA_FAIL:
+      return {
+        ...state,
+        quotaLoading: false,
+        quotaError: action.error,
       };
 
     default:

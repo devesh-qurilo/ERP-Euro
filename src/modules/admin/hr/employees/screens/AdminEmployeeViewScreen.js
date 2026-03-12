@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import AdminEmployeeProjectsScreen from '../../employees/work/projects/screens/AdminEmployeeProjectsScreen';
 import EmployeeAttendanceCalendar from '../components/EmployeeAttendanceCalendar';
+import EmployeeLeaveQuota from '../components/EmployeeLeaveQuota';
 // import { useDispatch, useSelector } from 'react-redux';
 import {
   openAttModal,
@@ -190,6 +191,12 @@ function ProfileTab({ emp }) {
           <Text style={styles.cardTitle}>Attendance</Text>
 
           <EmployeeAttendanceCalendar employeeId={emp?.employeeId} />
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Leave Quota</Text>
+
+          <EmployeeLeaveQuota employeeId={emp?.employeeId} />
         </View>
       </ScrollView>
 

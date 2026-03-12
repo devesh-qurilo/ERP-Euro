@@ -896,6 +896,9 @@ export const AdminleavesAPI = {
   // delete a leave
   remove: leaveId =>
     api.delete(`/employee/api/leaves/${leaveId}`).then(r => r.data),
+
+  employeeQuota: employeeId =>
+    api.get(`/employee/leave-quota/employee/${employeeId}`).then(r => r.data),
 };
 
 // GET /employee/api/holidays
