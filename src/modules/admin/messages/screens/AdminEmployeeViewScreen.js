@@ -50,7 +50,7 @@ export default function AdminMessageViewScreen({ navigation }) {
   }, [query]);
 
   useEffect(() => {
-    dispatch(fetchEmployees({ page: 0, size: 500 }));
+    dispatch(fetchEmployees({ page: 0, size: 5000 }));
     dispatch(fetchAdminRooms());
   }, [dispatch]);
 

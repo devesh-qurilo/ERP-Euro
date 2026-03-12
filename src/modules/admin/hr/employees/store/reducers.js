@@ -36,6 +36,10 @@ const init = {
 
   employeeLeaves: [],
   employeeLeavesLoading: false,
+
+  employeeDocs: [],
+  employeeDocsLoading: false,
+  employeeDocsError: null,
 };
 
 export default function adminEmployeesReducer(state = init, action) {
@@ -229,6 +233,27 @@ export default function adminEmployeesReducer(state = init, action) {
       return {
         ...state,
         employeeLeavesLoading: false,
+      };
+
+    case T.EMP_DOCS_FETCH:
+      return {
+        ...state,
+        employeeDocsLoading: true,
+      };
+
+    case T.EMP_DOCS_SUCCESS:
+      console.log('Reducer docs', action.items);
+      return {
+        ...state,
+        employeeDocsLoading: false,
+        employeeDocs: action.items,
+      };
+
+    case T.EMP_DOCS_FAIL:
+      return {
+        ...state,
+        employeeDocsLoading: false,
+        employeeDocsError: action.error,
       };
 
     default:

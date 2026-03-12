@@ -14,6 +14,8 @@ import AdminEmployeeProjectsScreen from '../../employees/work/projects/screens/A
 import EmployeeAttendanceCalendar from '../components/EmployeeAttendanceCalendar';
 import EmployeeLeaveQuota from '../components/EmployeeLeaveQuota';
 import EmployeeLeavesSection from '../components/EmployeeLeavesSection';
+import EmployeeDocumentsTab from '../components/EmployeeDocumentsTab';
+import AdminEmployeeEmergency from '../components/AdminEmployeeEmergency';
 // import { useDispatch, useSelector } from 'react-redux';
 import {
   openAttModal,
@@ -247,10 +249,10 @@ export default function AdminEmployeeViewScreen({ route }) {
         return <AdminEmployeeProjectsScreen emp={emp} />;
 
       case 'docs':
-        return <Placeholder label="Documents" />;
+        return <EmployeeDocumentsTab empId={emp?.employeeId} />;
 
       case 'emergency':
-        return <Placeholder label="Emergency" />;
+        return <AdminEmployeeEmergency employeeId={emp?.employeeId} />;
 
       case 'promotion':
         return <Placeholder label="Promotion" />;

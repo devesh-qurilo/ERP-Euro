@@ -2,6 +2,7 @@ import { all, call, put, select, takeLatest } from 'redux-saga/effects';
 import * as T from './types';
 import {
   adminAttendanceAPI,
+  AdminEmployeeDocs,
   AdminleavesAPI,
   adminEmployeesAPI as API,
 } from '../../../../../services/api';
@@ -136,6 +137,49 @@ function* fetchEmployeeLeaves({ employeeId }) {
     });
   }
 }
+console.log('hhfhfhhfhhfhfh');
+function* fetchEmployeeDocs({ empId }) {
+  console.log('devesh employee document');
+  try {
+    const data = yield call(AdminEmployeeDocs.documents, empId);
+    console.log('devesh employee document', data);
+
+    yield put({
+      type: T.EMP_DOCS_SUCCESS,
+      items: data,
+    });
+  } catch (e) {
+    yield put({
+      type: T.EMP_DOCS_FAIL,
+      error: e.message,
+    });
+  }
+}
+
+function* uploadEmployeeDoc({ empId, file }) {
+  try {
+    const fd = new FormData();
+
+    fd.append('file', {
+      uri: file.uri,
+      name: file.name,
+      type: file.type,
+    });
+
+    yield call(AdminEmployeeDocs.uploadDocument, empId, fd);
+
+    yield put({ type: 'EMP_DOC_UPLOAD_SUCCESS' });
+
+    yield put(fetchEmployeeDocs(empId));
+  } catch (e) {
+    yield put({ type: 'EMP_DOC_UPLOAD_FAIL' });
+  }
+}
+
+function* deleteEmployeeDoc({ empId, docId }) {
+  yield call(AdminEmployeeDocs.deleteDocument, empId, docId);
+  yield put(fetchEmployeeDocs(empId));
+}
 
 export function* adminEmployeesWatcher() {
   yield all([
@@ -148,5 +192,8 @@ export function* adminEmployeesWatcher() {
     takeLatest(T.FETCH_EMP_ATT_CAL_REQ, fetchEmployeeAttendanceCalendar),
     takeLatest(T.FETCH_EMP_LEAVE_QUOTA_REQ, fetchEmployeeLeaveQuota),
     takeLatest(T.FETCH_EMP_LEAVES_REQ, fetchEmployeeLeaves),
+    takeLatest(T.EMP_DOC_UPLOAD, uploadEmployeeDoc),
+    takeLatest(T.EMP_DOC_DELETE, deleteEmployeeDoc),
+    takeLatest(T.EMP_DOCS_FETCH, fetchEmployeeDocs),
   ]);
 }

@@ -61,3 +61,12 @@ export const FETCH_EMP_LEAVES_SUCCESS =
   'admin/hr/leaves/FETCH_EMP_LEAVES_SUCCESS';
 
 export const FETCH_EMP_LEAVES_FAIL = 'admin/hr/leaves/FETCH_EMP_LEAVES_FAIL';
+
+export const EMP_DOCS_FETCH = 'admin/hr/docs/EMP_DOCS_FETCH';
+
+export const EMP_DOCS_SUCCESS = 'admin/hr/docs/EMP_DOCS_SUCCESS';
+
+export const EMP_DOCS_FAIL = 'admin/hr/docs/EMP_DOCS_FAIL';
+
+export const EMP_DOC_UPLOAD = 'admin/hr/docs/EMP_DOC_UPLOAD';
+export const EMP_DOC_DELETE = 'admin/hr/docs/EMP_DOC_DELETE';

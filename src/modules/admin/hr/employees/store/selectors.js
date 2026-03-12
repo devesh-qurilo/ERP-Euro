@@ -32,3 +32,11 @@ export const selectEmpLeaveQuotaLoading = s => root(s).quotaLoading;
 export const selectEmployeeLeaves = s => root(s).employeeLeaves || [];
 
 export const selectEmployeeLeavesLoading = s => root(s).employeeLeavesLoading;
+
+// ============ employee document============
+
+export const selectEmployeeDocs = s => root(s).employeeDocs || [];
+
+export const selectEmployeeDocsLoading = s => root(s).employeeDocsLoading;
+
+export const selectEmployeeDocsError = s => root(s).employeeDocsError;

@@ -55,3 +55,20 @@ export const fetchEmployeeLeaves = employeeId => ({
   type: T.FETCH_EMP_LEAVES_REQ,
   employeeId,
 });
+
+export const fetchEmployeeDocs = empId => ({
+  type: T.EMP_DOCS_FETCH,
+  empId,
+});
+
+export const uploadEmployeeDoc = (empId, file) => ({
+  type: T.EMP_DOC_UPLOAD,
+  empId,
+  file,
+});
+
+export const deleteEmployeeDoc = (empId, docId) => ({
+  type: T.EMP_DOC_DELETE,
+  empId,
+  docId,
+});

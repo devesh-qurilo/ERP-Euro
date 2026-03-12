@@ -264,7 +264,7 @@ export const leadsAPI = {
 
 // src/services/api.js
 export const projectsAPI = {
-  getProjects: (page = 0, size = 50, params = {}) =>
+  getProjects: (page = 0, size = 50000, params = {}) =>
     api
       .get('/projects', { params: { page, size, ...params } })
       .then(r => r.data),
@@ -369,7 +369,7 @@ export const allProjectsAPI = {
 
 // --- employees (paged) ---
 export const employeesAPI = {
-  listAll: (page = 0, size = 50) =>
+  listAll: (page = 0, size = 50000) =>
     api
       .get(`/employee/all`, { params: { page, size } })
       .then(r => r.data?.content ?? []),
@@ -693,7 +693,7 @@ export const adminDepartmentsAPI = {
 
 // NOTE: list uses server paging ?page=&size=
 export const adminEmployeesAPI = {
-  list: ({ page = 0, size = 20 } = {}) =>
+  list: ({ page = 0, size = 200000 } = {}) =>
     api.get('/employee', { params: { page, size } }).then(r => r.data),
 
   me: () => api.get('/employee/me').then(r => r.data),
@@ -902,6 +902,16 @@ export const AdminleavesAPI = {
 
   byEmployee: employeeId =>
     api.get(`/employee/api/leaves/employee/${employeeId}`).then(r => r.data),
+};
+
+export const AdminEmployeeDocs = {
+  documents: empId => api.get(`/employee/${empId}/documents`).then(r => r.data),
+
+  uploadDocument: (empId, formData) =>
+    api.post(`/employee/${empId}/documents`, formData).then(r => r.data),
+
+  deleteDocument: (empId, docId) =>
+    api.delete(`/employee/${empId}/documents/${docId}`).then(r => r.data),
 };
 
 // GET /employee/api/holidays
