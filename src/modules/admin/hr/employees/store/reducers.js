@@ -33,6 +33,9 @@ const init = {
   quota: [],
   quotaLoading: false,
   quotaError: null,
+
+  employeeLeaves: [],
+  employeeLeavesLoading: false,
 };
 
 export default function adminEmployeesReducer(state = init, action) {
@@ -207,6 +210,25 @@ export default function adminEmployeesReducer(state = init, action) {
         ...state,
         quotaLoading: false,
         quotaError: action.error,
+      };
+
+    case T.FETCH_EMP_LEAVES_REQ:
+      return {
+        ...state,
+        employeeLeavesLoading: true,
+      };
+
+    case T.FETCH_EMP_LEAVES_SUCCESS:
+      return {
+        ...state,
+        employeeLeavesLoading: false,
+        employeeLeaves: action.items,
+      };
+
+    case T.FETCH_EMP_LEAVES_FAIL:
+      return {
+        ...state,
+        employeeLeavesLoading: false,
       };
 
     default:

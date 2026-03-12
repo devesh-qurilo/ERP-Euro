@@ -28,3 +28,7 @@ export const selectEmpAttendanceError = s => root(s).attendanceError;
 
 export const selectEmpLeaveQuota = s => root(s).quota || [];
 export const selectEmpLeaveQuotaLoading = s => root(s).quotaLoading;
+
+export const selectEmployeeLeaves = s => root(s).employeeLeaves || [];
+
+export const selectEmployeeLeavesLoading = s => root(s).employeeLeavesLoading;

@@ -54,3 +54,10 @@ export const FETCH_EMP_LEAVE_QUOTA_SUCCESS =
 
 export const FETCH_EMP_LEAVE_QUOTA_FAIL =
   'admin/hr/leaves/FETCH_EMP_LEAVE_QUOTA_FAIL';
+
+export const FETCH_EMP_LEAVES_REQ = 'admin/hr/leaves/FETCH_EMP_LEAVES_REQ';
+
+export const FETCH_EMP_LEAVES_SUCCESS =
+  'admin/hr/leaves/FETCH_EMP_LEAVES_SUCCESS';
+
+export const FETCH_EMP_LEAVES_FAIL = 'admin/hr/leaves/FETCH_EMP_LEAVES_FAIL';

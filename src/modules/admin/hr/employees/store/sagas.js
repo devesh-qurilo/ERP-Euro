@@ -121,6 +121,22 @@ function* fetchEmployeeLeaveQuota({ employeeId }) {
   }
 }
 
+function* fetchEmployeeLeaves({ employeeId }) {
+  try {
+    const data = yield call(AdminleavesAPI.byEmployee, employeeId);
+
+    yield put({
+      type: T.FETCH_EMP_LEAVES_SUCCESS,
+      items: data || [],
+    });
+  } catch (e) {
+    yield put({
+      type: T.FETCH_EMP_LEAVES_FAIL,
+      error: e?.message || 'Employee leaves fetch failed',
+    });
+  }
+}
+
 export function* adminEmployeesWatcher() {
   yield all([
     takeLatest(T.FETCH_EMP_REQ, fetchList),
@@ -131,5 +147,6 @@ export function* adminEmployeesWatcher() {
     takeLatest(T.INVITE_EMPLOYEE_REQUEST, inviteWorker),
     takeLatest(T.FETCH_EMP_ATT_CAL_REQ, fetchEmployeeAttendanceCalendar),
     takeLatest(T.FETCH_EMP_LEAVE_QUOTA_REQ, fetchEmployeeLeaveQuota),
+    takeLatest(T.FETCH_EMP_LEAVES_REQ, fetchEmployeeLeaves),
   ]);
 }

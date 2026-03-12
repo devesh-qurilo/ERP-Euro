@@ -899,6 +899,9 @@ export const AdminleavesAPI = {
 
   employeeQuota: employeeId =>
     api.get(`/employee/leave-quota/employee/${employeeId}`).then(r => r.data),
+
+  byEmployee: employeeId =>
+    api.get(`/employee/api/leaves/employee/${employeeId}`).then(r => r.data),
 };
 
 // GET /employee/api/holidays

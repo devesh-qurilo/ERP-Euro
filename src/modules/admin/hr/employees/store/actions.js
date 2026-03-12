@@ -50,3 +50,8 @@ export const fetchEmployeeLeaveQuota = employeeId => ({
   type: T.FETCH_EMP_LEAVE_QUOTA_REQ,
   employeeId,
 });
+
+export const fetchEmployeeLeaves = employeeId => ({
+  type: T.FETCH_EMP_LEAVES_REQ,
+  employeeId,
+});
