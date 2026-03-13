@@ -1,0 +1,95 @@
+{
+  "app": {
+    "name": "SKAVO",
+    "welcome": "WELCOME BACK!",
+    "subtitle": "Sign in to continue"
+  },
+  "login": {
+    "title": "Log In",
+    "employeeId": {
+      "label": "Employee ID",
+      "placeholder": "Enter your employee ID",
+      "required": "Employee ID is required"
+    },
+    "password": {
+      "label": "Password",
+      "placeholder": "Enter your password",
+      "required": "Password is required",
+      "minLength": "Password must be at least 6 characters"
+    },
+    "forgotPassword": "Forgot password?",
+    "login": "Log In",
+    "signingIn": "Signing in...",
+    "footer": "By logging in, you agree to our Terms & Conditions"
+  },
+  "common": {
+    "loading": "Checking authentication...",
+    "loginFailed": "Login Failed",
+    "cancel": "Cancel",
+    "logoutConfirm": "Are you sure you want to logout?"
+  },
+  "nav": {
+    "admin": {
+      "dashboard": "Dashboard",
+      "leads": "Leads",
+      "clients": "Clients",
+      "hr": "HR",
+      "work": "Work",
+      "finance": "Finance",
+      "messages": "Messages",
+      "settings": "Settings",
+      "logout": "Logout"
+    }
+  },
+  "admin": {
+    "leads": {
+      "contacts": {
+        "title": "Lead Contacts",
+        "searchPlaceholder": "Search name, email, company...",
+        "noData": "No leads found",
+        "deleteConfirm": "Delete {{name}}?",
+        "actions": "Actions",
+        "view": "View",
+        "edit": "Edit",
+        "delete": "Delete",
+        "addToClient": "Add to Client",
+        "createButton": "+ Add Lead",
+        "adding": "Adding…",
+        "modal": {
+          "title": "Add Lead",
+          "basicDetails": "Basic Details",
+          "companyDetails": "Company Details",
+          "dealInfo": "Deal Information",
+          "leadName": "Lead Name",
+          "email": "Email",
+          "mobile": "Mobile",
+          "clientCategory": "Client Category"
+        }
+      },
+      "filters": {
+        "search": "Search",
+        "source": "Source",
+        "owner": "Owner",
+        "status": "Status",
+        "start": "Start",
+        "end": "End",
+        "calendarFrom": "Select Calendar From",
+        "calendarTo": "Select Calendar To",
+        "clear": "Clear",
+        "all": "All"
+      },
+      "deals": "Deals"
+    }
+  },
+  "employee": {
+    "messages": {
+      "roomsTitle": "Messages",
+      "roomDetails": "Chat Details",
+      "noMessagesYet": "No messages yet",
+      "typeMessage": "Type a message…",
+      "loading": "Loading…",
+      "sayHello": "Say hello 👋",
+      "errorLoadChats": "Failed to load chats: {{error}}"
+    }
+  }
+}

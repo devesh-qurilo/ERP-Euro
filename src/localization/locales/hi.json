@@ -1,0 +1,95 @@
+{
+  "app": {
+    "name": "स्कावो",
+    "welcome": "स्वागत है!",
+    "subtitle": "जारी रखने के लिए साइन इन करें"
+  },
+  "login": {
+    "title": "लॉग इन",
+    "employeeId": {
+      "label": "कर्मचारी आईडी",
+      "placeholder": "अपनी कर्मचारी आईडी दर्ज करें",
+      "required": "कर्मचारी आईडी आवश्यक है"
+    },
+    "password": {
+      "label": "पासवर्ड",
+      "placeholder": "अपना पासवर्ड दर्ज करें",
+      "required": "पासवर्ड आवश्यक है",
+      "minLength": "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए"
+    },
+    "forgotPassword": "पासवर्ड भूल गए?",
+    "login": "लॉग इन",
+    "signingIn": "साइन इन हो रहा है...",
+    "footer": "लॉग इन करके, आप हमारे नियम और शर्तों से सहमत होते हैं"
+  },
+  "common": {
+    "loading": "प्रमाणीकरण जांचा जा रहा है...",
+    "loginFailed": "लॉगिन विफल",
+    "cancel": "रद्द करें",
+    "logoutConfirm": "क्या आप वाकई लॉगआउट करना चाहते हैं?"
+  },
+  "nav": {
+    "admin": {
+      "dashboard": "डैशबोर्ड",
+      "leads": "लीड्स",
+      "clients": "क्लाइंट्स",
+      "hr": "एचआर",
+      "work": "कार्य",
+      "finance": "वित्त",
+      "messages": "संदेश",
+      "settings": "सेटिंग्स",
+      "logout": "लॉग आउट"
+    }
+  },
+  "admin": {
+    "leads": {
+      "contacts": {
+        "title": "लीड संपर्क",
+        "searchPlaceholder": "नाम, ईमेल, कंपनी खोजें...",
+        "noData": "कोई लीड नहीं मिली",
+        "deleteConfirm": "{{name}} को हटाएं?",
+        "actions": "कार्रवाई",
+        "view": "देखें",
+        "edit": "संपादित करें",
+        "delete": "हटाएँ",
+        "addToClient": "क्लाइंट में बदलें",
+        "createButton": "+ नई लीड",
+        "adding": "जोड़ रहे हैं…",
+        "modal": {
+          "title": "लीड जोड़ें",
+          "basicDetails": "बुनियादी विवरण",
+          "companyDetails": "कंपनी विवरण",
+          "dealInfo": "सौदे की जानकारी",
+          "leadName": "लीड का नाम",
+          "email": "ईमेल",
+          "mobile": "मोबाइल",
+          "clientCategory": "क्लाइंट श्रेणी"
+        }
+      },
+      "filters": {
+        "search": "खोजें",
+        "source": "स्रोत",
+        "owner": "मालिक",
+        "status": "स्थिति",
+        "start": "आरंभ",
+        "end": "समाप्त",
+        "calendarFrom": "कैलेंडर से चुनें",
+        "calendarTo": "कैलेंडर तक चुनें",
+        "clear": "रीसेट करें",
+        "all": "सभी"
+      },
+      "deals": "सौदے"
+    }
+  },
+  "employee": {
+    "messages": {
+      "roomsTitle": "संदेश",
+      "roomDetails": "चैट विवरण",
+      "noMessagesYet": "कोई संदेश नहीं मिला",
+      "typeMessage": "संदेश टाइप करें…",
+      "loading": "लोड हो रहा है…",
+      "sayHello": "नमस्ते कहें 👋",
+      "errorLoadChats": "चैट लोड करने में विफल: {{error}}"
+    }
+  }
+}

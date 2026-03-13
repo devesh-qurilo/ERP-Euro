@@ -13,6 +13,7 @@ import {
   Animated,
   ActivityIndicator,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginRequest, resetAuthError, loginSuccess } from '../store/actions';
 import {
@@ -24,6 +25,7 @@ import * as tokenService from '../../../services/tokenService';
 import { authAPI } from '../../../services/api';
 
 const LoginScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [employeeId, setEmployeeId] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
@@ -74,10 +76,10 @@ const LoginScreen = ({ navigation }) => {
 
   useEffect(() => {
     if (error) {
-      Alert.alert('Login Failed', error);
+      Alert.alert(t('common:loginFailed'), error);
       dispatch(resetAuthError());
     }
-  }, [error, dispatch]);
+  }, [error, dispatch, t]);
 
   const checkExistingAuth = async () => {
     try {
@@ -139,10 +141,11 @@ const LoginScreen = ({ navigation }) => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!employeeId.trim()) newErrors.employeeId = 'Employee ID is required';
-    if (!password) newErrors.password = 'Password is required';
+    if (!employeeId.trim())
+      newErrors.employeeId = t('login.employeeId.required');
+    if (!password) newErrors.password = t('login.password.required');
     else if (password.length < 6)
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = t('login.password.minLength');
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -154,19 +157,17 @@ const LoginScreen = ({ navigation }) => {
   };
 
   const handleForgotPassword = () => {
-    Alert.alert(
-      'Forgot Password',
-      'Please contact your administrator to reset your password.',
-      [{ text: 'OK' }],
-    );
+    Alert.alert(t('login.forgotPassword'), t('login.forgotPassword'), [
+      { text: 'OK' },
+    ]);
   };
 
   if (isCheckingAuth) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.appName}>SKAVO</Text>
+        <Text style={styles.appName}>{t('app.name')}</Text>
         <ActivityIndicator size="large" color="#3498db" style={styles.loader} />
-        <Text style={styles.loadingText}>Checking authentication...</Text>
+        <Text style={styles.loadingText}>{t('common.loading')}</Text>
       </View>
     );
   }
@@ -187,11 +188,11 @@ const LoginScreen = ({ navigation }) => {
           ]}
         >
           <View style={styles.logoContainer}>
-            <Text style={styles.appName}>SKAVO</Text>
+            <Text style={styles.appName}>{t('app.name')}</Text>
             <View style={styles.logoBorder} />
           </View>
-          <Text style={styles.welcomeText}>WELCOME BACK!</Text>
-          <Text style={styles.subtitleText}>Sign in to continue</Text>
+          <Text style={styles.welcomeText}>{t('app.welcome')}</Text>
+          <Text style={styles.subtitleText}>{t('app.subtitle')}</Text>
         </Animated.View>
 
         <Animated.View
@@ -200,14 +201,14 @@ const LoginScreen = ({ navigation }) => {
             { opacity: fadeAnim, transform: [{ scale: scaleAnim }] },
           ]}
         >
-          <Text style={styles.loginTitle}>Log In</Text>
+          <Text style={styles.loginTitle}>{t('login.title')}</Text>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Employee ID</Text>
+            <Text style={styles.label}>{t('login.employeeId.label')}</Text>
             <View style={styles.inputWrapper}>
               <TextInput
                 style={[styles.input, errors.employeeId && styles.inputError]}
-                placeholder="Enter your employee ID"
+                placeholder={t('login.employeeId.placeholder')}
                 placeholderTextColor="#95a5a6"
                 value={employeeId}
                 onChangeText={text => {
@@ -228,11 +229,11 @@ const LoginScreen = ({ navigation }) => {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>{t('login.password.label')}</Text>
             <View style={styles.inputWrapper}>
               <TextInput
                 style={[styles.input, errors.password && styles.inputError]}
-                placeholder="Enter your password"
+                placeholder={t('login.password.placeholder')}
                 placeholderTextColor="#95a5a6"
                 value={password}
                 onChangeText={text => {
@@ -257,7 +258,9 @@ const LoginScreen = ({ navigation }) => {
             disabled={loading}
             activeOpacity={0.7}
           >
-            <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+            <Text style={styles.forgotPasswordText}>
+              {t('login.forgotPassword')}
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -269,17 +272,17 @@ const LoginScreen = ({ navigation }) => {
             {loading ? (
               <View style={styles.buttonContent}>
                 <ActivityIndicator color="#fff" size="small" />
-                <Text style={styles.loginButtonText}>Signing in...</Text>
+                <Text style={styles.loginButtonText}>
+                  {t('login.signingIn')}
+                </Text>
               </View>
             ) : (
-              <Text style={styles.loginButtonText}>Log In</Text>
+              <Text style={styles.loginButtonText}>{t('login.login')}</Text>
             )}
           </TouchableOpacity>
 
           <View style={styles.footer}>
-            <Text style={styles.footerText}>
-              By logging in, you agree to our Terms & Conditions
-            </Text>
+            <Text style={styles.footerText}>{t('login.footer')}</Text>
           </View>
         </Animated.View>
       </ScrollView>

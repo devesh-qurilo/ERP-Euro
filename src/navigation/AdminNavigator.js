@@ -14,6 +14,7 @@ import {
   Alert,
   AccessibilityInfo,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -23,6 +24,7 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Feather';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 // Screens (keep your existing imports)
 import AdminLeadContactsScreen from '../modules/admin/leads/screens/AdminLeadContactsScreen';
@@ -373,6 +375,7 @@ function useActiveHelpers(drawerState) {
 function AdminDrawerContent(props) {
   const { navigation, state } = props;
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const { activeTop, isActiveStack } = useActiveHelpers(state);
 
   const [leadsOpen, setLeadsOpen] = React.useState(false);
@@ -396,10 +399,14 @@ function AdminDrawerContent(props) {
   // memoized children lists
   const leadChildren = useMemo(
     () => [
-      { label: 'Lead Contacts', icon: ICONS.leads, child: 'LeadsContacts' },
-      { label: 'Deals', icon: ICONS.leads, child: 'AdminDeal' },
+      {
+        label: t('admin.leads.contacts.title'),
+        icon: ICONS.leads,
+        child: 'LeadsContacts',
+      },
+      { label: t('admin.leads.deals'), icon: ICONS.leads, child: 'AdminDeal' },
     ],
-    [],
+    [t],
   );
 
   const hrChildren = useMemo(
@@ -487,38 +494,42 @@ function AdminDrawerContent(props) {
   );
 
   const handleLogout = useCallback(() => {
-    Alert.alert('Logout', 'Are you sure you want to logout?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Logout',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await Promise.all([
-              AsyncStorage.removeItem('authToken'),
-              AsyncStorage.removeItem('refreshToken'),
-              AsyncStorage.removeItem('userData'),
-            ]);
-          } catch (err) {
-            console.warn('Error clearing storage during logout', err);
-          }
+    Alert.alert(
+      t('nav.admin.logout'),
+      t('logoutConfirm') || 'Are you sure you want to logout?',
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('nav.admin.logout'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await Promise.all([
+                AsyncStorage.removeItem('authToken'),
+                AsyncStorage.removeItem('refreshToken'),
+                AsyncStorage.removeItem('userData'),
+              ]);
+            } catch (err) {
+              console.warn('Error clearing storage during logout', err);
+            }
 
-          try {
-            dispatch(logoutAction());
-          } catch (e) {
-            console.warn('Dispatch logout failed', e);
-          }
+            try {
+              dispatch(logoutAction());
+            } catch (e) {
+              console.warn('Dispatch logout failed', e);
+            }
 
-          navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+            navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
 
-          try {
-            AccessibilityInfo.announceForAccessibility(
-              'Logged out. Redirecting to login.',
-            );
-          } catch (_) {}
+            try {
+              AccessibilityInfo.announceForAccessibility(
+                'Logged out. Redirecting to login.',
+              );
+            } catch (_) {}
+          },
         },
-      },
-    ]);
+      ],
+    );
   }, [dispatch, navigation]);
 
   const HeaderSection = useMemo(
@@ -560,18 +571,22 @@ function AdminDrawerContent(props) {
           {...props}
           contentContainerStyle={styles.scrollContent}
         >
+          <LanguageSwitcher
+            style={{ marginHorizontal: 16, marginVertical: 12 }}
+          />
+
           {HeaderSection}
 
           <View style={styles.navigationSection}>
             <GlassDrawerItem
-              label="Dashboard"
+              label={t('nav.admin.dashboard')}
               iconName={ICONS.dashboard}
               onPress={() => navigation.navigate('AdminDashboard')}
               isActive={activeTop === 'AdminDashboard'}
             />
 
             <GroupHeader
-              label="Leads"
+              label={t('nav.admin.leads')}
               iconName={ICONS.leads}
               open={leadsOpen}
               onToggle={setLeadsOpen}
@@ -597,14 +612,14 @@ function AdminDrawerContent(props) {
             )}
 
             <GlassDrawerItem
-              label="Clients"
+              label={t('nav.admin.clients')}
               iconName={ICONS.clients}
               onPress={() => navigation.navigate('Clients')}
               isActive={activeTop === 'Clients'}
             />
 
             <GroupHeader
-              label="HR"
+              label={t('nav.admin.hr')}
               iconName={ICONS.hr}
               open={hrOpen}
               onToggle={setHrOpen}
@@ -629,7 +644,7 @@ function AdminDrawerContent(props) {
             )}
 
             <GroupHeader
-              label="Work"
+              label={t('nav.admin.work')}
               iconName={ICONS.work}
               open={workOpen}
               onToggle={setWorkOpen}
@@ -654,7 +669,7 @@ function AdminDrawerContent(props) {
             )}
 
             <GroupHeader
-              label="Finance"
+              label={t('nav.admin.finance')}
               iconName={ICONS.finance}
               open={financeOpen}
               onToggle={setFinanceOpen}
@@ -679,14 +694,14 @@ function AdminDrawerContent(props) {
             )}
 
             <GlassDrawerItem
-              label="Messages"
+              label={t('nav.admin.messages')}
               iconName={ICONS.messages}
               onPress={() => navigation.navigate('Messages')}
               isActive={activeTop === 'Messages'}
             />
 
             <GroupHeader
-              label="Settings"
+              label={t('nav.admin.settings')}
               iconName={ICONS.settings}
               open={settingsOpen}
               onToggle={setSettingsOpen}
@@ -710,14 +725,16 @@ function AdminDrawerContent(props) {
               </View>
             )}
           </View>
-
+          <LanguageSwitcher
+            style={{ marginHorizontal: 16, marginVertical: 12 }}
+          />
           <View style={{ marginTop: 16 }} />
           <GlassDrawerItem
-            label="Logout"
+            label={t('nav.admin.logout')}
             iconName={ICONS.logout}
             onPress={handleLogout}
             isActive={false}
-            accessibilityLabel="Logout button"
+            accessibilityLabel={t('nav.admin.logout') + ' button'}
           />
         </DrawerContentScrollView>
       </LinearGradient>

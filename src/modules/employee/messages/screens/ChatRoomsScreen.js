@@ -9,6 +9,7 @@ import {
   Pressable,
   ActivityIndicator,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 
@@ -24,6 +25,7 @@ import {
 } from '../store/actions';
 
 const RoomCard = ({ item, onPress }) => {
+  const { t } = useTranslation();
   // Derive “other” participant & avatar
   const you = item?.participant2Details?.employeeId; // optional, depends on backend
   const p =
@@ -48,7 +50,7 @@ const RoomCard = ({ item, onPress }) => {
           {name}
         </Text>
         <Text style={styles.lastMsg} numberOfLines={1}>
-          {item?.lastMessage?.content || 'No messages yet devesh'}
+          {item?.lastMessage?.content || t('employee.messages.noMessagesYet')}
         </Text>
       </View>
       {!!item?.unreadCount && (
@@ -61,6 +63,7 @@ const RoomCard = ({ item, onPress }) => {
 };
 
 export default function ChatRoomsScreen() {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
@@ -74,12 +77,14 @@ export default function ChatRoomsScreen() {
 
   return (
     <View style={styles.wrap}>
-      {/* <Text style={styles.h1}>Messages</Text> */}
+      <Text style={styles.h1}>{t('employee.messages.roomsTitle')}</Text>
 
       {loading && <ActivityIndicator style={{ marginTop: 12 }} />}
 
       {!!error && (
-        <Text style={styles.err}>Failed to load chats: {String(error)}</Text>
+        <Text style={styles.err}>
+          {t('employee.messages.errorLoadChats', { error: String(error) })}
+        </Text>
       )}
 
       <FlatList

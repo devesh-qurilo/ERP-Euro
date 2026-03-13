@@ -17,6 +17,8 @@ import {
   DrawerContentScrollView,
 } from '@react-navigation/drawer';
 import LinearGradient from 'react-native-linear-gradient';
+import LanguageSwitcher from '../components/LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 // Employee modules
 import EmployeeDashboardScreen from '../modules/employee/dashboard/screens/EmployeeDashboardScreen';
@@ -135,6 +137,7 @@ function GlassDrawerItem({
 
 // ---------- Custom Drawer Content ----------
 function EmployeeDrawerContent(props) {
+  const { t } = useTranslation();
   const { navigation, state } = props;
 
   // collapsible states
@@ -190,6 +193,10 @@ function EmployeeDrawerContent(props) {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
+          <LanguageSwitcher
+            style={{ marginHorizontal: 16, marginVertical: 12 }}
+          />
+
           {/* Header */}
           <View style={styles.headerSection}>
             <LinearGradient
@@ -387,7 +394,7 @@ function EmployeeDrawerContent(props) {
 
             {/* Bottom items */}
             <GlassDrawerItem
-              label="Messages"
+              label={t('nav.admin.messages')}
               icon={icons.messages}
               onPress={() => go('Messages')}
               isActive={activeRoute === 'Messages'}
@@ -522,7 +529,7 @@ export default function EmployeeNavigator() {
       <Drawer.Screen
         name="Messages"
         component={EmployeeMessagesScreen}
-        options={{ title: 'Messages' }}
+        options={{ title: t('nav.admin.messages') }}
       />
       <Drawer.Screen
         name="Notifications"

@@ -10,6 +10,7 @@ import {
   ScrollView,
   Switch,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import {
   clientCategoryAPI,
   dealCategoryAPI,
@@ -72,6 +73,7 @@ export default function AddLeadModal({
   empOptions = [],
   initialData = null,
 }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     // Lead basic
     name: '',
@@ -276,44 +278,48 @@ export default function AddLeadModal({
     >
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
-          <Text style={styles.title}>Add Lead</Text>
+          <Text style={styles.title}>
+            {t('admin.leads.contacts.modal.title')}
+          </Text>
 
           <ScrollView
             contentContainerStyle={{ paddingBottom: 160 }}
             showsVerticalScrollIndicator={false}
           >
             {/* BASIC DETAILS */}
-            <Text style={styles.sectionTitle}>Basic Details</Text>
-            <Field label="Lead Name" required>
+            <Text style={styles.sectionTitle}>
+              {t('admin.leads.contacts.modal.basicDetails')}
+            </Text>
+            <Field label={t('admin.leads.contacts.modal.leadName')} required>
               <TextInput
                 style={styles.input}
                 value={form.name}
                 onChangeText={v => set('name', v)}
-                placeholder="Enter lead name"
+                placeholder={t('admin.leads.contacts.modal.leadName')}
               />
             </Field>
 
             <View style={styles.row2}>
               <View style={styles.half}>
-                <Field label="Email">
+                <Field label={t('admin.leads.contacts.modal.email')}>
                   <TextInput
                     style={styles.input}
                     value={form.email}
                     onChangeText={v => set('email', v)}
                     autoCapitalize="none"
                     keyboardType="email-address"
-                    placeholder="name@example.com"
+                    placeholder={t('admin.leads.contacts.modal.email')}
                   />
                 </Field>
               </View>
               <View style={styles.half}>
-                <Field label="Mobile">
+                <Field label={t('admin.leads.contacts.modal.mobile')}>
                   <TextInput
                     style={styles.input}
                     value={form.mobileNumber}
                     onChangeText={v => set('mobileNumber', v)}
                     keyboardType="phone-pad"
-                    placeholder="+370 98xxxxxx"
+                    placeholder={t('admin.leads.contacts.modal.mobile')}
                   />
                 </Field>
               </View>
@@ -321,7 +327,7 @@ export default function AddLeadModal({
 
             {/* <Field label="Client Category"> */}
             <OptionSelectWithAdd
-              label="Client Category"
+              label={t('admin.leads.contacts.modal.clientCategory')}
               value={form.clientCategory}
               options={categories}
               onChange={opt => set('clientCategory', opt.categoryName)}

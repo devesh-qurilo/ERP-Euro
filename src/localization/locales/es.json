@@ -1,0 +1,95 @@
+{
+  "app": {
+    "name": "SKAVO",
+    "welcome": "¡BIENVENIDO!",
+    "subtitle": "Inicia sesión para continuar"
+  },
+  "login": {
+    "title": "Iniciar Sesión",
+    "employeeId": {
+      "label": "ID de Empleado",
+      "placeholder": "Ingresa tu ID de empleado",
+      "required": "ID de empleado requerido"
+    },
+    "password": {
+      "label": "Contraseña",
+      "placeholder": "Ingresa tu contraseña",
+      "required": "Contraseña requerida",
+      "minLength": "La contraseña debe tener al menos 6 caracteres"
+    },
+    "forgotPassword": "¿Contraseña olvidada?",
+    "login": "Iniciar Sesión",
+    "signingIn": "Iniciando sesión...",
+    "footer": "Al iniciar sesión, aceptas nuestros Términos y Condiciones"
+  },
+  "common": {
+    "loading": "Verificando autenticación...",
+    "loginFailed": "Inicio de sesión fallido",
+    "cancel": "Cancelar",
+    "logoutConfirm": "¿Estás seguro de que deseas cerrar sesión?"
+  },
+  "nav": {
+    "admin": {
+      "dashboard": "Panel",
+      "leads": "Clientes Potenciales",
+      "clients": "Clientes",
+      "hr": "RRHH",
+      "work": "Trabajo",
+      "finance": "Finanzas",
+      "messages": "Mensajes",
+      "settings": "Configuración",
+      "logout": "Cerrar sesión"
+    }
+  },
+  "admin": {
+    "leads": {
+      "contacts": {
+        "title": "Contactos de Leads",
+        "searchPlaceholder": "Buscar nombre, correo, empresa...",
+        "noData": "No se encontraron leads",
+        "deleteConfirm": "¿Eliminar {{name}}?",
+        "actions": "Acciones",
+        "view": "Ver",
+        "edit": "Editar",
+        "delete": "Eliminar",
+        "addToClient": "Convertir a Cliente",
+        "createButton": "+ Agregar lead",
+        "adding": "Agregando…",
+        "modal": {
+          "title": "Agregar lead",
+          "basicDetails": "Detalles básicos",
+          "companyDetails": "Detalles de la empresa",
+          "dealInfo": "Información del trato",
+          "leadName": "Nombre del lead",
+          "email": "Correo electrónico",
+          "mobile": "Móvil",
+          "clientCategory": "Categoría del cliente"
+        }
+      },
+      "filters": {
+        "search": "Buscar",
+        "source": "Fuente",
+        "owner": "Propietario",
+        "status": "Estado",
+        "start": "Inicio",
+        "end": "Fin",
+        "calendarFrom": "Seleccionar calendario desde",
+        "calendarTo": "Seleccionar calendario hasta",
+        "clear": "Limpiar",
+        "all": "Todos"
+      },
+      "deals": "Negocios"
+    }
+  },
+  "employee": {
+    "messages": {
+      "roomsTitle": "Mensajes",
+      "roomDetails": "Detalles del chat",
+      "noMessagesYet": "Aún no hay mensajes",
+      "typeMessage": "Escribe un mensaje…",
+      "loading": "Cargando…",
+      "sayHello": "Di hola 👋",
+      "errorLoadChats": "Error al cargar chats: {{error}}"
+    }
+  }
+}

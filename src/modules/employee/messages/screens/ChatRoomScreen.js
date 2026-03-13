@@ -11,6 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchChatHistory,
@@ -52,6 +53,7 @@ const MessageBubble = ({ meId, m }) => {
 };
 
 export default function ChatRoomScreen({ route, navigation }) {
+  const { t } = useTranslation();
   // Expect peer info passed from rooms list
   const peerIdFromNav = route?.params?.peerId; // receiverId (e.g., "EMP-008")
   const myEmployeeId = route?.params?.myEmployeeId; // OPTIONAL if you pass it
@@ -127,7 +129,7 @@ export default function ChatRoomScreen({ route, navigation }) {
           <Text style={{ fontSize: 18 }}>←</Text>
         </Pressable> */}
         <Text style={styles.title} numberOfLines={1}>
-          {activePeerId || 'Chat'}
+          {activePeerId || t('employee.messages.roomsTitle')}
         </Text>
         <View style={{ width: 24 }} />
       </View>
@@ -141,7 +143,9 @@ export default function ChatRoomScreen({ route, navigation }) {
         contentContainerStyle={{ paddingVertical: 8, paddingHorizontal: 10 }}
         ListEmptyComponent={
           <Text style={styles.empty}>
-            {loading ? 'Loading…' : 'Say hello 👋'}
+            {loading
+              ? t('employee.messages.loading')
+              : t('employee.messages.sayHello')}
           </Text>
         }
         onContentSizeChange={() =>
@@ -155,7 +159,7 @@ export default function ChatRoomScreen({ route, navigation }) {
           style={styles.input}
           value={text}
           onChangeText={setText}
-          placeholder="Type a message…"
+          placeholder={t('employee.messages.typeMessage')}
           placeholderTextColor="#9ca3af"
           autoCapitalize="sentences"
           onSubmitEditing={onSend}

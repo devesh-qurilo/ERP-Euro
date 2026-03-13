@@ -10,6 +10,7 @@ import {
   Alert,
   Modal,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 
@@ -36,6 +37,7 @@ import AddLeadModal from '../contacts/components/AddLeadModal';
 
 // Simple select dropdown for filters
 const Select = ({ label, value, options, onChange, style }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   return (
@@ -44,7 +46,11 @@ const Select = ({ label, value, options, onChange, style }) => {
 
       <Pressable style={styles.selectBtn} onPress={() => setOpen(true)}>
         <Text style={styles.value} numberOfLines={1}>
-          {String(value ?? 'All')}
+          {String(
+            value === 'All' || value == null
+              ? t('admin.leads.filters.all')
+              : value,
+          )}
         </Text>
         <Text style={styles.caret}>▾</Text>
       </Pressable>
@@ -70,7 +76,9 @@ const Select = ({ label, value, options, onChange, style }) => {
                     setOpen(false);
                   }}
                 >
-                  <Text style={styles.dropdownText}>{String(opt)}</Text>
+                  <Text style={styles.dropdownText}>
+                    {opt === 'All' ? t('admin.leads.filters.all') : String(opt)}
+                  </Text>
                 </Pressable>
               ))}
             </ScrollView>
@@ -102,6 +110,7 @@ const buildUpdateBody = payload => ({
 });
 
 export default function AdminLeadContactsScreen() {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
@@ -267,14 +276,18 @@ export default function AdminLeadContactsScreen() {
 
   const handleDelete = lead => {
     setShowActionMenu(false);
-    Alert.alert('Delete Lead', `Delete ${lead.name}?`, [
-      { text: 'Cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: () => dispatch(deleteAdminLead(lead.id)),
-      },
-    ]);
+    Alert.alert(
+      t('admin.leads.contacts.delete'),
+      t('admin.leads.contacts.deleteConfirm', { name: lead.name }),
+      [
+        { text: t('common.cancel') },
+        {
+          text: t('admin.leads.contacts.delete'),
+          style: 'destructive',
+          onPress: () => dispatch(deleteAdminLead(lead.id)),
+        },
+      ],
+    );
   };
 
   const handleConvert = lead => {
@@ -330,11 +343,11 @@ export default function AdminLeadContactsScreen() {
         >
           {/* SEARCH */}
           <View style={styles.filterItemWide}>
-            <Text style={styles.label}>Search</Text>
+            <Text style={styles.label}>{t('admin.leads.filters.search')}</Text>
             <TextInput
               value={String(filters.q || '')}
               onChangeText={q => dispatch(setAdminLeadsFilters({ q }))}
-              placeholder="Search name, email, company..."
+              placeholder={t('admin.leads.contacts.searchPlaceholder')}
               placeholderTextColor="#9ca3af"
               style={styles.input}
               autoCapitalize="none"
@@ -343,8 +356,8 @@ export default function AdminLeadContactsScreen() {
 
           {/* SOURCE */}
           <Select
-            label="Source"
-            value={filters.source || 'All'}
+            label={t('admin.leads.filters.source')}
+            value={filters.source || t('admin.leads.filters.all')}
             options={sources}
             onChange={source => dispatch(setAdminLeadsFilters({ source }))}
             style={styles.filterItem}
@@ -352,8 +365,8 @@ export default function AdminLeadContactsScreen() {
 
           {/* OWNER */}
           <Select
-            label="Owner"
-            value={filters.owner || 'All'}
+            label={t('admin.leads.filters.owner')}
+            value={filters.owner || t('admin.leads.filters.all')}
             options={owners}
             onChange={owner => dispatch(setAdminLeadsFilters({ owner }))}
             style={styles.filterItem}
@@ -361,8 +374,8 @@ export default function AdminLeadContactsScreen() {
 
           {/* STATUS */}
           <Select
-            label="Status"
-            value={filters.status || 'All'}
+            label={t('admin.leads.filters.status')}
+            value={filters.status || t('admin.leads.filters.all')}
             options={statuses}
             onChange={status => dispatch(setAdminLeadsFilters({ status }))}
             style={styles.filterItem}
@@ -370,7 +383,9 @@ export default function AdminLeadContactsScreen() {
 
           {/* START DATE */}
           <View style={styles.filterItem}>
-            <Text style={styles.calender}>Select Calender From</Text>
+            <Text style={styles.calender}>
+              {t('admin.leads.filters.calendarFrom')}
+            </Text>
             <DateFilterField
               label="Start"
               value={filters.start}
@@ -380,7 +395,9 @@ export default function AdminLeadContactsScreen() {
 
           {/* END DATE */}
           <View style={styles.filterItem}>
-            <Text style={styles.calender}>Select Calender To</Text>
+            <Text style={styles.calender}>
+              {t('admin.leads.filters.calendarTo')}
+            </Text>
             <DateFilterField
               label="End"
               value={filters.end}
@@ -391,7 +408,9 @@ export default function AdminLeadContactsScreen() {
           {/* CLEAR BUTTON */}
           {hasFilters && (
             <Pressable onPress={resetFilters} style={styles.clearBtnInline}>
-              <Text style={styles.clearTxt}>Clear</Text>
+              <Text style={styles.clearTxt}>
+                {t('admin.leads.filters.clear')}
+              </Text>
             </Pressable>
           )}
         </ScrollView>
@@ -399,12 +418,16 @@ export default function AdminLeadContactsScreen() {
 
       {/* 2) Header + Add button */}
       <View style={styles.headerRow}>
-        <Text style={styles.sectionTitle}>Lead Contacts</Text>
+        <Text style={styles.sectionTitle}>
+          {t('admin.leads.contacts.title')}
+        </Text>
         <Pressable
           style={[styles.primaryBtn, { backgroundColor: '#1d4ed8' }]}
           onPress={openCreateModal}
         >
-          <Text style={[styles.primaryTxt, { color: '#fff' }]}>+ Add Lead</Text>
+          <Text style={[styles.primaryTxt, { color: '#fff' }]}>
+            {t('admin.leads.contacts.createButton')}
+          </Text>
         </Pressable>
       </View>
 
@@ -449,14 +472,18 @@ export default function AdminLeadContactsScreen() {
               style={styles.actionBtn}
               onPress={() => handleView(actionLead)}
             >
-              <Text style={styles.actionTxt}>View</Text>
+              <Text style={styles.actionTxt}>
+                {t('admin.leads.contacts.view')}
+              </Text>
             </Pressable>
 
             <Pressable
               style={styles.actionBtn}
               onPress={() => handleEdit(actionLead)}
             >
-              <Text style={styles.actionTxt}>Edit</Text>
+              <Text style={styles.actionTxt}>
+                {t('admin.leads.contacts.edit')}
+              </Text>
             </Pressable>
 
             <Pressable
@@ -464,7 +491,7 @@ export default function AdminLeadContactsScreen() {
               onPress={() => handleDelete(actionLead)}
             >
               <Text style={[styles.actionTxt, styles.actionDangerTxt]}>
-                Delete
+                {t('admin.leads.contacts.delete')}
               </Text>
             </Pressable>
 
@@ -472,7 +499,9 @@ export default function AdminLeadContactsScreen() {
               style={styles.actionBtn}
               onPress={() => handleConvert(actionLead)}
             >
-              <Text style={styles.actionTxt}>Add to Client</Text>
+              <Text style={styles.actionTxt}>
+                {t('admin.leads.contacts.addToClient')}
+              </Text>
             </Pressable>
           </View>
         </Pressable>
