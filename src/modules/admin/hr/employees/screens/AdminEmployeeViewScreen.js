@@ -256,7 +256,7 @@ export default function AdminEmployeeViewScreen({ route }) {
         return <AdminEmployeeEmergency employeeId={emp?.employeeId} />;
 
       case 'promotion':
-        return <EmployeePromotionTab emp={emp?.employeeId} />;
+        return <EmployeePromotionTab emply={emp} />;
 
       default:
         return null;

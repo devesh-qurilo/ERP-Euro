@@ -8,6 +8,7 @@ import {
   adminEmployeesAPI as API,
 } from '../../../../../services/api';
 import { selectEmpPage, selectEmpSize } from './selectors';
+import { closePromotionModal } from './actions';
 
 function* fetchList({ opts }) {
   try {
@@ -138,12 +139,9 @@ function* fetchEmployeeLeaves({ employeeId }) {
     });
   }
 }
-console.log('hhfhfhhfhhfhfh');
 function* fetchEmployeeDocs({ empId }) {
-  console.log('devesh employee document');
   try {
     const data = yield call(AdminEmployeeDocs.documents, empId);
-    console.log('devesh employee document', data);
 
     yield put({
       type: T.EMP_DOCS_SUCCESS,
@@ -204,6 +202,7 @@ function* createEmployeePromotion({ employeeId, body }) {
 
     yield put({ type: T.CREATE_EMP_PROMOTION_SUCCESS });
 
+    yield put(closePromotionModal()); // 👈 REQUIRED
     yield put(fetchEmployeePromotions(employeeId));
   } catch (e) {
     yield put({

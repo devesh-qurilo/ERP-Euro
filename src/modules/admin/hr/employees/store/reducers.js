@@ -44,8 +44,6 @@ const init = {
   promotions: [],
   promotionsLoading: false,
   promotionModalOpen: false,
-
-  promotionModalOpen: false,
 };
 
 export default function adminEmployeesReducer(state = init, action) {
