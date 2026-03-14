@@ -70,7 +70,7 @@ export default function EmployeesTable({
   onRoleChange,
 }) {
   const [openMenuId, setOpenMenuId] = useState(null);
-  const widths = [140, 260, 260, 220, 220, 160, 120];
+  const widths = [140, 260, 260, 220, 180, 100, 120];
   const cols = [
     'Employee Id',
     'Name',

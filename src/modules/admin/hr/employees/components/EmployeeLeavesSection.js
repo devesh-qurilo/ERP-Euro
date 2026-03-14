@@ -55,7 +55,14 @@
 // }
 
 import React, { useEffect } from 'react';
-import { View, ScrollView, Text, Pressable, StyleSheet } from 'react-native';
+import {
+  View,
+  ScrollView,
+  Text,
+  Pressable,
+  StyleSheet,
+  Alert,
+} from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import LeavesTable from '../../leaves/components/LeavesTable';
@@ -96,25 +103,82 @@ export default function EmployeeLeavesSection({ employeeId }) {
 
   useEffect(() => {
     if (!employeeId) return;
-    dispatch(fetchEmployeeLeaves(employeeId));
-  }, [employeeId]);
 
-  const onApprove = row =>
-    dispatch(patchLeaveStatus(row.id, { status: 'APPROVED' }));
+    // modal close hone par reload
+    if (!modalOpen) {
+      dispatch(fetchEmployeeLeaves(employeeId));
+    }
+  }, [employeeId, modalOpen]);
 
-  const onReject = row =>
-    dispatch(
-      patchLeaveStatus(row.id, {
-        status: 'REJECTED',
-        rejectionReason: 'Rejected by admin',
-      }),
-    );
+  // const onApprove = row =>
+  //   dispatch(patchLeaveStatus(row.id, { status: 'APPROVED' }));
+  const handleCloseModal = () => {
+    dispatch(closeLeaveModal());
+    // dispatch(fetchEmployeeLeaves(employeeId)); // refresh table
+  };
 
-  const onDelete = row => dispatch(deleteLeave(row.id));
+  // const onReject = row =>
+  //   dispatch(
+  //     patchLeaveStatus(row.id, {
+  //       status: 'REJECTED',
+  //       rejectionReason: 'Rejected by admin',
+  //     }),
+  //   );
+
+  // const onDelete = row => dispatch(deleteLeave(row.id));
 
   const handleApply = payload => {
     dispatch(applyLeaves(payload));
   };
+
+  /* ===== ACTIONS ===== */
+
+  const onApprove = row => {
+    dispatch(fetchEmployeeLeaves(employeeId));
+    dispatch(patchLeaveStatus(row.id, { status: 'APPROVED' }));
+  };
+
+  const onReject = row => {
+    Alert.prompt
+      ? Alert.prompt('Reject', 'Enter rejection reason', txt => {
+          dispatch(
+            patchLeaveStatus(row.id, {
+              status: 'REJECTED',
+              rejectionReason: txt || 'Not specified',
+            }),
+          ),
+            dispatch(fetchEmployeeLeaves(employeeId));
+        })
+      : Alert.alert('Reject Leave', 'Reject this leave?', [
+          { text: 'Cancel' },
+          {
+            text: 'Reject',
+            style: 'destructive',
+            onPress: () => {
+              dispatch(
+                patchLeaveStatus(row.id, {
+                  status: 'REJECTED',
+                  rejectionReason: 'Not specified',
+                }),
+              ),
+                dispatch(fetchEmployeeLeaves(employeeId));
+            },
+          },
+        ]);
+  };
+
+  const onDelete = row =>
+    Alert.alert('Delete Leave', `Delete ${row.employeeName}'s leave?`, [
+      { text: 'Cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          dispatch(deleteLeave(row.id)),
+            dispatch(fetchEmployeeLeaves(employeeId));
+        },
+      },
+    ]);
 
   return (
     <View style={styles.card}>
@@ -144,7 +208,7 @@ export default function EmployeeLeavesSection({ employeeId }) {
       {/* APPLY MODAL */}
       <LeaveApplyModal
         visible={modalOpen}
-        onClose={() => dispatch(closeLeaveModal())}
+        onClose={handleCloseModal}
         onSave={handleApply}
         employees={employees}
         applying={applying}

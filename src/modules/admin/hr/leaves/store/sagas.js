@@ -1,6 +1,7 @@
 import { all, call, put, takeLatest } from 'redux-saga/effects';
 import * as T from './types';
 import { AdminleavesAPI as leavesAPI } from '../../../../../services/api';
+import { fetchEmployeeLeaves } from '../../employees/store/actions';
 
 function* fetchLeaves() {
   try {
@@ -25,6 +26,7 @@ function* applyLeaves({ payload }) {
     // console.log('leaves', payload);
     const created = yield call(leavesAPI.apply, payload);
     yield put({ type: T.APPLY_LEAVES_SUCCESS, payload: created });
+    // yield put(fetchEmployeeLeaves());
   } catch (e) {
     yield put({ type: T.APPLY_LEAVES_FAILURE, error: e?.message || 'Failed' });
   }

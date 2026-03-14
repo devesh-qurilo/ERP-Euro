@@ -19,6 +19,7 @@ import {
   patchEmployeeRole,
   setEmpFilters,
 } from '../store/actions';
+import FilterModal from '../components/FilterModal';
 import {
   selectEmpList,
   selectEmpLoading,
@@ -88,6 +89,7 @@ export default function AdminEmployeesScreen({ navigation }) {
   const editing = useSelector(selectEmpEditing);
   const filters = useSelector(selectEmpFilters);
   const creating = useSelector(selectEmpCreating);
+  const [filterModal, setFilterModal] = React.useState(null);
 
   const createError = useSelector(selectEmpCreateError);
 
@@ -104,6 +106,8 @@ export default function AdminEmployeesScreen({ navigation }) {
     dispatch(fetchEmployees());
   }, [dispatch]);
 
+  console.log('list of employee', list);
+
   // derived filter options (client-side)
   const roles = useMemo(
     () => [
@@ -115,19 +119,37 @@ export default function AdminEmployeesScreen({ navigation }) {
   const actives = ['All', 'Active', 'Inactive'];
 
   const filtered = useMemo(() => {
-    const q = (filters.q || '').toLowerCase().trim();
+    const q = (filters?.q || '').toLowerCase().trim();
+
     return list.filter(x => {
       if (q) {
         const hay =
           `${x.employeeId} ${x.name} ${x.email} ${x.mobile} ${x.departmentName} ${x.designationName}`.toLowerCase();
+
         if (!hay.includes(q)) return false;
       }
-      if (filters.role !== 'All' && (x.role || '') !== filters.role)
-        return false;
-      if (filters.active !== 'All') {
+
+      if (filters?.department && filters.department !== 'All') {
+        if (x.departmentName !== filters.department) return false;
+      }
+
+      if (filters?.designation && filters.designation !== 'All') {
+        if (x.designationName !== filters.designation) return false;
+      }
+
+      if (filters?.reportingTo && filters.reportingTo !== 'All') {
+        if (x.reportingToId !== filters.reportingTo) return false;
+      }
+
+      if (filters?.role && filters.role !== 'All') {
+        if ((x.role || '') !== filters.role) return false;
+      }
+
+      if (filters?.active && filters.active !== 'All') {
         const activeBool = filters.active === 'Active';
         if (!!x.active !== activeBool) return false;
       }
+
       return true;
     });
   }, [list, filters]);
@@ -151,6 +173,34 @@ export default function AdminEmployeesScreen({ navigation }) {
     dispatch(inviteEmployee({ to, message }));
   };
 
+  const departments = useMemo(
+    () => [
+      'All',
+      ...Array.from(
+        new Set(list.map(x => x.departmentName).filter(x => x && x !== 'NA')),
+      ),
+    ],
+    [list],
+  );
+
+  const designations = useMemo(
+    () => [
+      'All',
+      ...Array.from(
+        new Set(list.map(x => x.designationName).filter(x => x && x !== 'NA')),
+      ),
+    ],
+    [list],
+  );
+
+  const reportingTo = useMemo(
+    () => [
+      'All',
+      ...Array.from(new Set(list.map(x => x.reportingToId).filter(Boolean))),
+    ],
+    [list],
+  );
+
   const handleSave = ({ employee, file }) => {
     if (editing)
       dispatch(
@@ -172,8 +222,12 @@ export default function AdminEmployeesScreen({ navigation }) {
     <ScrollView contentContainerStyle={styles.wrap}>
       {/* 1) Filters */}
       <View style={styles.card}>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-          <View style={{ flexBasis: '60%', minWidth: 220, paddingRight: 8 }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterRow}
+        >
+          <View style={{ width: 220, marginRight: 8 }}>
             <Text style={styles.label}>Search</Text>
             <TextInput
               value={filters.q}
@@ -185,23 +239,44 @@ export default function AdminEmployeesScreen({ navigation }) {
             />
           </View>
 
-          <Select
-            label="Role"
-            value={filters.role}
-            options={roles}
-            onChange={role => dispatch(setEmpFilters({ role }))}
-          />
-          <Select
-            label="Status"
-            value={filters.active}
-            options={actives}
-            onChange={active => dispatch(setEmpFilters({ active }))}
-          />
-        </View>
+          <Pressable
+            style={styles.filterBtn}
+            onPress={() => setFilterModal('department')}
+          >
+            <Text style={styles.filterText}>
+              Department: {filters.department || 'All'}
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.filterBtn}
+            onPress={() => setFilterModal('designation')}
+          >
+            <Text style={styles.filterText}>
+              Designation: {filters.designation || 'All'}
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.filterBtn}
+            onPress={() => setFilterModal('role')}
+          >
+            <Text style={styles.filterText}>Role: {filters.role || 'All'}</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.filterBtn}
+            onPress={() => setFilterModal('status')}
+          >
+            <Text style={styles.filterText}>
+              Status: {filters.active || 'All'}
+            </Text>
+          </Pressable>
+        </ScrollView>
 
         {hasFilters && (
           <Pressable onPress={resetFilters} style={styles.clearBtn}>
-            <Text style={styles.clearTxt}>Clear All</Text>
+            <Text style={styles.clearTxt}>Clear</Text>
           </Pressable>
         )}
       </View>
@@ -251,6 +326,41 @@ export default function AdminEmployeesScreen({ navigation }) {
         loading={inviteLoading}
         lastSuccess={inviteSuccess}
       />
+      <FilterModal
+        visible={filterModal === 'department'}
+        title="Select Department"
+        options={departments}
+        value={filters.department}
+        onSelect={v => dispatch(setEmpFilters({ department: v }))}
+        onClose={() => setFilterModal(null)}
+      />
+
+      <FilterModal
+        visible={filterModal === 'designation'}
+        title="Select Designation"
+        options={designations}
+        value={filters.designation}
+        onSelect={v => dispatch(setEmpFilters({ designation: v }))}
+        onClose={() => setFilterModal(null)}
+      />
+
+      <FilterModal
+        visible={filterModal === 'role'}
+        title="Select Role"
+        options={roles}
+        value={filters.role}
+        onSelect={v => dispatch(setEmpFilters({ role: v }))}
+        onClose={() => setFilterModal(null)}
+      />
+
+      <FilterModal
+        visible={filterModal === 'status'}
+        title="Select Status"
+        options={actives}
+        value={filters.active}
+        onSelect={v => dispatch(setEmpFilters({ active: v }))}
+        onClose={() => setFilterModal(null)}
+      />
     </ScrollView>
   );
 }
@@ -299,6 +409,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     zIndex: 20,
   },
+  filterRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
   menuItem: {
     paddingVertical: 10,
     paddingHorizontal: 12,
@@ -341,4 +455,18 @@ const styles = StyleSheet.create({
   },
 
   err: { color: '#b00020', textAlign: 'center', marginTop: 10 },
+  filterBtn: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginRight: 8,
+    backgroundColor: '#fff',
+  },
+
+  filterText: {
+    fontWeight: '600',
+    color: '#111827',
+  },
 });

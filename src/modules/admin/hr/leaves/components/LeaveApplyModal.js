@@ -206,7 +206,6 @@ export default function LeaveApplyModal({
               </Text>
               <Text style={styles.caret}>{empOpen ? '▴' : '▾'}</Text>
             </Pressable>
-
             {empOpen && (
               <View style={styles.empDropdown}>
                 <ScrollView nestedScrollEnabled>
@@ -251,7 +250,6 @@ export default function LeaveApplyModal({
                 onChange={setStatus}
               />
             </View>
-
             {durationType === 'MULTIPLE' ? (
               <>
                 <Pressable
@@ -275,7 +273,6 @@ export default function LeaveApplyModal({
                 <Text>Date: {singleDate || 'Select'}</Text>
               </Pressable>
             )}
-
             {/* DATE PICKER OVERLAY (FIXED) */}
             {showDatePicker && (
               <View style={styles.dateOverlay}>
@@ -300,7 +297,6 @@ export default function LeaveApplyModal({
                 </View>
               </View>
             )}
-
             <Text style={styles.label}>Reason</Text>
             <TextInput
               value={reason}
@@ -308,7 +304,6 @@ export default function LeaveApplyModal({
               style={styles.input}
               multiline
             />
-
             <Pressable style={styles.secondaryBtn} onPress={pickDocs}>
               <Text style={styles.secondaryTxt}>
                 {docs.length
@@ -316,7 +311,6 @@ export default function LeaveApplyModal({
                   : '+ Attach Documents'}
               </Text>
             </Pressable>
-
             {docs.map((d, i) => (
               <Text key={i} numberOfLines={1}>
                 • {d.name}
@@ -408,6 +402,13 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     gap: 8,
     marginTop: 12,
+  },
+  menuItem: {
+    borderWidth: 1,
+    padding: 8,
+    borderRadius: 8,
+    borderColor: 'rgba(107, 104, 104, 0.4)',
+    backgroundColor: '#e2dfdf',
   },
   dateBtn: {
     borderWidth: 1,
