@@ -7,7 +7,7 @@ const initial = {
   filters: { hideCompleted: false },
   q: '',
   page: 0,
-  size: 20,
+  size: 200000,
   total: 0,
   view: 'list',
   scope: 'all',

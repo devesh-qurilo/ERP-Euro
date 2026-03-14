@@ -5,8 +5,13 @@ export const selectEmpLoading = s => !!root(s).loading;
 export const selectEmpError = s => root(s).error;
 export const selectEmpBusyIds = s => root(s).busyIds || [];
 
+export const selectEmpCreating = s =>
+  selectEmpBusyIds(s).includes('__create__');
+
+export const selectEmpCreateError = s => root(s).error;
+
 export const selectEmpPage = s => root(s).page || 0;
-export const selectEmpSize = s => root(s).size || 20;
+export const selectEmpSize = s => root(s).size || 20000000;
 export const selectEmpTotalPages = s => root(s).totalPages || 0;
 export const selectEmpTotalElements = s => root(s).totalElements || 0;
 

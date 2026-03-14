@@ -3,7 +3,7 @@ import * as T from './types';
 const init = {
   list: [], // current page employees
   page: 0,
-  size: 20,
+  size: 200000,
   totalPages: 0,
   totalElements: 0,
 
@@ -99,6 +99,7 @@ export default function adminEmployeesReducer(state = init, action) {
       return {
         ...state,
         busyIds: state.busyIds.filter(x => x !== '__create__'),
+        error: action.error,
       };
 
     case T.UPDATE_EMP_REQ:

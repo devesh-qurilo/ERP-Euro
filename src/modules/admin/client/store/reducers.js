@@ -5,13 +5,13 @@ const initial = {
   saving: false,
   items: [],
   page: 0,
-  size: 20,
+  size: 200000,
   total: 0,
   error: null,
 
   query: {
     page: 0,
-    size: 20,
+    size: 200000,
     search: '',
     category: 'All',
     status: 'All',

@@ -27,6 +27,8 @@ import {
   selectEmpModalOpen,
   selectEmpEditing,
   selectEmpFilters,
+  selectEmpCreating,
+  selectEmpCreateError,
 } from '../store/selectors';
 import EmployeesTable from '../components/EmployeesTable';
 import EmployeeModal from '../components/EmployeeModal';
@@ -85,6 +87,9 @@ export default function AdminEmployeesScreen({ navigation }) {
   const modalOpen = useSelector(selectEmpModalOpen);
   const editing = useSelector(selectEmpEditing);
   const filters = useSelector(selectEmpFilters);
+  const creating = useSelector(selectEmpCreating);
+
+  const createError = useSelector(selectEmpCreateError);
 
   const [inviteOpen, setInviteOpen] = React.useState(false);
 
@@ -235,6 +240,8 @@ export default function AdminEmployeesScreen({ navigation }) {
         visible={modalOpen}
         editing={editing}
         onSave={handleSave}
+        saving={creating}
+        error={createError}
         onClose={() => dispatch(closeEmpModal())}
       />
       <InviteEmployeeModal

@@ -4,7 +4,7 @@ const initial = {
   list: {
     items: [],
     page: 0,
-    size: 20,
+    size: 200000,
     total: 0,
     loading: false,
     error: null,

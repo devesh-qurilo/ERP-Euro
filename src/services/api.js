@@ -698,7 +698,7 @@ export const adminEmployeesAPI = {
 
   me: () => api.get('/employee/me').then(r => r.data),
 
-  create: ({ employee, file }) => {
+  create: async ({ employee, file }) => {
     const fd = new FormData();
     fd.append('employee', JSON.stringify(employee));
     if (file) {
@@ -708,7 +708,8 @@ export const adminEmployeesAPI = {
         type: file.type || 'image/jpeg',
       });
     }
-    return api.post('/employee', fd).then(r => r.data);
+    const r = await api.post('/employee', fd);
+    return r.data;
   },
 
   update: (employeeId, { employee, file }) => {

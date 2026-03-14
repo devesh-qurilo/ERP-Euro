@@ -8,7 +8,7 @@ import {
   adminEmployeesAPI as API,
 } from '../../../../../services/api';
 import { selectEmpPage, selectEmpSize } from './selectors';
-import { closePromotionModal } from './actions';
+import { closePromotionModal, fetchEmployees } from './actions';
 
 function* fetchList({ opts }) {
   try {
@@ -27,12 +27,20 @@ function* fetchList({ opts }) {
 function* createOne({ payload }) {
   try {
     yield call(API.create, payload);
+
     yield put({ type: T.CREATE_EMP_SUCCESS });
-    yield put({ type: T.FETCH_EMP_REQ }); // refresh page
+
+    yield put(fetchEmployees()); // refresh list
   } catch (e) {
+    const errorMessage =
+      e?.data?.error ||
+      e?.response?.data?.message ||
+      e?.message ||
+      'Employee create failed';
+
     yield put({
       type: T.CREATE_EMP_FAIL,
-      error: e?.message || 'Create failed',
+      error: errorMessage,
     });
   }
 }
@@ -41,6 +49,7 @@ function* updateOne({ employeeId, payload }) {
   try {
     const data = yield call(API.update, employeeId, payload);
     yield put({ type: T.UPDATE_EMP_SUCCESS, payload: data });
+    yield put(fetchEmployees());
   } catch (e) {
     yield put({
       type: T.UPDATE_EMP_FAIL,
@@ -54,6 +63,7 @@ function* deleteOne({ employeeId }) {
   try {
     yield call(API.remove, employeeId);
     yield put({ type: T.DELETE_EMP_SUCCESS, employeeId });
+    yield put(fetchEmployees());
   } catch (e) {
     yield put({
       type: T.DELETE_EMP_FAIL,

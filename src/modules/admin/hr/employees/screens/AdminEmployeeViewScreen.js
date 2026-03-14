@@ -27,6 +27,7 @@ import {
 
 import { selectAttModalOpen } from '../../attendance/store/selectors';
 import MarkAttendanceModal from '../../attendance/components/MarkAttendanceModal';
+import EmployeeProjectsTab from '../../employees/work/projects/screens/AdminEmployeeProjectsScreen';
 
 // If you pass the whole employee object via navigation, great.
 // Otherwise we try to find it from Redux list by id.
@@ -247,7 +248,7 @@ export default function AdminEmployeeViewScreen({ route }) {
         return <ProfileTab emp={emp} />;
 
       case 'work':
-        return <AdminEmployeeProjectsScreen emp={emp} />;
+        return <EmployeeProjectsTab emp={emp} />;
 
       case 'docs':
         return <EmployeeDocumentsTab empId={emp?.employeeId} />;
