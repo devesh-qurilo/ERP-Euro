@@ -19,6 +19,7 @@ import {
 
 import { addFollowup } from '../../deals/view/store/actions';
 import { fetchPriorities } from '../priorities/actions';
+import { useCallback } from 'react';
 import DealExportButton from '../components/DealExportButton';
 import DealImportButton from '../components/DealImportButton';
 
@@ -33,16 +34,36 @@ export default function AdminDealScreen() {
   const [followupOpen, setFollowupOpen] = useState(false);
   const [selectedDealId, setSelectedDealId] = useState(null);
   const [filters, setFilters] = useState({});
+  const [localDeals, setLocalDeals] = useState([]);
 
+  // Initial fetch
   useEffect(() => {
-    dispatch(fetchList()); // fetch once
+    dispatch(fetchList());
     dispatch(fetchPriorities());
   }, []);
-  console.log('list of deal', dealsState);
 
-  const rows = Array.isArray(dealsState?.content)
-    ? dealsState.content
-    : dealsState || [];
+  // Sync local from Redux always
+  useEffect(() => {
+    const content = dealsState?.content || dealsState || [];
+    console.log('Sync deals:', content.length);
+    setLocalDeals(Array.isArray(content) ? content : []);
+  }, [dealsState]);
+
+  const handleRowUpdate = useCallback((dealId, updates) => {
+    setLocalDeals(prev =>
+      prev.map(deal => (deal.id === dealId ? { ...deal, ...updates } : deal)),
+    );
+  }, []);
+
+  const rows = localDeals;
+  console.log(
+    'rows length:',
+    rows.length,
+    'localDeals:',
+    localDeals.length,
+    'dealsState:',
+    dealsState?.content?.length,
+  );
 
   const filteredRows = useMemo(() => {
     return rows.filter(d => {
@@ -97,7 +118,7 @@ export default function AdminDealScreen() {
         <View style={styles.importExportRow}>
           <DealImportButton
             onImported={() => {
-              dispatch(fetchList()); // refresh after import
+              dispatch(fetchList());
             }}
           />
 
@@ -110,6 +131,7 @@ export default function AdminDealScreen() {
         <DealTable
           data={filteredRows}
           loading={busy}
+          onRowUpdate={handleRowUpdate}
           onAddFollowup={dealId => {
             setSelectedDealId(dealId);
             setFollowupOpen(true);

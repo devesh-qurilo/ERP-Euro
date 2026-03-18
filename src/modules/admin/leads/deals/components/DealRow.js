@@ -77,7 +77,7 @@ const DealRow = memo(function DealRow({
     try {
       await api.put(`/deals/${item.id}/stage?stage=${stageName}`);
     } catch (err) {
-      // console.log('Stage update error', err);
+      console.log('Stage update error', err);
     }
   };
 
@@ -123,6 +123,15 @@ const DealRow = memo(function DealRow({
   // };
 
   const handlePriorityChange = async p => {
+    // 🔥 Optimistic UI update first
+    onRowUpdate?.(item.id, {
+      priority: {
+        id: p.id,
+        status: p.status,
+        color: p.color,
+      },
+    });
+
     try {
       const payload = {
         priorityId: p.id,
@@ -132,10 +141,10 @@ const DealRow = memo(function DealRow({
 
       const hasPriority = Boolean(item?.priority?.id);
       if (!hasPriority) {
-        await api.post(`/deals/${item.id}/priority/assign`, p.id);
+        await api.post(`/deals/${item.id}/priority/assign`, payload);
       } else {
         try {
-          await api.put(`/deals/${item.id}/priority`, p.id);
+          await api.put(`/deals/${item.id}/priority`, payload);
         } catch (updateErr) {
           console.log(
             'Priority update failed, fallback assign:',
@@ -144,11 +153,9 @@ const DealRow = memo(function DealRow({
           await api.post(`/deals/${item.id}/priority/assign`, payload);
         }
       }
-
-      // setPriorityOpen(false);
-      // dispatch(fetchKanban());
     } catch (err) {
       console.log('Priority error:', err?.response?.data || err.message);
+      // Optional: revert optimistic update here if needed
     }
   };
 
