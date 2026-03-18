@@ -860,7 +860,7 @@ export default function AdminDealKanbanScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        <Text style={styles.title}>Deals Kanban</Text>
+        <Text style={styles.title}>Kanban</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <TouchableOpacity
             onPress={() => nav.navigate('PriorityScreen')}
@@ -1137,29 +1137,30 @@ function KanbanCard({ item, stage, stages, dispatch, navigation }) {
 
   const calend = latestFollowup ? `${latestFollowup.nextDate}` : '--';
 
-  const handlePriorityChange = async priority => {
+  const handlePriorityChange = async p => {
     try {
       const payload = {
-        priorityId: priority.id,
+        priorityId: p.id,
       };
 
-      console.log('Deal:', item.id, 'Priority:', priority.id);
+      console.log('Deal:', p, item.id, 'Priority:', p.id);
 
-      // 🔥 CASE 1: No priority → ASSIGN FIRST
-      if (!item.priority) {
-        console.log('Assigning first priority');
-
+      const hasPriority = Boolean(item.priority?.id);
+      if (!hasPriority) {
         await api.post(`/deals/${item.id}/priority/assign`, payload);
-      }
-      // 🔥 CASE 2: Already exists → UPDATE
-      else {
-        console.log('Updating existing priority');
-
-        await api.put(`/deals/${item.id}/priority`, payload);
+      } else {
+        try {
+          await api.put(`/deals/${item.id}/priority`, payload);
+        } catch (updateErr) {
+          console.log(
+            'Priority update failed, fallback assign:',
+            updateErr?.message,
+          );
+          await api.post(`/deals/${item.id}/priority/assign`, payload);
+        }
       }
 
       setPriorityOpen(false);
-
       dispatch(fetchKanban());
     } catch (err) {
       console.log('Priority error:', err?.response?.data || err.message);
@@ -1167,6 +1168,7 @@ function KanbanCard({ item, stage, stages, dispatch, navigation }) {
   };
 
   const handleRemovePriority = async () => {
+    console.log('devesh list deal ', item?.id);
     try {
       await api.delete(`/deals/${item.id}/priority`);
 
@@ -1402,7 +1404,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
-  title: { fontSize: 20, fontWeight: '800', color: '#222' },
+  title: { fontSize: 20, fontWeight: '500', color: '#222' },
   refreshBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
   refreshText: { color: '#3F6AE1', fontWeight: '600' },
 

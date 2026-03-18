@@ -19,6 +19,8 @@ import {
 
 import { addFollowup } from '../../deals/view/store/actions';
 import { fetchPriorities } from '../priorities/actions';
+import DealExportButton from '../components/DealExportButton';
+import DealImportButton from '../components/DealImportButton';
 
 export default function AdminDealScreen() {
   const dispatch = useDispatch();
@@ -36,6 +38,7 @@ export default function AdminDealScreen() {
     dispatch(fetchList()); // fetch once
     dispatch(fetchPriorities());
   }, []);
+  console.log('list of deal', dealsState);
 
   const rows = Array.isArray(dealsState?.content)
     ? dealsState.content
@@ -76,12 +79,30 @@ export default function AdminDealScreen() {
       <View style={styles.headerSection}>
         <DealFilters onChange={f => setFilters(f)} />
 
+        {/* <DealActionsBar
+          onAdd={() => {
+            dispatch(setEditing(null));
+            dispatch(setFormOpen(true));
+          }}
+        /> */}
+      </View>
+      <View style={styles.actionsRow}>
         <DealActionsBar
           onAdd={() => {
             dispatch(setEditing(null));
             dispatch(setFormOpen(true));
           }}
         />
+
+        <View style={styles.importExportRow}>
+          <DealImportButton
+            onImported={() => {
+              dispatch(fetchList()); // refresh after import
+            }}
+          />
+
+          <DealExportButton deals={filteredRows} />
+        </View>
       </View>
 
       {/* 🔹 SCROLLABLE TABLE AREA */}
@@ -130,5 +151,17 @@ const styles = StyleSheet.create({
 
   tableSection: {
     flex: 1, // 👈 IMPORTANT
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingBottom: 8,
+  },
+
+  importExportRow: {
+    flexDirection: 'row',
+    gap: 10,
   },
 });

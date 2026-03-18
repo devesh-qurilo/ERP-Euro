@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import api from '../../../../services/api';
-import DealTable from '../../leads/deals/components/DealTable';
+import DealTable from './DealTable';
 import DealFormModal from '../../leads/deals/components/DealFormModal';
 import AddFollowupModal from '../../leads/deals/components/AddFollowupModal';
 

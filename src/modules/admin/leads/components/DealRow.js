@@ -12,10 +12,10 @@ import {
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { deleteDeal, setEditing, setFormOpen } from '../../deals/store/actions';
-import { selectPriorities } from '../priorities/selectors';
-import api from '../../../../../services/api';
-import { selectKanbanStages } from '../kanban/store/selectors';
+import { deleteDeal, setEditing, setFormOpen } from '../deals/store/actions';
+import { selectPriorities } from '../deals/priorities/selectors';
+import api from '../../../../services/api';
+import { selectKanbanStages } from '../deals/kanban/store/selectors';
 
 const DealRow = memo(function DealRow({
   item,
@@ -97,58 +97,28 @@ const DealRow = memo(function DealRow({
   //   }
   // };
 
-  // const handlePriorityChange = async status => {
-  //   const selected = priorities.find(p => p.status === status);
-  //   if (!selected) return;
+  const handlePriorityChange = async status => {
+    const selected = priorities.find(p => p.status === status);
+    if (!selected) return;
 
-  //   // 🔥 Optimistic update
-  //   onRowUpdate?.(item.id, {
-  //     priority: {
-  //       ...item.priority,
-  //       status: selected.status,
-  //       color: selected.color,
-  //     },
-  //   });
+    // 🔥 Optimistic update
+    onRowUpdate?.(item.id, {
+      priority: {
+        ...item.priority,
+        status: selected.status,
+        color: selected.color,
+      },
+    });
 
-  //   console.log('bholu', item);
+    console.log('bholu', item);
 
-  //   try {
-  //     console.log('hello devesj', selected.id, item.id, item);
-  //     await api.put(`/deals/${item.id}/priority`, {
-  //       priorityId: selected.id,
-  //     });
-  //   } catch (err) {
-  //     console.log('Priority update error', err);
-  //   }
-  // };
-
-  const handlePriorityChange = async p => {
     try {
-      const payload = {
-        priorityId: p.id,
-      };
-
-      console.log('Deal:', p, item.id, 'Priority:', payload);
-
-      const hasPriority = Boolean(item?.priority?.id);
-      if (!hasPriority) {
-        await api.post(`/deals/${item.id}/priority/assign`, p.id);
-      } else {
-        try {
-          await api.put(`/deals/${item.id}/priority`, p.id);
-        } catch (updateErr) {
-          console.log(
-            'Priority update failed, fallback assign:',
-            updateErr?.message,
-          );
-          await api.post(`/deals/${item.id}/priority/assign`, payload);
-        }
-      }
-
-      // setPriorityOpen(false);
-      // dispatch(fetchKanban());
+      console.log('hello devesj', selected.id, item.id, item);
+      await api.put(`/deals/${item.id}/priority`, {
+        priorityId: selected.id,
+      });
     } catch (err) {
-      console.log('Priority error:', err?.response?.data || err.message);
+      console.log('Priority update error', err);
     }
   };
 
@@ -297,7 +267,7 @@ const DealRow = memo(function DealRow({
         </Pressable>
       </View>
 
-      {/* PRIORITY */}
+      {/* PRIORITY
       <View style={[styles.cell, { width: columns[8].width }]}>
         <Pressable
           style={[
@@ -310,11 +280,11 @@ const DealRow = memo(function DealRow({
             {item.priority?.status || 'Select'}
           </Text>
         </Pressable>
-      </View>
+      </View> */}
 
       {/* TAGS */}
       <View
-        style={[styles.cell, { width: columns[9].width, flexDirection: 'row' }]}
+        style={[styles.cell, { width: columns[8].width, flexDirection: 'row' }]}
       >
         {item.tags?.slice(0, 2).map((tag, i) => (
           <View key={i} style={styles.tag}>
@@ -327,7 +297,7 @@ const DealRow = memo(function DealRow({
       <View
         style={[
           styles.cell,
-          { width: columns[10].width, alignItems: 'flex-center' },
+          { width: columns[9].width, alignItems: 'flex-center' },
         ]}
       >
         {busy ? (
@@ -421,7 +391,7 @@ const DealRow = memo(function DealRow({
                     key={p.id}
                     style={styles.dropdownItem}
                     onPress={async () => {
-                      await handlePriorityChange(p);
+                      await handlePriorityChange(p.status);
                       setPriorityDropdown(false);
                     }}
                   >
