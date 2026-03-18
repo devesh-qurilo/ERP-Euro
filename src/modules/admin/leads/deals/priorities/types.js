@@ -3,3 +3,26 @@ export const MODULE = 'admin/priorities';
 export const FETCH_REQ = `${MODULE}/FETCH_REQ`;
 export const FETCH_OK = `${MODULE}/FETCH_OK`;
 export const FETCH_ERR = `${MODULE}/FETCH_ERR`;
+
+export const CREATE_REQ = `${MODULE}/CREATE_REQ`;
+export const CREATE_OK = `${MODULE}/CREATE_OK`;
+export const CREATE_ERR = `${MODULE}/CREATE_ERR`;
+
+export const UPDATE_REQ = `${MODULE}/UPDATE_REQ`;
+export const UPDATE_OK = `${MODULE}/UPDATE_OK`;
+export const UPDATE_ERR = `${MODULE}/UPDATE_ERR`;
+
+export const DELETE_REQ = `${MODULE}/DELETE_REQ`;
+export const DELETE_OK = `${MODULE}/DELETE_OK`;
+export const DELETE_ERR = `${MODULE}/DELETE_ERR`;
+
+export const ASSIGN_DEAL_PRIORITY_REQ = `${MODULE}/ASSIGN_DEAL_PRIORITY_REQ`;
+export const ASSIGN_DEAL_PRIORITY_OK = `${MODULE}/ASSIGN_DEAL_PRIORITY_OK`;
+export const ASSIGN_DEAL_PRIORITY_ERR = `${MODULE}/ASSIGN_DEAL_PRIORITY_ERR`;
+
+export const REMOVE_DEAL_PRIORITY_REQ = `${MODULE}/REMOVE_DEAL_PRIORITY_REQ`;
+export const REMOVE_DEAL_PRIORITY_OK = `${MODULE}/REMOVE_DEAL_PRIORITY_OK`;
+export const REMOVE_DEAL_PRIORITY_ERR = `${MODULE}/REMOVE_DEAL_PRIORITY_ERR`;
+
+// kanban/types.js
+export const UPDATE_DEAL_PRIORITY = 'kanban/UPDATE_DEAL_PRIORITY';

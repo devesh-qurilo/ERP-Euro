@@ -166,7 +166,7 @@ export default function LeadsTable({ data, loading, busyIds, onRowMenuPress }) {
               <View
                 style={[
                   styles.cell,
-                  { width: COLUMNS[6].width, alignItems: 'flex-end' },
+                  { width: COLUMNS[6].width, alignItems: 'flex-center' },
                 ]}
               >
                 {busy ? (

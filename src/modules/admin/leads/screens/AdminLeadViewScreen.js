@@ -11,6 +11,12 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 import { formatDate } from '../../../../utils/helpers';
@@ -106,63 +112,75 @@ const NoteModal = ({ visible, onClose, onSave, initial }) => {
 
   return (
     <Modal visible={visible} transparent animationType="slide">
-      <View style={styles.modalBackdrop}>
-        <View style={styles.modalSheet}>
-          <Text style={styles.modalTitle}>
-            {isEdit ? 'Edit Note' : 'Add Note'}
-          </Text>
-
-          <View style={{ marginBottom: 10 }}>
-            <Text style={styles.modalLabel}>Title</Text>
-            <TextInput
-              style={styles.modalInput}
-              value={noteTitle}
-              onChangeText={setNoteTitle}
-              placeholder="Profitable Lead"
-            />
-          </View>
-
-          <View style={{ marginBottom: 10 }}>
-            <Text style={styles.modalLabel}>Type</Text>
-            <TypePills value={noteType} onChange={setNoteType} />
-          </View>
-
-          <View style={{ marginBottom: 10 }}>
-            <Text style={styles.modalLabel}>Details</Text>
-            <TextInput
-              style={[
-                styles.modalInput,
-                { height: 100, textAlignVertical: 'top' },
-              ]}
-              value={noteDetails}
-              onChangeText={setNoteDetails}
-              multiline
-              placeholder="Need to complete at time"
-            />
-          </View>
-
-          <View style={styles.modalFooter}>
-            <Pressable
-              style={[styles.modalBtn, styles.modalCancel]}
-              onPress={onClose}
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.modalBackdrop}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ width: '100%' }}
+          >
+            <ScrollView
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
             >
-              <Text style={styles.modalCancelTxt}>Cancel</Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.modalBtn,
-                valid ? styles.modalSave : styles.modalSaveDisabled,
-              ]}
-              onPress={handleSubmit}
-              disabled={!valid || saving}
-            >
-              <Text style={styles.modalSaveTxt}>
-                {saving ? 'Saving…' : isEdit ? 'Update' : 'Save'}
-              </Text>
-            </Pressable>
-          </View>
+              <View style={styles.modalSheet}>
+                <Text style={styles.modalTitle}>
+                  {isEdit ? 'Edit Note' : 'Add Note'}
+                </Text>
+
+                <View style={{ marginBottom: 10 }}>
+                  <Text style={styles.modalLabel}>Title</Text>
+                  <TextInput
+                    style={styles.modalInput}
+                    value={noteTitle}
+                    onChangeText={setNoteTitle}
+                    placeholder="Profitable Lead"
+                  />
+                </View>
+
+                <View style={{ marginBottom: 10 }}>
+                  <Text style={styles.modalLabel}>Type</Text>
+                  <TypePills value={noteType} onChange={setNoteType} />
+                </View>
+
+                <View style={{ marginBottom: 10 }}>
+                  <Text style={styles.modalLabel}>Details</Text>
+                  <TextInput
+                    style={[
+                      styles.modalInput,
+                      { height: 100, textAlignVertical: 'top' },
+                    ]}
+                    value={noteDetails}
+                    onChangeText={setNoteDetails}
+                    multiline
+                    placeholder="Need to complete at time"
+                  />
+                </View>
+
+                <View style={styles.modalFooter}>
+                  <Pressable
+                    style={[styles.modalBtn, styles.modalCancel]}
+                    onPress={onClose}
+                  >
+                    <Text style={styles.modalCancelTxt}>Cancel</Text>
+                  </Pressable>
+                  <Pressable
+                    style={[
+                      styles.modalBtn,
+                      valid ? styles.modalSave : styles.modalSaveDisabled,
+                    ]}
+                    onPress={handleSubmit}
+                    disabled={!valid || saving}
+                  >
+                    <Text style={styles.modalSaveTxt}>
+                      {saving ? 'Saving…' : isEdit ? 'Update' : 'Save'}
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+            </ScrollView>
+          </KeyboardAvoidingView>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 };
@@ -472,16 +490,6 @@ export default function AdminLeadViewScreen() {
               })}
           </>
         )}
-
-        {/* DEAL TAB (placeholder for now) */}
-        {/* {tab === 'deal' && (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Deal</Text>
-            <Text style={styles.placeholderTxt}>
-              Deal tab will be implemented later.
-            </Text>
-          </View>
-        )} */}
 
         {tab === 'deal' && (
           <View style={styles.card}>
@@ -927,7 +935,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   modalSave: {
-    backgroundColor: '#111827',
+    backgroundColor: '#305ab6',
   },
   modalSaveDisabled: {
     backgroundColor: '#9ca3af',
@@ -952,8 +960,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9fafb',
   },
   pillActive: {
-    backgroundColor: '#111827',
-    borderColor: '#111827',
+    backgroundColor: '#305ab6',
+    borderColor: '#305ab6',
   },
   pillTxt: {
     fontSize: 11,

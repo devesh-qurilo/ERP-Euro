@@ -91,6 +91,7 @@ const rootReducer = combineReducers({
   }),
 
   admin: combineReducers({
+    Priority: reducerPriority,
     leads: adminLeadsReducer, // ✅ <-- this is the Admin Lead Contacts reducer
     Priority: reducerPriority,
     settings: adminSettingsReducer,

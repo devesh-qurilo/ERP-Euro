@@ -59,6 +59,7 @@ import AdminDashboardScreen from '../modules/admin/dashboard/screens/AdminDashbo
 import AdminMessageViewScreen from '../modules/admin/messages/screens/AdminEmployeeViewScreen';
 import AdminMessageRoomScreen from '../modules/admin/messages/screens/AdminMessageRoomScreen';
 import AdminEmployeesViewScreen from '../modules/admin/hr/employees/screens/AdminEmployeeViewScreen';
+import PriorityScreen from '../modules/admin/leads/deals/kanban/screens/PriorityScreen';
 // Redux action
 import { logout as logoutAction } from '../store/actions';
 
@@ -103,6 +104,7 @@ function LeadsStack() {
     >
       <Stack.Screen name="AdminDeal" component={AdminDealScreen} />
       <Stack.Screen name="AdminDealView" component={AdminDealViewScreen} />
+      <Stack.Screen name="PriorityScreen" component={PriorityScreen} />
       <Stack.Screen name="LeadsContacts" component={AdminLeadContactsScreen} />
       <Stack.Screen name="AdminDealKanban" component={AdminDealKanbanScreen} />
       <Stack.Screen

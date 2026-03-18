@@ -10,8 +10,11 @@ import {
   Alert,
   Modal,
 } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import LeadImportExport from '../components/LeadImportExport';
+import LeadExportButton from '../components/LeadExportButton';
 
 import {
   fetchAdminLeads,
@@ -119,7 +122,7 @@ export default function AdminLeadContactsScreen() {
   const busyIds = useSelector(selectAdminLeadsBusyIds);
   const me = useSelector(s => s?.auth?.profile?.employeeId) || '';
   const employees = useSelector(selectEmpList);
-
+  console.log('list lead', list);
   useEffect(() => {
     dispatch(fetchEmployees());
   }, [dispatch]);
@@ -399,13 +402,23 @@ export default function AdminLeadContactsScreen() {
 
       {/* 2) Header + Add button */}
       <View style={styles.headerRow}>
-        <Text style={styles.sectionTitle}>Lead Contacts</Text>
-        <Pressable
-          style={[styles.primaryBtn, { backgroundColor: '#1d4ed8' }]}
-          onPress={openCreateModal}
-        >
-          <Text style={[styles.primaryTxt, { color: '#fff' }]}>+ Add Lead</Text>
-        </Pressable>
+        {/* <Text style={styles.sectionTitle}>Lead Contacts</Text> */}
+
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <LeadImportExport
+            leads={filtered}
+            onImported={() => dispatch(fetchAdminLeads())}
+          />
+
+          <LeadExportButton leads={filtered} />
+
+          <Pressable
+            style={[styles.primaryBtn, { backgroundColor: '#1d4ed8' }]}
+            onPress={openCreateModal}
+          >
+            <Text style={{ color: '#fff', fontWeight: '700' }}>+ Add Lead</Text>
+          </Pressable>
+        </View>
       </View>
 
       {/* 3) Table area */}
@@ -432,6 +445,7 @@ export default function AdminLeadContactsScreen() {
       />
 
       {/* 5) 3-dot Action bottom sheet */}
+      {/* 5) Modern Action Bottom Sheet */}
       <Modal
         visible={showActionMenu && !!actionLead}
         animationType="fade"
@@ -442,37 +456,44 @@ export default function AdminLeadContactsScreen() {
           style={styles.menuBackdrop}
           onPress={() => setShowActionMenu(false)}
         >
-          <View style={styles.actionSheet}>
-            <Text style={styles.actionTitle}>{actionLead?.name || 'Lead'}</Text>
+          <View style={styles.sheetContainer}>
+            {/* Handle */}
+            <View style={styles.sheetHandle} />
+
+            <Text style={styles.sheetTitle}>{actionLead?.name || 'Lead'}</Text>
+
+            <Text style={styles.sheetSubtitle}>Choose an action</Text>
 
             <Pressable
-              style={styles.actionBtn}
+              style={styles.sheetItem}
               onPress={() => handleView(actionLead)}
             >
-              <Text style={styles.actionTxt}>View</Text>
+              <Ionicons name="eye-outline" size={22} color="#2563eb" />
+              <Text style={styles.sheetText}>View Lead</Text>
             </Pressable>
 
             <Pressable
-              style={styles.actionBtn}
+              style={styles.sheetItem}
               onPress={() => handleEdit(actionLead)}
             >
-              <Text style={styles.actionTxt}>Edit</Text>
+              <Ionicons name="create-outline" size={22} color="#16a34a" />
+              <Text style={styles.sheetText}>Edit Lead</Text>
             </Pressable>
 
             <Pressable
-              style={[styles.actionBtn, styles.actionDanger]}
-              onPress={() => handleDelete(actionLead)}
-            >
-              <Text style={[styles.actionTxt, styles.actionDangerTxt]}>
-                Delete
-              </Text>
-            </Pressable>
-
-            <Pressable
-              style={styles.actionBtn}
+              style={styles.sheetItem}
               onPress={() => handleConvert(actionLead)}
             >
-              <Text style={styles.actionTxt}>Add to Client</Text>
+              <Ionicons name="person-add-outline" size={22} color="#7c3aed" />
+              <Text style={styles.sheetText}>Add to Client</Text>
+            </Pressable>
+
+            <Pressable
+              style={[styles.sheetItem, styles.sheetDelete]}
+              onPress={() => handleDelete(actionLead)}
+            >
+              <Ionicons name="trash-outline" size={22} color="#dc2626" />
+              <Text style={styles.sheetDeleteText}>Delete Lead</Text>
             </Pressable>
           </View>
         </Pressable>
@@ -482,6 +503,68 @@ export default function AdminLeadContactsScreen() {
 }
 
 const styles = StyleSheet.create({
+  menuBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'flex-end',
+  },
+
+  sheetContainer: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+  },
+
+  sheetHandle: {
+    width: 50,
+    height: 5,
+    backgroundColor: '#d1d5db',
+    borderRadius: 10,
+    alignSelf: 'center',
+    marginBottom: 14,
+  },
+
+  sheetTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#111827',
+    textAlign: 'center',
+  },
+
+  sheetSubtitle: {
+    fontSize: 13,
+    color: '#6b7280',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+
+  sheetItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    marginBottom: 8,
+    backgroundColor: '#f9fafb',
+    gap: 12,
+  },
+
+  sheetText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#111827',
+  },
+
+  sheetDelete: {
+    backgroundColor: '#fef2f2',
+  },
+
+  sheetDeleteText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#dc2626',
+  },
   wrap: {
     padding: 12,
     gap: 12,

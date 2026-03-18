@@ -51,7 +51,7 @@ export default function DealFormModal({ open, editing, onClose, forceLeadId }) {
     dealWatchers: [],
     value: '',
     expectedCloseDate: null,
-    dealContact: '',
+    // dealContact: '',
   };
 
   const [form, setForm] = useState(emptyForm);
@@ -59,6 +59,7 @@ export default function DealFormModal({ open, editing, onClose, forceLeadId }) {
   useEffect(() => {
     dispatch(fetchEmployees());
     dispatch(fetchAdminLeads());
+    dispatch(fetchKanban());
   }, []);
 
   useEffect(() => {
@@ -79,10 +80,6 @@ export default function DealFormModal({ open, editing, onClose, forceLeadId }) {
       fetchCategories();
     }
   }, [open]);
-
-  useEffect(() => {
-    dispatch(fetchKanban());
-  }, [dispatch]);
 
   const fetchCategories = async () => {
     try {
@@ -145,6 +142,17 @@ export default function DealFormModal({ open, editing, onClose, forceLeadId }) {
     onClose?.();
   };
 
+  const handleDateChange = (event, selectedDate) => {
+    setShowDate(false);
+
+    if (selectedDate) {
+      setForm(prev => ({
+        ...prev,
+        expectedCloseDate: selectedDate,
+      }));
+    }
+  };
+
   const handleDeleteCategory = async id => {
     try {
       await api.delete(`/deals/dealCategory/${id}`);
@@ -160,19 +168,23 @@ export default function DealFormModal({ open, editing, onClose, forceLeadId }) {
     <Modal transparent visible={open} animationType="fade">
       <Pressable style={styles.overlay} onPress={onClose}>
         <Pressable style={styles.card} onPress={() => {}}>
-          <ScrollView keyboardShouldPersistTaps="handled">
+          <ScrollView
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            nestedScrollEnabled
+          >
             <Text style={styles.title}>
               {editing ? 'Edit Deal' : 'Add Deal'}
             </Text>
 
-            <Text style={styles.label}>Title</Text>
+            <Text style={styles.label}>Deal Title</Text>
             <TextInput
               style={styles.input}
               value={form.title}
               onChangeText={v => setForm({ ...form, title: v })}
             />
 
-            <Text style={styles.label}>Lead</Text>
+            <Text style={styles.label}>Lead Contact</Text>
             <Pressable
               style={styles.dropdown}
               onPress={() => setLeadDropdown(true)}
@@ -182,12 +194,12 @@ export default function DealFormModal({ open, editing, onClose, forceLeadId }) {
               </Text>
             </Pressable>
 
-            <Text style={styles.label}>Deal Contact</Text>
+            {/* <Text style={styles.label}>Deal Contact</Text>
             <TextInput
               style={styles.input}
               value={form.dealContact}
               onChangeText={v => setForm({ ...form, dealContact: v })}
-            />
+            /> */}
 
             <Text style={styles.label}>Deal Agent</Text>
             <Pressable
@@ -225,6 +237,7 @@ export default function DealFormModal({ open, editing, onClose, forceLeadId }) {
               <Picker
                 selectedValue={form.pipeline}
                 onValueChange={v => setForm({ ...form, pipeline: v })}
+                itemStyle={{ height: 100 }}
               >
                 <Picker.Item
                   label="Default Pipeline"
@@ -235,11 +248,12 @@ export default function DealFormModal({ open, editing, onClose, forceLeadId }) {
               </Picker>
             </View>
 
-            <Text style={styles.label}>Stage</Text>
+            <Text style={styles.label}>Deal Stage</Text>
             <View style={styles.pickerBox}>
               <Picker
                 selectedValue={form.dealStage}
                 onValueChange={v => setForm({ ...form, dealStage: v })}
+                itemStyle={{ height: 100 }}
               >
                 {stages?.map(stage => (
                   <Picker.Item
@@ -263,17 +277,6 @@ export default function DealFormModal({ open, editing, onClose, forceLeadId }) {
               </Text>
             </Pressable>
 
-            {showDate && (
-              <DateTimePicker
-                value={form.expectedCloseDate || new Date()}
-                mode="date"
-                onChange={(_, d) => {
-                  setShowDate(false);
-                  if (d) setForm({ ...form, expectedCloseDate: d });
-                }}
-              />
-            )}
-
             <View style={styles.categoryRow}>
               <Text style={styles.label}>Category</Text>
               <Pressable onPress={() => setCategoryModal(true)}>
@@ -285,6 +288,7 @@ export default function DealFormModal({ open, editing, onClose, forceLeadId }) {
               <Picker
                 selectedValue={form.dealCategory}
                 onValueChange={v => setForm({ ...form, dealCategory: v })}
+                itemStyle={{ height: 100 }}
               >
                 {categories.map(cat => (
                   <Picker.Item
@@ -311,6 +315,14 @@ export default function DealFormModal({ open, editing, onClose, forceLeadId }) {
               <Text style={{ color: '#000', fontWeight: '700' }}>Cancel</Text>
             </TouchableOpacity>
           </ScrollView>
+          {showDate && (
+            <DateTimePicker
+              value={form.expectedCloseDate || new Date()}
+              mode="date"
+              display="default"
+              onChange={handleDateChange}
+            />
+          )}
         </Pressable>
       </Pressable>
 
@@ -330,6 +342,9 @@ export default function DealFormModal({ open, editing, onClose, forceLeadId }) {
               />
               <FlatList
                 data={filteredLeads}
+                initialNumToRender={2}
+                maxToRenderPerBatch={2}
+                windowSize={3}
                 keyExtractor={item => item.id.toString()}
                 renderItem={({ item }) => (
                   <Pressable
@@ -363,6 +378,9 @@ export default function DealFormModal({ open, editing, onClose, forceLeadId }) {
                 onChangeText={setEmpSearch}
               />
               <FlatList
+                initialNumToRender={2}
+                maxToRenderPerBatch={2}
+                windowSize={3}
                 data={filteredEmployees}
                 keyExtractor={item => item.employeeId}
                 renderItem={({ item }) => (
@@ -397,6 +415,9 @@ export default function DealFormModal({ open, editing, onClose, forceLeadId }) {
                 onChangeText={setEmpSearch}
               />
               <FlatList
+                initialNumToRender={2}
+                maxToRenderPerBatch={2}
+                windowSize={3}
                 data={filteredEmployees}
                 keyExtractor={item => item.employeeId}
                 renderItem={({ item }) => {
@@ -493,7 +514,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
-    maxHeight: '80%',
+    maxHeight: '70%',
   },
   title: { fontSize: 18, fontWeight: '800', marginBottom: 12 },
   label: { fontSize: 13, marginBottom: 4, color: '#555' },
@@ -516,6 +537,7 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
     borderRadius: 8,
     marginBottom: 12,
+    height: 120,
   },
   dropdownRow: {
     flexDirection: 'row',

@@ -1,4 +1,5 @@
 import React, { memo, useState, useMemo } from 'react';
+import { ScrollView } from 'react-native';
 import {
   View,
   Text,
@@ -110,12 +111,12 @@ const DealRow = memo(function DealRow({
     });
 
     try {
-      // console.log('hello devesj', selected.id, item.id);
+      console.log('hello devesj', selected.id, item.id);
       await api.put(`/deals/${item.id}/priority`, {
         priorityId: selected.id,
       });
     } catch (err) {
-      // console.log('Priority update error', err);
+      console.log('Priority update error', err);
     }
   };
 
@@ -294,7 +295,7 @@ const DealRow = memo(function DealRow({
       <View
         style={[
           styles.cell,
-          { width: columns[10].width, alignItems: 'flex-end' },
+          { width: columns[10].width, alignItems: 'flex-center' },
         ]}
       >
         {busy ? (
@@ -332,18 +333,20 @@ const DealRow = memo(function DealRow({
             onPress={() => setStageDropdown(false)}
           >
             <View style={styles.dropdownCard}>
-              {stages?.map(stage => (
-                <Pressable
-                  key={stage.id}
-                  style={styles.dropdownItem}
-                  onPress={async () => {
-                    await handleStageChange(stage.name);
-                    setStageDropdown(false);
-                  }}
-                >
-                  <Text>{stage.name}</Text>
-                </Pressable>
-              ))}
+              <ScrollView style={{ maxHeight: 220 }}>
+                {stages?.map(stage => (
+                  <Pressable
+                    key={stage.id}
+                    style={styles.dropdownItem}
+                    onPress={async () => {
+                      await handleStageChange(stage.name);
+                      setStageDropdown(false);
+                    }}
+                  >
+                    <Text>{stage.name}</Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
             </View>
           </Pressable>
         </Modal>
@@ -356,29 +359,57 @@ const DealRow = memo(function DealRow({
             onPress={() => setPriorityDropdown(false)}
           >
             <View style={styles.dropdownCard}>
-              {priorities?.map(p => (
+              {/* REMOVE PRIORITY */}
+              {item.priority && (
                 <Pressable
-                  key={p.id}
                   style={styles.dropdownItem}
                   onPress={async () => {
-                    await handlePriorityChange(p.status);
-                    setPriorityDropdown(false);
+                    try {
+                      await api.delete(`/deals/${item.id}/priority`);
+
+                      // 🔥 Optimistic remove
+                      onRowUpdate?.(item.id, {
+                        priority: null,
+                      });
+
+                      setPriorityDropdown(false);
+                    } catch (err) {
+                      console.log('Delete priority error', err);
+                    }
                   }}
                 >
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <View
-                      style={{
-                        width: 10,
-                        height: 10,
-                        borderRadius: 5,
-                        backgroundColor: p.color,
-                        marginRight: 8,
-                      }}
-                    />
-                    <Text>{p.status}</Text>
-                  </View>
+                  <Text style={{ color: 'red' }}>Remove Priority</Text>
                 </Pressable>
-              ))}
+              )}
+
+              {/* LIST */}
+              <ScrollView style={{ maxHeight: 220 }}>
+                {priorities?.map(p => (
+                  <Pressable
+                    key={p.id}
+                    style={styles.dropdownItem}
+                    onPress={async () => {
+                      await handlePriorityChange(p.status);
+                      setPriorityDropdown(false);
+                    }}
+                  >
+                    <View
+                      style={{ flexDirection: 'row', alignItems: 'center' }}
+                    >
+                      <View
+                        style={{
+                          width: 10,
+                          height: 10,
+                          borderRadius: 5,
+                          backgroundColor: p.color,
+                          marginRight: 8,
+                        }}
+                      />
+                      <Text>{p.status}</Text>
+                    </View>
+                  </Pressable>
+                ))}
+              </ScrollView>
             </View>
           </Pressable>
         </Modal>
@@ -396,7 +427,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderColor: '#eee',
+    borderColor: '#ebe8e8',
     alignItems: 'center',
     backgroundColor: '#fff',
   },
