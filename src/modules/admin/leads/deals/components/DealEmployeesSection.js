@@ -102,6 +102,7 @@ export default function DealEmployeesSection({ dealId, employees }) {
               setSelectedIds(prev => [...prev, value]);
             }
           }}
+          itemStyle={{ height: 100 }}
         >
           <Picker.Item label="Select Employee..." value={null} />
           {empOptions.map(opt => (

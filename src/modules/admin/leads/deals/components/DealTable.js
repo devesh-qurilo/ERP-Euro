@@ -40,6 +40,8 @@ export default function DealTable({
 }) {
   const keyExtractor = item => String(item.id);
 
+  console.log('test data', data);
+
   const renderItem = ({ item }) => (
     <DealRow
       item={item}

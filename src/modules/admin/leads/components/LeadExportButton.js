@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, Text, Alert, Share } from 'react-native';
+import Entypo from 'react-native-vector-icons/Feather';
 
 export default function LeadExportButton({ leads = [] }) {
   const handleExportCSV = async () => {
@@ -61,7 +62,9 @@ export default function LeadExportButton({ leads = [] }) {
         borderRadius: 8,
       }}
     >
-      <Text style={{ color: '#fff', fontWeight: '700' }}>Export CSV</Text>
+      <Text style={{ color: '#fff', fontWeight: '700' }}>
+        <Entypo name="upload" size={18} color={'#fff'} /> {'  '}Export
+      </Text>
     </Pressable>
   );
 }

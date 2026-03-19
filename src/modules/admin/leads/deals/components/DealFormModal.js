@@ -537,7 +537,6 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
     borderRadius: 8,
     marginBottom: 12,
-    height: 120,
   },
   dropdownRow: {
     flexDirection: 'row',

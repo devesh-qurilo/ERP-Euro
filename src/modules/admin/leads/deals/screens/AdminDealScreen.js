@@ -67,23 +67,70 @@ export default function AdminDealScreen() {
 
   const filteredRows = useMemo(() => {
     return rows.filter(d => {
+      // Enhanced search
+      const searchLower = (filters.search || '').toLowerCase();
       if (
         filters.search &&
-        !d.title?.toLowerCase().includes(filters.search.toLowerCase()) &&
-        !d.leadName?.toLowerCase().includes(filters.search.toLowerCase())
-      )
+        ![
+          d.title,
+          d.leadName,
+          d.leadCompany,
+          d.leadEmail,
+          d.leadMobile,
+          d.value?.toString(),
+          d.dealStage,
+        ].some(field => field?.toLowerCase().includes(searchLower))
+      ) {
         return false;
+      }
 
+      // Stage
       if (filters.stage && d.dealStage !== filters.stage) return false;
 
+      // Agent
       if (filters.agent && d.dealAgent !== filters.agent) return false;
 
+      // Min Value
+      const minVal = parseFloat(filters.minValue || 0);
+      if (filters.minValue && parseFloat(d.value || 0) < minVal) return false;
+
+      // Watchers (comma separated)
+      if (filters.watchers) {
+        const watcherIds = filters.watchers
+          .split(',')
+          .map(w => w.trim())
+          .filter(Boolean);
+        if (
+          watcherIds.length > 0 &&
+          !watcherIds.some(wid => d.dealWatchers?.includes(wid))
+        ) {
+          return false;
+        }
+      }
+
+      // Tags contains
+      if (
+        filters.tagSearch &&
+        !d.tags?.some(t =>
+          t.toLowerCase().includes(filters.tagSearch.toLowerCase()),
+        )
+      ) {
+        return false;
+      }
+
+      // Priority
+      if (filters.priorityId && d.priority?.id !== filters.priorityId)
+        return false;
+
+      // Pipeline
+      if (filters.pipeline && d.pipeline !== filters.pipeline) return false;
+
+      // Dates (expectedCloseDate)
       if (
         filters.dateFrom &&
         new Date(d.expectedCloseDate) < new Date(filters.dateFrom)
       )
         return false;
-
       if (
         filters.dateTo &&
         new Date(d.expectedCloseDate) > new Date(filters.dateTo)

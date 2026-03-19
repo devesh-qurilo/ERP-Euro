@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, Text, Alert } from 'react-native';
 import { pick } from '@react-native-documents/picker';
 import api from '../../../../../services/api';
+import Icon from 'react-native-vector-icons/Feather';
 
 export default function DealImportButton({ onImported }) {
   const handleImportCSV = async () => {
@@ -51,12 +52,14 @@ export default function DealImportButton({ onImported }) {
       onPress={handleImportCSV}
       style={{
         backgroundColor: '#16a34a',
-        paddingHorizontal: 14,
+        paddingHorizontal: 8,
         paddingVertical: 10,
         borderRadius: 8,
       }}
     >
-      <Text style={{ color: '#fff', fontWeight: '700' }}>Import</Text>
+      <Text style={{ color: '#fff', fontWeight: '400' }}>
+        <Icon name="download" size={16} color={'#fff'} /> Import
+      </Text>
     </Pressable>
   );
 }

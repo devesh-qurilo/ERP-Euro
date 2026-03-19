@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, Text, Alert } from 'react-native';
 import { pick } from '@react-native-documents/picker';
 import api from '../../../../services/api';
+import Entypo from 'react-native-vector-icons/Feather';
 
 export default function LeadImportButton({ onImported }) {
   const handleImportCSV = async () => {
@@ -62,7 +63,10 @@ export default function LeadImportButton({ onImported }) {
         borderRadius: 8,
       }}
     >
-      <Text style={{ color: '#fff', fontWeight: '700' }}>Import CSV</Text>
+      <Text style={{ color: '#fff', fontWeight: '700' }}>
+        <Entypo name="download" size={18} color={'#fff'} />
+        {'  '} Import
+      </Text>
     </Pressable>
   );
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, Text, Alert, Share } from 'react-native';
+import Icon from 'react-native-vector-icons/Feather';
 
 export default function DealExportButton({ deals = [] }) {
   const formatDate = date => {
@@ -52,12 +53,14 @@ export default function DealExportButton({ deals = [] }) {
     <Pressable
       onPress={handleExportCSV}
       style={{
-        backgroundColor: '#2563eb',
+        backgroundColor: '#9333ea',
         padding: 10,
         borderRadius: 8,
       }}
     >
-      <Text style={{ color: '#fff', fontWeight: '700' }}>Export</Text>
+      <Text style={{ color: '#fff', fontWeight: '400' }}>
+        <Icon name="upload" size={16} color={'#fff'} /> Export
+      </Text>
     </Pressable>
   );
 }

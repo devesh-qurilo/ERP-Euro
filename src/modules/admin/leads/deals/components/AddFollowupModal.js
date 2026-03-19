@@ -147,6 +147,7 @@ export default function AddFollowupModal({ visible, onClose, onSave }) {
               <Picker
                 selectedValue={form.remindUnit}
                 onValueChange={v => setForm({ ...form, remindUnit: v })}
+                itemStyle={{ height: 100 }}
               >
                 <Picker.Item label="Days" value="DAYS" />
                 <Picker.Item label="Hours" value="HOURS" />
@@ -159,6 +160,7 @@ export default function AddFollowupModal({ visible, onClose, onSave }) {
               <Picker
                 selectedValue={form.status}
                 onValueChange={v => setForm({ ...form, status: v })}
+                itemStyle={{ height: 100 }}
               >
                 <Picker.Item label="Pending" value="PENDING" />
                 <Picker.Item label="Completed" value="COMPLETED" />
@@ -168,8 +170,23 @@ export default function AddFollowupModal({ visible, onClose, onSave }) {
 
             {/* Buttons */}
             <View style={styles.buttonRow}>
-              <TouchableOpacity onPress={onClose}>
-                <Text>Cancel</Text>
+              <TouchableOpacity
+                onPress={onClose}
+                style={{
+                  backgroundColor: '#979797',
+                  paddingHorizontal: 16,
+                  paddingVertical: 10,
+                  borderRadius: 8,
+                }}
+              >
+                <Text
+                  style={{
+                    color: '#000000',
+                    fontWeight: '700',
+                  }}
+                >
+                  Cancel
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>

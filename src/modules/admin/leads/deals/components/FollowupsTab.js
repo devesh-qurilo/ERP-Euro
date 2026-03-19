@@ -188,6 +188,7 @@ export default function FollowupsTab({ dealId }) {
             <Picker
               selectedValue={form.remindUnit}
               onValueChange={v => setForm({ ...form, remindUnit: v })}
+              itemStyle={{ height: 100 }}
             >
               <Picker.Item label="Days" value="DAYS" />
               <Picker.Item label="Hours" value="HOURS" />
@@ -200,6 +201,7 @@ export default function FollowupsTab({ dealId }) {
             <Picker
               selectedValue={form.status}
               onValueChange={v => setForm({ ...form, status: v })}
+              itemStyle={{ height: 100 }}
             >
               <Picker.Item label="Pending" value="PENDING" />
               <Picker.Item label="Completed" value="COMPLETED" />

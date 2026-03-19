@@ -827,6 +827,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { selectPriorities } from '../../priorities/selectors';
 import api from '../../../../../../services/api';
+import Icon from 'react-native-vector-icons/Feather';
 
 /**
  * Fancy Kanban screen (drop-in)
@@ -1121,14 +1122,18 @@ function KanbanCard({ item, stage, stages, dispatch, navigation }) {
     item.leadName || item.assignedEmployeesMeta?.[0]?.name || '--';
   const leadMobile = item.leadMobile || '--';
   const tags = Array.isArray(item.tags) ? item.tags : [];
+  const comments = Array.isArray(item.comments) ? item.comments : [];
   // const calend = item.followups[0]?.nextDate || '--';
 
   // avatars from assignedEmployeesMeta (max 3)
   const avatars = (item.assignedEmployeesMeta || []).slice(0, 3);
 
   // first 2 tags to show
-  const visibleTags = tags.slice(0, 2);
+  const visibleTags = tags.slice(0, 3);
   const overflow = tags.length - visibleTags.length;
+
+  const visiblecomments = comments.slice(0, 1);
+  const overflowcomment = comments.length - visiblecomments.length;
 
   const latestFollowup = useMemo(
     () => getLatestFollowup(item.followups),
@@ -1189,16 +1194,9 @@ function KanbanCard({ item, stage, stages, dispatch, navigation }) {
       ]}
     >
       <View style={styles.cardTop}>
-        {/* <Text style={styles.cardTitle} numberOfLines={1}>
-          {item.title}
-        </Text> */}
-        {/* <Text style={styles.cardTitle} numberOfLines={1}>
-          {calend}
-        </Text> */}
-
         <View style={{ flex: 1 }}>
           <Text style={styles.cardTitle} numberOfLines={1}>
-            {item.title}
+            <Icon name="briefcase" size={16} color="#333" /> {item.title}
           </Text>
 
           <TouchableOpacity
@@ -1235,9 +1233,17 @@ function KanbanCard({ item, stage, stages, dispatch, navigation }) {
 
       <View style={styles.cardBody}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.leadName}>{leadName}</Text>
-          <Text style={styles.leadMobile}>{leadMobile}</Text>
-          <Text style={styles.leadCalender}>{calend}</Text>
+          <Text style={styles.leadName}>
+            <Icon name="user" size={14} color="#666" />
+            {'  '}
+            {leadName}
+          </Text>
+          <Text style={styles.leadMobile}>
+            <Icon name="phone-call" size={14} color="#284a42" /> {leadMobile}
+          </Text>
+          <Text style={styles.leadCalender}>
+            <Icon name="calendar" size={14} color="#284a42" /> {calend}
+          </Text>
           <View style={styles.tagsRow}>
             {visibleTags.length === 0 && (
               <Text style={styles.noTagsText}>No tags</Text>
@@ -1246,6 +1252,17 @@ function KanbanCard({ item, stage, stages, dispatch, navigation }) {
               <TagChip key={`${t}-${i}`} text={t} index={i} />
             ))}
             {overflow > 0 && <TagChip text={`+${overflow}`} compact />}
+          </View>
+          <View style={styles.tagsRow}>
+            {visiblecomments.length === 0 && (
+              <Text style={styles.noTagsText}>No comments</Text>
+            )}
+            {visiblecomments.map((t, i) => (
+              <TagChip key={`${t}-${i}`} text={t} index={i} />
+            ))}
+            {overflowcomment > 0 && (
+              <TagChip text={`+${overflowcomment}`} compact />
+            )}
           </View>
         </View>
 
@@ -1453,11 +1470,11 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff25',
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#eef0f3',
+    borderColor: '#d4d5d6',
     marginBottom: 12,
 
     // soft shadow (iOS + Android)
@@ -1472,7 +1489,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 6,
   },
-  cardTitle: { fontWeight: '800', fontSize: 15, color: '#222', maxWidth: 220 },
+  cardTitle: { fontWeight: '600', fontSize: 15, color: '#222', maxWidth: 220 },
 
   openPill: {
     backgroundColor: '#E9F2FF',
@@ -1486,17 +1503,22 @@ const styles = StyleSheet.create({
   menuBtn: { paddingHorizontal: 6, paddingVertical: 4 },
   menuText: { fontSize: 20, color: '#666' },
 
-  cardBody: { flexDirection: 'row', alignItems: 'center', marginTop: 6 },
+  cardBody: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+  },
   leadName: { fontSize: 14, fontWeight: '700', color: '#222' },
   leadMobile: { color: '#666', marginTop: 4 },
   leadCalender: {
     color: '#843838ff',
     marginTop: 4,
-    // backgroundColor: '#b4d2deff',
-    padding: 10,
-    alignItems: 'center',
-    // borderWidth: 1,
-    borderRadius: 20,
+    // marginTop: 10,
+    // backgroundColor: '#fef3c7',
+    // paddingVertical: 6,
+    // paddingHorizontal: 10,
+    borderRadius: 10,
+    alignSelf: 'flex-start',
   },
 
   tagsRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 10, gap: 6 },

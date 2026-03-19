@@ -458,8 +458,13 @@ export default function AddLeadModal({
                 onValueChange={v => set('createDeal', v)}
               />
             </View>
+            <Text style={{ color: '#393838' }}>
+              Auto Convert lead to client.
+            </Text>
             <View style={[styles.rowSwitch, { marginBottom: 12 }]}>
-              <Text style={styles.label}>Auto Convert To Client</Text>
+              <Text style={styles.label}>
+                when the deal stage is set to "WIN".
+              </Text>
               <Switch
                 value={form.autoConvertToClient}
                 onValueChange={v => set('autoConvertToClient', v)}
@@ -704,7 +709,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: '300',
     color: '#374151',
     marginBottom: 6,
   },
