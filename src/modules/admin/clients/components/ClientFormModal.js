@@ -195,7 +195,7 @@ export default function ClientFormModal({
         ))}
 
         {/* Compact row: Category + +button, SubCategory + +button */}
-        <View style={{ flexDirection: 'row', gap: 8 }}>
+        <View style={{ flexDirection: 'column', gap: 8 }}>
           <View style={{ flex: 1, marginBottom: 10 }}>
             <Text style={{ marginBottom: 6 }}>Category</Text>
             <View
@@ -212,8 +212,22 @@ export default function ClientFormModal({
                 <Picker
                   selectedValue={client.category || ''}
                   onValueChange={val => F('category', val)}
+                  itemStyle={{ height: 60 }}
+                  style={{
+                    width: '90%',
+                    color: '#111',
+                  }}
+                  dropdownIconColor="#111"
                 >
-                  <Picker.Item label="Select category" value="" />
+                  <Picker.Item
+                    label="Select category"
+                    value=""
+                    style={{
+                      width: '90%',
+                      color: '#111',
+                    }}
+                    dropdownIconColor="#111"
+                  />
                   {(categories || []).map(cat => (
                     <Picker.Item
                       key={cat.id}
@@ -253,6 +267,7 @@ export default function ClientFormModal({
                 <Picker
                   selectedValue={client.subCategory || ''}
                   onValueChange={val => F('subCategory', val)}
+                  itemStyle={{ height: 60 }}
                 >
                   <Picker.Item label="Select sub category" value="" />
                   {(subCategories || []).map(sc => (
@@ -280,7 +295,7 @@ export default function ClientFormModal({
         </View>
 
         {/* other dropdowns: country, language, gender */}
-        <View style={{ flexDirection: 'row', gap: 8 }}>
+        <View style={{ flexDirection: 'column', gap: 8 }}>
           <View style={{ flex: 1, marginBottom: 10 }}>
             <Text style={{ marginBottom: 6 }}>Country</Text>
             <View
@@ -294,6 +309,7 @@ export default function ClientFormModal({
               <Picker
                 selectedValue={client.country || ''}
                 onValueChange={v => F('country', v)}
+                itemStyle={{ height: 60 }}
               >
                 <Picker.Item label="Select country" value="" />
                 {countries.map(c => (
@@ -316,6 +332,7 @@ export default function ClientFormModal({
               <Picker
                 selectedValue={client.language || ''}
                 onValueChange={v => F('language', v)}
+                itemStyle={{ height: 60 }}
               >
                 <Picker.Item label="Select language" value="" />
                 {languages.map(l => (
@@ -338,6 +355,7 @@ export default function ClientFormModal({
               <Picker
                 selectedValue={client.gender || ''}
                 onValueChange={v => F('gender', v)}
+                itemStyle={{ height: 60 }}
               >
                 <Picker.Item label="Select gender" value="" />
                 {genders.map(g => (
@@ -404,7 +422,7 @@ export default function ClientFormModal({
         <TouchableOpacity
           onPress={async () => setProfile(await pickImageOrDoc())}
           style={{
-            backgroundColor: '#111827',
+            backgroundColor: '#2b6bd8',
             padding: 12,
             borderRadius: 10,
             marginTop: 6,
@@ -423,7 +441,7 @@ export default function ClientFormModal({
         <TouchableOpacity
           onPress={async () => setLogo(await pickImageOrDoc())}
           style={{
-            backgroundColor: '#111827',
+            backgroundColor: '#2b6bd8',
             padding: 12,
             borderRadius: 10,
             marginTop: 6,
@@ -442,7 +460,7 @@ export default function ClientFormModal({
         <TouchableOpacity
           onPress={() => onSubmit({ ...client, profilePicture, companyLogo })}
           style={{
-            backgroundColor: '#111827',
+            backgroundColor: '#2b6bd8',
             padding: 14,
             borderRadius: 10,
             marginTop: 16,
@@ -462,7 +480,14 @@ export default function ClientFormModal({
         animationType="slide"
         onRequestClose={() => setManageCategoryOpen(false)}
       >
-        <View style={{ padding: 16, flex: 1, backgroundColor: '#fff' }}>
+        <View
+          style={{
+            padding: 16,
+            flex: 1,
+            marginTop: 40,
+            backgroundColor: '#fff',
+          }}
+        >
           <View
             style={{
               flexDirection: 'row',
@@ -548,7 +573,14 @@ export default function ClientFormModal({
         animationType="slide"
         onRequestClose={() => setManageSubCategoryOpen(false)}
       >
-        <View style={{ padding: 16, flex: 1, backgroundColor: '#fff' }}>
+        <View
+          style={{
+            padding: 16,
+            flex: 1,
+            marginTop: 40,
+            backgroundColor: '#fff',
+          }}
+        >
           <View
             style={{
               flexDirection: 'row',

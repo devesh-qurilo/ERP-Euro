@@ -170,15 +170,14 @@ export default function AdminClientsScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f3f4f6', padding: 12 }}>
+    <View style={{ flex: 1, backgroundColor: '#f3f4f6', padding: 2 }}>
       {/* Section 1: horizontal filter row */}
       <View
         style={{
           backgroundColor: '#fff',
           borderRadius: 10,
           paddingVertical: 8,
-          paddingHorizontal: 8,
-          borderWidth: 1,
+          // paddingHorizontal: 8,
           borderColor: '#e6e9ee',
         }}
       >
@@ -200,11 +199,11 @@ export default function AdminClientsScreen() {
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
               {/* SEARCH */}
               <View style={{ width: 220 }}>
-                <Text
+                {/* <Text
                   style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}
                 >
                   Search
-                </Text>
+                </Text> */}
                 <TextInput
                   placeholder="Name / Email / Client ID"
                   value={localSearch}
@@ -222,11 +221,11 @@ export default function AdminClientsScreen() {
 
               {/* CATEGORY */}
               <View style={{ width: 200 }}>
-                <Text
+                {/* <Text
                   style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}
                 >
                   Category
-                </Text>
+                </Text> */}
 
                 <TouchableOpacity
                   onPress={() => setCategoryModal(true)}
@@ -311,11 +310,11 @@ export default function AdminClientsScreen() {
 
               {/* START DATE */}
               <View style={{ width: 180 }}>
-                <Text
+                {/* <Text
                   style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}
                 >
                   Start Date
-                </Text>
+                </Text> */}
 
                 <TouchableOpacity
                   onPress={() => setShowStart(true)}
@@ -328,17 +327,17 @@ export default function AdminClientsScreen() {
                     paddingHorizontal: 10,
                   }}
                 >
-                  <Text>{filters.startDate || 'Select Date'}</Text>
+                  <Text>{filters.startDate || 'Select Start Date'}</Text>
                 </TouchableOpacity>
               </View>
 
               {/* END DATE */}
               <View style={{ width: 180 }}>
-                <Text
+                {/* <Text
                   style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}
                 >
                   End Date
-                </Text>
+                </Text> */}
 
                 <TouchableOpacity
                   onPress={() => setShowEnd(true)}
@@ -351,7 +350,7 @@ export default function AdminClientsScreen() {
                     paddingHorizontal: 10,
                   }}
                 >
-                  <Text>{filters.endDate || 'Select Date'}</Text>
+                  <Text>{filters.endDate || 'Select End Date'}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -360,7 +359,7 @@ export default function AdminClientsScreen() {
                 <TouchableOpacity
                   onPress={() => applyFilters({ q: localSearch })}
                   style={{
-                    backgroundColor: '#111827',
+                    backgroundColor: '#2b6bd8',
                     paddingVertical: 10,
                     paddingHorizontal: 18,
                     borderRadius: 8,
@@ -432,7 +431,7 @@ export default function AdminClientsScreen() {
         <TouchableOpacity
           onPress={() => setAddOpen(true)}
           style={{
-            backgroundColor: '#111827',
+            backgroundColor: '#2b6bd8',
             paddingVertical: 12,
             paddingHorizontal: 16,
             borderRadius: 10,

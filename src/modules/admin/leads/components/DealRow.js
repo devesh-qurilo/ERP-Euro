@@ -169,6 +169,7 @@ const DealRow = memo(function DealRow({
 
   /* ================= UI ================= */
 
+  const Winfilter = item.dealStage?.trim().toLowerCase();
   return (
     <View style={styles.row}>
       {/* DEALkk */}
@@ -308,22 +309,35 @@ const DealRow = memo(function DealRow({
               <Text style={{ fontSize: 24 }}>⋮</Text>
             </Pressable>
 
-            {menuOpen && (
-              <View style={styles.menu}>
-                <Pressable onPress={handleView} style={styles.menuItem}>
-                  <Text>View</Text>
-                </Pressable>
-                <Pressable onPress={handleEdit} style={styles.menuItem}>
-                  <Text>Edit</Text>
-                </Pressable>
-                <Pressable onPress={handleFollowup} style={styles.menuItem}>
-                  <Text>Add Followup</Text>
-                </Pressable>
-                <Pressable onPress={handleDelete} style={styles.menuItem}>
-                  <Text style={{ color: 'red' }}>Delete</Text>
-                </Pressable>
-              </View>
-            )}
+            {menuOpen &&
+              (Winfilter == 'win' ? (
+                <View style={styles.menu}>
+                  <Pressable onPress={handleView} style={styles.menuItem}>
+                    <Text>View</Text>
+                  </Pressable>
+                  <Pressable onPress={handleEdit} style={styles.menuItem}>
+                    <Text>Edit</Text>
+                  </Pressable>
+                  <Pressable onPress={handleDelete} style={styles.menuItem}>
+                    <Text style={{ color: 'red' }}>Delete</Text>
+                  </Pressable>
+                </View>
+              ) : (
+                <View style={styles.menu}>
+                  <Pressable onPress={handleView} style={styles.menuItem}>
+                    <Text>View</Text>
+                  </Pressable>
+                  <Pressable onPress={handleEdit} style={styles.menuItem}>
+                    <Text>Edit</Text>
+                  </Pressable>
+                  <Pressable onPress={handleFollowup} style={styles.menuItem}>
+                    <Text>Add Followup</Text>
+                  </Pressable>
+                  <Pressable onPress={handleDelete} style={styles.menuItem}>
+                    <Text style={{ color: 'red' }}>Delete</Text>
+                  </Pressable>
+                </View>
+              ))}
           </>
         )}
       </View>

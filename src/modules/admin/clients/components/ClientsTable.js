@@ -15,7 +15,14 @@ const Row = ({ children, style }) => (
   </View>
 );
 const Col = ({ children, w }) => (
-  <View style={{ width: w, paddingVertical: 14, paddingHorizontal: 12 }}>
+  <View
+    style={{
+      width: w,
+      paddingVertical: 14,
+      paddingHorizontal: 12,
+      // borderWidth: 1,
+    }}
+  >
     {children}
   </View>
 );
@@ -50,12 +57,12 @@ export default function ClientsTable({ items = [], loading, onMenu }) {
       </View>
     );
   }
-
+  // console.log('devesh', items);
   return (
     <View style={{ borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 10 }}>
       <ScrollView horizontal bounces={false} showsHorizontalScrollIndicator>
         <ScrollView showsVerticalScrollIndicator style={{ maxHeight: 600 }}>
-          <View style={{ minWidth: 1200 }}>
+          <View style={{ minWidth: 1020 }}>
             {/* header */}
             <Row
               style={{
@@ -76,13 +83,13 @@ export default function ClientsTable({ items = [], loading, onMenu }) {
               <Col w={160}>
                 <Cell bold>Category</Cell>
               </Col>
-              <Col w={160}>
+              {/* <Col w={160}>
                 <Cell bold>Status</Cell>
-              </Col>
-              <Col w={180}>
+              </Col> */}
+              <Col w={120}>
                 <Cell bold>Created</Cell>
               </Col>
-              <Col w={120}>
+              <Col w={80}>
                 <Cell bold>Actions</Cell>
               </Col>
             </Row>
@@ -133,26 +140,26 @@ export default function ClientsTable({ items = [], loading, onMenu }) {
                     <View>
                       <Cell bold>{c.name || '—'}</Cell>
                       <Cell muted style={{ marginTop: 4 }}>
-                        {c.company?.companyName || '—'}
+                        {c.company || '—'}
                       </Cell>
                     </View>
                   </View>
                 </Col>
                 <Col w={280}>
-                  <Cell>{c.email || '—'}</Cell>
+                  <Cell>{(c.email || '-').slice(0, 30) || '—'}</Cell>
                   <Cell muted style={{ marginTop: 6 }}>
                     {c.mobile || '—'}
                   </Cell>
                 </Col>
                 <Col w={160}>
-                  <Cell>{c.category || '—'}</Cell>
+                  <Cell>{(c.category || '').slice(0, 15) || '-'}</Cell>
                   {c.subCategory ? (
                     <Cell muted style={{ marginTop: 6 }}>
                       {c.subCategory}
                     </Cell>
                   ) : null}
                 </Col>
-                <Col w={160}>
+                {/* <Col w={160}>
                   <View
                     style={{
                       backgroundColor:
@@ -172,24 +179,24 @@ export default function ClientsTable({ items = [], loading, onMenu }) {
                       {c.status || '—'}
                     </Text>
                   </View>
-                </Col>
-                <Col w={180}>
+                </Col> */}
+                <Col w={120}>
                   <Cell>{(c.createdAt || '').slice(0, 10) || '—'}</Cell>
                 </Col>
-                <Col w={120}>
+                <Col w={80}>
                   <TouchableOpacity
                     onPress={() => onMenu(c)}
                     style={{
                       alignSelf: 'flex-start',
                       paddingHorizontal: 12,
                       paddingVertical: 8,
-                      borderRadius: 10,
-                      borderWidth: 1,
+                      // borderRadius: 10,
+                      // borderWidth: 1,
                       borderColor: '#d1d5db',
-                      backgroundColor: '#fff',
+                      // backgroundColor: '#fff',
                     }}
                   >
-                    <Text style={{ fontSize: 18 }}>⋮</Text>
+                    <Text style={{ fontSize: 24, color: '#000' }}>⋮</Text>
                   </TouchableOpacity>
                 </Col>
               </Row>
