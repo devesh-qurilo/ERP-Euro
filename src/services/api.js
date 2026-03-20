@@ -1399,12 +1399,30 @@ const toRNFile = f =>
 export const clientsAPI = {
   list: (params = {}) => api.get('/clients', { params }).then(r => r.data),
 
-  create: async ({ client, profilePicture, companyLogo }) => {
+  create: async payload => {
     const fd = new FormData();
+
+    // separate files from data
+    const { profilePicture, companyLogo, ...client } = payload;
+
     fd.append('client', JSON.stringify(client));
-    if (profilePicture) fd.append('profilePicture', profilePicture); // {uri,name,type}
-    if (companyLogo) fd.append('companyLogo', companyLogo);
-    console.log('form of payload', fd);
+
+    if (profilePicture) {
+      fd.append('profilePicture', {
+        uri: profilePicture.uri,
+        name: profilePicture.fileName || 'profile.jpg',
+        type: profilePicture.type || 'image/jpeg',
+      });
+    }
+
+    if (companyLogo) {
+      fd.append('companyLogo', {
+        uri: companyLogo.uri,
+        name: companyLogo.fileName || 'logo.jpg',
+        type: companyLogo.type || 'image/jpeg',
+      });
+    }
+
     return api
       .post('/clients', fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -1412,11 +1430,30 @@ export const clientsAPI = {
       .then(r => r.data);
   },
 
-  update: async (id, { client, profilePicture, companyLogo }) => {
+  update: async (id, payload) => {
     const fd = new FormData();
+
+    // separate files from data
+    const { profilePicture, companyLogo, ...client } = payload;
+
     fd.append('client', JSON.stringify(client));
-    if (profilePicture) fd.append('profilePicture', profilePicture);
-    if (companyLogo) fd.append('companyLogo', companyLogo);
+
+    if (profilePicture) {
+      fd.append('profilePicture', {
+        uri: profilePicture.uri,
+        name: profilePicture.fileName || 'profile.jpg',
+        type: profilePicture.type || 'image/jpeg',
+      });
+    }
+
+    if (companyLogo) {
+      fd.append('companyLogo', {
+        uri: companyLogo.uri,
+        name: companyLogo.fileName || 'logo.jpg',
+        type: companyLogo.type || 'image/jpeg',
+      });
+    }
+
     return api
       .put(`/clients/${encodeURIComponent(id)}`, fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -1427,6 +1464,11 @@ export const clientsAPI = {
   remove: id =>
     api.delete(`/clients/${encodeURIComponent(id)}`).then(r => r.data),
   get: id => api.get(`/clients/${encodeURIComponent(id)}`).then(r => r.data),
+
+  getProjectStats: id =>
+    api.get(`/api/projects/client/${id}/stats`).then(r => r.data),
+  getInvoiceStats: id =>
+    api.get(`/api/invoices/client/${id}/stats/unpaid`).then(r => r.data),
 
   /* categories */
   getCategories: () => api.get('/clients/category').then(r => r.data),

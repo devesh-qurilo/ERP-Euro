@@ -49,6 +49,7 @@ export default function ClientProjectsTab() {
   // list for this client
   const rows = useSelector(selectClientProjects);
   const loading = useSelector(selectClientProjectsBusy);
+  console.log('client view  project', clientId, rows);
 
   // modal state comes from your main projects slice (same as AdminWorkProjectsScreen)
   const modalOpen = useSelector(selectAWPModalOpen);
@@ -72,7 +73,9 @@ export default function ClientProjectsTab() {
   }, [rows, search]);
 
   // —— handlers ——
-  const onAdd = () => dispatch(openModal(null)); // ProjectModal will be opened; we'll inject clientId on save
+  const onAdd = () => {
+    console.log('add project'), dispatch(openModal(null));
+  }; // ProjectModal will be opened; we'll inject clientId on save
   const onSave = payload => {
     // ensure clientId from context is applied on CREATE;
     // (for EDIT it's already inside payload or editing record)

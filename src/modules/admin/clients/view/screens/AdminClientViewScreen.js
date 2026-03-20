@@ -8,11 +8,16 @@ import {
   TouchableOpacity,
   useWindowDimensions,
 } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { TabView, TabBar } from 'react-native-tab-view';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRoute } from '@react-navigation/native';
-import { loadClient } from '../store/actions';
-import { selectClientDetail, selectClientDetailBusy } from '../store/selectors';
+import { loadClient, loadClientStats } from '../store/actions';
+import {
+  selectClientDetail,
+  selectClientDetailBusy,
+  selectClientStats,
+} from '../store/selectors';
 import ClientProjectsTab from '../projects/ClientProjectsTab';
 import ClientInvoicesTab from '../invoices/ClientInvoicesTab';
 import ClientPaymentsTab from '../payments/ClientPaymentsTab';
@@ -24,7 +29,14 @@ import ClientNotesTab from '../notes/ClientNotesTab';
 function ProfileTab() {
   const data = useSelector(selectClientDetail);
   const busy = useSelector(selectClientDetailBusy);
-  console.log('dekh bhaiii', data);
+  const dispatch = useDispatch();
+  const stats = useSelector(selectClientStats);
+
+  React.useEffect(() => {
+    if (data?.id) {
+      dispatch(loadClientStats(data.id));
+    }
+  }, [data?.id]);
 
   if (busy)
     return (
@@ -57,61 +69,56 @@ function ProfileTab() {
 
   return (
     <ScrollView contentContainerStyle={{ padding: 12 }}>
-      <View
-        style={{
-          borderWidth: 1,
-          borderColor: '#e5e7eb',
-          borderRadius: 12,
-          padding: 12,
-          marginBottom: 12,
-          flexDirection: 'row',
-        }}
-      >
+      <View style={styles.headerCard}>
         {data.profilePictureUrl ? (
           <Image
             source={{ uri: data.profilePictureUrl }}
-            style={{ width: 56, height: 56, borderRadius: 12, marginRight: 12 }}
+            style={styles.avatar}
           />
         ) : (
-          <View
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: 12,
-              marginRight: 12,
-              backgroundColor: '#e5e7eb',
-            }}
-          />
+          <View style={styles.avatarPlaceholder} />
         )}
+
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 16, fontWeight: '700' }}>{data.name}</Text>
-          <Text style={{ color: '#6b7280' }}>{company.companyName || '—'}</Text>
+          <Text style={styles.name}>{data.name}</Text>
+          <Text style={styles.subText}>
+            {company.companyName || 'No Company'}
+          </Text>
         </View>
-        <TouchableOpacity
-          style={{
-            borderWidth: 1,
-            borderColor: '#e5e7eb',
-            borderRadius: 10,
-            paddingHorizontal: 12,
-            paddingVertical: 8,
-          }}
-        >
-          <Text>⋮</Text>
-        </TouchableOpacity>
+
+        {/* <TouchableOpacity style={styles.menuBtn}>
+          <Text style={{ fontSize: 16 }}>⋮</Text>
+        </TouchableOpacity> */}
       </View>
 
-      <View
-        style={{
-          borderWidth: 1,
-          borderColor: '#e5e7eb',
-          borderRadius: 12,
-          padding: 12,
-          marginBottom: 12,
-        }}
-      >
-        <Text style={{ fontWeight: '700', marginBottom: 12 }}>
-          Profile Information
-        </Text>
+      <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
+        {/* TOTAL PROJECTS */}
+        <View style={styles.statCard}>
+          <Text style={styles.statTitle}>Total Projects</Text>
+          <Text style={styles.statValue}>
+            {stats?.projects?.projectCount ?? 0}
+          </Text>
+        </View>
+
+        {/* TOTAL EARNINGS */}
+        <View style={styles.statCard}>
+          <Text style={styles.statTitle}>Total Earnings</Text>
+          <Text style={styles.statValue}>
+            {stats?.projects?.totalEarning ?? 0}
+          </Text>
+        </View>
+
+        {/* DUE INVOICE */}
+        <View style={styles.statCard}>
+          <Text style={styles.statTitle}>Due Invoice</Text>
+          <Text style={styles.statValue}>
+            {stats?.invoices?.unpaidInvoiceCount ?? 0}
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.infoCard}>
+        <Text style={styles.sectionTitle}>Profile Information</Text>
         {row('Name', data.name)}
         {row('Email', data.email)}
         {row('Gender', data.gender || '—')}
@@ -306,3 +313,106 @@ export default function AdminClientViewScreen() {
     />
   );
 }
+
+const styles = {
+  statCard: {
+    flex: 1,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+
+    // shadow (iOS)
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+
+    // elevation (Android)
+    elevation: 3,
+  },
+
+  statTitle: {
+    fontSize: 13,
+    color: '#111827',
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+
+  statValue: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#4f46e5', // purple like your UI
+    letterSpacing: 1,
+  },
+
+  headerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 12,
+    elevation: 2,
+  },
+
+  avatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 14,
+    marginRight: 12,
+  },
+
+  avatarPlaceholder: {
+    width: 56,
+    height: 56,
+    borderRadius: 14,
+    marginRight: 12,
+    backgroundColor: '#e5e7eb',
+  },
+
+  name: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#111827',
+  },
+
+  subText: {
+    color: '#6b7280',
+    marginTop: 2,
+  },
+
+  menuBtn: {
+    padding: 8,
+  },
+
+  infoCard: {
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 12,
+    elevation: 2,
+  },
+
+  sectionTitle: {
+    fontWeight: '700',
+    marginBottom: 10,
+    fontSize: 14,
+  },
+
+  simpleCard: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    padding: 14,
+    elevation: 2,
+  },
+
+  bigNumber: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#4f46e5',
+    marginTop: 6,
+  },
+};

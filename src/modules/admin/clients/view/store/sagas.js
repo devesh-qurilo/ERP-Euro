@@ -14,8 +14,30 @@ function* viewSaga({ payload: { id } }) {
   }
 }
 
+function* statsSaga({ payload: { id } }) {
+  try {
+    const [projects, invoices] = yield all([
+      call(clientsAPI.getProjectStats, id),
+      call(clientsAPI.getInvoiceStats, id),
+    ]);
+
+    yield put({
+      type: T.STATS_SUCCESS,
+      payload: { projects, invoices },
+    });
+  } catch (e) {
+    yield put({
+      type: T.STATS_FAILURE,
+      payload: e?.message || 'Failed to load stats',
+    });
+  }
+}
+
 export function* clientsViewWatcher() {
-  yield all([takeLatest(T.VIEW_REQUEST, viewSaga)]);
+  yield all([
+    takeLatest(T.VIEW_REQUEST, viewSaga),
+    takeLatest(T.STATS_REQUEST, statsSaga),
+  ]);
 }
 
 export default function* clientsViewSaga() {

@@ -57,7 +57,7 @@ export default function ClientsTable({ items = [], loading, onMenu }) {
       </View>
     );
   }
-  // console.log('devesh', items);
+  console.log('devesh', items);
   return (
     <View style={{ borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 10 }}>
       <ScrollView horizontal bounces={false} showsHorizontalScrollIndicator>
@@ -132,30 +132,30 @@ export default function ClientsTable({ items = [], loading, onMenu }) {
                       >
                         <Text style={{ fontWeight: '700', color: '#0f172a' }}>
                           {String(
-                            (c.name || '—').charAt(0) || '—',
+                            (c?.name || '—').charAt(0) || '—',
                           ).toUpperCase()}
                         </Text>
                       </View>
                     )}
                     <View>
-                      <Cell bold>{c.name || '—'}</Cell>
+                      <Cell bold>{c?.name || '—'}</Cell>
                       <Cell muted style={{ marginTop: 4 }}>
-                        {c.company || '—'}
+                        {c.company?.companyName || '—'}
                       </Cell>
                     </View>
                   </View>
                 </Col>
                 <Col w={280}>
-                  <Cell>{(c.email || '-').slice(0, 30) || '—'}</Cell>
+                  <Cell>{(c?.email || '-').slice(0, 30) || '—'}</Cell>
                   <Cell muted style={{ marginTop: 6 }}>
-                    {c.mobile || '—'}
+                    {c?.mobile || '—'}
                   </Cell>
                 </Col>
                 <Col w={160}>
-                  <Cell>{(c.category || '').slice(0, 15) || '-'}</Cell>
-                  {c.subCategory ? (
+                  <Cell>{(c?.category || '').slice(0, 15) || '-'}</Cell>
+                  {c?.subCategory ? (
                     <Cell muted style={{ marginTop: 6 }}>
-                      {c.subCategory}
+                      {c?.subCategory}
                     </Cell>
                   ) : null}
                 </Col>
@@ -181,7 +181,7 @@ export default function ClientsTable({ items = [], loading, onMenu }) {
                   </View>
                 </Col> */}
                 <Col w={120}>
-                  <Cell>{(c.createdAt || '').slice(0, 10) || '—'}</Cell>
+                  <Cell>{(c?.createdAt || '').slice(0, 10) || '—'}</Cell>
                 </Col>
                 <Col w={80}>
                   <TouchableOpacity

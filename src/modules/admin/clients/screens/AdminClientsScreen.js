@@ -437,7 +437,7 @@ export default function AdminClientsScreen() {
             borderRadius: 10,
           }}
         >
-          <Text style={{ color: '#fff', fontWeight: '700' }}>Add Clienthh</Text>
+          <Text style={{ color: '#fff', fontWeight: '700' }}>Add Client</Text>
         </TouchableOpacity>
       </View>
 
