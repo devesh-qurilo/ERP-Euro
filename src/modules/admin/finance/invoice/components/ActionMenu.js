@@ -12,7 +12,7 @@ const getActionsByStatus = status => {
       'View payment',
       'Add credit notes',
       'View credit note',
-      'Create duplicate',
+      // 'Create duplicate',
       'Delete',
     ];
   }
@@ -24,7 +24,7 @@ const getActionsByStatus = status => {
       'Add payment',
       'View payment',
       'Payment reminder',
-      'Create duplicate',
+      // 'Create duplicate',
       'Delete',
     ];
   }
@@ -33,7 +33,7 @@ const getActionsByStatus = status => {
       'View',
       'Add payment',
       'View payment',
-      'Create duplicate',
+      // 'Create duplicate',
       'Delete',
     ];
   }

@@ -1,5 +1,4 @@
-// src/modules/admin/finance/invoice/components/InvoicesTable.js
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,9 +7,9 @@ import {
   Pressable,
   ActivityIndicator,
 } from 'react-native';
+import ActionMenu from './ActionMenu';
 
 const asArray = v => (Array.isArray(v) ? v : []);
-const isArr = Array.isArray;
 
 export default function InvoicesTable({
   data,
@@ -18,7 +17,6 @@ export default function InvoicesTable({
   busyIds,
   showClientColumn = true,
 
-  // action handlers
   onView,
   onEdit,
   onDelete,
@@ -34,188 +32,140 @@ export default function InvoicesTable({
   const rows = asArray(data);
   const busy = asArray(busyIds);
 
-  if (loading) return <ActivityIndicator style={{ marginTop: 16 }} />;
+  const [menuItem, setMenuItem] = useState(null);
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const openMenu = item => {
+    setMenuItem(item);
+    setMenuVisible(true);
+  };
+
+  const closeMenu = () => {
+    setMenuVisible(false);
+    setMenuItem(null);
+  };
+
+  if (loading) {
+    return <ActivityIndicator style={{ marginTop: 16 }} />;
+  }
 
   return (
-    <ScrollView horizontal bounces style={styles.hscroll}>
-      <View style={styles.table}>
-        {/* Header */}
-        <View style={[styles.row, styles.head]}>
-          <Text style={[styles.cell, styles.hcell, { minWidth: 160 }]}>
-            Invoice #
-          </Text>
-          <Text style={[styles.cell, styles.hcell, { minWidth: 140 }]}>
-            Date
-          </Text>
-          {showClientColumn && (
-            <Text style={[styles.cell, styles.hcell, { minWidth: 220 }]}>
-              Client
-            </Text>
-          )}
-          <Text style={[styles.cell, styles.hcell, { minWidth: 220 }]}>
-            Project
-          </Text>
-          <Text style={[styles.cell, styles.hcell, { minWidth: 120 }]}>
-            Currency
-          </Text>
-          <Text style={[styles.cell, styles.hcell, { minWidth: 140 }]}>
-            Amount
-          </Text>
-          <Text style={[styles.cell, styles.hcell, { minWidth: 140 }]}>
-            Tax
-          </Text>
-          <Text style={[styles.cell, styles.hcell, { minWidth: 140 }]}>
-            Discount
-          </Text>
-          <Text style={[styles.cell, styles.hcell, { minWidth: 140 }]}>
-            Total
-          </Text>
-          <Text style={[styles.cell, styles.hcell, { minWidth: 140 }]}>
-            Status
-          </Text>
-          <Text style={[styles.cell, styles.hcell, { minWidth: 320 }]}>
-            Actions
-          </Text>
-        </View>
+    <>
+      <ScrollView horizontal bounces style={styles.hscroll}>
+        <View style={styles.table}>
+          {/* HEADER */}
+          <View style={[styles.row, styles.head]}>
+            <Header text="Invoice #" w={160} />
+            <Header text="Date" w={140} />
 
-        {/* Rows */}
-        {rows.map(row => {
-          const key = String(row?.id ?? row?.invoiceNumber ?? Math.random());
-          const disabled = busy.includes(row?.id);
+            {showClientColumn && <Header text="Client" w={220} />}
 
-          const invoiceNumber = row?.invoiceNumber ?? '—';
-          const invoiceDate = row?.invoiceDate ?? '—';
-          const clientName = row?.client?.name ?? row?.clientId ?? '—';
-          const projectName = row?.project?.projectName ?? '—';
-          const currency = row?.currency ?? row?.project?.currency ?? '—';
-          const amount = row?.amount ?? 0;
-          const tax = row?.tax ?? 0;
-          const discount = row?.discount ?? 0;
-          const total = row?.total ?? 0;
-          const status = row?.status ?? '—';
+            <Header text="Project" w={220} />
+            <Header text="Currency" w={120} />
+            <Header text="Amount" w={140} />
+            <Header text="Tax" w={140} />
+            <Header text="Discount" w={140} />
+            <Header text="Total" w={140} />
+            <Header text="Status" w={140} />
+            <Header text="Actions" w={120} />
+          </View>
 
-          return (
-            <View key={key} style={styles.row}>
-              <Text style={[styles.cell, { minWidth: 160 }]} numberOfLines={1}>
-                {invoiceNumber}
-              </Text>
-              <Text style={[styles.cell, { minWidth: 140 }]} numberOfLines={1}>
-                {invoiceDate}
-              </Text>
-              {showClientColumn && (
-                <Text
-                  style={[styles.cell, { minWidth: 220 }]}
-                  numberOfLines={1}
-                >
-                  {clientName}
-                </Text>
-              )}
-              <Text style={[styles.cell, { minWidth: 220 }]} numberOfLines={1}>
-                {projectName}
-              </Text>
-              <Text style={[styles.cell, { minWidth: 120 }]}>{currency}</Text>
-              <Text style={[styles.cell, { minWidth: 140 }]}>
-                {Number(amount).toFixed(2)}
-              </Text>
-              <Text style={[styles.cell, { minWidth: 140 }]}>
-                {Number(tax).toFixed(2)}
-              </Text>
-              <Text style={[styles.cell, { minWidth: 140 }]}>
-                {Number(discount).toFixed(2)}
-              </Text>
-              <Text style={[styles.cell, { minWidth: 140 }]}>
-                {Number(total).toFixed(2)}
-              </Text>
-              <Text style={[styles.cell, { minWidth: 140 }]}>{status}</Text>
+          {/* ROWS */}
+          {rows.length ? (
+            rows.map(row => {
+              const key = String(
+                row?.id ?? row?.invoiceNumber ?? Math.random(),
+              );
 
-              {/* Actions */}
-              <View style={[styles.cell, styles.actions]}>
-                <RowBtn
-                  label="View"
-                  onPress={() => onView?.(row)}
-                  disabled={disabled}
-                />
-                <RowBtn
-                  label="Edit"
-                  onPress={() => onEdit?.(row)}
-                  disabled={disabled}
-                />
-                <RowBtn
-                  label="Delete"
-                  onPress={() => onDelete?.(row)}
-                  danger
-                  disabled={disabled}
-                />
+              const invoiceNumber = row?.invoiceNumber ?? '—';
+              const invoiceDate = row?.invoiceDate ?? '—';
+              const clientName = row?.client?.name ?? row?.clientId ?? '—';
+              const projectName = row?.project?.projectName ?? '—';
+              const currency = row?.currency ?? row?.project?.currency ?? '—';
 
-                {/* Status-based actions */}
-                {status === 'UNPAID' && (
-                  <>
-                    <RowBtn
-                      label="Mark Paid"
-                      onPress={() => onMarkPaid?.(row)}
-                      disabled={disabled}
-                    />
-                    <RowBtn
-                      label="Add Payment"
-                      onPress={() => onAddPayment?.(row)}
-                      disabled={disabled}
-                    />
-                    <RowBtn
-                      label="Reminder"
-                      onPress={() => onPaymentReminder?.(row)}
-                      disabled={disabled}
-                    />
-                  </>
-                )}
+              const amount = row?.amount ?? 0;
+              const tax = row?.tax ?? 0;
+              const discount = row?.discount ?? 0;
+              const total = row?.total ?? 0;
+              const status = row?.status ?? '—';
 
-                {status === 'PAID' && (
-                  <>
-                    <RowBtn
-                      label="View Payments"
-                      onPress={() => onViewPayments?.(row)}
-                      disabled={disabled}
-                    />
-                    <RowBtn
-                      label="View Receipts"
-                      onPress={() => onViewReceipts?.(row)}
-                      disabled={disabled}
-                    />
-                  </>
-                )}
+              return (
+                <View key={key} style={styles.row}>
+                  <Cell text={invoiceNumber} w={160} />
+                  <Cell text={invoiceDate} w={140} />
 
-                {/* Common */}
-                <RowBtn
-                  label="Duplicate"
-                  onPress={() => onDuplicate?.(row)}
-                  disabled={disabled}
-                />
-              </View>
+                  {showClientColumn && <Cell text={clientName} w={220} />}
+
+                  <Cell text={projectName} w={220} />
+                  <Cell text={currency} w={120} />
+                  <Cell text={Number(amount).toFixed(2)} w={140} />
+                  <Cell text={Number(tax).toFixed(2)} w={140} />
+                  <Cell text={Number(discount).toFixed(2)} w={140} />
+                  <Cell text={Number(total).toFixed(2)} w={140} />
+                  <Cell text={status} w={140} />
+
+                  {/* ACTION BUTTON */}
+                  <View style={[styles.cell, styles.actionsCenter]}>
+                    <Pressable
+                      onPress={() => openMenu(row)}
+                      style={styles.dotBtn}
+                    >
+                      <Text style={{ fontSize: 18 }}>⋯</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              );
+            })
+          ) : (
+            <View style={{ padding: 16 }}>
+              <Text style={{ color: '#6b7280' }}>No invoices found</Text>
             </View>
-          );
-        })}
-      </View>
-    </ScrollView>
+          )}
+        </View>
+      </ScrollView>
+
+      {/* ACTION MENU */}
+      <ActionMenu
+        visible={menuVisible}
+        row={menuItem}
+        onClose={closeMenu}
+        onSelect={(action, row) => {
+          closeMenu();
+
+          const actionsMap = {
+            View: () => onView?.(row),
+            Edit: () => onEdit?.(row),
+            Delete: () => onDelete?.(row),
+            'Mark as paid': () => onMarkPaid?.(row),
+            'Add payment': () => onAddPayment?.(row),
+            'View payment': () => onViewPayments?.(row),
+            'Payment reminder': () => onPaymentReminder?.(row),
+            'View receipt': () => onViewReceipts?.(row),
+            'Upload file': () => onUploadFile?.(row),
+            'Delete file': () => onDeleteFile?.(row),
+            // 'Create duplicate': () => onDuplicate?.(row),
+          };
+
+          actionsMap[action]?.();
+        }}
+      />
+    </>
   );
 }
 
-function RowBtn({ label, onPress, disabled, danger }) {
-  return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled}
-      style={({ pressed }) => [
-        styles.btn,
-        danger && styles.btnDanger,
-        disabled && { opacity: 0.6 },
-        pressed && { opacity: 0.85 },
-      ]}
-    >
-      <Text style={[styles.btnTxt, danger && { color: '#b91c1c' }]}>
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
+/* ================= SMALL COMPONENTS ================= */
+
+const Header = ({ text, w }) => (
+  <Text style={[styles.cell, styles.hcell, { minWidth: w }]}>{text}</Text>
+);
+
+const Cell = ({ text, w }) => (
+  <Text style={[styles.cell, { minWidth: w }]} numberOfLines={1}>
+    {text}
+  </Text>
+);
+
+/* ================= STYLES ================= */
 
 const styles = StyleSheet.create({
   hscroll: {
@@ -224,35 +174,41 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
     backgroundColor: '#fff',
   },
+
   table: { minWidth: 1200 },
+
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#f1f5f9',
   },
-  head: { backgroundColor: '#f8fafc' },
-  cell: { paddingVertical: 12, paddingHorizontal: 12, minWidth: 120 },
-  hcell: { fontWeight: '800', color: '#111827' },
 
-  actions: {
-    minWidth: 320,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    alignItems: 'center',
+  head: { backgroundColor: '#f8fafc' },
+
+  cell: {
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    minWidth: 120,
   },
-  btn: {
+
+  hcell: {
+    fontWeight: '800',
+    color: '#111827',
+  },
+
+  actionsCenter: {
+    minWidth: 120,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  dotBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderWidth: 1,
     borderColor: '#e5e7eb',
     borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
     backgroundColor: '#fff',
   },
-  btnDanger: {
-    borderColor: '#fecaca',
-    backgroundColor: '#fff1f2',
-  },
-  btnTxt: { fontSize: 12, color: '#111827' },
 });

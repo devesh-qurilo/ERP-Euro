@@ -410,6 +410,7 @@ export default function ProjectModal({
                       <Picker
                         selectedValue={v.projectCategory || ''}
                         onValueChange={val => patch('projectCategory', val)}
+                        itemStyle={{ height: 100 }}
                       >
                         <Picker.Item label="Select category" value="" />
                         {categories.map(c => (
@@ -464,7 +465,7 @@ export default function ProjectModal({
                     <Picker
                       selectedValue={v.departmentId || ''}
                       onValueChange={val => patch('departmentId', val)}
-                      // style={{ color: value, backgroundColor: 'gray' }}
+                      itemStyle={{ height: 100 }}
                     >
                       <Picker.Item label="Select department" value="" />
                       {departments.map(d => (
@@ -506,6 +507,7 @@ export default function ProjectModal({
                     <Picker
                       selectedValue={v.clientId || ''}
                       onValueChange={val => patch('clientId', val)}
+                      itemStyle={{ height: 100 }}
                     >
                       <Picker.Item label="Select client" value="" />
                       {clients.map(c => (
@@ -561,6 +563,7 @@ export default function ProjectModal({
                   <Picker
                     selectedValue={v.currency}
                     onValueChange={val => patch('currency', val)}
+                    itemStyle={{ height: 100 }}
                   >
                     {currencies.map(cur => (
                       <Picker.Item key={cur} label={cur} value={cur} />
@@ -658,7 +661,14 @@ export default function ProjectModal({
         animationType="slide"
         onRequestClose={() => setManageCatOpen(false)}
       >
-        <View style={{ padding: 16, flex: 1, backgroundColor: '#fff' }}>
+        <View
+          style={{
+            padding: 16,
+            flex: 1,
+            backgroundColor: '#fff',
+            marginTop: 40,
+          }}
+        >
           <View
             style={{
               flexDirection: 'row',
@@ -950,7 +960,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   fileBtn: {
-    backgroundColor: '#111827',
+    backgroundColor: '#1d4ed8',
     padding: 12,
     borderRadius: 10,
     marginTop: 6,

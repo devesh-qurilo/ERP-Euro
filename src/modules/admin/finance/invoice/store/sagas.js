@@ -69,7 +69,7 @@ function* getOneSaga({ payload: { invoiceNumber } }) {
 function* createSaga({ payload }) {
   try {
     const created = yield call(API.create, payload);
-    // console.log('create saga', created, payload);
+    console.log('create saga', created, payload);
     yield put({ type: T.CREATE_SUCCESS, payload: created });
     // refresh list after create
     yield put(listAction());
@@ -220,14 +220,16 @@ function* deleteSaga({ payload: { invoiceNumber } }) {
 }
 
 function* markPaidSaga({ payload: { invoiceId } }) {
+  console.log('invoiceNumber bahar', invoiceId);
   try {
-    // console.log('invoiceNumber ', invoiceId);
+    console.log('invoiceNumber  mark', invoiceId);
     // let invoiceId = invoiceNumber;
     // NOTE: backend expects invoiceId here, not invoiceNumber
     yield call(API.markPaid, invoiceId);
     yield put({ type: T.MARK_PAID_SUCCESS });
     yield put(listAction());
   } catch (e) {
+    console.log('invoiceNumber error');
     yield put({
       type: T.MARK_PAID_FAILURE,
       payload: e?.message || 'Mark paid failed',
@@ -236,11 +238,14 @@ function* markPaidSaga({ payload: { invoiceId } }) {
 }
 
 function* addPaymentSaga({ payload: { payment, file } }) {
+  console.log('add payment request  bahar');
   try {
     const res = yield call(API.createPayment, { payment, file });
+    console.log('add payment request', res);
     yield put({ type: T.ADD_PAYMENT_SUCCESS, payload: res });
     yield put(listAction());
   } catch (e) {
+    console.log('add payment request  error');
     yield put({
       type: T.ADD_PAYMENT_FAILURE,
       payload: e?.message || 'Add payment failed',
@@ -384,14 +389,14 @@ export function* adminFinanceInvoiceWatcher() {
     takeLatest(T.ADD_PAYMENT_REQUEST, addPaymentSaga),
     takeLatest(T.LIST_PAYMENTS_REQUEST, listPaymentsSaga),
 
-    takeLatest(T.MARK_PAID_REQUEST, markPaidSaga),
-    takeLatest(T.ADD_PAYMENT_REQUEST, addPaymentSaga),
+    // takeLatest(T.MARK_PAID_REQUEST, markPaidSaga),
+    // takeLatest(T.ADD_PAYMENT_REQUEST, addPaymentSaga),
     takeLatest(T.DELETE_REQUEST, deleteSaga),
 
     takeLatest(T.RECEIPT_DELETE_REQUEST, deleteReceiptSaga),
     takeLatest(T.RECEIPT_DOWNLOAD_REQUEST, downloadReceiptSaga),
 
-    takeLatest(T.LIST_PAYMENTS_REQUEST, listPaymentsSaga),
+    // takeLatest(T.LIST_PAYMENTS_REQUEST, listPaymentsSaga),
     takeLatest(T.EDIT_PAYMENT_REQUEST, editPaymentSaga),
     takeLatest(T.DELETE_PAYMENT_REQUEST, deletePaymentSaga),
 

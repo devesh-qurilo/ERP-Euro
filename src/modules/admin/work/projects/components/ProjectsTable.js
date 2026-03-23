@@ -70,10 +70,10 @@ export default function ProjectsTable({
                 Client
               </Text>
             )}
-            <Text style={[styles.cell, styles.hcell, { minWidth: 140 }]}>
+            <Text style={[styles.cell, styles.hcell, { minWidth: 180 }]}>
               Status
             </Text>
-            <Text style={[styles.cell, styles.hcell, { minWidth: 140 }]}>
+            <Text style={[styles.cell, styles.hcell, { minWidth: 100 }]}>
               Progress
             </Text>
             <Text style={[styles.cell, styles.hcell, { minWidth: 120 }]}>
@@ -96,17 +96,17 @@ export default function ProjectsTable({
                 </Text>
 
                 <View style={[styles.cell, styles.members]}>
-                  {(item.assignedEmployees || []).slice(0, 4).map(m => (
+                  {(item.assignedEmployees || []).slice(0, 2).map(m => (
                     <Image
                       key={m.employeeId}
                       source={m.profileUrl ? { uri: m.profileUrl } : undefined}
                       style={styles.avatar}
                     />
                   ))}
-                  {item.assignedEmployees?.length > 4 && (
+                  {item.assignedEmployees?.length > 2 && (
                     <View style={styles.more}>
                       <Text style={styles.moreTxt}>
-                        +{item.assignedEmployees.length - 4}
+                        +{item.assignedEmployees.length - 2}
                       </Text>
                     </View>
                   )}

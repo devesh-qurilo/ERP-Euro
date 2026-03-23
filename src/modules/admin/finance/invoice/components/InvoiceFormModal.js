@@ -134,7 +134,7 @@ export default function InvoiceFormModal({
       clientId: form.clientId ? String(form.clientId) : undefined,
       projectId: form.projectId ? String(form.projectId) : undefined,
     };
-    // console.log('bhahhhhhh', payload);
+    console.log('bhahhhhhh', payload);
     onSubmit(payload);
   }
 
@@ -189,7 +189,7 @@ export default function InvoiceFormModal({
           {/* Invoice Date picker */}
           <View style={{ marginBottom: 12 }}>
             <Text style={{ marginBottom: 6, color: '#374151' }}>
-              Invoice Date (YYYY-MM-DD)
+              Invoice Date
             </Text>
             <TouchableOpacity
               onPress={() => setShowDatePicker(true)}
@@ -250,6 +250,7 @@ export default function InvoiceFormModal({
                   // optionally reset project if it doesn't belong to client
                   change('projectId', '');
                 }}
+                itemStyle={{ height: 100 }}
               >
                 <Picker.Item label="Select client" value="" />
                 {clients.map(c => {
@@ -278,6 +279,7 @@ export default function InvoiceFormModal({
               <Picker
                 selectedValue={form.projectId || ''}
                 onValueChange={val => change('projectId', val)}
+                itemStyle={{ height: 100 }}
               >
                 <Picker.Item label="Select project" value="" />
                 {filteredProjects.map(p => {
@@ -394,7 +396,7 @@ export default function InvoiceFormModal({
             onPress={handleSave}
             style={{
               marginTop: 8,
-              backgroundColor: '#111827',
+              backgroundColor: '#1d4ed8',
               padding: 14,
               borderRadius: 10,
             }}

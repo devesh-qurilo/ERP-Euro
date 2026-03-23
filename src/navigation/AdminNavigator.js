@@ -123,6 +123,11 @@ function Clients() {
     >
       <Stack.Screen name="AdminClients" component={AdminClientsScreen} />
       <Stack.Screen name="AdminClientView" component={AdminClientViewScreen} />
+      <Stack.Screen
+        name="InvoiceReceiptsScreen"
+        component={InvoiceReceiptsScreen}
+      />
+      <Stack.Screen name="CreditNotesScreen" component={CreditNotesScreen} />
     </Stack.Navigator>
   );
 }

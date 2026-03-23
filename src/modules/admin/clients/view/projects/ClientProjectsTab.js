@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { ScrollView } from 'react-native';
 import {
   useFocusEffect,
   useRoute,
@@ -77,13 +78,18 @@ export default function ClientProjectsTab() {
     console.log('add project'), dispatch(openModal(null));
   }; // ProjectModal will be opened; we'll inject clientId on save
   const onSave = payload => {
-    // ensure clientId from context is applied on CREATE;
-    // (for EDIT it's already inside payload or editing record)
     if (editing) {
       dispatch(updateProject(editing.id, payload));
     } else {
       dispatch(createProject({ ...payload, clientId }));
     }
+
+    dispatch(closeModal());
+
+    // ✅ refresh list after save
+    setTimeout(() => {
+      dispatch(listByClient(clientId));
+    }, 300);
   };
 
   const onView = item =>
@@ -128,20 +134,27 @@ export default function ClientProjectsTab() {
       </View>
 
       {/* Section 3: Table (hide Client column inside client view) */}
-      <ProjectsTable
-        data={filtered}
-        loading={loading}
-        busyIds={[]}
-        showClientColumn={false}
-        onView={onView}
-        onEdit={p => dispatch(openModal(p))}
-        onDelete={id => dispatch(deleteProject(id))}
-        onStatus={(id, status) => dispatch(patchStatus(id, status))}
-        onPin={id => dispatch(pinProject(id))}
-        onUnpin={id => dispatch(unpinProject(id))}
-        onArchive={id => dispatch(archiveProject(id))}
-        onUnarchive={id => dispatch(unarchiveProject(id))}
-      />
+
+      {/* <View style={{ flex: 1 }}> */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <View style={{ minWidth: 700 }}>
+          <ProjectsTable
+            data={filtered}
+            loading={loading}
+            busyIds={[]}
+            showClientColumn={false}
+            onView={onView}
+            onEdit={p => dispatch(openModal(p))}
+            onDelete={id => dispatch(deleteProject(id))}
+            onStatus={(id, status) => dispatch(patchStatus(id, status))}
+            onPin={id => dispatch(pinProject(id))}
+            onUnpin={id => dispatch(unpinProject(id))}
+            onArchive={id => dispatch(archiveProject(id))}
+            onUnarchive={id => dispatch(unarchiveProject(id))}
+          />
+        </View>
+      </ScrollView>
+      {/* </View> */}
 
       {/* Reuse the SAME modal; we just inject clientId on Save */}
       <ProjectModal

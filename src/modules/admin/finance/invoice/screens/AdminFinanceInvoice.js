@@ -185,9 +185,9 @@ export default function AdminFinanceInvoice({ navigation }) {
       case 'Mark as paid':
         dispatch(A.markPaid(invNo));
         break;
-      case 'Create duplicate':
-        setAddOpen(true);
-        break;
+      // case 'Create duplicate':
+      //   setAddOpen(true);
+      //   break;
       default:
         break;
     }

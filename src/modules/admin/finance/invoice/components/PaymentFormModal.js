@@ -556,6 +556,7 @@ export default function PaymentFormModal({
                     change('clientId', val);
                     change('projectId', '');
                   }}
+                  itemStyle={{ height: 100 }}
                 >
                   <Picker.Item label="Select client" value="" />
                   {clients.map(c => {
@@ -591,6 +592,7 @@ export default function PaymentFormModal({
                 <Picker
                   selectedValue={form.projectId}
                   onValueChange={val => change('projectId', val)}
+                  itemStyle={{ height: 100 }}
                 >
                   <Picker.Item label="Select project" value="" />
                   {filteredProjects.map(p => {
@@ -635,6 +637,7 @@ export default function PaymentFormModal({
                     <Picker
                       selectedValue={form.paymentGatewayId}
                       onValueChange={val => change('paymentGatewayId', val)}
+                      itemStyle={{ height: 100 }}
                     >
                       <Picker.Item label="Select gateway" value="" />
                       {gateways.map(g => (
