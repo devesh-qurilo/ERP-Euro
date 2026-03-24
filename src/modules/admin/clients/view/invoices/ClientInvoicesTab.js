@@ -136,6 +136,7 @@ export default function ClientInvoicesTab() {
 
       case 'Mark as paid':
         dispatch(markPaid(row.invoiceNumber));
+        setTimeout(refreshList, 300);
         break;
 
       case 'Add receipt':

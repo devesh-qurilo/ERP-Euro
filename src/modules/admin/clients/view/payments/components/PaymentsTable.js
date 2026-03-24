@@ -186,6 +186,8 @@ export default function PaymentsTable({
   const rows = asArr(data);
   const busy = asArr(busyIds);
 
+  console.log('client payment table ', rows);
+
   const [selectedItem, setSelectedItem] = useState(null);
   const closeMenu = () => setSelectedItem(null);
 
@@ -247,7 +249,7 @@ export default function PaymentsTable({
                   </View>
 
                   <View style={[s.cell, { width: 120 }]}>
-                    <Text>{r.paymentDate || '—'}</Text>
+                    <Text>{r.paymentDate.slice(0, 10) || '—'}</Text>
                   </View>
 
                   <View style={[s.cell, { width: 180 }]}>
@@ -266,7 +268,7 @@ export default function PaymentsTable({
                     <Text numberOfLines={1}>{r.client?.name || '—'}</Text>
                   </View>
 
-                  <View style={[s.cell, { width: 80, alignItems: 'flex-end' }]}>
+                  <View style={[s.cell, { width: 80, alignItems: 'center' }]}>
                     {disabled ? (
                       <ActivityIndicator size="small" />
                     ) : (

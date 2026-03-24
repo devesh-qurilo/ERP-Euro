@@ -11,10 +11,10 @@ import {
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/Feather';
-import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Modal } from 'react-native';
+import ClientImportButton from '../components/ClientImportButton';
+import ClientExportButton from '../components/ClientExportButton';
 
 import * as A from '../store/actions';
 import {
@@ -63,6 +63,8 @@ export default function AdminClientsScreen() {
   const [addtoDeal, setAddtoDeal] = useState(false);
   const formOpen = useSelector(selectFormOpen);
   const editing = useSelector(selectEditing);
+
+  console.log('list of client', itemsl);
   // small debounce for search
   useEffect(() => {
     const t = setTimeout(() => {
@@ -316,42 +318,68 @@ export default function AdminClientsScreen() {
                   Start Date
                 </Text> */}
 
-                <TouchableOpacity
-                  onPress={() => setShowStart(true)}
-                  style={{
-                    borderWidth: 1,
-                    borderColor: '#e5e7eb',
-                    borderRadius: 8,
-                    height: 40,
-                    justifyContent: 'center',
-                    paddingHorizontal: 10,
-                  }}
-                >
-                  <Text>{filters.startDate || 'Select Start Date'}</Text>
-                </TouchableOpacity>
+                <View style={{ width: 140 }}>
+                  {showStart ? (
+                    <DateTimePicker
+                      value={new Date()}
+                      mode="date"
+                      display="default"
+                      onChange={(e, date) => {
+                        setShowStart(false);
+                        if (date) {
+                          const d = date.toISOString().slice(0, 10);
+                          applyFilters({ startDate: d });
+                        }
+                      }}
+                    />
+                  ) : (
+                    <TouchableOpacity
+                      onPress={() => setShowStart(true)}
+                      style={{
+                        borderWidth: 1,
+                        borderColor: '#e5e7eb',
+                        borderRadius: 8,
+                        height: 40,
+                        justifyContent: 'center',
+                        paddingHorizontal: 10,
+                      }}
+                    >
+                      <Text>{filters.startDate || 'Select Start Date'}</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
               </View>
 
               {/* END DATE */}
-              <View style={{ width: 180 }}>
-                {/* <Text
-                  style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}
-                >
-                  End Date
-                </Text> */}
-
-                <TouchableOpacity
-                  onPress={() => setShowEnd(true)}
-                  style={{
-                    borderWidth: 1,
-                    borderColor: '#e5e7eb',
-                    borderRadius: 8,
-                    height: 40,
-                    justifyContent: 'center',
-                    paddingHorizontal: 10,
-                  }}
-                >
-                  <Text>{filters.endDate || 'Select End Date'}</Text>
-                </TouchableOpacity>
+              <View style={{ width: 140 }}>
+                {showEnd ? (
+                  <DateTimePicker
+                    value={new Date()}
+                    mode="date"
+                    display="default"
+                    onChange={(e, date) => {
+                      setShowEnd(false);
+                      if (date) {
+                        const d = date.toISOString().slice(0, 10);
+                        applyFilters({ endDate: d });
+                      }
+                    }}
+                  />
+                ) : (
+                  <TouchableOpacity
+                    onPress={() => setShowEnd(true)}
+                    style={{
+                      borderWidth: 1,
+                      borderColor: '#e5e7eb',
+                      borderRadius: 8,
+                      height: 40,
+                      justifyContent: 'center',
+                      paddingHorizontal: 10,
+                    }}
+                  >
+                    <Text>{filters.endDate || 'Select End Date'}</Text>
+                  </TouchableOpacity>
+                )}
               </View>
 
               {/* APPLY BUTTON */}
@@ -399,47 +427,60 @@ export default function AdminClientsScreen() {
           marginTop: 12,
         }}
       >
-        {showStart && (
-          <DateTimePicker
-            value={new Date()}
-            mode="date"
-            display="default"
-            onChange={(e, date) => {
-              setShowStart(false);
-              if (date) {
-                const d = date.toISOString().slice(0, 10);
-                applyFilters({ startDate: d });
-              }
-            }}
-          />
-        )}
-
-        {showEnd && (
-          <DateTimePicker
-            value={new Date()}
-            mode="date"
-            display="default"
-            onChange={(e, date) => {
-              setShowEnd(false);
-              if (date) {
-                const d = date.toISOString().slice(0, 10);
-                applyFilters({ endDate: d });
-              }
-            }}
-          />
-        )}
-        <TouchableOpacity
-          onPress={() => setAddOpen(true)}
+        <View
           style={{
-            backgroundColor: '#2b6bd8',
-            paddingVertical: 12,
-            paddingHorizontal: 16,
-            borderRadius: 10,
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            marginTop: 12,
+            gap: 10,
           }}
         >
-          <Text style={{ color: '#fff', fontWeight: '700' }}>Add Client</Text>
-        </TouchableOpacity>
+          <ClientImportButton onImported={() => dispatch(A.list(filters))} />
+
+          <ClientExportButton clients={items} />
+
+          <TouchableOpacity
+            onPress={() => setAddOpen(true)}
+            style={{
+              backgroundColor: '#2b6bd8',
+              paddingVertical: 12,
+              paddingHorizontal: 16,
+              borderRadius: 10,
+            }}
+          >
+            <Text style={{ color: '#fff', fontWeight: '700' }}>Add Client</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+      {showStart && (
+        <DateTimePicker
+          value={new Date()}
+          mode="date"
+          display="default"
+          onChange={(e, date) => {
+            setShowStart(false);
+            if (date) {
+              const d = date.toISOString().slice(0, 10);
+              applyFilters({ startDate: d });
+            }
+          }}
+        />
+      )}
+
+      {showEnd && (
+        <DateTimePicker
+          value={new Date()}
+          mode="date"
+          display="default"
+          onChange={(e, date) => {
+            setShowEnd(false);
+            if (date) {
+              const d = date.toISOString().slice(0, 10);
+              applyFilters({ endDate: d });
+            }
+          }}
+        />
+      )}
 
       {/* Section 3: Table */}
       <View style={{ flex: 1, marginTop: 12 }}>

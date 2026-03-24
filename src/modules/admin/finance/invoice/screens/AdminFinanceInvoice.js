@@ -125,10 +125,15 @@ export default function AdminFinanceInvoice({ navigation }) {
     });
   }, [items, filters]);
 
+  const refreshlist = () => {
+    dispatch(A.list(filters));
+  };
+
   // create/update handlers
   const onCreate = payload => {
     dispatch(A.create(payload));
     setAddOpen(false);
+    setTimeout(refreshlist, 300);
   };
   const onUpdate = payload => {
     dispatch(A.update(editRow.invoiceNumber, payload));

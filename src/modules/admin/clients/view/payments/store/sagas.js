@@ -30,8 +30,10 @@ function* updatePaymentSaga({ payload: { paymentId, payload, clientId } }) {
 }
 
 function* createPaymentSaga({ payload: { payload, clientId } }) {
+  console.log('create payment client payment', payload);
   try {
     const res = yield call(paymentsAPI.create, payload);
+    console.log('create payment client payment response', res);
     yield put({ type: T.CREATE_SUCCESS, payload: res });
     // refresh same client list
     yield put({ type: T.LIST_BY_CLIENT_REQUEST, payload: { clientId } });

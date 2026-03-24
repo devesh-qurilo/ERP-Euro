@@ -180,7 +180,21 @@ export default function ClientPaymentsTab() {
         preset={creatingPreset}
         busy={createBusy}
         onClose={() => dispatch(closeCreate())}
-        onSave={payload => dispatch(createPayment(payload, clientId))}
+        // onSave={payload => dispatch(createPayment(payload, clientId))}
+        onSave={payload =>
+          dispatch(
+            createPayment(
+              {
+                payment: {
+                  ...payload,
+                  invoiceId: payload.invoiceNumber, // 🔥 required by API
+                },
+                file: payload.file || null, // future safe
+              },
+              clientId,
+            ),
+          )
+        }
       />
     </View>
   );

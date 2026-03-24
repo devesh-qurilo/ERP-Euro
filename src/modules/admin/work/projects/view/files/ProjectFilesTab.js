@@ -55,6 +55,8 @@ export default function ProjectFilesTab() {
     }, [dispatch, projectId]),
   );
 
+  console.log('list of project');
+
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
     if (!s) return rows;

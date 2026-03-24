@@ -449,7 +449,7 @@ export default function CreditNotesTable({
                     </Text>
                   </View>
 
-                  <View style={[s.cell, { width: 80, alignItems: 'flex-end' }]}>
+                  <View style={[s.cell, { width: 80, alignItems: 'center' }]}>
                     {busy ? (
                       <ActivityIndicator size="small" />
                     ) : (
