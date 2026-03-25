@@ -282,18 +282,6 @@ export default function TaskModal({
     return `${dt.getFullYear()}-${m}-${dd}`;
   };
 
-  ////////////////////////////////////////////////////////////////////////////
-  // LOAD STATIC LISTS
-  ////////////////////////////////////////////////////////////////////////////
-  //   useEffect(() => {
-  //     if (!visible) return;
-
-  //     fetchCategories().then(setCategories).catch(// console.log);
-  //     fetchProjects().then(setProjects).catch(// console.log);
-  //     fetchTaskStages().then(setStages).catch(// console.log);
-  //     // fetchEmployees().then(setEmployees).catch(// console.log);
-  //   }, [visible]);
-
   useEffect(() => {
     if (!visible) return;
 

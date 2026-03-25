@@ -41,7 +41,6 @@ function* createWorker({ payload }) {
   try {
     // yield put(A.setBusy(true));
     const created = yield call(adminTasksAPI.create, payload);
-    // console.log('create task ', created);
     yield put(A.createOk(created));
     yield put(A.setModal({ visible: false, record: null }));
   } finally {
@@ -91,9 +90,7 @@ function* updateStageWorker({ taskId, stageId }) {
   try {
     yield call(adminTasksAPI.updateStatus, taskId, stageId);
     yield put(A.fetchTasks()); // refresh table
-  } catch (e) {
-    // console.log('Failed to update stage', e);
-  }
+  } catch (e) {}
 }
 
 function* fetchMyTasksSaga() {

@@ -75,7 +75,6 @@ export default function ProjectPaymentsTab() {
       if (projectId) dispatch(listByProject(projectId));
     }, [dispatch, projectId]),
   );
-  // console.log('STATE anywhere:', raju, projectId);
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
     if (!s) return rows;
@@ -128,19 +127,6 @@ export default function ProjectPaymentsTab() {
           </Text>
         )}
       </View>
-
-      {/* Add Payment (opens PROJECT slice modal) */}
-      {/* <View style={{ marginTop: 8, flexDirection: 'row', gap: 8 }}>
-        <Pressable
-          style={[s.btn, s.primary]}
-          onPress={() => {
-            // pass both projectId and clientId (modal will ignore what it doesn't use)
-            dispatch(openCreate({ projectId, clientId }));
-          }}
-        >
-          <Text style={[s.btnTxt, { color: '#fff' }]}>+ Add Payment</Text>
-        </Pressable>
-      </View> */}
 
       {/* Table */}
       <PaymentsTable

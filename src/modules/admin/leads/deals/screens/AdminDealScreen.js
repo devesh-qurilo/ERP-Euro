@@ -45,7 +45,6 @@ export default function AdminDealScreen() {
   // Sync local from Redux always
   useEffect(() => {
     const content = dealsState?.content || dealsState || [];
-    console.log('Sync deals:', content.length);
     setLocalDeals(Array.isArray(content) ? content : []);
   }, [dealsState]);
 
@@ -56,14 +55,6 @@ export default function AdminDealScreen() {
   }, []);
 
   const rows = localDeals;
-  console.log(
-    'rows length:',
-    rows.length,
-    'localDeals:',
-    localDeals.length,
-    'dealsState:',
-    dealsState?.content?.length,
-  );
 
   const filteredRows = useMemo(() => {
     return rows.filter(d => {

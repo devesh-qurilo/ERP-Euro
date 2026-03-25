@@ -1,190 +1,292 @@
 // src/modules/admin/work/projects/view/invoices/ProjectInvoicesTab.js
+
 import React, { useCallback, useMemo, useState } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   useFocusEffect,
-  useNavigation,
   useRoute,
+  useNavigation,
 } from '@react-navigation/native';
 
+// actions
 import { listByProject } from './store/actions';
+import {
+  create,
+  update,
+  deleteInvoice,
+  markPaid,
+  sendReminder,
+  uploadFile,
+  addPayment,
+  duplicateInvoice,
+  listCreditNotes,
+  addCreditNote,
+  addReceipt,
+} from '../../../../finance/invoice/store/actions';
+
+// selectors
 import {
   selectProjectInvoices,
   selectProjectInvoicesBusy,
   selectProjectInvoicesErr,
 } from './store/selectors';
 
+// components
 import InvoicesTable from '../../../../finance/invoice/components/InvoiceTable';
-import ProjectInvoiceFormModal from '../../../../finance/invoice/components/ProjectInvoiceFormModal';
 import InvoiceViewModal from '../../../../finance/invoice/components/InvoiceViewModal';
-import * as A from '../../../../finance/invoice/store/actions';
-
-import {
-  createInvoice,
-  updateInvoice,
-  deleteInvoice,
-  markInvoicePaid,
-  sendPaymentReminder,
-  uploadInvoiceFile,
-  deleteInvoiceFile,
-  addPayment,
-  duplicateInvoice,
-} from '../../../../finance/invoice/store/actions';
-
-const selectFinanceBusy = s => !!s?.admin?.work?.projects?.loading || false;
+import ProjectInvoiceFormModal from '../../../../finance/invoice/components/ProjectInvoiceFormModal';
+import PaymentFormModal from '../../../../finance/invoice/components/PaymentFormModal';
+import UploadFileModal from '../../../../finance/invoice/components/UploadFileModal';
+import CreditNoteFormModal from '../../../../finance/invoice/components/CreditNoteFormModal';
+import ReceiptFormModal from '../../../../finance/invoice/components/ReceiptFormModal';
+import ActionMenu from '../../../../finance/invoice/components/ActionMenu';
 
 export default function ProjectInvoicesTab() {
   const route = useRoute();
   const nav = useNavigation();
   const dispatch = useDispatch();
 
-  // Resolve projectId from multiple entry points safely
-  const projectId = route?.params?.project;
-  // route?.params?.project?.id ??
-  // route?.projectId ??
-  // route?.project?.id;
-  const client = route?.params?.project;
   const project = route?.params?.project;
+  const projectId = project?.id;
 
-  // console.log('rammmkk', project);
   const rows = useSelector(selectProjectInvoices);
   const loading = useSelector(selectProjectInvoicesBusy);
   const error = useSelector(selectProjectInvoicesErr);
-  const saving = useSelector(selectFinanceBusy);
 
-  const [formOpen, setFormOpen] = useState(false);
-  const [viewOpen, setViewOpen] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [viewing, setViewing] = useState(null);
   const [search, setSearch] = useState('');
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     if (projectId) dispatch(listByProject(projectId));
-  //   }, [dispatch, projectId]),
-  // );
+  // ===== MODAL STATES =====
+  const [formOpen, setFormOpen] = useState(false);
+  const [viewOpen, setViewOpen] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const [uploadFor, setUploadFor] = useState(null);
+  const [creditNoteOpen, setCreditNoteOpen] = useState(false);
+  const [creditFor, setCreditFor] = useState(null);
+  const [receiptOpen, setReceiptOpen] = useState(false);
 
+  const [editing, setEditing] = useState(null);
+  const [viewing, setViewing] = useState(null);
+
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [menuRow, setMenuRow] = useState(null);
+
+  // ===== FETCH =====
+  useFocusEffect(
+    useCallback(() => {
+      if (projectId) dispatch(listByProject(projectId));
+    }, [projectId]),
+  );
+
+  const refresh = () => dispatch(listByProject(projectId));
+
+  // ===== FILTER =====
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = search.toLowerCase();
     if (!q) return rows;
+
     return rows.filter(inv =>
-      `${inv.invoiceNumber} ${inv.client?.name || ''} ${inv.status || ''}`
+      `${inv.invoiceNumber} ${inv.status} ${inv.client?.name || ''}`
         .toLowerCase()
         .includes(q),
     );
   }, [rows, search]);
 
-  // Handlers (reusing finance actions)
-  const onAdd = () => {
-    setEditing(null);
-    setFormOpen(true);
-  };
-  const onEditRow = row => {
-    setEditing(row);
-    setFormOpen(true);
-  };
-  const onViewRow = row => {
-    setViewing(row);
-    setViewOpen(true);
+  // ===== ACTION MENU =====
+  const openMenu = row => {
+    setMenuRow(row);
+    setMenuVisible(true);
   };
 
-  const onCreate = payload => {
-    dispatch(A.create(payload));
-    setFormOpen(false);
+  const closeMenu = () => {
+    setMenuVisible(false);
+    setMenuRow(null);
   };
+
+  const handleAction = (action, row) => {
+    closeMenu();
+
+    switch (action) {
+      case 'View':
+        setViewing(row);
+        setViewOpen(true);
+        break;
+
+      case 'Edit':
+        setEditing(row);
+        setFormOpen(true);
+        break;
+
+      case 'Delete':
+        dispatch(deleteInvoice(row.invoiceNumber));
+        setTimeout(refresh, 300);
+        break;
+
+      case 'Mark as paid':
+        dispatch(markPaid(row.invoiceNumber));
+        setTimeout(refresh, 300);
+        break;
+
+      case 'Add payment':
+        setMenuRow(row);
+        setPaymentOpen(true);
+        break;
+
+      case 'View payment':
+        nav.navigate('Finance', {
+          screen: 'InvoicePaymentsScreen',
+          params: { invoiceNumber: row.invoiceNumber },
+        });
+        break;
+
+      case 'Payment reminder':
+        dispatch(sendReminder(row.invoiceNumber));
+        break;
+
+      case 'Upload file':
+        setUploadFor(row);
+        break;
+
+      case 'Add credit notes':
+        setCreditFor(row);
+        setCreditNoteOpen(true);
+        break;
+
+      case 'View credit note':
+        dispatch(listCreditNotes(row.invoiceNumber));
+        break;
+
+      case 'Add receipt':
+        setReceiptOpen(true);
+        break;
+
+      case 'View receipt':
+        nav.navigate('InvoiceReceiptsScreen', {
+          invoiceId: row.invoiceNumber,
+        });
+        break;
+
+      case 'Create duplicate':
+        dispatch(duplicateInvoice(row.invoiceNumber));
+        setTimeout(refresh, 300);
+        break;
+
+      default:
+        break;
+    }
+  };
+
+  // ===== SAVE =====
   const onSave = payload => {
-    if (editing) dispatch(updateInvoice(editing.invoiceNumber, payload));
-    else dispatch(createInvoice({ ...payload, projectId })); // lock projectId
+    if (editing) {
+      dispatch(update(editing.invoiceNumber, payload));
+    } else {
+      dispatch(create({ ...payload, projectId }));
+    }
     setFormOpen(false);
+    setEditing(null);
+    setTimeout(refresh, 300);
   };
-  const onDeleteRow = row => dispatch(deleteInvoice(row.invoiceNumber));
-  const onMarkPaid = row => dispatch(markInvoicePaid(row.id));
-  const onReminder = row => dispatch(sendPaymentReminder(row.invoiceNumber));
-
-  const onUploadFile = (row, file) =>
-    dispatch(uploadInvoiceFile(row.invoiceNumber, file));
-  const onDeleteFile = (row, fileUrl) =>
-    dispatch(deleteInvoiceFile(row.invoiceNumber, fileUrl));
-
-  const goPayments = invoiceNumber =>
-    nav.navigate('Finance', {
-      screen: 'InvoicePaymentsScreen',
-      params: { invoiceNumber },
-    });
-  const goReceipts = invoiceIdOrNumber =>
-    nav.navigate('Finance', {
-      screen: 'InvoiceReceiptsScreen',
-      params: { invoiceId: invoiceIdOrNumber },
-    });
-
-  const onAddPayment = row =>
-    dispatch(addPayment({ invoiceNumber: row.invoiceNumber }));
-  const onDuplicate = row => dispatch(duplicateInvoice(row.invoiceNumber));
 
   return (
     <View style={{ padding: 12, gap: 12 }}>
-      {/* Filters */}
+      {/* FILTER */}
       <View style={styles.card}>
         <Text style={styles.title}>Filters</Text>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.label}>Search</Text>
-            <TextInput
-              value={search}
-              onChangeText={setSearch}
-              placeholder="invoice no, client, status…"
-              placeholderTextColor="#9ca3af"
-              style={styles.input}
-            />
-          </View>
-        </View>
-        {!!error && (
-          <Text style={{ color: '#b91c1c', marginTop: 8 }}>
-            {String(error)}
-          </Text>
-        )}
+        <TextInput
+          value={search}
+          onChangeText={setSearch}
+          placeholder="Search invoice..."
+          style={styles.input}
+        />
+        {!!error && <Text style={{ color: 'red' }}>{error}</Text>}
       </View>
 
-      {/* Actions */}
-      <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-        <Pressable style={[styles.btn, styles.primary]} onPress={onAdd}>
-          <Text style={[styles.btnTxt, { color: '#fff' }]}>+ Add Invoice</Text>
+      {/* ACTION */}
+      <View style={styles.actions}>
+        <Pressable style={styles.btn} onPress={() => setFormOpen(true)}>
+          <Text style={styles.btnTxt}>+ Add Invoice</Text>
         </Pressable>
       </View>
 
-      {/* Table (hide Client column since we’re already scoped by project) */}
+      {/* TABLE */}
       <InvoicesTable
-        data={filtered || []}
+        items={filtered}
         loading={loading}
         showClientColumn={false}
-        onView={onViewRow}
-        onEdit={onEditRow}
-        onDelete={onDeleteRow}
-        onMarkPaid={onMarkPaid}
-        onPaymentReminder={onReminder}
-        onAddPayment={onAddPayment}
-        onViewPayments={row => goPayments(row.invoiceNumber)}
-        onViewReceipts={row => goReceipts(row.invoiceId || row.invoiceNumber)}
-        onUploadFile={onUploadFile}
-        onDeleteFile={onDeleteFile}
-        onDuplicate={onDuplicate}
+        onOpenActions={openMenu}
       />
 
-      {/* Modals */}
+      {/* ACTION MENU */}
+      <ActionMenu
+        visible={menuVisible}
+        row={menuRow}
+        onClose={closeMenu}
+        onSelect={handleAction}
+      />
+
+      {/* ===== MODALS ===== */}
+
       <InvoiceViewModal
         visible={viewOpen}
         invoice={viewing}
         onClose={() => setViewOpen(false)}
       />
+
       <ProjectInvoiceFormModal
         visible={formOpen}
         editing={editing}
-        client={client}
         project={project}
-        onClose={() => setFormOpen(false)}
-        onSave={onCreate}
-        busy={!!saving}
+        onClose={() => {
+          setFormOpen(false);
+          setEditing(null);
+        }}
+        onSave={onSave}
+      />
+
+      <PaymentFormModal
+        visible={paymentOpen}
+        onClose={() => setPaymentOpen(false)}
+        onSubmit={({ payment, file }) => {
+          dispatch(addPayment({ payment, file }));
+          setPaymentOpen(false);
+          setTimeout(refresh, 300);
+        }}
+      />
+
+      <UploadFileModal
+        visible={!!uploadFor}
+        onClose={() => setUploadFor(null)}
+        onSubmit={file => {
+          dispatch(uploadFile(uploadFor.invoiceNumber, file));
+          setUploadFor(null);
+          setTimeout(refresh, 300);
+        }}
+      />
+
+      <CreditNoteFormModal
+        visible={creditNoteOpen}
+        onClose={() => {
+          setCreditNoteOpen(false);
+          setCreditFor(null);
+        }}
+        invoiceNumber={creditFor?.invoiceNumber}
+        onSubmit={(invoiceNumber, payload, file) => {
+          dispatch(addCreditNote(invoiceNumber, payload, file));
+          setCreditNoteOpen(false);
+          setCreditFor(null);
+          setTimeout(refresh, 300);
+        }}
+      />
+
+      <ReceiptFormModal
+        visible={receiptOpen}
+        onClose={() => setReceiptOpen(false)}
+        onSubmit={payload => {
+          dispatch(addReceipt(payload));
+          setReceiptOpen(false);
+          setTimeout(refresh, 300);
+        }}
       />
     </View>
   );
@@ -193,30 +295,29 @@ export default function ProjectInvoicesTab() {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
-    borderRadius: 12,
     padding: 12,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: '#e5e7eb',
   },
-  title: { fontSize: 18, fontWeight: '900', color: '#0b0b0c', marginBottom: 8 },
-  label: { fontSize: 12, fontWeight: '800', color: '#374151', marginBottom: 6 },
+  title: { fontWeight: '700', marginBottom: 8 },
   input: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    backgroundColor: '#fff',
-    color: '#111827',
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 10,
+  },
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
   },
   btn: {
-    borderWidth: 1,
-    borderColor: '#1d4ed8',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    backgroundColor: '#fff',
+    backgroundColor: '#1d4ed8',
+    padding: 10,
+    borderRadius: 8,
   },
-  primary: { backgroundColor: '#1d4ed8' },
-  btnTxt: { fontWeight: '500', color: '#111827' },
+  btnTxt: {
+    color: '#fff',
+    fontWeight: '600',
+  },
 });

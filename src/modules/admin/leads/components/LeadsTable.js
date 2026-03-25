@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 
 export default function LeadsTable({ data, loading, busyIds, onRowMenuPress }) {
-  // console.log('devesh kumar ', data);
   if (loading) {
     return (
       <View style={styles.center}>

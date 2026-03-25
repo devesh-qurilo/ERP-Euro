@@ -43,8 +43,6 @@ export default function EmployeeDocumentsTab({ empId }) {
     } catch (e) {}
   }
 
-  console.log('ui docs', docs);
-
   function remove(doc) {
     Alert.alert('Delete Document', `Delete ${doc.filename}?`, [
       { text: 'Cancel' },

@@ -33,7 +33,6 @@ const selectAuth = state => state.auth || {};
 function* safeApiCall(fn, ...args) {
   try {
     const res = yield call(fn, ...args);
-    // console.log('apiiii', res);
     return res;
   } catch (err) {
     // If the axios interceptor flagged unauthorized, handle centrally
@@ -54,7 +53,6 @@ function* safeApiCall(fn, ...args) {
 function* fetchRoomsSaga(action) {
   try {
     const res = yield call(safeApiCall, chatAPI.fetchRooms);
-    // console.log('deveveveveve', res);
     yield put({ type: T.FETCH_ROOMS_SUCC, payload: res });
   } catch (err) {
     console.error('fetchRoomsSaga error', err);
@@ -75,7 +73,6 @@ function* fetchHistorySaga(action) {
 
   try {
     const res = yield call(safeApiCall, chatAPI.fetchHistory, otherId);
-    // console.log('deve hisyyyyyyyyy', res);
     yield put({
       type: T.FETCH_HISTORY_SUCC,
       payload: { otherEmployeeId: otherId, messages: res },
@@ -186,7 +183,6 @@ function* sendMessageSaga(action) {
           if (file) formData.append('file', file);
 
           const res = yield call(safeApiCall, chatAPI.sendMessage, formData);
-          // console.log('sendmessagesaga', res);
           yield put({
             type: T.SEND_MESSAGE_SUCC,
             payload: res,

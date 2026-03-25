@@ -81,47 +81,6 @@ const DealRow = memo(function DealRow({
     }
   };
 
-  /* ================= UPDATE PRIORITY ================= */
-
-  // const handlePriorityChange = async status => {
-  //   const selected = priorities.find(p => p.status === status);
-  //   if (!selected) return;
-
-  //   try {
-  //     // console.log('devvvvvv', item.id, selected.id);
-  //     await api.put(`/deals/${item.id}/priority`, {
-  //       priorityId: selected.id,
-  //     });
-  //   } catch (err) {
-  //     // console.log('Priority update error', err);
-  //   }
-  // };
-
-  // const handlePriorityChange = async status => {
-  //   const selected = priorities.find(p => p.status === status);
-  //   if (!selected) return;
-
-  //   // 🔥 Optimistic update
-  //   onRowUpdate?.(item.id, {
-  //     priority: {
-  //       ...item.priority,
-  //       status: selected.status,
-  //       color: selected.color,
-  //     },
-  //   });
-
-  //   console.log('bholu', item);
-
-  //   try {
-  //     console.log('hello devesj', selected.id, item.id, item);
-  //     await api.put(`/deals/${item.id}/priority`, {
-  //       priorityId: selected.id,
-  //     });
-  //   } catch (err) {
-  //     console.log('Priority update error', err);
-  //   }
-  // };
-
   const handlePriorityChange = async p => {
     // 🔥 Optimistic UI update first
     onRowUpdate?.(item.id, {
@@ -136,8 +95,6 @@ const DealRow = memo(function DealRow({
       const payload = {
         priorityId: p.id,
       };
-
-      console.log('Deal:', p, item.id, 'Priority:', payload);
 
       const hasPriority = Boolean(item?.priority?.id);
       if (!hasPriority) {

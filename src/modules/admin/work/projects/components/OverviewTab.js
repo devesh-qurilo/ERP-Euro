@@ -176,6 +176,14 @@ export default function OverviewStyled({ project }) {
 
   const members = Array.isArray(m.assignedEmployees) ? m.assignedEmployees : [];
 
+  const formatDate = date => {
+    const d = new Date(date);
+    const day = d.getDate();
+    const month = d.getMonth() + 1;
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.wrap}>
       {/* Progress card (semicircle + dates) */}
@@ -220,15 +228,13 @@ export default function OverviewStyled({ project }) {
             <View style={styles.dateRow}>
               <Text style={styles.dateLabel}>Start Date</Text>
               <Text style={styles.dateVal}>
-                {m.startDate
-                  ? new Date(m.startDate).toLocaleDateString()
-                  : '--'}
+                {m.startDate ? formatDate(m.startDate) : '--'}
               </Text>
             </View>
             <View style={styles.dateRow}>
               <Text style={styles.dateLabel}>End Date</Text>
               <Text style={styles.dateVal}>
-                {m.deadline ? new Date(m.deadline).toLocaleDateString() : '--'}
+                {m.deadline ? formatDate(m.deadline) : '--'}
               </Text>
             </View>
           </View>
@@ -295,7 +301,7 @@ export default function OverviewStyled({ project }) {
       <View style={styles.kpiWrap}>
         <View style={styles.smallBox}>
           <Text style={styles.smallIcon}>💰</Text>
-          <Text style={styles.smallTitle}>Project Budget</Text>
+          <Text style={styles.smallTitle}>Budget</Text>
           <Text style={styles.smallVal}>
             {m.currency ?? ''} {budget ? budget.toLocaleString() : '--'}
           </Text>
@@ -303,9 +309,9 @@ export default function OverviewStyled({ project }) {
 
         <View style={styles.smallBox}>
           <Text style={styles.smallIcon}>⏱️</Text>
-          <Text style={styles.smallTitle}>Hours Logged</Text>
+          <Text style={styles.smallTitle}>Hours</Text>
           <Text style={styles.smallVal}>
-            {hoursLogged ? `${hoursLogged} hrs` : '--'}
+            {hoursEstimate ? `${hoursEstimate} hrs` : '--'}
           </Text>
         </View>
 
@@ -461,22 +467,43 @@ const styles = StyleSheet.create({
   // small KPI boxes
   kpiWrap: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 6,
+    marginTop: 10,
     justifyContent: 'space-between',
   },
+
   smallBox: {
     flex: 1,
-    ...CARD_BORDER,
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 8,
     alignItems: 'center',
-    marginTop: 10,
-  },
-  smallIcon: { fontSize: 20 },
-  smallTitle: { color: '#6b7280', marginTop: 6, fontWeight: '700' },
-  smallVal: { marginTop: 6, fontWeight: '800', fontSize: 16 },
 
+    marginHorizontal: 4,
+
+    // subtle shadow (iOS + Android)
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+  },
+
+  smallIcon: {
+    fontSize: 22,
+  },
+
+  smallTitle: {
+    color: '#6b7280',
+    marginTop: 6,
+    fontSize: 12,
+  },
+
+  smallVal: {
+    marginTop: 6,
+    fontWeight: '400',
+    fontSize: 16,
+    color: '#111827',
+  },
   // members
   memberRow: {
     flexDirection: 'row',

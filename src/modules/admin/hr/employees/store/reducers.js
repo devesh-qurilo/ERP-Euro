@@ -247,7 +247,6 @@ export default function adminEmployeesReducer(state = init, action) {
       };
 
     case T.EMP_DOCS_SUCCESS:
-      console.log('Reducer docs', action.items);
       return {
         ...state,
         employeeDocsLoading: false,

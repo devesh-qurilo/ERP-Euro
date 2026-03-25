@@ -60,14 +60,6 @@ const DealRow = memo(function DealRow({
 
   /* ================= UPDATE STAGE ================= */
 
-  // const handleStageChange = async stageName => {
-  //   try {
-  //     await api.put(`/deals/${item.id}/stage?stage=${stageName}`);
-  //   } catch (err) {
-  //     // console.log('Stage update error', err);
-  //   }
-  // };
-
   const handleStageChange = async stageName => {
     // 🔥 Optimistic update first
     onRowUpdate?.(item.id, {
@@ -83,20 +75,6 @@ const DealRow = memo(function DealRow({
 
   /* ================= UPDATE PRIORITY ================= */
 
-  // const handlePriorityChange = async status => {
-  //   const selected = priorities.find(p => p.status === status);
-  //   if (!selected) return;
-
-  //   try {
-  //     // console.log('devvvvvv', item.id, selected.id);
-  //     await api.put(`/deals/${item.id}/priority`, {
-  //       priorityId: selected.id,
-  //     });
-  //   } catch (err) {
-  //     // console.log('Priority update error', err);
-  //   }
-  // };
-
   const handlePriorityChange = async status => {
     const selected = priorities.find(p => p.status === status);
     if (!selected) return;
@@ -110,10 +88,7 @@ const DealRow = memo(function DealRow({
       },
     });
 
-    console.log('bholu', item);
-
     try {
-      console.log('hello devesj', selected.id, item.id, item);
       await api.put(`/deals/${item.id}/priority`, {
         priorityId: selected.id,
       });

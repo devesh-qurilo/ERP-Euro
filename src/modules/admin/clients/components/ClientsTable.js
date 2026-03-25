@@ -57,7 +57,6 @@ export default function ClientsTable({ items = [], loading, onMenu }) {
       </View>
     );
   }
-  console.log('devesh', items);
   return (
     <View style={{ borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 10 }}>
       <ScrollView horizontal bounces={false} showsHorizontalScrollIndicator>

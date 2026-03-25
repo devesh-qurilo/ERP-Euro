@@ -43,7 +43,6 @@ function* listSaga({ payload }) {
       ...(payload || {}),
     };
     const data = yield call(API.list, params);
-    // console.log('listSaga', data);
     yield put({ type: T.LIST_SUCCESS, payload: mapPage(data) });
   } catch (err) {
     yield put({
@@ -56,7 +55,6 @@ function* listSaga({ payload }) {
 function* getOneSaga({ payload: { invoiceNumber } }) {
   try {
     const data = yield call(API.getOne, invoiceNumber);
-    // console.log('getOneSaga', data);
     yield put({ type: T.GET_ONE_SUCCESS, payload: data });
   } catch (e) {
     yield put({
@@ -69,12 +67,10 @@ function* getOneSaga({ payload: { invoiceNumber } }) {
 function* createSaga({ payload }) {
   try {
     const created = yield call(API.create, payload);
-    console.log('create saga', created, payload);
     yield put({ type: T.CREATE_SUCCESS, payload: created });
     // refresh list after create
     yield put(listAction());
   } catch (e) {
-    // console.log('create saga errrr');
     yield put({
       type: T.CREATE_FAILURE,
       payload: e?.message || 'Create failed',
@@ -85,7 +81,6 @@ function* createSaga({ payload }) {
 function* updateSaga({ payload: { invoiceNumber, data } }) {
   try {
     const updated = yield call(API.update, invoiceNumber, data);
-    // console.log('updated', updated);
     yield put({ type: T.UPDATE_SUCCESS, payload: updated });
     yield put(listAction());
   } catch (e) {
@@ -99,7 +94,6 @@ function* updateSaga({ payload: { invoiceNumber, data } }) {
 function* uploadFileSaga({ payload: { invoiceNumber, file } }) {
   try {
     yield call(API.uploadFile, invoiceNumber, file);
-    // console.log('upload file');
     yield put({ type: T.UPLOAD_FILE_SUCCESS });
     yield put(getOneSaga({ payload: { invoiceNumber } })); // refresh current if opened
   } catch (e) {
@@ -113,11 +107,9 @@ function* uploadFileSaga({ payload: { invoiceNumber, file } }) {
 function* deleteFileSaga({ payload: { invoiceNumber, fileUrl } }) {
   try {
     yield call(API.deleteFile, invoiceNumber, fileUrl);
-    // console.log('delete file');
     yield put({ type: T.DELETE_FILE_SUCCESS });
     yield put(getOneSaga({ payload: { invoiceNumber } }));
   } catch (e) {
-    // console.log('dddddelete file');
     yield put({
       type: T.DELETE_FILE_FAILURE,
       payload: e?.message || 'Delete failed',
@@ -138,25 +130,9 @@ function* reminderSaga({ payload: { invoiceNumber } }) {
   }
 }
 
-// function* markPaidSaga({ payload: { invoiceId } }) {
-//   try {
-//     yield call(API.markPaid, invoiceId);
-//     // console.log('invoive number', invoiceId);
-//     yield put({ type: T.MARK_PAID_SUCCESS });
-//     yield put(listAction());
-//   } catch (e) {
-//     // console.log('dddddinvoive number', invoiceId);
-//     yield put({
-//       type: T.MARK_PAID_FAILURE,
-//       payload: e?.message || 'Mark paid failed',
-//     });
-//   }
-// }
-
 function* addReceiptSaga({ payload }) {
   try {
     yield call(API.addReceipt, payload);
-    // console.log('add receipt');
     yield put({ type: T.ADD_RECEIPT_SUCCESS });
   } catch (e) {
     yield put({
@@ -169,7 +145,6 @@ function* addReceiptSaga({ payload }) {
 function* listReceiptsSaga({ payload: { invoiceId } }) {
   try {
     const rows = yield call(API.listReceiptsByInvoiceId, invoiceId);
-    // console.log('listReceiptsSaga', invoiceId);
     yield put({ type: T.LIST_RECEIPTS_SUCCESS, payload: rows });
   } catch (e) {
     yield put({
@@ -179,24 +154,9 @@ function* listReceiptsSaga({ payload: { invoiceId } }) {
   }
 }
 
-// function* addPaymentSaga({ payload: { payment, file } }) {
-//   try {
-//     const res = yield call(API.createPayment, { payment, file });
-//     // console.log('addPaymentSaga', res);
-//     yield put({ type: T.ADD_PAYMENT_SUCCESS, payload: res });
-//     yield put(listAction());
-//   } catch (e) {
-//     yield put({
-//       type: T.ADD_PAYMENT_FAILURE,
-//       payload: e?.message || 'Add payment failed',
-//     });
-//   }
-// }
-
 function* listPaymentsSaga({ payload: { invoiceNumber } }) {
   try {
     const rows = yield call(API.listPaymentsByInvoiceNumber, invoiceNumber);
-    // console.log('listPaymentsSaga', rows);
     yield put({ type: T.LIST_PAYMENTS_SUCCESS, payload: rows });
   } catch (e) {
     yield put({
@@ -220,16 +180,13 @@ function* deleteSaga({ payload: { invoiceNumber } }) {
 }
 
 function* markPaidSaga({ payload: { invoiceId } }) {
-  console.log('invoiceNumber bahar', invoiceId);
   try {
-    console.log('invoiceNumber  mark', invoiceId);
     // let invoiceId = invoiceNumber;
     // NOTE: backend expects invoiceId here, not invoiceNumber
     yield call(API.markPaid, invoiceId);
     yield put({ type: T.MARK_PAID_SUCCESS });
     yield put(listAction());
   } catch (e) {
-    console.log('invoiceNumber error');
     yield put({
       type: T.MARK_PAID_FAILURE,
       payload: e?.message || 'Mark paid failed',
@@ -238,14 +195,11 @@ function* markPaidSaga({ payload: { invoiceId } }) {
 }
 
 function* addPaymentSaga({ payload: { payment, file } }) {
-  console.log('add payment request  bahar');
   try {
     const res = yield call(API.createPayment, { payment, file });
-    console.log('add payment request', res);
     yield put({ type: T.ADD_PAYMENT_SUCCESS, payload: res });
     yield put(listAction());
   } catch (e) {
-    console.log('add payment request  error');
     yield put({
       type: T.ADD_PAYMENT_FAILURE,
       payload: e?.message || 'Add payment failed',
@@ -305,18 +259,6 @@ function* downloadReceiptSaga({ payload: { createdId } }) {
     });
   }
 }
-
-// function* listPaymentsSaga({ payload: { invoiceNumber } }) {
-//   try {
-//     const data = yield call(API.listPaymentsByInvoice, invoiceNumber); // you already have this in API as /api/payments/invoice/{invoiceNumber}
-//     yield put({ type: T.LIST_PAYMENTS_SUCCESS, payload: data });
-//   } catch (e) {
-//     yield put({
-//       type: T.LIST_PAYMENTS_FAILURE,
-//       payload: e?.message || 'Load payments failed',
-//     });
-//   }
-// }
 
 function* editPaymentSaga({ payload: { paymentId, payload, invoiceNumber } }) {
   try {

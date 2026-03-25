@@ -153,11 +153,9 @@ export default function AdminHolidaysScreen() {
           data={filtered}
           loading={loading}
           onEdit={holiday => {
-            // console.log('EDIT CLICKED', holiday);
             dispatch(openHolidayEditModal(holiday));
           }}
           onDelete={id => {
-            // console.log('DELETE CLICKED', id);
             dispatch(deleteHoliday(id));
           }}
         />
@@ -165,24 +163,6 @@ export default function AdminHolidaysScreen() {
 
       {error ? <Text style={s.err}>Error: {String(error)}</Text> : null}
 
-      {/* <HolidayModal
-        visible={modalOpen}
-        onClose={() => dispatch(closeHolidayModal())}
-        onSave={payload => dispatch(createHolidaysBulk(payload))}
-        loading={creating}
-      /> */}
-
-      {/* <HolidayModal
-        visible={modalOpen}
-        editingHoliday={editingHoliday} // ✅ now exists
-        onClose={() => dispatch(closeHolidayModal())}
-        onSave={(id, payload) =>
-          id
-            ? dispatch(updateHoliday(id, payload))
-            : dispatch(createHolidaysBulk(payload))
-        }
-        loading={creating}
-      /> */}
       <HolidayModal
         visible={addModalOpen}
         onClose={() => dispatch(closeHolidayModal())}

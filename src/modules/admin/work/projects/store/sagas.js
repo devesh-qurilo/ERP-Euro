@@ -7,7 +7,7 @@ const emsg = e => e?.response?.data?.message || e?.message || 'Request failed';
 function* fetchAll() {
   try {
     const list = yield call(adminWorkProjectsAPI.list);
-    // console.log('list', list);
+
     yield put({ type: T.AWP_SET_ALL, list });
   } catch (e) {
     yield put({ type: T.AWP_ERROR, error: emsg(e) });
@@ -15,16 +15,11 @@ function* fetchAll() {
 }
 
 function* patchProgress({ id, percent }) {
-  console.log('percentage bahar', id, percent);
   try {
-    console.log('hhhhhh', id, percent);
     yield put({ type: T.AWP_BUSY, id, on: true });
     yield call(projectsApi.patchProgress, id, percent);
-    console.log('fetch percentage');
     yield put({ type: T.AWP_FETCH_ALL });
-    console.log('put percentage');
   } catch (e) {
-    console.log('error percentage');
     yield put({ type: T.AWP_ERROR, error: emsg(e) });
   } finally {
     yield put({ type: T.AWP_BUSY, id, on: false });
@@ -34,7 +29,7 @@ function* patchProgress({ id, percent }) {
 function* createProject({ payload }) {
   try {
     yield put({ type: T.AWP_BUSY, id: 'create', on: true });
-    // console.log('clent project', payload);
+
     yield call(adminWorkProjectsAPI.create, payload);
     yield put({ type: T.AWP_CLOSE_MODAL });
     yield put({ type: T.AWP_FETCH_ALL });
@@ -50,7 +45,7 @@ function* updateProject({ id, payload }) {
   try {
     yield put({ type: T.AWP_BUSY, id, on: true });
     yield call(adminWorkProjectsAPI.update, id, payload);
-    // console.log('update project', payload);
+
     yield put({ type: T.AWP_CLOSE_MODAL });
     yield put({ type: T.AWP_FETCH_ALL });
   } catch (e) {
@@ -73,9 +68,7 @@ function* deleteProject({ id }) {
 }
 
 function* patchStatus({ id, status }) {
-  // console.log('patch. jjj', id, status);
   try {
-    // console.log('sssssss', id, status);
     yield put({ type: T.AWP_BUSY, id, on: true });
     yield call(adminWorkProjectsAPI.patchStatus, id, status);
     yield put({ type: T.AWP_FETCH_ALL });

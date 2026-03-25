@@ -20,7 +20,6 @@ function* createSaga({ payload }) {
     const f = yield select(getFilters);
     yield put({ type: T.LIST_REQUEST, payload: { filters: f } });
   } catch (e) {
-    console.log('bahar fail saga payload');
     yield put({
       type: T.CREATE_FAILURE,
       payload: e?.message || 'Create failed',
@@ -59,8 +58,7 @@ function* deleteSaga({ payload: { id } }) {
 /* --- Category sagas --- */
 function* categoryListSaga() {
   try {
-    const data = yield call(API.getCategories); // <--- implement in clientsAPI or rename accordingly
-    // // console.log('devesh category', data);
+    const data = yield call(API.getCategories);
     yield put({ type: T.CATEGORY_LIST_SUCCESS, payload: data });
   } catch (e) {
     yield put({
@@ -101,8 +99,7 @@ function* categoryDeleteSaga({ payload: { id } }) {
 /* --- SubCategory sagas --- */
 function* subCategoryListSaga() {
   try {
-    const data = yield call(API.getSubcategories); // <--- implement or rename
-    // // console.log('devesh subcategory', data);
+    const data = yield call(API.getSubcategories);
     yield put({ type: T.SUBCATEGORY_LIST_SUCCESS, payload: data });
   } catch (e) {
     yield put({
@@ -114,7 +111,6 @@ function* subCategoryListSaga() {
 
 function* subCategoryCreateSaga({ payload }) {
   try {
-    // payload { subCategoryName: 'Gold' }
     yield call(API.createSubcategory, payload);
     yield put({ type: T.SUBCATEGORY_CREATE_SUCCESS });
     yield put({ type: T.SUBCATEGORY_LIST_REQUEST });

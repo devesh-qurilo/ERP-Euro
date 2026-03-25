@@ -64,7 +64,6 @@ export default function AdminClientsScreen() {
   const formOpen = useSelector(selectFormOpen);
   const editing = useSelector(selectEditing);
 
-  console.log('list of client', itemsl);
   // small debounce for search
   useEffect(() => {
     const t = setTimeout(() => {
@@ -72,16 +71,6 @@ export default function AdminClientsScreen() {
     }, 300);
     return () => clearTimeout(t);
   }, [localSearch]);
-
-  // Load clients + categories on focus and when filters change
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     // refresh categories when screen focuses so dropdown stays up-to-date
-  //     dispatch(A.categoryList());
-  //     // fetch clients list with current filters
-  //     // dispatch(A.list(filters));
-  //   }, [dispatch, filters]),
-  // );
 
   useFocusEffect(
     useCallback(() => {
@@ -509,7 +498,6 @@ export default function AdminClientsScreen() {
         visible={addOpen}
         onClose={() => setAddOpen(false)}
         onSubmit={payload => {
-          console.log('payload', payload);
           dispatch(A.create(payload));
           setAddOpen(false);
         }}

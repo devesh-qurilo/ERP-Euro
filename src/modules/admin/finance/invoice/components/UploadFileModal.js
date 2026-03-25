@@ -37,9 +37,7 @@ export default function UploadFileModal({ visible, onClose, onSubmit }) {
       setPicked(toRNFile(doc));
     } catch (e) {
       if (DocumentPicker.isCancel && DocumentPicker.isCancel(e)) {
-        // user cancelled, ignore
       } else {
-        // console.log('[UploadFileModal] picker error:', e?.message);
       }
     }
   }

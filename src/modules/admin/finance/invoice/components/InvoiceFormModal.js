@@ -134,7 +134,6 @@ export default function InvoiceFormModal({
       clientId: form.clientId ? String(form.clientId) : undefined,
       projectId: form.projectId ? String(form.projectId) : undefined,
     };
-    console.log('bhahhhhhh', payload);
     onSubmit(payload);
   }
 

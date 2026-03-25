@@ -77,7 +77,6 @@ export default function ProjectInvoiceFormModal({
       tax: Number(form.tax) || 0,
       discount: Number(form.discount) || 0,
     };
-    // console.log('dekhlooo', payload);
     onSave(payload);
   }
 
@@ -88,7 +87,19 @@ export default function ProjectInvoiceFormModal({
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView style={{ padding: 16, marginTop: 50 }}>
-          <Text style={{ fontSize: 18, fontWeight: '700' }}>Add Invoice</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ fontSize: 18, fontWeight: '700' }}>Add Invoice</Text>
+
+            <TouchableOpacity onPress={onClose}>
+              <Text style={{ fontSize: 16, color: '#000000' }}>Close</Text>
+            </TouchableOpacity>
+          </View>
 
           {/* ✅ Locked Project */}
           <Text style={{ marginTop: 16 }}>Project</Text>

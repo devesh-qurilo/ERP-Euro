@@ -31,12 +31,9 @@ export default function DocumentsTab({ dealId }) {
 
   const handleUpload = async () => {
     try {
-      // console.log('Opening picker...');
       const file = await pickImageOrDoc(); // 👈 CLEAN CALL
 
       if (!file) return;
-
-      // console.log('Uploading:', file);
 
       dispatch(uploadDoc(dealId, file));
     } catch (err) {

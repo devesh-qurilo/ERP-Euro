@@ -21,30 +21,8 @@ function* fetchWorker() {
   }
 }
 
-/* ---------------- CREATE ---------------- */
-// function* createWorker(action) {
-//   try {
-//     const data = yield call(priorityAPI.create, action.payload);
-
-//     yield put({
-//       type: T.CREATE_OK,
-//       payload: data,
-//     });
-
-//     // optional refresh (small list, acceptable)
-//     yield put({ type: T.FETCH_REQ });
-//   } catch (err) {
-//     yield put({
-//       type: T.CREATE_ERR,
-//       error: err?.response?.data || err.message,
-//     });
-//   }
-// }
-
 function* createWorker(action) {
   try {
-    console.log('🔥 CREATE API HIT', action.payload);
-
     yield call(priorityAPI.create, action.payload);
 
     yield put({ type: T.CREATE_OK });

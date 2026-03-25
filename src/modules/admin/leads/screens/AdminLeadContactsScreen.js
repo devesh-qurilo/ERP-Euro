@@ -122,7 +122,6 @@ export default function AdminLeadContactsScreen() {
   const busyIds = useSelector(selectAdminLeadsBusyIds);
   const me = useSelector(s => s?.auth?.profile?.employeeId) || '';
   const employees = useSelector(selectEmpList);
-  console.log('list lead', list);
   useEffect(() => {
     dispatch(fetchEmployees());
   }, [dispatch]);

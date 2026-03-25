@@ -27,7 +27,6 @@ const Select = ({ label, value, options, onChange, emp }) => {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
 
-  // console.log('ggggggggg', emp);
   useEffect(() => {
     if (!emp) return;
 

@@ -106,8 +106,6 @@ export default function AdminEmployeesScreen({ navigation }) {
     dispatch(fetchEmployees());
   }, [dispatch]);
 
-  console.log('list of employee', list);
-
   // derived filter options (client-side)
   const roles = useMemo(
     () => [

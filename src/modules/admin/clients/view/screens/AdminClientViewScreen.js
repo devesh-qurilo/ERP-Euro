@@ -194,23 +194,10 @@ export default function AdminClientViewScreen() {
   const route = useRoute();
   const dispatch = useDispatch();
 
-  // Resolve client identifiers from the navigation payload
-  //   const navClient = route?.params?.client || null;
-  //   const paramClientId =
-  //     route?.params?.clientId ?? route?.params?.id ?? navClient?.clientId;
-
   const navClient = route?.params?.client || null;
-  // numeric DB id for /clients/:id
   const paramId = route?.params?.id ?? navClient?.id;
-  // external code like "CLI001" for children tabs
   const paramClientId = route?.params?.clientId ?? navClient?.clientId;
   const clientId = route?.params?.id;
-  // console.log('bhaii client routes', route?.params?.id);
-
-  // Load full client detail for Profile tab
-  //   React.useEffect(() => {
-  //     if (paramClientId) dispatch(loadClient(paramClientId));
-  //   }, [paramClientId, dispatch]);
 
   React.useEffect(() => {
     if (paramId) dispatch(loadClient(paramId));

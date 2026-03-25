@@ -51,7 +51,6 @@ export default function ClientProjectsTab() {
   // list for this client
   const rows = useSelector(selectClientProjects);
   const loading = useSelector(selectClientProjectsBusy);
-  console.log('client view  project', clientId, rows);
 
   // modal state comes from your main projects slice (same as AdminWorkProjectsScreen)
   const modalOpen = useSelector(selectAWPModalOpen);

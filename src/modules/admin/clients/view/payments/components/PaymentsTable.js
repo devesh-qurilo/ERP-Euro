@@ -186,8 +186,6 @@ export default function PaymentsTable({
   const rows = asArr(data);
   const busy = asArr(busyIds);
 
-  console.log('client payment table ', rows);
-
   const [selectedItem, setSelectedItem] = useState(null);
   const closeMenu = () => setSelectedItem(null);
 

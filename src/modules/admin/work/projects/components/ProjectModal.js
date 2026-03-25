@@ -206,41 +206,14 @@ export default function ProjectModal({
     return v.assignedEmployeeIds.map(String).includes(String(key));
   }
 
-  // File picker (image-picker) - same as before
-  // async function pickCompanyFile() {
-  //   try {
-  //     const res = await launchImageLibrary({
-  //       mediaType: 'mixed',
-  //       includeBase64: false,
-  //     });
-  //     if (res && res.assets && res.assets.length > 0) {
-  //       const file = res.assets[0];
-  //       const payload = {
-  //         uri:
-  //           Platform.OS === 'ios' && file.uri?.startsWith('file://')
-  //             ? file.uri
-  //             : file.uri,
-  //         name: file.fileName || `file-${Date.now()}`,
-  //         type: file.type || 'application/octet-stream',
-  //       };
-  //       setCompanyFile(payload);
-  //     }
-  //   } catch (err) {
-  //     // console.log('pickCompanyFile error', err);
-  //     Alert.alert('File pick failed');
-  //   }
-  // }
-
   async function pickCompanyFile() {
     try {
       const file = await pickImageOrDoc();
       setCompanyFile(file);
     } catch (err) {
       if (DocumentPicker.isCancel?.(err)) {
-        // user cancelled → silently ignore
         return;
       }
-      // console.log('pickCompanyFile error', err);
       Alert.alert('File pick failed');
     }
   }

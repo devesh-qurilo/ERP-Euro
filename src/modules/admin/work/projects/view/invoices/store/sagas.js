@@ -6,15 +6,11 @@ import { projectInvoicesAPI } from '../../../../../../../services/api';
 function* listByProjectSaga({ payload }) {
   const { projectId } = payload;
 
-  console.log('listByProjectSaga', projectId);
-
   try {
     const data = yield call(projectInvoicesAPI.listByProject, projectId);
-    console.log('listByProjectSaga list', data);
 
     yield put({ type: T.LIST_BY_PROJECT_SUCCESS, payload: data });
   } catch (e) {
-    console.log('listByProjectSaga error', e);
     yield put({
       type: T.LIST_BY_PROJECT_FAILURE,
       payload: e?.message || 'Failed to load project invoices',

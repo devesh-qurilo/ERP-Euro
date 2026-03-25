@@ -3,7 +3,6 @@ import * as T from './types';
 import { financeCreditNotesAPI as API } from '../../../../../services/api';
 
 function* listSaga() {
-  // console.log('[CN] listSaga');
   try {
     const data = yield call(API.listAll);
     yield put({ type: T.LIST_SUCCESS, payload: data });
@@ -16,7 +15,6 @@ function* listSaga() {
 }
 
 function* updateSaga({ payload: { id, payload } }) {
-  // console.log('[CN] updateSaga', id);
   try {
     yield call(API.update, id, payload);
     yield put({ type: T.UPDATE_SUCCESS });
@@ -44,7 +42,6 @@ function* deleteSaga({ payload: { id } }) {
 }
 
 export function* creditNotesWatcher() {
-  // console.log('[CN] watcher mounted');
   yield all([
     takeLatest(T.LIST_REQUEST, listSaga),
     takeLatest(T.UPDATE_REQUEST, updateSaga),

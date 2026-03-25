@@ -307,7 +307,6 @@ export default function EmployeeModal({
       return;
     }
     const employee = buildEmployeeJSON();
-    console.log(employee, file);
     onSave({ employee, file });
   };
 

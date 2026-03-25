@@ -172,6 +172,14 @@ function WorkStack() {
         options={{ headerShown: false }}
       />
       <Stack.Screen name="WorkTimesheets" component={AdminTimesheetsScreen} />
+      <Stack.Screen
+        name="InvoiceReceiptsScreen"
+        component={InvoiceReceiptsScreen}
+      />
+      <Stack.Screen
+        name="InvoicePaymentsScreen"
+        component={InvoicePaymentsScreen}
+      />
     </Stack.Navigator>
   );
 }

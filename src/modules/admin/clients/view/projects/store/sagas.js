@@ -5,7 +5,6 @@ import { clientProjectsAPI } from '../../../../../../services/api';
 function* listByClientSaga({ payload: { clientId } }) {
   try {
     const data = yield call(clientProjectsAPI.listByClient, clientId);
-    // console.log('devvvvvvv', data, clientId);
     yield put({ type: T.LIST_BY_CLIENT_SUCCESS, payload: data });
   } catch (e) {
     yield put({

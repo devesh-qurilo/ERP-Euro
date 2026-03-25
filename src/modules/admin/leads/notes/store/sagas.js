@@ -7,7 +7,6 @@ import { adminLeadsAPI } from '../../../../../services/api';
 function* fetchNotes({ leadId }) {
   try {
     const data = yield call(adminLeadsAPI.listNotes, leadId);
-    // console.log('devesh lead notes ', data);
     yield put({
       type: T.FETCH_LEAD_NOTES_SUCCESS,
       leadId,
