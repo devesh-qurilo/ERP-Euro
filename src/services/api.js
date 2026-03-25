@@ -846,10 +846,9 @@ export const projectsApi = {
       })
       .then(r => r.data);
   },
-  patchProgress: (id, percent) => {
-    const fd = new formData();
+  patchProgress: async (id, percent) => {
+    const fd = new FormData();
     fd.append('percent', percent);
-    console.log('devkkkk', id, fd);
     return api
       .put(`/api/projects/${id}/progress`, fd, {
         headers: { 'Content-Type': 'multipart/form-data' },

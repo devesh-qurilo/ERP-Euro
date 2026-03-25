@@ -12,11 +12,11 @@ import {
 } from 'react-native';
 
 const STATUS_OPTIONS = [
-  'IN_PROGRESS',
-  'ON_HOLD',
-  'CANCELLED',
-  'NOT_STARTED',
-  'FINISHED',
+  { key: 'IN_PROGRESS', label: 'In Progress' },
+  { key: 'ON_HOLD', label: 'On Hold' },
+  { key: 'CANCELLED', label: 'Cancelled' },
+  { key: 'NOT_STARTED', label: 'Not Started' },
+  { key: 'FINISHED', label: 'Finished' },
 ];
 
 const PROGRESS_OPTIONS = Array.from({ length: 11 }, (_, i) => i * 10); // 0..100
@@ -84,6 +84,11 @@ export default function ProjectsTable({
           {/* Rows */}
           {data.map(item => {
             const isBusy = busyIds.includes?.(item.id);
+
+            const statusLabel =
+              STATUS_OPTIONS.find(s => s.key === item.projectStatus)?.label ||
+              item.projectStatus ||
+              'Select';
             return (
               <View key={item.id} style={styles.row}>
                 <Text style={styles.cell}>#{item.shortCode || '—'}</Text>
@@ -140,7 +145,8 @@ export default function ProjectsTable({
                     onPress={() => openMenu({ ...item, mode: 'status' })}
                   >
                     <Text numberOfLines={1} style={styles.selectTxt}>
-                      {item.projectStatus || '—'}
+                      {/* {item.projectStatus || 'Select'} */}
+                      {statusLabel}
                     </Text>
                     <Text style={styles.caret}>▾</Text>
                     {isBusy && (
@@ -221,19 +227,19 @@ export default function ProjectsTable({
                       style={styles.modalActionBtn}
                       onPress={() => {
                         setMenuVisible(false);
-                        onStatus?.(menuItem.id, s);
+                        onStatus?.(menuItem.id, s.key);
                       }}
                       disabled={busyIds.includes(menuItem.id)}
                     >
                       <Text
                         style={[
                           styles.modalActionTxt,
-                          menuItem.projectStatus === s
+                          menuItem.projectStatus === s.key
                             ? { fontWeight: '800' }
                             : null,
                         ]}
                       >
-                        {s}
+                        {s.label}
                       </Text>
                     </Pressable>
                   ))}
@@ -254,7 +260,7 @@ export default function ProjectsTable({
                         style={[
                           styles.modalActionTxt,
                           menuItem.progressPercent === p
-                            ? { fontWeight: '800' }
+                            ? { fontWeight: '600' }
                             : null,
                         ]}
                       >
@@ -404,8 +410,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#e5e7eb',
   },
 
-  progressCell: { minWidth: 140 },
-  statusCell: { minWidth: 140 },
+  progressCell: { minWidth: 140, maxWidth: 140 },
+  statusCell: { minWidth: 160, maxWidth: 160 },
 
   selectInline: {
     flexDirection: 'row',
@@ -417,7 +423,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#fff',
   },
-  selectTxt: { flex: 1, fontWeight: '600' },
+  selectTxt: { flex: 1, fontWeight: '400' },
   caret: { color: '#6b7280', marginLeft: 8 },
 
   barWrap: {

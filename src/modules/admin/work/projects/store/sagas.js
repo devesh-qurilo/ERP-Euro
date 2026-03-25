@@ -1,6 +1,6 @@
 import { all, call, put, takeLatest } from 'redux-saga/effects';
 import * as T from './types';
-import { adminWorkProjectsAPI } from '../../../../../services/api';
+import { adminWorkProjectsAPI, projectsApi } from '../../../../../services/api';
 
 const emsg = e => e?.response?.data?.message || e?.message || 'Request failed';
 
@@ -15,13 +15,16 @@ function* fetchAll() {
 }
 
 function* patchProgress({ id, percent }) {
-  // console.log('hhhhhh jj', id, percent);
+  console.log('percentage bahar', id, percent);
   try {
-    // console.log('hhhhhh', id, percent);
+    console.log('hhhhhh', id, percent);
     yield put({ type: T.AWP_BUSY, id, on: true });
-    yield call(adminWorkProjectsAPI.patchProgress, id, percent);
+    yield call(projectsApi.patchProgress, id, percent);
+    console.log('fetch percentage');
     yield put({ type: T.AWP_FETCH_ALL });
+    console.log('put percentage');
   } catch (e) {
+    console.log('error percentage');
     yield put({ type: T.AWP_ERROR, error: emsg(e) });
   } finally {
     yield put({ type: T.AWP_BUSY, id, on: false });

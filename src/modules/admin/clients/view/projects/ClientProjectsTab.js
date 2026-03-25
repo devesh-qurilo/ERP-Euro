@@ -29,6 +29,7 @@ import {
   unpinProject,
   archiveProject,
   unarchiveProject,
+  patchProgress,
 } from '../../../work/projects/store/actions';
 
 import {
@@ -75,7 +76,10 @@ export default function ClientProjectsTab() {
 
   // —— handlers ——
   const onAdd = () => {
-    console.log('add project'), dispatch(openModal(null));
+    dispatch(openModal(null)),
+      setTimeout(() => {
+        dispatch(listByClient(clientId));
+      }, 400);
   }; // ProjectModal will be opened; we'll inject clientId on save
   const onSave = payload => {
     if (editing) {
@@ -145,8 +149,26 @@ export default function ClientProjectsTab() {
             showClientColumn={false}
             onView={onView}
             onEdit={p => dispatch(openModal(p))}
-            onDelete={id => dispatch(deleteProject(id))}
-            onStatus={(id, status) => dispatch(patchStatus(id, status))}
+            onDelete={id => {
+              dispatch(deleteProject(id)),
+                setTimeout(() => {
+                  dispatch(listByClient(clientId));
+                }, 300);
+            }}
+            onStatus={(id, status) => {
+              dispatch(patchStatus(id, status)),
+                setTimeout(() => {
+                  dispatch(listByClient(clientId));
+                }, 300);
+            }}
+            onProgress={(id, percent) => {
+              dispatch(patchProgress(id, percent));
+
+              // refresh after update
+              setTimeout(() => {
+                dispatch(listByClient(clientId));
+              }, 300);
+            }}
             onPin={id => dispatch(pinProject(id))}
             onUnpin={id => dispatch(unpinProject(id))}
             onArchive={id => dispatch(archiveProject(id))}

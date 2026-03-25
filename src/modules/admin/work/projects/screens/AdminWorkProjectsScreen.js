@@ -42,6 +42,15 @@ import ProjectsTable from '../components/ProjectsTable';
 import ProjectModal from '../components/ProjectModal';
 import { useNavigation } from '@react-navigation/native';
 
+const STATUS_OPTIONS = [
+  { key: 'ALL', label: 'All' },
+  { key: 'NOT_STARTED', label: 'Not Started' },
+  { key: 'IN_PROGRESS', label: 'In Progress' },
+  { key: 'ON_HOLD', label: 'On Hold' },
+  { key: 'FINISHED', label: 'Finished' },
+  { key: 'CANCELLED', label: 'Cancelled' },
+];
+
 export default function AdminWorkProjectsScreen() {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -111,14 +120,7 @@ export default function AdminWorkProjectsScreen() {
           <Dropdown
             label="Status"
             value={filters.status}
-            options={[
-              'All',
-              'NOT_STARTED',
-              'IN_PROGRESS',
-              'ON_HOLD',
-              'FINISHED',
-              'CANCELLED',
-            ]}
+            options={STATUS_OPTIONS}
             onChange={status => dispatch(setFilters({ status }))}
           />
         </View>
@@ -251,14 +253,14 @@ function Dropdown({ label, value = 'All', options = [], onChange }) {
         <View style={styles.menu}>
           {options.map(opt => (
             <Pressable
-              key={opt}
+              key={opt.key}
               onPress={() => {
-                onChange(opt);
+                onChange(opt.key === 'ALL' ? 'All' : opt.key);
                 setOpen(false);
               }}
               style={styles.menuItem}
             >
-              <Text style={styles.menuTxt}>{opt}</Text>
+              <Text style={styles.menuTxt}>{opt.label}</Text>
             </Pressable>
           ))}
         </View>
