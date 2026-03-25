@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     color: '#111827',
   },
   addBtn: {
-    backgroundColor: '#111827',
+    backgroundColor: '#1d4ed8',
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 10,
@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
 
   // old buttons (kept in case you need them)
   act: {
-    backgroundColor: '#111827',
+    backgroundColor: '#1d4ed8',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 8,

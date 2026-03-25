@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
     borderColor: '#111827',
     borderWidth: 1,
   },
-  pillActive: { backgroundColor: '#111827' },
+  pillActive: { backgroundColor: '#1d4ed8' },
   pillTxt: { color: '#111827', fontWeight: '900' },
   pillTxtActive: { color: '#fff' },
   primaryBtn: {
@@ -393,7 +393,7 @@ const styles = StyleSheet.create({
   },
 
   viewBtn: {
-    backgroundColor: '#111827',
+    backgroundColor: '#1d4ed8',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,

@@ -212,7 +212,7 @@ const styles = {
     backgroundColor: '#f3f4f6',
   },
   btn: {
-    backgroundColor: '#111827',
+    backgroundColor: '#1d4ed8',
     padding: 14,
     borderRadius: 10,
     marginTop: 20,

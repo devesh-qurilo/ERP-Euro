@@ -783,7 +783,7 @@ const styles = StyleSheet.create({
   backBtn: {
     paddingHorizontal: 16,
     paddingVertical: 10,
-    backgroundColor: '#111827',
+    backgroundColor: '#1d4ed8',
     borderRadius: 10,
   },
   backTxt: {

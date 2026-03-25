@@ -212,7 +212,7 @@ function EditPaymentModal({ visible, onClose, onSubmit, initial }) {
             })
           }
           style={{
-            backgroundColor: '#111827',
+            backgroundColor: '#1d4ed8',
             padding: 14,
             borderRadius: 10,
             marginTop: 6,

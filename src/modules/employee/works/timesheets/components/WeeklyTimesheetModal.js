@@ -1321,7 +1321,7 @@ const styles = StyleSheet.create({
   secondaryTxt: { color: '#111827', fontWeight: '900' },
 
   primaryBtn: {
-    backgroundColor: '#111827',
+    backgroundColor: '#1d4ed8',
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 10,

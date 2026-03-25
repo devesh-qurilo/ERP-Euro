@@ -534,8 +534,8 @@ const styles = StyleSheet.create({
   },
 
   pillActive: {
-    backgroundColor: '#111827',
-    borderColor: '#111827',
+    backgroundColor: '#1d4ed8',
+    borderColor: '#1d4ed8',
   },
 
   pillTxtActive: {

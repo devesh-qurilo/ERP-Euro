@@ -177,7 +177,7 @@ export default function EmployeeTimesheetsScreen() {
             <Text style={styles.primaryTxt}>+ Add Log</Text>
           </Pressable>
           <Pressable
-            style={[styles.primaryBtn, { backgroundColor: '#111827' }]}
+            style={[styles.primaryBtn, { backgroundColor: '#1d4ed8' }]}
             onPress={() => setWeeklyOpen(true)}
           >
             <Text style={[styles.primaryTxt, { color: '#fff' }]}>+ Weekly</Text>
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
-  pillActive: { backgroundColor: '#111827' },
+  pillActive: { backgroundColor: '#1d4ed8' },
   pillTxt: { color: '#111827', fontWeight: '900' },
   pillTxtActive: { color: '#fff' },
   primaryBtn: {
@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
   },
 
   viewBtn: {
-    backgroundColor: '#111827',
+    backgroundColor: '#1d4ed8',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,

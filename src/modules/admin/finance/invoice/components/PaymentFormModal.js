@@ -337,7 +337,7 @@ export default function PaymentFormModal({
             <TouchableOpacity
               onPress={pickReceipt}
               style={{
-                backgroundColor: '#111827',
+                backgroundColor: '#1d4ed8',
                 padding: 12,
                 borderRadius: 10,
                 marginTop: 4,
@@ -374,7 +374,7 @@ export default function PaymentFormModal({
             <TouchableOpacity
               onPress={save}
               style={{
-                backgroundColor: '#111827',
+                backgroundColor: '#1d4ed8',
                 padding: 14,
                 borderRadius: 10,
                 marginTop: 16,
@@ -492,7 +492,7 @@ function ManageGatewayModal({
               style={{
                 marginLeft: 8,
                 padding: 10,
-                backgroundColor: '#111827',
+                backgroundColor: '#1d4ed8',
                 borderRadius: 8,
               }}
             >

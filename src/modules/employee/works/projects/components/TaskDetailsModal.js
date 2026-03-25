@@ -659,7 +659,7 @@ const styles = StyleSheet.create({
   },
 
   primaryBtn: {
-    backgroundColor: '#111827',
+    backgroundColor: '#1d4ed8',
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 10,
@@ -672,7 +672,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
-  pillActive: { backgroundColor: '#111827' },
+  pillActive: { backgroundColor: '#1d4ed8' },
   pillTxt: { color: '#111827', fontWeight: '900' },
   pillTxtActive: { color: '#fff' },
 

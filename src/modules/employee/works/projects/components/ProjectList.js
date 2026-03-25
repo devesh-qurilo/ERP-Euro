@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: '#f3f4f6',
   },
-  pinActive: { backgroundColor: '#111827' },
+  pinActive: { backgroundColor: '#1d4ed8' },
   pinTxt: { fontWeight: '800', color: '#111827' },
   pinTxtActive: { color: '#fff' },
 

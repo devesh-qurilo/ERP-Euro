@@ -275,7 +275,7 @@ export default function ReceiptFormModal({
             <TouchableOpacity
               onPress={handleSave}
               style={{
-                backgroundColor: '#111827',
+                backgroundColor: '#1d4ed8',
                 padding: 14,
                 borderRadius: 10,
                 marginTop: 8,

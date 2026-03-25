@@ -232,7 +232,7 @@ function EditCNModal({ visible, onClose, onSubmit, initial }) {
               notes: form.notes,
             })
           }
-          style={{ backgroundColor: '#111827', padding: 14, borderRadius: 10 }}
+          style={{ backgroundColor: '#1d4ed8', padding: 14, borderRadius: 10 }}
         >
           <Text
             style={{ color: '#fff', textAlign: 'center', fontWeight: '700' }}

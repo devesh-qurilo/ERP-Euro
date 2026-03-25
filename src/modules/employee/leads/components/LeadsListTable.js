@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   closeBtn: {
     alignSelf: 'flex-end',
     marginTop: 8,
-    backgroundColor: '#111827',
+    backgroundColor: '#1d4ed8',
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 10,

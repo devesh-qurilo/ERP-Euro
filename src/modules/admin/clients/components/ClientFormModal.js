@@ -522,7 +522,7 @@ export default function ClientFormModal({
                 onPress={handleAddCategory}
                 style={{
                   padding: 10,
-                  backgroundColor: '#111827',
+                  backgroundColor: '#1d4ed8',
                   borderRadius: 8,
                 }}
               >
@@ -615,7 +615,7 @@ export default function ClientFormModal({
                 onPress={handleAddSubCategory}
                 style={{
                   padding: 10,
-                  backgroundColor: '#111827',
+                  backgroundColor: '#1d4ed8',
                   borderRadius: 8,
                 }}
               >

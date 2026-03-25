@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   },
   doneBtn: {
     marginTop: 12,
-    backgroundColor: '#111827',
+    backgroundColor: '#1d4ed8',
     borderRadius: 10,
     paddingVertical: 12,
     alignItems: 'center',

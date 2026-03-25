@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   dim: { color: '#6b7280' },
 
   menuBtn: {
-    backgroundColor: '#111827',
+    backgroundColor: '#1d4ed8',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,

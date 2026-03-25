@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#cfc8c8',
   },
-  segBtnActive: { backgroundColor: '#111827' },
+  segBtnActive: { backgroundColor: '#1d4ed8' },
   segTxt: { fontWeight: '300', color: '#111827' },
   segTxtActive: { color: '#fff' },
 

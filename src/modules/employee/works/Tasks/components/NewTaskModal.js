@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: '#f3f4f6',
   },
-  msPillActive: { backgroundColor: '#111827' },
+  msPillActive: { backgroundColor: '#1d4ed8' },
   msTxt: { color: '#111827', fontWeight: '900' },
   msTxtActive: { color: '#fff' },
 
@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: '#fff',
   },
-  checkboxOn: { backgroundColor: '#111827' },
+  checkboxOn: { backgroundColor: '#1d4ed8' },
 
   fileBox: {
     borderWidth: 1,

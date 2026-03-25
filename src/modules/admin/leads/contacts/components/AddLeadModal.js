@@ -783,7 +783,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   save: {
-    backgroundColor: '#111827',
+    backgroundColor: '#1d4ed8',
   },
   saveDisabled: {
     backgroundColor: '#9ca3af',
@@ -810,7 +810,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9fafb',
   },
   pillSelected: {
-    backgroundColor: '#111827',
+    backgroundColor: '#1d4ed8',
     borderColor: '#111827',
   },
   pillText: {

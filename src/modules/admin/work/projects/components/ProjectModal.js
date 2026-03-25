@@ -677,7 +677,7 @@ export default function ProjectModal({
                 style={{
                   marginLeft: 8,
                   padding: 10,
-                  backgroundColor: '#111827',
+                  backgroundColor: '#1d4ed8',
                   borderRadius: 8,
                 }}
               >

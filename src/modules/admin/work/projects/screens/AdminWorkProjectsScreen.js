@@ -12,6 +12,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
 import ProjectsCalendar from '../components/ProjectsCalendar';
+import ProjectImportButton from '../components/ProjectImportButton';
+import ProjectExportButton from '../components/ProjectExportButton';
 
 import {
   selectAWPList,
@@ -97,14 +99,17 @@ export default function AdminWorkProjectsScreen() {
   const onView = item => {
     navigation.navigate('AdminProjectView', { project: item });
   };
+  console.log('list of project', list);
 
   return (
     <ScrollView contentContainerStyle={styles.wrap}>
       {/* Filters */}
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>Filters</Text>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-          <View style={{ flexBasis: '60%', minWidth: 220 }}>
+
+        <View style={styles.filterRow}>
+          {/* 🔍 SEARCH */}
+          <View style={styles.searchBox}>
             <Text style={styles.label}>Search</Text>
             <TextInput
               value={filters.q}
@@ -115,12 +120,18 @@ export default function AdminWorkProjectsScreen() {
             />
           </View>
 
-          <Dropdown
-            label="Status"
-            value={filters.status}
-            options={STATUS_OPTIONS}
-            onChange={status => dispatch(setFilters({ status }))}
-          />
+          {/* ✅ IMPORT + EXPORT (RIGHT SIDE) */}
+          <View style={styles.importExportRow}>
+            {/* 📊 STATUS */}
+            <Dropdown
+              label="Status"
+              value={filters.status}
+              options={STATUS_OPTIONS}
+              onChange={status => dispatch(setFilters({ status }))}
+            />
+            <ProjectImportButton onImported={() => dispatch(fetchAll())} />
+            <ProjectExportButton projects={list} />
+          </View>
         </View>
       </View>
 
@@ -269,6 +280,23 @@ function Dropdown({ label, value = 'All', options = [], onChange }) {
 
 const styles = StyleSheet.create({
   wrap: { padding: 12, gap: 12 },
+  filterRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-end',
+    gap: 10,
+  },
+
+  searchBox: {
+    flex: 1,
+    minWidth: 220,
+  },
+
+  importExportRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
   card: {
     backgroundColor: '#fff',
     borderRadius: 12,

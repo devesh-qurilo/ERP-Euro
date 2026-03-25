@@ -16,7 +16,7 @@ export default function ProjectDetailsScreen() {
     <Tab.Navigator
       initialRouteName="Overview"
       screenOptions={{
-        tabBarIndicatorStyle: { backgroundColor: '#111827' },
+        tabBarIndicatorStyle: { backgroundColor: '#1d4ed8' },
         tabBarActiveTintColor: '#111827',
         tabBarInactiveTintColor: '#6b7280',
         tabBarLabelStyle: { fontWeight: '900' },

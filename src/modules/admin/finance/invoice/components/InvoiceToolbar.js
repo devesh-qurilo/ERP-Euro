@@ -14,7 +14,7 @@ export default function InvoiceToolbar({ onAdd }) {
       <TouchableOpacity
         onPress={onAdd}
         style={{
-          backgroundColor: '#111827',
+          backgroundColor: '#1d4ed8',
           paddingVertical: 12,
           paddingHorizontal: 16,
           borderRadius: 12,

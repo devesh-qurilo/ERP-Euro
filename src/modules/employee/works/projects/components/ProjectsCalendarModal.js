@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
 
   primaryBtn: {
     alignSelf: 'flex-end',
-    backgroundColor: '#111827',
+    backgroundColor: '#1d4ed8',
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 10,

@@ -70,7 +70,7 @@ export default function UploadFileModal({ visible, onClose, onSubmit }) {
         <TouchableOpacity
           onPress={handlePick}
           style={{
-            backgroundColor: '#111827',
+            backgroundColor: '#1d4ed8',
             padding: 14,
             borderRadius: 10,
             marginBottom: 12,

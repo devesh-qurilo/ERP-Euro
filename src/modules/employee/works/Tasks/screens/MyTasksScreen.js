@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: '#f3f4f6',
   },
-  tabBtnActive: { backgroundColor: '#111827' },
+  tabBtnActive: { backgroundColor: '#1d4ed8' },
   tabTxt: { fontWeight: '900', color: '#111827' },
   tabTxtActive: { color: '#fff' },
 });

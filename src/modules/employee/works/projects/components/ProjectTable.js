@@ -295,10 +295,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  squareBtnActive: { backgroundColor: '#111827' },
+  squareBtnActive: { backgroundColor: '#1d4ed8' },
   btnTxt: { fontSize: 16, fontWeight: '900', color: '#111827' },
   btnTxtActive: { color: '#fff' },
-  pinActive: { backgroundColor: '#111827' },
+  pinActive: { backgroundColor: '#1d4ed8' },
   pinTxt: { fontSize: 16, fontWeight: '900', color: '#111827' },
   pinTxtActive: { color: '#fff' },
 });

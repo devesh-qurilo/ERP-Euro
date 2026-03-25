@@ -182,7 +182,7 @@ const s = StyleSheet.create({
   },
 
   hoursCard: {
-    backgroundColor: '#111827',
+    backgroundColor: '#1d4ed8',
     borderRadius: 16,
     paddingVertical: 22,
     alignItems: 'center',

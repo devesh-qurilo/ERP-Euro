@@ -297,7 +297,7 @@ export default function CreditNoteFormModal({
             <TouchableOpacity
               onPress={pickFile}
               style={{
-                backgroundColor: '#111827',
+                backgroundColor: '#1d4ed8',
                 padding: 12,
                 borderRadius: 10,
               }}
@@ -333,7 +333,7 @@ export default function CreditNoteFormModal({
             <TouchableOpacity
               onPress={save}
               style={{
-                backgroundColor: '#111827',
+                backgroundColor: '#1d4ed8',
                 padding: 14,
                 borderRadius: 10,
                 marginTop: 16,

@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
   err: { color: '#b00020', marginTop: 6 },
 
   saveBtn: {
-    backgroundColor: '#111827',
+    backgroundColor: '#1d4ed8',
     padding: 14,
     borderRadius: 12,
     marginTop: 12,

@@ -305,12 +305,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  title: { fontSize: 18, fontWeight: '900' },
-  close: { fontSize: 18, fontWeight: '900' },
+  title: { fontSize: 18, fontWeight: '700' },
+  close: { fontSize: 18, fontWeight: '700' },
 
   body: { padding: 14 },
 
-  label: { fontSize: 12, fontWeight: '800', marginBottom: 6 },
+  label: { fontSize: 12, fontWeight: '700', marginBottom: 6 },
 
   select: {
     borderWidth: 1,
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   },
   option: { padding: 12 },
   optionActive: { backgroundColor: '#eef2ff' },
-  optionTxt: { fontWeight: '800' },
+  optionTxt: { fontWeight: '700' },
 
   dateBtn: {
     borderWidth: 1,
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     padding: 10,
     alignItems: 'center',
   },
-  dayName: { fontWeight: '900' },
+  dayName: { fontWeight: '700' },
   dayDate: { fontSize: 12, color: '#6b7280', marginBottom: 4 },
   hourInput: {
     borderWidth: 1,
@@ -357,18 +357,18 @@ const styles = StyleSheet.create({
   },
   disabled: { backgroundColor: '#f3f4f6' },
 
-  total: { marginTop: 12, fontWeight: '900' },
+  total: { marginTop: 12, fontWeight: '700' },
   error: { color: '#b00020', marginTop: 6 },
-  toast: { color: '#065f46', marginTop: 6, fontWeight: '900' },
+  toast: { color: '#065f46', marginTop: 6, fontWeight: '700' },
 
   primaryBtn: {
-    backgroundColor: '#111827',
+    backgroundColor: '#1d4ed8',
     padding: 14,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 14,
   },
-  primaryTxt: { color: '#fff', fontWeight: '900' },
+  primaryTxt: { color: '#fff', fontWeight: '700' },
   closeBtn: {
     width: 36,
     height: 36,

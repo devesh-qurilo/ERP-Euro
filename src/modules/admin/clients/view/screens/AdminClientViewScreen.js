@@ -290,7 +290,7 @@ export default function AdminClientViewScreen() {
         <TabBar
           {...props}
           scrollEnabled
-          indicatorStyle={{ backgroundColor: '#111827', height: 2 }}
+          indicatorStyle={{ backgroundColor: '#1d4ed8', height: 2 }}
           style={{ backgroundColor: '#fff' }}
           labelStyle={{ color: '#111827', textTransform: 'none' }}
           inactiveColor="#6b7280"

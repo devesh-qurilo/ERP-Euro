@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
-  pillActive: { backgroundColor: '#111827' },
+  pillActive: { backgroundColor: '#1d4ed8' },
   pillTxt: { color: '#111827', fontWeight: '900' },
   pillTxtActive: { color: '#fff' },
 
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     backgroundColor: '#fff',
   },
-  sortBtnActive: { backgroundColor: '#111827' },
+  sortBtnActive: { backgroundColor: '#1d4ed8' },
   sortTxt: { color: '#111827', fontWeight: '800' },
   sortTxtActive: { color: '#fff' },
 

@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3f4f6',
   },
   btnDark: {
-    backgroundColor: '#111827',
+    backgroundColor: '#1d4ed8',
   },
   btnOutline: {
     backgroundColor: '#fff',
